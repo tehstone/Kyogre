@@ -16,7 +16,7 @@ RUN pip install --user https://github.com/rogerbinns/apsw/releases/download/3.27
 --global-option=build --global-option=--enable-all-extensions
 
 # Install discord module
-RUN python3 -m pip install -U git+https://github.com/Rapptz/discord.py@rewrite
+RUN python3 -m pip install -U git+https://github.com/Rapptz/discord.py
 
 # Bundle app source
 ADD . /src
