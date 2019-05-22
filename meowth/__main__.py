@@ -5752,7 +5752,7 @@ async def _wild_internal(message, content):
     wild_embed.add_field(name=_('**Reactions:**'), value=_("{emoji}: I'm on my way!").format(emoji="🏎"))
     wild_embed.add_field(name='\u200b', value=_("{emoji}: The Pokemon despawned!").format(emoji="💨"))
     wild_embed.set_footer(text=_('Reported by {author} - {timestamp}').format(author=author.display_name, timestamp=timestamp), icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
-    wildreportmsg = await channel.send(content=_('Wild {pokemon} reported by {member}! Details: {location_details}').format(pokemon=pkmn.name, member=author.display_name, location_details=wild_details), embed=wild_embed)
+    wildreportmsg = await channel.send(content=_('Wild {pokemon} reported by {member}! Details: {location_details}').format(pokemon=pkmn.full_name, member=author.display_name, location_details=wild_details), embed=wild_embed)
     await asyncio.sleep(0.25)
     await wildreportmsg.add_reaction('🏎')
     await asyncio.sleep(0.25)
@@ -5767,7 +5767,7 @@ async def _wild_internal(message, content):
         'reportauthor':author.id,
         'location':wild_details,
         'url':wild_gmaps_link,
-        'pokemon':pkmn.name,
+        'pokemon':pkmn.full_name,
         'perfect':is_perfect,
         'omw': []
     }
@@ -6340,7 +6340,7 @@ async def _eggtoraid(entered_raid, raid_channel, author=None):
     meetup = eggdetails.get('meetup',{})
     raid_match = pkmn.is_raid
     if (not raid_match):
-        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f'The Pokemon {pkmn.name} does not appear in raids!'))
+        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f'The Pokemon {pkmn.full_name} does not appear in raids!'))
     if (egglevel.isdigit() and int(egglevel) > 0) or egglevel == 'EX':
         raidexp = eggdetails['exp'] + 60 * raid_info['raid_eggs'][str(egglevel)]['raidtime']
     else:

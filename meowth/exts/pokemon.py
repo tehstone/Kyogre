@@ -66,10 +66,14 @@ class Pokemon():
     _form_list = [
         'normal', 'sunny', 'rainy', 'snowy', 'sunglasses',
         'ash', 'party', 'witch', 'santa', 'summer',
-        'defense', 'attack', 'speed'
+        'defense', 'attack', 'speed', 
+        'plant', 'sandy', 'trash',
+        'overcast', 'sunshine'
+
     ]
     _stat_forms = [
-        'sunny', 'rainy', 'snowy', 'defense', 'attack', 'speed', 'normal'
+        'sunny', 'rainy', 'snowy', 'defense', 'attack', 'speed', 'normal',
+        'plant', 'sandy', 'trash', 'overcast', 'sunshine'
     ]
     _prefix_forms = _form_list
     _form_dict = {
@@ -82,7 +86,9 @@ class Pokemon():
         'unown': list(ascii_lowercase + '!?'),
         'spinda': [str(n) for n in range(1, 9)],
         'castform': ['normal', 'rainy', 'snowy', 'sunny'],
-        'deoxys': ['defense', 'normal', 'attack', 'speed']			
+        'deoxys': ['defense', 'normal', 'attack', 'speed'],
+        'burmy': ['plant', 'sandy', 'trash'],
+        'cherrim': ['overcast', 'sunshine']
     }
     _pkmn_dict = {r['name'].lower(): r for r in PokemonTable.select().where(PokemonTable.released == True).dicts()}
 
@@ -227,7 +233,7 @@ class Pokemon():
             shiny_str = "s"
         else:
             shiny_str = ""
-        return ('https://raw.githubusercontent.com/klords/Kyogre/master/'
+        return ('https://raw.githubusercontent.com/tehstone/Kyogre/master/'
                 f'images/pkmn/{pkmn_no}{form_str}_{alolan_str}{shiny_str}.png?cache=3')
 
     # async def colour(self):
