@@ -351,13 +351,12 @@ class Pokemon():
         form = None
         detected_forms = []
         form_check = None
-        candidates = [f for f in Pokemon._form_list if f in argument]
+        # this logic will fail for pokemon with multiple word name (e.g. Tapu Koko et al)
+        arg_split = argument.split()
+        candidates = [f for f in Pokemon._form_list if f in arg_split]
         for c in candidates:
             detected_forms.append(c)
             argument = argument.replace(c, '').strip()
-
-        # this logic will fail for pokemon with multiple word name (e.g. Tapu Koko et al)
-        arg_split = argument.split()
         if len(arg_split) > 1:
             argument = arg_split[0]
             form_check = arg_split[1]
