@@ -5723,6 +5723,11 @@ async def _wild_internal(message, content):
     content, count = re.subn(rgx, '', content.strip(), flags=re.I)
     is_perfect = count > 0
     entered_wild, wild_details = content.split(' ', 1)
+    if (Pokemon.has_forms(entered_wild)):
+        prompt = 'Which form of this Pokemon are you reporting?'
+        choices_list = [f.capitalize() for f in Pokemon.get_forms_for_pokemon(entered_wild)]
+        match = await utils.ask_list(Meowth, prompt, channel, choices_list, user_list=author.id)
+        content = ' '.join([match, content])
     pkmn = Pokemon.get_pokemon(Meowth, entered_wild if entered_wild.isdigit() else content)
     if not pkmn:
         return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description="Unable to find that pokemon. Please check the name and try again!"))

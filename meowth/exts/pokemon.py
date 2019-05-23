@@ -65,10 +65,15 @@ class Pokemon():
     
     _form_list = [
         'normal', 'sunny', 'rainy', 'snowy', 'sunglasses',
-        'ash', 'party', 'witch', 'santa', 'summer',
+        'ash', 'party', 'witch', 'santa', 'summer', 'detective', 'flower', 'fragment',
         'defense', 'attack', 'speed', 
         'plant', 'sandy', 'trash',
-        'overcast', 'sunshine'
+        'overcast', 'sunshine',
+        'east', 'west',
+        'spring', 'summer', 'autumn', 'winter',
+        'standard', 'zen',
+        'red', 'blue',
+        'heat', 'wash', 'frost', 'fan', 'mow'
 
     ]
     _stat_forms = [
@@ -77,18 +82,27 @@ class Pokemon():
     ]
     _prefix_forms = _form_list
     _form_dict = {
-        'squirtle': ['sunglasses'],
-        'wartortle': ['sunglasses'],
-        'blastoise': ['sunglasses'],
-        'pikachu':  ['ash', 'party', 'witch', 'santa', 'summer'],
-        'raichu':  ['ash', 'party', 'witch', 'santa', 'summer'],
-        'pichu':  ['ash', 'party', 'witch', 'santa', 'summer'],
+        'squirtle': ['sunglasses', 'normal'],
+        'wartortle': ['sunglasses', 'normal'],
+        'blastoise': ['sunglasses', 'normal'],
+        'eevee': ['normal', 'flower'],
+        'pikachu':  ['ash', 'party', 'witch', 'santa', 'summer', 'normal', 'detective', 'flower', 'fragment'],
+        'raichu':  ['ash', 'party', 'witch', 'santa', 'summer', 'normal', 'detective', 'flower', 'fragment'],
+        'pichu':  ['ash', 'party', 'witch', 'santa', 'summer', 'normal', 'detective', 'flower', 'fragment'],
         'unown': list(ascii_lowercase + '!?'),
         'spinda': [str(n) for n in range(1, 9)],
         'castform': ['normal', 'rainy', 'snowy', 'sunny'],
         'deoxys': ['defense', 'normal', 'attack', 'speed'],
         'burmy': ['plant', 'sandy', 'trash'],
-        'cherrim': ['overcast', 'sunshine']
+        'wormadon': ['plant', 'sandy', 'trash'],
+        'cherrim': ['overcast', 'sunshine'],
+        'shellos': ['east', 'west'],
+        'gastrodon': ['east', 'west'],
+        'rotom': ['normal', 'heat', 'wash', 'frost', 'fan', 'mow'],
+        'basculin': ['red', 'blue'],
+        'darmanitan': ['standard', 'zen'],
+        'deerling': ['spring', 'summer', 'autumn', 'winter'],
+        'sawsbuck': ['spring', 'summer', 'autumn', 'winter']
     }
     _pkmn_dict = {r['name'].lower(): r for r in PokemonTable.select().where(PokemonTable.released == True).dicts()}
 
@@ -353,15 +367,20 @@ class Pokemon():
         form_check = None
         # this logic will fail for pokemon with multiple word name (e.g. Tapu Koko et al)
         arg_split = argument.split()
+        print(arg_split)
         candidates = [f for f in Pokemon._form_list if f in arg_split]
         for c in candidates:
             detected_forms.append(c)
             argument = argument.replace(c, '').strip()
-        if len(arg_split) > 1:
-            argument = arg_split[0]
-            form_check = arg_split[1]
-
-        p_obj = Pokemon.find_obj(argument)
+        arg_split = argument.split()
+        print(arg_split)
+        if 'unown' == arg_split[1] or 'spinda' == arg_split[1]:
+            if arg_split[0] in Pokemon._form_dict[arg_split[1]]:
+                detected_forms.append(arg_split[0])
+            p_obj = Pokemon.find_obj(arg_split[1])
+        else:
+            p_obj = Pokemon.find_obj(arg_split[0])
+        
         if not p_obj:
             pkmn_list = [p for p in Pokemon._pkmn_dict]
             match = utils.get_match(pkmn_list, argument, score_cutoff=80)[0]
@@ -372,14 +391,25 @@ class Pokemon():
             return None
 
         form_list = Pokemon._form_dict.get(match, [])
-        if form_check and form_check in form_list:
-            detected_forms.append(form_check)
         forms = [d for d in detected_forms if d in form_list]
         if forms:
             form = ' '.join(forms)
 
         return cls(bot, str(match), guild, shiny=shiny, alolan=alolan, form=form)
 
+    @staticmethod
+    def has_forms(name):
+        return name.lower() in Pokemon._form_dict
+
+    @staticmethod
+    def is_form(name):
+        return name.lower() in Pokemon._form_list
+
+    @staticmethod
+    def get_forms_for_pokemon(name):
+        if name in Pokemon._form_dict:
+            return Pokemon._form_dict[name]
+        return []
 
 def setup(bot):
     bot.add_cog(Pokedex(bot))

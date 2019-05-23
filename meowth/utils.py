@@ -243,7 +243,7 @@ async def ask(bot, message, user_list=None, timeout=60, *, react_list=['âœ…', 'â
         await message.clear_reactions()
         return
 
-async def ask_list(bot, prompt, destination, choices_list, options_emoji_list=None, user_list=None, *, allow_edit=False):    
+async def ask_list(bot, prompt, destination, choices_list, options_emoji_list=None, user_list=None, *, allow_edit=False):
     if not choices_list:
         return None
     if not options_emoji_list:
