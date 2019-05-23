@@ -5682,7 +5682,7 @@ async def _lure_internal(message, content):
     if len(result) != 1:
         return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description='Unable to find the lure type provided, please try again.'))
     luretype = result[0]
-    lure_regions = _get_channel_regions(channel, 'raid')
+    lure_regions = _get_channel_regions(channel, 'lure')
     stops = None
     stops = get_stops(guild.id, lure_regions)
     if stops:
@@ -7922,6 +7922,8 @@ def _get_channel_regions(channel, type):
         for r in cat_dict:
             if cat_dict[r] == channel.category.id:
                 regions = [config_dict.get(type, {}).get('report_channels', {}).get(r, None)]
+    if regions is None:
+        return []
     if len(regions) < 1:
         return []
     else:
