@@ -367,26 +367,26 @@ class Pokemon():
         form_check = None
         # this logic will fail for pokemon with multiple word name (e.g. Tapu Koko et al)
         arg_split = argument.split()
-        print(arg_split)
         candidates = [f for f in Pokemon._form_list if f in arg_split]
         for c in candidates:
             detected_forms.append(c)
             argument = argument.replace(c, '').strip()
         arg_split = argument.split()
-        print(arg_split)
-        if 'unown' == arg_split[1] or 'spinda' == arg_split[1]:
-            if arg_split[0] in Pokemon._form_dict[arg_split[1]]:
-                detected_forms.append(arg_split[0])
-            p_obj = Pokemon.find_obj(arg_split[1])
-        else:
-            p_obj = Pokemon.find_obj(arg_split[0])
-        
+        p_obj = None
+        if arg_split:
+            if len(arg_split) > 1:
+                if 'unown' == arg_split[1] or 'spinda' == arg_split[1]:
+                    if arg_split[0] in Pokemon._form_dict[arg_split[1]]:
+                        detected_forms.append(arg_split[0])
+                    p_obj = Pokemon.find_obj(arg_split[1])
+        if not p_obj:
+            if len(arg_split) > 0:
+                p_obj = Pokemon.find_obj(arg_split[0])
         if not p_obj:
             pkmn_list = [p for p in Pokemon._pkmn_dict]
             match = utils.get_match(pkmn_list, argument, score_cutoff=80)[0]
         else:
             match = p_obj['name']
-
         if not match:
             return None
 
@@ -394,7 +394,6 @@ class Pokemon():
         forms = [d for d in detected_forms if d in form_list]
         if forms:
             form = ' '.join(forms)
-
         return cls(bot, str(match), guild, shiny=shiny, alolan=alolan, form=form)
 
     @staticmethod

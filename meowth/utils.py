@@ -208,7 +208,8 @@ def get_raidlist(bot):
     for level in bot.raid_info['raid_eggs']:
         for pokemon in bot.raid_info['raid_eggs'][level]['pokemon']:
             mon = Pokemon.get_pokemon(bot, pokemon)
-            raidlist.append(mon.name.lower())
+            if mon:
+                raidlist.append(mon.name.lower())
     return raidlist
 
 def get_level(bot, pkmn):
