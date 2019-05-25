@@ -5015,10 +5015,10 @@ async def _pvp_available(ctx, exptime=None):
 
     league_text = ""
     prompt = 'Do you have a League Preference?'
-    choices_list = ['Great League', 'Ultra League', 'Master League', 'No Preference',  'Other']
+    choices_list = ['Great League', 'Ultra League', 'Master League', 'Other', 'No Preference']
     match = await utils.ask_list(Meowth, prompt, channel, choices_list, user_list=trainer.id)
     if match in choices_list:
-        if match == choices_list[4]:
+        if match == choices_list[3]:
             specifiy_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="Please specify your battle criteria:"))
             try:
                 pref_msg = await Meowth.wait_for('message', timeout=30, check=(lambda reply: reply.author == trainer))
@@ -5076,8 +5076,7 @@ async def _send_pvp_notification_async(ctx):
     for friend in friends:
         friend = guild.get_member(friend)
         outbound_dict[friend.id] = {'discord_obj': friend, 'message': tag_msg}
-    snowflake = random.randint(1000,9999)
-    role_name = sanitize_name(f"{trainer.name} pvp {snowflake}".title())
+    role_name = sanitize_name(f"pvp {trainer.name}")
     return await _generate_role_notification_async(role_name, channel, outbound_dict)
 
 @_pvp.command(name="add")
