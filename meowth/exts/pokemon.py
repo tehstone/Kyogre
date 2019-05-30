@@ -410,5 +410,9 @@ class Pokemon():
             return Pokemon._form_dict[name]
         return []
 
+    @staticmethod
+    def get_forms_list():
+        return Pokemon._form_list
+
 def setup(bot):
     bot.add_cog(Pokedex(bot))

@@ -5830,7 +5830,8 @@ async def _raid_internal(ctx, content):
                 await _eggassume(" ".join(raid_split), channel, author)
                 return
         elif (raid_split[0] == "alolan" and len(raid_split) > 2) or (raid_split[0] != "alolan" and len(raid_split) > 1):
-            return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=_('Please report new raids in a reporting channel.')))
+            if (raid_split[0] not in Pokemon.get_forms_list() and len(raid_split) > 1):
+                return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=_('Please report new raids in a reporting channel.')))
         elif guild_dict[guild.id]['raidchannel_dict'][channel.id]['active'] == False:
             eggtoraid = True
         ## This is a hack but it allows users to report the just hatched boss before Kyogre catches up with hatching the egg.
