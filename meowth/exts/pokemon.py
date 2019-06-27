@@ -378,10 +378,10 @@ class Pokemon():
                 if 'unown' == arg_split[1] or 'spinda' == arg_split[1]:
                     if arg_split[0] in Pokemon._form_dict[arg_split[1]]:
                         detected_forms.append(arg_split[0])
-                    p_obj = Pokemon.find_obj(arg_split[1])
+                    p_obj = Pokemon.find_obj(arg_split[1].strip(','))
         if not p_obj:
             if len(arg_split) > 0:
-                p_obj = Pokemon.find_obj(arg_split[0])
+                p_obj = Pokemon.find_obj(arg_split[0].strip(','))
         if not p_obj:
             pkmn_list = [p for p in Pokemon._pkmn_dict]
             match = utils.get_match(pkmn_list, argument, score_cutoff=80)[0]

@@ -5793,6 +5793,7 @@ async def _raid(ctx,pokemon,*,location:commands.clean_content(fix_channel_mentio
     Kyogre's message will also include the type weaknesses of the boss.
 
     Finally, Kyogre will create a separate channel for the raid report, for the purposes of organizing the raid."""
+    
     content = f"{pokemon} {location}".lower()
     if pokemon.isdigit():
         new_channel = await _raidegg(ctx, content)
