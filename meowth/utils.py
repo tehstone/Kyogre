@@ -305,3 +305,18 @@ async def ask_list(bot, prompt, destination, choices_list, options_emoji_list=No
         return message.content
     except Exception:
         return None
+
+async def letter_case(iterable, find, *, limits=None):
+    servercase_list = []
+    lowercase_list = []
+    for item in iterable:
+        if not item.name:
+            continue
+        elif item.name and (not limits or item.name.lower() in limits):
+            servercase_list.append(item.name)
+            lowercase_list.append(item.name.lower())
+    if find.lower() in lowercase_list:
+        index = lowercase_list.index(find.lower())
+        return servercase_list[index]
+    else:
+        return None

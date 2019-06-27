@@ -387,21 +387,6 @@ async def prompt_match_result(channel, author_id, target, result_list):
         match = perfect_scores[0]
     return match
 
-async def letter_case(iterable, find, *, limits=None):
-    servercase_list = []
-    lowercase_list = []
-    for item in iterable:
-        if not item.name:
-            continue
-        elif item.name and (not limits or item.name.lower() in limits):
-            servercase_list.append(item.name)
-            lowercase_list.append(item.name.lower())
-    if find.lower() in lowercase_list:
-        index = lowercase_list.index(find.lower())
-        return servercase_list[index]
-    else:
-        return None
-
 def get_category(channel, level, category_type="raid"):
     guild = channel.guild
     if category_type == "raid" or category_type == "egg":
@@ -1274,6 +1259,33 @@ async def on_member_join(member):
             await send_to.send(welcomemessage.format(server=guild.name, user=member.mention))
     else:
         return
+
+@Meowth.event
+async def on_member_update(before, after):
+    guild = after.guild
+    region_dict = guild_dict[guild.id]['configure_dict'].get('regions',None)
+    if region_dict:
+        notify_channel = region_dict.get('notify_channel',None)
+        if (not before.bot) and notify_channel is not None:
+            prev_roles = set([r.name for r in before.roles])
+            post_roles = set([r.name for r in after.roles])
+            added_roles = post_roles-prev_roles
+            removed_roles = prev_roles-post_roles
+            regioninfo_dict = region_dict.get('info',None)
+            if regioninfo_dict:
+                notify = None
+                if len(added_roles) > 0:
+                    # a single member update event should only ever have 1 role change
+                    role = list(added_roles)[0]
+                    notify = await Meowth.get_channel(notify_channel).send(f"{after.mention} you have joined the {role.capitalize()} region.")
+                if len(removed_roles) > 0:
+                    # a single member update event should only ever have 1 role change
+                    role = list(removed_roles)[0]
+                    notify = await Meowth.get_channel(notify_channel).send(f"{after.mention} you have left the {role.capitalize()} region.")
+                    
+                if notify:
+                    await asyncio.sleep(8)
+                    await notify.delete()
 
 @Meowth.event
 @checks.good_standing()
@@ -2697,7 +2709,7 @@ async def _configure_welcome(ctx):
                     if not channel:
                         item = re.sub('[^a-zA-Z0-9 _\\-]+', '', item)
                         item = item.replace(" ","-")
-                        name = await letter_case(guild.text_channels, item.lower())
+                        name = await utils.letter_case(guild.text_channels, item.lower())
                         channel = discord.utils.get(guild.text_channels, name=name)
                     if channel:
                         guild_channel_list = []
@@ -2780,7 +2792,7 @@ async def _configure_regions(ctx):
                 await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description=_("The number of locations doesn't match the number of regions you gave me earlier!\n\nI'll show you the two lists to compare:\n\n{region_names_list}\n{region_locations_list}\n\nPlease double check that your locations match up with your provided region names and resend your response.").format(region_names_list=', '.join(region_names_list), region_locations_list=', '.join(region_locations_list))))
                 continue
         await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description=_('Region locations are set')))
-        await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description=_('Lastly, I need to know what channels should be flagged to allow users to modify their region assignments. Please enter the channels to be used for this as a comma-separated list. \n\nExample: `general, region-assignment`\n\nNote that this answer does *not* directly correspond to the previously entered channels/regions.\n\n')).set_author(name=_('Region Command Channels'), icon_url=Meowth.user.avatar_url))
+        await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description=_('Next, I need to know what channels should be flagged to allow users to modify their region assignments. Please enter the channels to be used for this as a comma-separated list. \n\nExample: `general, region-assignment`\n\nNote that this answer does *not* directly correspond to the previously entered channels/regions.\n\n')).set_author(name=_('Region Command Channels'), icon_url=Meowth.user.avatar_url))
         while True:
             locations = await Meowth.wait_for('message', check=(lambda message: (message.guild == None) and message.author == owner))
             response = locations.content.strip().lower()
@@ -2801,7 +2813,7 @@ async def _configure_regions(ctx):
                 if not channel:
                     item = re.sub('[^a-zA-Z0-9 _\\-]+', '', item)
                     item = item.replace(" ","-")
-                    name = await letter_case(guild.text_channels, item.lower())
+                    name = await utils.letter_case(guild.text_channels, item.lower())
                     channel = discord.utils.get(guild.text_channels, name=name)
                 if channel:
                     channel_objs.append(channel)
@@ -2825,6 +2837,53 @@ async def _configure_regions(ctx):
                 break
             else:
                 await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description=_("The channel list you provided doesn't match with your servers channels.\n\nThe following aren't in your server: **{invalid_channels}**\n\nPlease double check your channel list and resend your reponse.").format(invalid_channels=', '.join(channel_errors))))
+                continue
+        await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description='Region command channels are set'))
+        await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description='Lastly, I need to know what channel to send region join notification messages in').set_author(name='Region Notify Channel', icon_url=Meowth.user.avatar_url))
+        while True:
+            locations = await Meowth.wait_for('message', check=(lambda message: (message.guild == None) and message.author == owner))
+            response = locations.content.strip().lower()
+            if response == 'cancel':
+                await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description='**CONFIG CANCELLED!**\n\nNo changes have been made.'))
+                return None
+            channel_list = [c.strip() for c in response.split(',')]
+            guild_channel_list = []
+            for channel in guild.text_channels:
+                guild_channel_list.append(channel.id)
+            channel_objs = []
+            channel_names = []
+            channel_errors = []
+            item = channel_list[0]
+            channel = None
+            if item.isdigit():
+                channel = discord.utils.get(guild.text_channels, id=int(item))
+            if not channel:
+                item = re.sub('[^a-zA-Z0-9 _\\-]+', '', item)
+                item = item.replace(" ","-")
+                name = await utils.letter_case(guild.text_channels, item.lower())
+                channel = discord.utils.get(guild.text_channels, name=name)
+            if channel:
+                channel_objs.append(channel)
+                channel_names.append(channel.name)
+            else:
+                channel_errors.append(item)
+            channel_list = [x.id for x in channel_objs]
+            diff = set(channel_list) - set(guild_channel_list)
+            if (not diff) and (not channel_errors):
+                await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description='Region Notify Channel enabled'))
+                for channel in channel_objs:
+                    ow = channel.overwrites_for(Meowth.user)
+                    ow.send_messages = True
+                    ow.read_messages = True
+                    ow.manage_roles = True
+                    try:
+                        await channel.set_permissions(Meowth.user, overwrite=ow)
+                    except (discord.errors.Forbidden, discord.errors.HTTPException, discord.errors.InvalidArgument):
+                        await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description='I couldn\'t set my own permissions in this channel. Please ensure I have the correct permissions in {channel} using **{prefix}get perms**.'.format(prefix=ctx.prefix, channel=channel.mention)))
+                config_dict_temp['regions']['notify_channel'] = channel_list[0]
+                break
+            else:
+                await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description="The channel you provided was not found in your channel list.\n\nPlease double check your channel name or id and resend your reponse.".format(invalid_channels=', '.join(channel_errors))))
                 continue
     # set up roles
     new_region_roles = set([r['role'] for r in region_dict.values()])
@@ -3016,7 +3075,7 @@ async def _configure_raid(ctx):
                 if not channel:
                     item = re.sub('[^a-zA-Z0-9 _\\-]+', '', item)
                     item = item.replace(" ","-")
-                    name = await letter_case(guild.text_channels, item.lower())
+                    name = await utils.letter_case(guild.text_channels, item.lower())
                     channel = discord.utils.get(guild.text_channels, name=name)
                 if channel:
                     citychannel_objs.append(channel)
@@ -3119,7 +3178,7 @@ async def _configure_raid(ctx):
                         if item.isdigit():
                             category = discord.utils.get(guild.categories, id=int(item))
                         if not category:
-                            name = await letter_case(guild.categories, item.lower())
+                            name = await utils.letter_case(guild.categories, item.lower())
                             category = discord.utils.get(guild.categories, name=name)
                         if category:
                             regioncat_ids.append(category.id)
@@ -3169,7 +3228,7 @@ async def _configure_raid(ctx):
                         if item.isdigit():
                             category = discord.utils.get(guild.categories, id=int(item))
                         if not category:
-                            name = await letter_case(guild.categories, item.lower())
+                            name = await utils.letter_case(guild.categories, item.lower())
                             category = discord.utils.get(guild.categories, name=name)
                         if category:
                             levelcat_ids.append(category.id)
@@ -3280,7 +3339,7 @@ async def _configure_exraid(ctx):
                 if not channel:
                     item = re.sub('[^a-zA-Z0-9 _\\-]+', '', item)
                     item = item.replace(" ","-")
-                    name = await letter_case(guild.text_channels, item.lower())
+                    name = await utils.letter_case(guild.text_channels, item.lower())
                     channel = discord.utils.get(guild.text_channels, name=name)
                 if channel:
                     citychannel_objs.append(channel)
@@ -3383,7 +3442,7 @@ async def _configure_exraid(ctx):
                         if item.isdigit():
                             category = discord.utils.get(guild.categories, id=int(item))
                         if not category:
-                            name = await letter_case(guild.categories, item.lower())
+                            name = await utils.letter_case(guild.categories, item.lower())
                             category = discord.utils.get(guild.categories, name=name)
                         if category:
                             regioncat_ids.append(category.id)
@@ -3543,7 +3602,7 @@ async def _configure_wild(ctx):
                 if not channel:
                     item = re.sub('[^a-zA-Z0-9 _\\-]+', '', item)
                     item = item.replace(" ","-")
-                    name = await letter_case(guild.text_channels, item.lower())
+                    name = await utils.letter_case(guild.text_channels, item.lower())
                     channel = discord.utils.get(guild.text_channels, name=name)
                 if channel:
                     citychannel_objs.append(channel)
@@ -3647,7 +3706,7 @@ async def _configure_research(ctx):
                 if not channel:
                     item = re.sub('[^a-zA-Z0-9 _\\-]+', '', item)
                     item = item.replace(" ","-")
-                    name = await letter_case(guild.text_channels, item.lower())
+                    name = await utils.letter_case(guild.text_channels, item.lower())
                     channel = discord.utils.get(guild.text_channels, name=name)
                 if channel:
                     citychannel_objs.append(channel)
@@ -3752,7 +3811,7 @@ async def _configure_meetup(ctx):
                 if not channel:
                     item = re.sub('[^a-zA-Z0-9 _\\-]+', '', item)
                     item = item.replace(" ","-")
-                    name = await letter_case(guild.text_channels, item.lower())
+                    name = await utils.letter_case(guild.text_channels, item.lower())
                     channel = discord.utils.get(guild.text_channels, name=name)
                 if channel:
                     citychannel_objs.append(channel)
@@ -3855,7 +3914,7 @@ async def _configure_meetup(ctx):
                         if item.isdigit():
                             category = discord.utils.get(guild.categories, id=int(item))
                         if not category:
-                            name = await letter_case(guild.categories, item.lower())
+                            name = await utils.letter_case(guild.categories, item.lower())
                             category = discord.utils.get(guild.categories, name=name)
                         if category:
                             regioncat_ids.append(category.id)
@@ -3929,7 +3988,7 @@ async def _configure_subscriptions(ctx):
                 if not channel:
                     item = re.sub(r'[^a-zA-Z0-9 _\-]+', '', item)
                     item = item.replace(" ","-")
-                    name = await letter_case(guild.text_channels, item.lower())
+                    name = await utils.letter_case(guild.text_channels, item.lower())
                     channel = discord.utils.get(guild.text_channels, name=name)
                 if channel:
                     sub_list_objs.append(channel)
@@ -3998,7 +4057,7 @@ async def _configure_pvp(ctx):
                 if not channel:
                     item = re.sub('[^a-zA-Z0-9 _\\-]+', '', item)
                     item = item.replace(" ","-")
-                    name = await letter_case(guild.text_channels, item.lower())
+                    name = await utils.letter_case(guild.text_channels, item.lower())
                     channel = discord.utils.get(guild.text_channels, name=name)
                 if channel:
                     pvp_list_objs.append(channel)
@@ -4100,7 +4159,7 @@ async def _configure_lure(ctx):
                 if not channel:
                     item = re.sub('[^a-zA-Z0-9 _\\-]+', '', item)
                     item = item.replace(" ","-")
-                    name = await letter_case(guild.text_channels, item.lower())
+                    name = await utils.letter_case(guild.text_channels, item.lower())
                     channel = discord.utils.get(guild.text_channels, name=name)
                 if channel:
                     citychannel_objs.append(channel)
@@ -4198,7 +4257,7 @@ async def _configure_archive(ctx):
             if item.isdigit():
                 category = discord.utils.get(guild.categories, id=int(item))
             if not category:
-                name = await letter_case(guild.categories, item.lower())
+                name = await utils.letter_case(guild.categories, item.lower())
                 category = discord.utils.get(guild.categories, name=name)
             if not category:
                 await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description=_("I couldn't find the category you replied with! Please reply with **same** to leave archived channels in the same category, or give the name or ID of an existing category.")))
@@ -4297,7 +4356,7 @@ async def _configure_settings(ctx):
                     if not channel:
                         item = re.sub('[^a-zA-Z0-9 _\\-]+', '', item)
                         item = item.replace(" ","-")
-                        name = await letter_case(guild.text_channels, item.lower())
+                        name = await utils.letter_case(guild.text_channels, item.lower())
                         channel = discord.utils.get(guild.text_channels, name=name)
                     if channel:
                         adminchannel_objs.append(channel)
@@ -4364,7 +4423,7 @@ async def _configure_trade(ctx):
                 if not channel:
                     item = re.sub('[^a-zA-Z0-9 _\\-]+', '', item)
                     item = item.replace(" ","-")
-                    name = await letter_case(guild.text_channels, item.lower())
+                    name = await utils.letter_case(guild.text_channels, item.lower())
                     channel = discord.utils.get(guild.text_channels, name=name)
                 if channel:
                     trade_list_objs.append(channel)
