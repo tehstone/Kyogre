@@ -35,7 +35,7 @@ from meowth.exts.db.kyogredb import *
 KyogreDB.start('data/kyogre.db')
 
 
-from meowth import checks, utils, constants
+from meowth import checks, utils, constants, subscription
 from meowth.bot import MeowthBot
 from meowth.errors import custom_error_handling
 from meowth.logs import init_loggers
@@ -5327,7 +5327,9 @@ async def _parse_subscription_content(content, message = None):
 async def _sub(ctx):
     """Handles user subscriptions"""
     if ctx.invoked_subcommand == None:
-        raise commands.BadArgument()
+        print("no subcommand")
+        await subscription.guided_subscription(ctx, Meowth)
+        #raise commands.BadArgument()
 
 @_sub.command(name="add")
 async def _sub_add(ctx, *, content):

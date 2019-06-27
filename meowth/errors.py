@@ -192,9 +192,11 @@ def custom_error_handling(bot, logger):
             await asyncio.sleep(10)
             await delete_error(ctx.message, error)
         elif isinstance(error, commands.BadArgument):
-            formatter = commands.formatter.HelpFormatter()
-            page = await formatter.format_help_for(ctx, ctx.command)
-            error = await ctx.channel.send(page[0])
+            #formatter = commands.formatter.HelpCommand()
+            #page = await formatter.format_help_for(ctx, ctx.command)
+            error = await ctx.channel.send(ctx.command.short_doc)
+            print(ctx.command.brief)
+            print(ctx.command.description)
             await asyncio.sleep(20)
             await delete_error(ctx.message, error)
         elif isinstance(error, commands.CommandNotFound):
