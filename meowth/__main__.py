@@ -3442,13 +3442,16 @@ async def _parse_subscription_content(content, source, message = None):
                         else:
                             question_spec = 'would you like to remove notifications'
                         level = await utils.ask_list(Meowth, f"For {gym.name} which level raids {question_spec}?", channel, ['All'] + list(range(1,6)), user_list=[author], multiple=True)
-                        if 'All' in level:
-                            level = list(range(1,6))
-                        for l in level:
-                            gym_level_dict = gym_dict.get(l, {'ids': [],'names': []})
-                            gym_level_dict['ids'].append(gym.id)
-                            gym_level_dict['names'].append(gym.name)
-                            gym_dict[l] = gym_level_dict
+                        if level:
+                            if 'All' in level:
+                                level = list(range(1,6))
+                            for l in level:
+                                gym_level_dict = gym_dict.get(l, {'ids': [],'names': []})
+                                gym_level_dict['ids'].append(gym.id)
+                                gym_level_dict['names'].append(gym.name)
+                                gym_dict[l] = gym_level_dict
+                            else:
+                                error_list.append(t)
                     else:
                         error_list.append(t)
                 for l in gym_dict.keys():
