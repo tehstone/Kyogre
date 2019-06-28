@@ -1277,11 +1277,13 @@ async def on_member_update(before, after):
                 if len(added_roles) > 0:
                     # a single member update event should only ever have 1 role change
                     role = list(added_roles)[0]
-                    notify = await Meowth.get_channel(notify_channel).send(f"{after.mention} you have joined the {role.capitalize()} region.")
+                    if role in regioninfo_dict.keys():
+                        notify = await Meowth.get_channel(notify_channel).send(f"{after.mention} you have joined the {role.capitalize()} region.")
                 if len(removed_roles) > 0:
                     # a single member update event should only ever have 1 role change
                     role = list(removed_roles)[0]
-                    notify = await Meowth.get_channel(notify_channel).send(f"{after.mention} you have left the {role.capitalize()} region.")
+                    if role in regioninfo_dict.keys():
+                        notify = await Meowth.get_channel(notify_channel).send(f"{after.mention} you have left the {role.capitalize()} region.")
                     
                 if notify:
                     await asyncio.sleep(8)
