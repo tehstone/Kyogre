@@ -1690,9 +1690,9 @@ async def mention_toggle(ctx, rolename):
     if role:
         await role.edit(mentionable = not role.mentionable)
         if role.mentionable:
-            outcome = "off"
-        else:
             outcome = "on"
+        else:
+            outcome = "off"
         confirmation = await ctx.channel.send(f"{rolename} mention turned {outcome}")
         await asyncio.sleep(5)
         await ctx.message.delete()
