@@ -1739,6 +1739,24 @@ async def modify_raid_report(payload, raid_report):
 """
 Admin Commands
 """
+@Meowth.command(hidden=True, name='mention_toggle', aliases=['mt'])
+@commands.has_permissions(manage_roles=True)
+async def mention_toggle(ctx, rolename):
+    role = discord.utils.get(ctx.guild.roles, name=rolename)
+    if role:
+        await role.edit(mentionable = not role.mentionable)
+        if role.mentionable:
+            outcome = "off"
+        else:
+            outcome = "on"
+        confirmation = await ctx.channel.send(f"{rolename} mention turned {outcome}")
+        await asyncio.sleep(5)
+        await ctx.message.delete()
+        await confirmation.delete()
+    else:
+        await ctx.message.add_reaction('❎')
+
+
 @Meowth.command(hidden=True, name="eval")
 @checks.is_dev_or_owner()
 async def _eval(ctx, *, body: str):
