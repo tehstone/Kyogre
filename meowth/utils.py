@@ -364,3 +364,60 @@ async def sleep_and_cleanup(messages, sleep_time):
             await message.delete()
         except:
             pass
+            
+def do_template(message, author, guild):
+    not_found = []
+
+    def template_replace(match):
+        if match.group(3):
+            if match.group(3) == 'user':
+                return '{user}'
+            elif match.group(3) == 'server':
+                return guild.name
+            else:
+                return match.group(0)
+        if match.group(4):
+            emoji = (':' + match.group(4)) + ':'
+            return parse_emoji(guild, emoji)
+        match_type = match.group(1)
+        full_match = match.group(0)
+        match = match.group(2)
+        if match_type == '<':
+            mention_match = re.search('(#|@!?|&)([0-9]+)', match)
+            match_type = mention_match.group(1)[0]
+            match = mention_match.group(2)
+        if match_type == '@':
+            member = guild.get_member_named(match)
+            if match.isdigit() and (not member):
+                member = guild.get_member(match)
+            if (not member):
+                not_found.append(full_match)
+            return member.mention if member else full_match
+        elif match_type == '#':
+            channel = discord.utils.get(guild.text_channels, name=match)
+            if match.isdigit() and (not channel):
+                channel = guild.get_channel(match)
+            if (not channel):
+                not_found.append(full_match)
+            return channel.mention if channel else full_match
+        elif match_type == '&':
+            role = discord.utils.get(guild.roles, name=match)
+            if match.isdigit() and (not role):
+                role = discord.utils.get(guild.roles, id=int(match))
+            if (not role):
+                not_found.append(full_match)
+            return role.mention if role else full_match
+    template_pattern = '(?i){(@|#|&|<)([^{}]+)}|{(user|server)}|<*:([a-zA-Z0-9]+):[0-9]*>*'
+    msg = re.sub(template_pattern, template_replace, message)
+    return (msg, not_found)
+
+# Convert an arbitrary string into something which
+# is acceptable as a Discord channel name.
+
+def sanitize_name(name):
+    # Remove all characters other than alphanumerics,
+    # dashes, underscores, and spaces
+    ret = re.sub('[^a-zA-Z0-9 _\\-]', '', name)
+    # Replace spaces with dashes
+    ret = ret.replace(' ', '-')
+    return ret
