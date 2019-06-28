@@ -324,9 +324,10 @@ class SubscriptionTable(BaseModel):
     trainer = BigIntegerField(index=True)
     type = TextField(index=True)
     target = TextField(index=True)
+    specific = TextField(index=True, null=True)
 
     class Meta:
-        constraints = [SQL('UNIQUE(trainer, type, target)')]
+        constraints = [SQL('UNIQUE(trainer, type, target, specific)')]
 
 class TradeTable(BaseModel):
     trainer = BigIntegerField(index=True)

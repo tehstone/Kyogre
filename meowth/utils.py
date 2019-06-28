@@ -226,7 +226,8 @@ def get_effectiveness(type_eff):
             return 0.51
         return 1
 
-async def ask(bot, message, user_list=None, timeout=60, *, react_list=['✅', '❎']):
+async def ask(bot, message, user_list=None, timeout=60, *, react_list=['✅', '❎'], multiple=False):
+    finish_multiple = '👍'
     if user_list and not isinstance(user_list, list):
         user_list = [user_list]
     def check(reaction, user):
@@ -238,13 +239,36 @@ async def ask(bot, message, user_list=None, timeout=60, *, react_list=['✅', '�
         await asyncio.sleep(0.25)
         await message.add_reaction(r)
     try:
-        reaction, user = await bot.wait_for('reaction_add', check=check, timeout=timeout)
-        return reaction, user
+        reactions = []
+        while True:
+            done, pending = await asyncio.wait([
+                    bot.wait_for('reaction_add', check=check, timeout=timeout),
+                    bot.wait_for('reaction_remove', check=check, timeout=timeout)
+                ], return_when=asyncio.FIRST_COMPLETED)
+            for future in pending:
+                future.cancel()
+            try:
+                stuff = done.pop().result()
+                reaction = stuff[0]
+                user = stuff[1]
+                if reaction in reactions:
+                    reactions.remove(reaction)
+                else:
+                    if multiple:
+                        if reaction.emoji != finish_multiple:
+                            reactions.append(reaction)
+                        else:
+                            return reactions, user
+                    else:
+                        return reaction, user
+            except:
+                pass
+           
     except asyncio.TimeoutError:
-        await message.clear_reactions()
+        await message.delete()
         return
 
-async def ask_list(bot, prompt, destination, choices_list, options_emoji_list=None, user_list=None, *, allow_edit=False):
+async def ask_list(bot, prompt, destination, choices_list, options_emoji_list=None, user_list=None, *, allow_edit=False, multiple=False):
     if not choices_list:
         return None
     if not options_emoji_list:
@@ -256,6 +280,7 @@ async def ask_list(bot, prompt, destination, choices_list, options_emoji_list=No
     edit_emoji = '✏'
     edit_emoji_text = '✏️'
     cancel_emoji = '❌'
+    finish_multiple = '👍'
     num_pages = (len(choices_list) - 1) // len(options_emoji_list)    
     for offset in range(num_pages + 1):
         list_embed = discord.Embed(colour=destination.guild.me.colour)
@@ -269,6 +294,7 @@ async def ask_list(bot, prompt, destination, choices_list, options_emoji_list=No
                 current_options_emoji = current_options_emoji[:len(current_choices)]
             for i, name in enumerate(current_choices):
                 emojified_options.append(f"{current_options_emoji[i]}: {name}")
+            prompt+='\n\n**Please wait until all reaction emoji are added before selecting any!**\n\n'
             list_embed.add_field(name=prompt, value='\n'.join(emojified_options), inline=False)
             embed_footer="Choose the reaction corresponding to the desired entry above."
             if offset != num_pages:
@@ -280,16 +306,26 @@ async def ask_list(bot, prompt, destination, choices_list, options_emoji_list=No
             embed_footer += f" Select {cancel_emoji} to cancel."
             list_embed.set_footer(text=embed_footer)
             other_options.append(cancel_emoji)
+            if multiple:
+                other_options.append(finish_multiple)
             q_msg = await destination.send(embed=list_embed)
             all_options = current_options_emoji + other_options
-            reaction, __ = await ask(bot, q_msg, user_list, react_list=all_options)
+            reaction, __ = await ask(bot, q_msg, user_list, react_list=all_options, multiple=multiple)
         except TypeError:
             return None
         if not reaction:
             return None
         await q_msg.delete()
-        if reaction.emoji in current_options_emoji:
-            return choices_list[current_start+current_options_emoji.index(reaction.emoji)]
+        if multiple:
+            reactions = []
+            for r in reaction:
+                if r.emoji == cancel_emoji:
+                    return None
+                reactions.append(choices_list[current_start+current_options_emoji.index(r.emoji)])
+            return reactions
+        else:
+            if reaction.emoji in current_options_emoji:
+                return choices_list[current_start+current_options_emoji.index(reaction.emoji)]
         if reaction.emoji == edit_emoji:
             break
         if reaction.emoji == cancel_emoji:
@@ -320,3 +356,11 @@ async def letter_case(iterable, find, *, limits=None):
         return servercase_list[index]
     else:
         return None
+
+async def sleep_and_cleanup(messages, sleep_time):
+    await asyncio.sleep(sleep_time)
+    for message in messages:
+        try:
+            await message.delete()
+        except:
+            pass

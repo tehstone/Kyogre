@@ -41,6 +41,7 @@ from meowth.errors import custom_error_handling
 from meowth.logs import init_loggers
 from meowth.exts.pokemon import Pokemon
 from meowth.exts.bosscp import boss_cp_chart
+from meowth.exts.locationmatching import Gym
 
 logger = init_loggers()
 _ = gettext.gettext
@@ -1277,11 +1278,13 @@ async def on_member_update(before, after):
                 if len(added_roles) > 0:
                     # a single member update event should only ever have 1 role change
                     role = list(added_roles)[0]
-                    notify = await Meowth.get_channel(notify_channel).send(f"{after.mention} you have joined the {role.capitalize()} region.")
+                    if role in regioninfo_dict.keys():
+                        notify = await Meowth.get_channel(notify_channel).send(f"{after.mention} you have joined the {role.capitalize()} region.")
                 if len(removed_roles) > 0:
                     # a single member update event should only ever have 1 role change
                     role = list(removed_roles)[0]
-                    notify = await Meowth.get_channel(notify_channel).send(f"{after.mention} you have left the {role.capitalize()} region.")
+                    if role in regioninfo_dict.keys():
+                        notify = await Meowth.get_channel(notify_channel).send(f"{after.mention} you have left the {role.capitalize()} region.")
                     
                 if notify:
                     await asyncio.sleep(8)
@@ -5296,7 +5299,7 @@ def _get_subscription_command_error(content, subscription_types):
     
     return error_message
 
-async def _parse_subscription_content(content, message = None):
+async def _parse_subscription_content(content, source, message = None):
     channel = message.channel
     author = message.author.id 
     sub_list = []
@@ -5311,10 +5314,31 @@ async def _parse_subscription_content(content, message = None):
             trainer = message.author.id
             gyms = get_gyms(guild.id)
             if gyms:
-                gym = await location_match_prompt(channel, trainer, target, gyms)
-            if not gym:
-                return await channel.send(_("No gym found with name '{0}'. Try again using the exact gym name!").format(target))
-            sub_list.append((sub_type, gym.name, gym.name))
+                gym_dict = {}
+                entry_spec = ''
+                for t in target.split(','):
+                    gym = await location_match_prompt(channel, trainer, t, gyms)
+                    if gym:
+                        question_spec = ''
+                        if source == 'add':
+                            question_spec = 'would you like to be notified'
+                        else:
+                            question_spec = 'would you like to remove notifications'
+                        level = await utils.ask_list(Meowth, f"For {gym.name} which level raids {question_spec}?", channel, ['All'] + list(range(1,6)), user_list=[author], multiple=True)
+                        if 'All' in level:
+                            entry = f'All Raids at {gym.name}'
+                            sub_list.append((sub_type, gym.name, entry))
+                        else:
+                            for l in level:
+                                gym_level_dict = gym_dict.get(l, {'ids': [],'names': []})
+                                gym_level_dict['ids'].append(gym.id)
+                                gym_level_dict['names'].append(gym.name)
+                                gym_dict[l] = gym_level_dict
+                    else:
+                        error_list.append(t)
+                for l in gym_dict.keys():
+                    entry = f"L{l} Raids at {', '.join(gym_dict[l]['names'])}"
+                    sub_list.append(('raid', l, entry, gym_dict[l]['ids']))
             return sub_list, error_list
     if sub_type == 'item':
         result = RewardTable.select(RewardTable.name,RewardTable.quantity)
@@ -5357,12 +5381,6 @@ async def _parse_subscription_content(content, message = None):
         target = set([target])
 
     if sub_type == 'raid':
-        selected_levels = target.intersection(raid_level_list)
-        for level in selected_levels:
-            entry = f'L{level} Raids'
-            target.remove(level)
-            sub_list.append((sub_type, level, entry))
-            
         ex_pattern = r'^(ex([- ]*eligible)?)$'
         ex_r = re.compile(ex_pattern, re.I)
         matches = list(filter(ex_r.match, target))
@@ -5412,12 +5430,9 @@ async def _sub_add(ctx, *, content):
         error_message = _get_subscription_command_error(content, subscription_types)
         if error_message:
             response = await message.channel.send(error_message)
-            await asyncio.sleep(10)
-            await message.delete()
-            await response.delete()
-            return
+            return await utils.sleep_and_cleanup([message,response], 10)
 
-        candidate_list, error_list = await _parse_subscription_content(content, message)
+        candidate_list, error_list = await _parse_subscription_content(content, 'add', message)
     
     existing_list = []
     sub_list = []    
@@ -5428,13 +5443,33 @@ async def _sub_add(ctx, *, content):
         s_type = sub[0]
         s_target = sub[1]
         s_entry = sub[2]
-        try:
-            SubscriptionTable.create(trainer=trainer, type=s_type, target=s_target)
-            sub_list.append(s_entry)
-        except IntegrityError:
-            existing_list.append(s_entry)
-        except:
-            error_list.append(s_entry)
+        if len(sub) > 3:
+            spec = sub[3]
+            try:
+                result, __ = SubscriptionTable.get_or_create(trainer=trainer, type='raid', target=s_target)
+                current_gym_ids = result.specific
+                if current_gym_ids:
+                    current_gym_ids = current_gym_ids.strip('[').strip(']')
+                    split_ids = current_gym_ids.split(', ')
+                    split_ids = [int(s) for s in split_ids]
+                else:
+                    split_ids = []
+                spec = [int(s) for s in spec]
+                new_ids = set(split_ids + spec)
+                result.specific = list(new_ids)
+                if len(result.specific) > 0:
+                    result.save()
+                    sub_list.append(s_entry)
+            except:
+                error_list.append(s_entry)
+        else:
+            try:
+                SubscriptionTable.create(trainer=trainer, type=s_type, target=s_target)
+                sub_list.append(s_entry)
+            except IntegrityError:
+                existing_list.append(s_entry)
+            except:
+                error_list.append(s_entry)
 
     sub_count = len(sub_list)
     existing_count = len(existing_list)
@@ -5475,10 +5510,7 @@ async def _sub_remove(ctx,*,content):
         error_message = _get_subscription_command_error(content, subscription_types)
         if error_message:
             response = await message.channel.send(error_message)
-            await asyncio.sleep(10)
-            await message.delete()
-            await response.delete()
-            return
+            return await utils.sleep_and_cleanup([message,response], 10)
         sub_type, target = content.split(' ', 1)
 
     candidate_list = []
@@ -5523,32 +5555,53 @@ async def _sub_remove(ctx,*,content):
         sub_type, target = ['shiny','shiny']
         skip_parse = True
     if not skip_parse:
-        candidate_list, error_list = await _parse_subscription_content(content, message)
+        candidate_list, error_list = await _parse_subscription_content(content, 'remove', message)
     remove_count = 0
     for sub in candidate_list:
         s_type = sub[0]
         s_target = sub[1]
         s_entry = sub[2]
-        try:
-            if s_type == 'all':
-                remove_count += SubscriptionTable.delete().where(
-                    (SubscriptionTable.trainer << trainer_query) &
-                    (SubscriptionTable.target == s_target)).execute()
-            elif s_target == 'all':
-                remove_count += SubscriptionTable.delete().where(
-                    (SubscriptionTable.trainer << trainer_query) &
-                    (SubscriptionTable.type == s_type)).execute()
+        if len(sub) > 3:
+            spec = sub[3]
+            #try:
+            result, __ = SubscriptionTable.get_or_create(trainer=trainer, type='raid', target=s_target)
+            current_gym_ids = result.specific
+            if current_gym_ids:
+                current_gym_ids = current_gym_ids.strip('[').strip(']')
+                split_ids = current_gym_ids.split(', ')
+                split_ids = [int(s) for s in split_ids]
             else:
-                remove_count += SubscriptionTable.delete().where(
-                    (SubscriptionTable.trainer << trainer_query) &
-                    (SubscriptionTable.type == s_type) &
-                    (SubscriptionTable.target == s_target)).execute()
-            if remove_count > 0:
-                remove_list.append(s_entry)
-            else:
-                not_found_list.append(s_entry)
-        except:
-            error_list.append(s_entry)
+                split_ids = []
+            for s in spec:
+                if s in split_ids:
+                    remove_count += 1
+                    split_ids.remove(s)
+            result.specific = split_ids
+            result.save()
+            remove_list.append(s_entry)
+            # except:
+            #     error_list.append(s_entry)
+        else:
+            try:
+                if s_type == 'all':
+                    remove_count += SubscriptionTable.delete().where(
+                        (SubscriptionTable.trainer << trainer_query) &
+                        (SubscriptionTable.target == s_target)).execute()
+                elif s_target == 'all':
+                    remove_count += SubscriptionTable.delete().where(
+                        (SubscriptionTable.trainer << trainer_query) &
+                        (SubscriptionTable.type == s_type)).execute()
+                else:
+                    remove_count += SubscriptionTable.delete().where(
+                        (SubscriptionTable.trainer << trainer_query) &
+                        (SubscriptionTable.type == s_type) &
+                        (SubscriptionTable.target == s_target)).execute()
+                if remove_count > 0:
+                    remove_list.append(s_entry)
+                else:
+                    not_found_list.append(s_entry)
+            except:
+                error_list.append(s_entry)
 
     not_found_count = len(not_found_list)
     error_count = len(error_list)
@@ -5597,10 +5650,7 @@ async def _sub_list(ctx, *, content=None):
         else:
             response_msg = "No valid subscription types found! Valid types are: {types}".format(types=', '.join(subscription_types))
             response = await channel.send(response_msg)
-            await asyncio.sleep(10)
-            await response.delete()
-            await message.delete()
-            return
+            return await utils.sleep_and_cleanup([message,response], 10)
         
         if (invalid_types):
             response_msg = "\nUnable to find these subscription types: {inv}".format(inv=', '.join(invalid_types))
@@ -5626,9 +5676,7 @@ async def _sub_list(ctx, *, content=None):
             listmsg = _("You don\'t have any subscriptions! use the **!subscription add** command to add some.")
     await author.send(listmsg)
     response = await channel.send(response_msg)
-    await asyncio.sleep(10)
-    await response.delete()
-    await message.delete()
+    await utils.sleep_and_cleanup([message,response], 10)
 
 @_sub.command(name="adminlist", aliases=["alist"])
 @commands.has_permissions(manage_guild=True)
@@ -5641,10 +5689,7 @@ async def _sub_adminlist(ctx, *, trainer=None):
     if not trainer:
         response_msg = "Please provide a trainer name or id"
         response = await channel.send(response_msg)
-        await asyncio.sleep(10)
-        await response.delete()
-        await message.delete()
-        return
+        return await utils.sleep_and_cleanup([message,response], 10)
 
     if trainer.isdigit():
         trainerid = trainer
@@ -5656,10 +5701,7 @@ async def _sub_adminlist(ctx, *, trainer=None):
         except:
             response_msg = f"Could not process trainer with name: {trainer}"
             await channel.send(response_msg)
-            await asyncio.sleep(10)
-            await response_msg.delete()
-            await message.delete()
-            return
+            return await utils.sleep_and_cleanup([message,response_msg], 10)
     try:
         results = (SubscriptionTable
             .select(SubscriptionTable.type, SubscriptionTable.target)
@@ -5682,15 +5724,12 @@ async def _sub_adminlist(ctx, *, trainer=None):
         else:
             none_msg = await channel.send(f"No subscriptions found for user: {trainer}")
             await message.add_reaction('✅')
-            await asyncio.sleep(10)
-            await none_msg.delete()
+            return await utils.sleep_and_cleanup([none_msg], 10)
+
     except:
         response_msg = f"Encountered an error while looking up subscriptions for trainer with name: {trainer}"
         await channel.send(response_msg)
-        await asyncio.sleep(10)
-        await response_msg.delete()
-        await message.delete()
-        return
+        return await utils.sleep_and_cleanup([response_msg, message], 10)
 
 """
 Reporting
@@ -6864,10 +6903,7 @@ async def _exinvite(ctx):
     else:
         await exraidchoice.delete()
         exraidmsg = await channel.send(_("I couldn't understand your reply! Try the **!invite** command again!"))
-    await asyncio.sleep(30)
-    await ctx.message.delete()
-    await reply.delete()
-    await exraidmsg.delete()
+    return await utils.sleep_and_cleanup([ctx.message,reply,exraidmsg], 30)
 
 @Meowth.command(aliases=['shiny'])
 @checks.allowresearchreport()
@@ -6878,10 +6914,7 @@ async def shinyquest(ctx, *, details):
     guild = message.guild
     if details is None:
         err_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Please provide a Pokestop name when using this command!"))
-        await asyncio.sleep(15)
-        await message.delete()
-        await err_msg.delete()
-        return
+        return await utils.sleep_and_cleanup([message,err_msg], 15)
     timestamp = (message.created_at + datetime.timedelta(hours=guild_dict[message.channel.guild.id]['configure_dict']['settings']['offset']))
     to_event_end = 24*60*60 - ((timestamp-timestamp.replace(hour=0, minute=0, second=0, microsecond=0)).seconds)
     research_embed = discord.Embed(colour=message.guild.me.colour).set_thumbnail(url='https://raw.githubusercontent.com/klords/Kyogre/master/images/misc/field-research.png?cache=0')
@@ -6893,9 +6926,7 @@ async def shinyquest(ctx, *, details):
     stop = await location_match_prompt(channel, author.id, details, stops)
     if not stop:
         no_stop_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No pokestop found with name {details}"))
-        await asyncio.sleep(15)
-        await no_stop_msg.delete()
-        return
+        return await utils.sleep_and_cleanup([no_stop_msg], 15)
     location = stop.name
     loc_url = stop.maps_url
     regions = [stop.region]
@@ -6981,9 +7012,7 @@ async def research(ctx, *, details = None):
                     if not stop:
                         await swap_msg.delete()
                         err_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No pokestop found with name '**{location.strip()}**' either. Try reporting again using the exact pokestop name!"))
-                        await asyncio.sleep(15)
-                        await err_msg.delete()
-                        return
+                        return await utils.sleep_and_cleanup([err_msg], 15)
                     await swap_msg.delete()
                 if get_existing_research(guild, stop):
                     return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"A quest has already been reported for {stop.name}"))
@@ -7102,9 +7131,7 @@ async def research(ctx, *, details = None):
         research_embed.clear_fields()
         research_embed.add_field(name=_('**Research Report Cancelled**'), value=_("Your report has been cancelled because you {error}! Retry when you're ready.").format(error=error), inline=False)
         confirmation = await channel.send(embed=research_embed)
-        await asyncio.sleep(10)
-        await confirmation.delete()
-        await message.delete()
+        return await utils.sleep_and_cleanup([message,confirmatiom], 10)
 
 async def _get_quest(ctx, name):
     channel = ctx.channel
@@ -7257,7 +7284,7 @@ async def _send_notifications_async(type, details, new_channel, exclusions=[]):
     # get trainers
     try:
         results = (SubscriptionTable
-                        .select(SubscriptionTable.trainer, SubscriptionTable.target)
+                        .select(SubscriptionTable.trainer, SubscriptionTable.target, SubscriptionTable.specific)
                         .join(TrainerTable, on=(SubscriptionTable.trainer == TrainerTable.snowflake))
                         .where((SubscriptionTable.type == type) | 
                             (SubscriptionTable.type == 'pokemon') | 
@@ -7267,7 +7294,7 @@ async def _send_notifications_async(type, details, new_channel, exclusions=[]):
         return
     # group targets by trainer
     trainers = set([s.trainer for s in results])
-    target_dict = {t: [s.target for s in results if s.trainer == t] for t in trainers}
+    target_dict = {t: {s.target: s.specific for s in results if s.trainer == t} for t in trainers}
     regions = set(details.get('regions', []))
     ex_eligible = details.get('ex-eligible', None)
     tier = details.get('tier', None)
@@ -7296,8 +7323,36 @@ async def _send_notifications_async(type, details, new_channel, exclusions=[]):
         if 'ex-eligible' in targets and ex_eligible:
             target_matched = True
             descriptors.append('ex-eligible')
-        if tier and tier in targets:
-            target_matched = True
+        if tier and str(tier) in targets:
+            tier = str(tier)
+            if targets[tier]:
+                try:
+                    current_gym_ids = targets[tier].strip('[').strip(']')
+                    split_ids = current_gym_ids.split(', ')
+                    split_ids = [int(s) for s in split_ids]
+                    target_gyms = (GymTable
+                        .select(LocationTable.id,
+                                LocationTable.name, 
+                                LocationTable.latitude, 
+                                LocationTable.longitude, 
+                                RegionTable.name.alias('region'),
+                                GymTable.ex_eligible,
+                                LocationNoteTable.note)
+                        .join(LocationTable)
+                        .join(LocationRegionRelation)
+                        .join(RegionTable)
+                        .join(LocationNoteTable, JOIN.LEFT_OUTER, on=(LocationNoteTable.location_id == LocationTable.id))
+                        .where((LocationTable.guild == guild.id) &
+                               (LocationTable.guild == RegionTable.guild) &
+                               (LocationTable.id << split_ids)))
+                    target_gyms = target_gyms.objects(Gym)
+                    found_gym_names = [r.name for r in target_gyms]
+                    if gym in found_gym_names:
+                        target_matched = True
+                except:
+                    pass
+            else:
+                target_matched = True
             descriptors.append('level {level}'.format(level=details['tier']))
         pkmn_adj = ''
         if perfect and 'perfect' in targets:
@@ -7427,15 +7482,11 @@ async def _loc_add(ctx, *, info):
     if error_msg is None:
         success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Successfully added {type}: {name}."))
         await message.add_reaction('✅')
-        await asyncio.sleep(10)
-        await success.delete()
-        return
+        return await utils.sleep_and_cleanup([success], 10)
     else:
         failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Failed to add {type}: {name}."))
-        await message.add_reaction('❌')        
-        await asyncio.sleep(10)
-        await failed.delete()
-        return
+        await message.add_reaction('❌')   
+        return await utils.sleep_and_cleanup([failed], 10)
 
 @_loc.command(name="convert", aliases=["c"])
 @commands.has_permissions(manage_guild=True)
@@ -7450,22 +7501,16 @@ async def _loc_convert(ctx, *, info):
     stop = await location_match_prompt(channel, author.id, info, stops)
     if not stop:
         no_stop_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No pokestop found with name **{info}**"))
-        await asyncio.sleep(15)
-        await no_stop_msg.delete()
-        return
+        return await utils.sleep_and_cleanup([no_stop_msg], 10)
     result = await stopToGym(ctx, stop.name)
     if (result[0] == 0):
         failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Failed to convert stop to gym."))
-        await ctx.message.add_reaction('❌')        
-        await asyncio.sleep(15)
-        await failed.delete()
-        return
+        await ctx.message.add_reaction('❌') 
+        return await utils.sleep_and_cleanup([failed], 10)       
     else:
         success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Converted {result[0]} stop(s) to gym(s)."))
         await ctx.message.add_reaction('✅')
-        await asyncio.sleep(15)
-        await success.delete()
-        return
+        return await utils.sleep_and_cleanup([success], 10)
 
 @_loc.command(name="extoggle", aliases=["ext"])
 @commands.has_permissions(manage_guild=True)
