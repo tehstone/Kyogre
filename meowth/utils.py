@@ -304,10 +304,12 @@ async def ask_list(bot, prompt, destination, choices_list, options_emoji_list=No
                 other_options.append(edit_emoji)
                 embed_footer += f" To enter a custom answer, select {edit_emoji_text}."
             embed_footer += f" Select {cancel_emoji} to cancel."
-            list_embed.set_footer(text=embed_footer)
-            other_options.append(cancel_emoji)
             if multiple:
                 other_options.append(finish_multiple)
+                embed_footer = f"Choose the reaction(s) corresponding to the desired entry above and select the {finish_multiple} to finish."
+            else:
+                other_options.append(cancel_emoji)
+            list_embed.set_footer(text=embed_footer)
             q_msg = await destination.send(embed=list_embed)
             all_options = current_options_emoji + other_options
             reaction, __ = await ask(bot, q_msg, user_list, react_list=all_options, multiple=multiple)
@@ -364,7 +366,7 @@ async def sleep_and_cleanup(messages, sleep_time):
             await message.delete()
         except:
             pass
-            
+
 def do_template(message, author, guild):
     not_found = []
 
