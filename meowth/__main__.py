@@ -4313,35 +4313,37 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
         'reporter': author.id
     }
     raid_embed = discord.Embed(title=_('Click here for directions to the raid!'), url=raid_gmaps_link, colour=guild.me.colour)
-    if gym:
-        gym_info = _("**Name:** {0}\n**Notes:** {1}").format(raid_details, "_EX Eligible Gym_" if gym.ex_eligible else "N/A")
-        raid_embed.add_field(name=_('**Gym:**'), value=gym_info, inline=False)
-    cp_range = ''
     enabled = raid_channels_enabled(guild, channel)
-    if raid_report:
-        if str(raid_pokemon).lower() in boss_cp_chart:
-            cp_range = boss_cp_chart[str(raid_pokemon).lower()]
-        raid_embed.add_field(name=_('**Details:**'), value=_('**{pokemon}** ({pokemonnumber}) {type}{cprange}').format(pokemon=str(raid_pokemon), pokemonnumber=str(raid_pokemon.id), type=types_to_str(guild, raid_pokemon.types), cprange='\n'+cp_range, inline=True))
-        raid_embed.add_field(name=_('**Weaknesses:**'), value=_('{weakness_list}').format(weakness_list=types_to_str(guild, raid_pokemon.weak_against.keys()), inline=True))
+    if gym:
         if enabled:
+            gym_info = _("**Name:** {0}\n**Notes:** {1}").format(raid_details, "_EX Eligible Gym_" if gym.ex_eligible else "N/A")
+            raid_embed.add_field(name=_('**Gym:**'), value=gym_info, inline=False)
+    cp_range = ''
+    if raid_report:
+        if enabled:
+            if str(raid_pokemon).lower() in boss_cp_chart:
+                cp_range = boss_cp_chart[str(raid_pokemon).lower()]
+            raid_embed.add_field(name=_('**Details:**'), value=_('**{pokemon}** ({pokemonnumber}) {type}{cprange}').format(pokemon=str(raid_pokemon), pokemonnumber=str(raid_pokemon.id), type=types_to_str(guild, raid_pokemon.types), cprange='\n'+cp_range, inline=True))
+            raid_embed.add_field(name=_('**Weaknesses:**'), value=_('{weakness_list}').format(weakness_list=types_to_str(guild, raid_pokemon.weak_against.keys()), inline=True))
             raid_embed.add_field(name=_('**Next Group:**'), value=_('Set with **!starttime**'), inline=True)
             raid_embed.add_field(name=_('**Expires:**'), value=_('Set with **!timerset**'), inline=True)
         raid_img_url = raid_pokemon.img_url
         msg = build_raid_report_message(gym, 'raid', raid_pokemon.name, '0', raidexp, raid_channel)
     else:
-        if len(egg_info['pokemon']) > 1:
-            raid_embed.add_field(name=_('**Possible Bosses:**'), value=_('{bosslist1}').format(bosslist1='\n'.join(boss_list[::2])), inline=True)
-            raid_embed.add_field(name='\u200b', value=_('{bosslist2}').format(bosslist2='\n'.join(boss_list[1::2])), inline=True)
-        else:
-            raid_embed.add_field(name=_('**Possible Bosses:**'), value=_('{bosslist}').format(bosslist=''.join(boss_list)), inline=True)
-            raid_embed.add_field(name='\u200b', value='\u200b', inline=True)
-        raid_embed.add_field(name=_('**Hatches:**'), value=_('Set with **!timerset**'), inline=True)
         if enabled:
+            if len(egg_info['pokemon']) > 1:
+                raid_embed.add_field(name=_('**Possible Bosses:**'), value=_('{bosslist1}').format(bosslist1='\n'.join(boss_list[::2])), inline=True)
+                raid_embed.add_field(name='\u200b', value=_('{bosslist2}').format(bosslist2='\n'.join(boss_list[1::2])), inline=True)
+            else:
+                raid_embed.add_field(name=_('**Possible Bosses:**'), value=_('{bosslist}').format(bosslist=''.join(boss_list)), inline=True)
+                raid_embed.add_field(name='\u200b', value='\u200b', inline=True)
+            raid_embed.add_field(name=_('**Hatches:**'), value=_('Set with **!timerset**'), inline=True)
             raid_embed.add_field(name=_('**Next Group:**'), value=_('Set with **!starttime**'), inline=True)
         raid_img_url = 'https://raw.githubusercontent.com/klords/Kyogre/master/images/eggs/{}?cache=0'.format(str(egg_img))
         msg = build_raid_report_message(gym, 'egg', '', level, raidexp, raid_channel)
-    raid_embed.set_footer(text=_('Reported by {author} - {timestamp}').format(author=author.display_name, timestamp=timestamp), icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
-    raid_embed.set_thumbnail(url=raid_img_url)
+    if enabled:
+        raid_embed.set_footer(text=_('Reported by {author} - {timestamp}').format(author=author.display_name, timestamp=timestamp), icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
+        raid_embed.set_thumbnail(url=raid_img_url)
     report_embed = raid_embed
     embed_indices = await get_embed_field_indices(report_embed)
     report_embed = await filter_fields_for_report_embed(report_embed, embed_indices)
@@ -4449,43 +4451,45 @@ async def _eggassume(args, raid_channel, author=None):
     eggdetails['pokemon'] = raid_pokemon.name
     oldembed = raid_message.embeds[0]
     raid_gmaps_link = oldembed.url
-    embed_indices = await get_embed_field_indices(oldembed)
-    raid_embed = discord.Embed(title=_('Click here for directions to the raid!'), url=raid_gmaps_link, colour=raid_channel.guild.me.colour)
-    raid_embed.add_field(name=(oldembed.fields[embed_indices["gym"]].name), value=oldembed.fields[embed_indices["gym"]].value, inline=True)
-    cp_range = ''
-    if raid_pokemon.name.lower() in boss_cp_chart:
-        cp_range = boss_cp_chart[raid_pokemon.name.lower()]
-    raid_embed.add_field(name=_('**Details:**'), value=_('**{pokemon}** ({pokemonnumber}) {type}{cprange}').format(pokemon=raid_pokemon.name, pokemonnumber=str(raid_pokemon.id), type=types_to_str(raid_channel.guild, raid_pokemon.types), cprange='\n'+cp_range, inline=True))
-    raid_embed.add_field(name=_('**Weaknesses:**'), value=_('{weakness_list}').format(weakness_list=types_to_str(raid_channel.guild, raid_pokemon.weak_against)), inline=True)
-    if embed_indices["next"] is not None:
-        raid_embed.add_field(name=(oldembed.fields[embed_indices["next"]].name), value=oldembed.fields[embed_indices["next"]].value, inline=True)
-    if embed_indices["hatch"] is not None:
-        raid_embed.add_field(name=(oldembed.fields[embed_indices["hatch"]].name), value=oldembed.fields[embed_indices["hatch"]].value, inline=True)
-    if embed_indices["tips"] is not None:
-        raid_embed.add_field(name=(oldembed.fields[embed_indices["tips"]].name), value=oldembed.fields[embed_indices["tips"]].value, inline=True)
+    enabled = raid_channels_enabled(raid_channel.guild, raid_channel)
+    if enabled:
+        embed_indices = await get_embed_field_indices(oldembed)
+        raid_embed = discord.Embed(title=_('Click here for directions to the raid!'), url=raid_gmaps_link, colour=raid_channel.guild.me.colour)
+        raid_embed.add_field(name=(oldembed.fields[embed_indices["gym"]].name), value=oldembed.fields[embed_indices["gym"]].value, inline=True)
+        cp_range = ''
+        if raid_pokemon.name.lower() in boss_cp_chart:
+            cp_range = boss_cp_chart[raid_pokemon.name.lower()]
+        raid_embed.add_field(name=_('**Details:**'), value=_('**{pokemon}** ({pokemonnumber}) {type}{cprange}').format(pokemon=raid_pokemon.name, pokemonnumber=str(raid_pokemon.id), type=types_to_str(raid_channel.guild, raid_pokemon.types), cprange='\n'+cp_range, inline=True))
+        raid_embed.add_field(name=_('**Weaknesses:**'), value=_('{weakness_list}').format(weakness_list=types_to_str(raid_channel.guild, raid_pokemon.weak_against)), inline=True)
+        if embed_indices["next"] is not None:
+            raid_embed.add_field(name=(oldembed.fields[embed_indices["next"]].name), value=oldembed.fields[embed_indices["next"]].value, inline=True)
+        if embed_indices["hatch"] is not None:
+            raid_embed.add_field(name=(oldembed.fields[embed_indices["hatch"]].name), value=oldembed.fields[embed_indices["hatch"]].value, inline=True)
+        if embed_indices["tips"] is not None:
+            raid_embed.add_field(name=(oldembed.fields[embed_indices["tips"]].name), value=oldembed.fields[embed_indices["tips"]].value, inline=True)
 
-    raid_embed.set_footer(text=oldembed.footer.text, icon_url=oldembed.footer.icon_url)
-    raid_embed.set_thumbnail(url=raid_pokemon.img_url)
-    try:
-        await raid_message.edit(new_content=raid_message.content, embed=raid_embed, content=raid_message.content)
-        raid_message = raid_message.id
-    except discord.errors.NotFound:
-        raid_message = None
-    try:
-        embed_indices = await get_embed_field_indices(raid_embed)
-        raid_embed = await filter_fields_for_report_embed(raid_embed, embed_indices)
-        await egg_report.edit(new_content=egg_report.content, embed=raid_embed, content=egg_report.content)
-        egg_report = egg_report.id
-    except discord.errors.NotFound:
-        egg_report = None
-    if eggdetails['raidcityreport'] is not None:
-        report_city_channel = Meowth.get_channel(eggdetails['reportcity'])
-        city_report = await report_city_channel.fetch_message(eggdetails['raidcityreport'])
+        raid_embed.set_footer(text=oldembed.footer.text, icon_url=oldembed.footer.icon_url)
+        raid_embed.set_thumbnail(url=raid_pokemon.img_url)
         try:
-            await city_report.edit(new_content=city_report.content, embed=raid_embed, content=city_report.content)
-            city_report = city_report.id
+            await raid_message.edit(new_content=raid_message.content, embed=raid_embed, content=raid_message.content)
+            raid_message = raid_message.id
         except discord.errors.NotFound:
-            city_report = None
+            raid_message = None
+        try:
+            embed_indices = await get_embed_field_indices(raid_embed)
+            raid_embed = await filter_fields_for_report_embed(raid_embed, embed_indices)
+            await egg_report.edit(new_content=egg_report.content, embed=raid_embed, content=egg_report.content)
+            egg_report = egg_report.id
+        except discord.errors.NotFound:
+            egg_report = None
+        if eggdetails['raidcityreport'] is not None:
+            report_city_channel = Meowth.get_channel(eggdetails['reportcity'])
+            city_report = await report_city_channel.fetch_message(eggdetails['raidcityreport'])
+            try:
+                await city_report.edit(new_content=city_report.content, embed=raid_embed, content=city_report.content)
+                city_report = city_report.id
+            except discord.errors.NotFound:
+                city_report = None
     await raid_channel.send(_('This egg will be assumed to be {pokemon} when it hatches!').format(pokemon=raid_pokemon.full_name))
     if str(egglevel) in guild_dict[guild.id]['configure_dict']['counters']['auto_levels']:
         ctrs_dict = await _get_generic_counters(guild, raid_pokemon, weather)
@@ -6576,14 +6580,16 @@ async def update_raid_location(message, report_channel, raid_channel, gym):
         if (t not in field.name.lower()) and (s not in field.name.lower()):
             new_embed.add_field(name=field.name, value=field.value, inline=field.inline)
     weather = raid_dict.get('weather', None)
-    embed_indices = await get_embed_field_indices(new_embed)
-    gym_embed = new_embed.fields[embed_indices['gym']]
-    gym_info = _("**Name:** {0}\n**Notes:** {1}").format(gym.name, "_EX Eligible Gym_" if gym.ex_eligible else "N/A")
-    if weather is not None:
-        gym_info += "\n**Weather**: " + weather
-    new_embed.set_field_at(embed_indices['gym'], name=_(gym_embed.name), value=gym_info, inline=True)
-    new_embed.set_footer(text=oldembed.footer.text, icon_url=oldembed.footer.icon_url)
-    new_embed.set_thumbnail(url=oldembed.thumbnail.url)
+    enabled = raid_channels_enabled(raid_channel.guild, raid_channel)
+    if enabled:
+        embed_indices = await get_embed_field_indices(new_embed)
+        gym_embed = new_embed.fields[embed_indices['gym']]
+        gym_info = _("**Name:** {0}\n**Notes:** {1}").format(gym.name, "_EX Eligible Gym_" if gym.ex_eligible else "N/A")
+        if weather is not None:
+            gym_info += "\n**Weather**: " + weather
+        new_embed.set_field_at(embed_indices['gym'], name=_(gym_embed.name), value=gym_info, inline=True)
+        new_embed.set_footer(text=oldembed.footer.text, icon_url=oldembed.footer.icon_url)
+        new_embed.set_thumbnail(url=oldembed.thumbnail.url)
     otw_list = []
     trainer_dict = copy.deepcopy(raid_dict['trainer_dict'])
     for trainer in trainer_dict.keys():
@@ -6601,14 +6607,15 @@ async def update_raid_location(message, report_channel, raid_channel, gym):
     except:
         pass
     try:
-        embed_indices = await get_embed_field_indices(new_embed)
-        new_embed = await filter_fields_for_report_embed(new_embed, embed_indices)
-        message_content = get_raidtext(guild, raid_dict, gym, report_channel, raid_channel, True)
-        await oldreportmsg.edit(new_content=message_content, embed=new_embed, content=message_content)
-        if raid_dict['raidcityreport'] is not None:
-            report_city_channel = Meowth.get_channel(raid_dict['reportcity'])
-            report_city_msg = await report_city_channel.fetch_message(raid_dict['raidcityreport'])
-            await report_city_msg.edit(new_content=message_content, embed=new_embed, content=message_content)
+        if enabled:
+            embed_indices = await get_embed_field_indices(new_embed)
+            new_embed = await filter_fields_for_report_embed(new_embed, embed_indices)
+            message_content = get_raidtext(guild, raid_dict, gym, report_channel, raid_channel, True)
+            await oldreportmsg.edit(new_content=message_content, embed=new_embed, content=message_content)
+            if raid_dict['raidcityreport'] is not None:
+                report_city_channel = Meowth.get_channel(raid_dict['reportcity'])
+                report_city_msg = await report_city_channel.fetch_message(raid_dict['raidcityreport'])
+                await report_city_msg.edit(new_content=message_content, embed=new_embed, content=message_content)
     except:
         pass
     raid_dict['raidmessage'] = oldraidmsg.id
