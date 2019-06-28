@@ -1,9 +1,9 @@
 import json
 import re
 from discord.ext import commands
-from meowth import utils
-from meowth import checks
-from meowth.exts.pokemon import Pokemon
+from kyogre import utils
+from kyogre import checks
+from kyogre.exts.pokemon import Pokemon
 
 class RaidDataHandler(commands.Cog):
     """Raid Data Loading and Saving Test Cog."""

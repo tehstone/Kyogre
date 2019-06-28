@@ -4,8 +4,8 @@ import discord
 from discord.ext import commands
 
 
-from meowth import utils
-from meowth import checks
+from kyogre import utils
+from kyogre import checks
 
 class Tutorial(commands.Cog):
     def __init__(self, bot):

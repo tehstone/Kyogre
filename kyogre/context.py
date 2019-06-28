@@ -3,8 +3,8 @@ import textwrap
 import discord
 from discord.ext import commands
 
-from meowth.utils import convert_to_bool, make_embed, bold
-from meowth import settings
+from kyogre.utils import convert_to_bool, make_embed, bold
+from kyogre import settings
 
 class Context(commands.Context):
     def __init__(self, **kwargs):

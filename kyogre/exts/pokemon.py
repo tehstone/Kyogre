@@ -2,8 +2,8 @@ from discord.ext import commands
 import discord
 from string import ascii_lowercase
 
-from meowth import utils
-from meowth.exts.db.kyogredb import PokemonTable
+from kyogre import utils
+from kyogre.exts.db.kyogredb import PokemonTable
 
 from discord.ext.commands import CommandError
 

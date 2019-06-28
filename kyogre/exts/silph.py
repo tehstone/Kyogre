@@ -4,7 +4,7 @@ import aiohttp
 
 import discord
 from discord.ext import commands
-from meowth import utils
+from kyogre import utils
 
 class SilphBadge:
 

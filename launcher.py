@@ -26,7 +26,7 @@ def run_kyogre(autorestart):
     if interpreter is None:
         raise RuntimeError("Python could not be found")
 
-    cmd = [interpreter, "-m", "meowth", "launcher"]
+    cmd = [interpreter, "-m", "kyogre", "launcher"]
 
     retries = 0
 

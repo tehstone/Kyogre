@@ -4,9 +4,9 @@ import functools
 import discord
 from discord.ext import commands
 
-from meowth import utils, checks
+from kyogre import utils, checks
 
-from meowth.exts.pokemon import Pokemon
+from kyogre.exts.pokemon import Pokemon
 
 
 class Trade:

@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from meowth import checks
+from kyogre import checks
 
 class Utilities(commands.Cog):
     def __init__(self, bot):

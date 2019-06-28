@@ -1,7 +1,7 @@
 
 from discord.ext import commands
 import discord.utils
-from meowth import errors
+from kyogre import errors
 
 def is_user_owner_check(config,userid):
     owner = config['master']

@@ -5,9 +5,7 @@
             "egg_img": "1.png",
             "pokemon": [
                 "caterpie",
-                "shinx",
-                "skorupi",
-                "kricketot"
+                "magikarp"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -16,10 +14,7 @@
             "egg": "normal",
             "egg_img": "2.png",
             "pokemon": [
-                "exeggutor",
-                "pineco",
-                "masquerain",
-                "mawile"
+                "meowth"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -28,11 +23,7 @@
             "egg": "rare",
             "egg_img": "3.png",
             "pokemon": [
-                "alolan raichu",
-                "machamp",
-                "scyther",
-                "pinsir",
-                "shuckle"
+                "machamp"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -41,9 +32,7 @@
             "egg": "rare",
             "egg_img": "4.png",
             "pokemon": [
-                "alolan marowak",
                 "tyranitar",
-                "ninjask",
                 "absol"
             ],
             "hatchtime": 60,
@@ -53,7 +42,7 @@
             "egg": "legendary",
             "egg_img": "5.png",
             "pokemon": [
-                "giratina"
+                "articuno"
             ],
             "hatchtime": 60,
             "raidtime": 45

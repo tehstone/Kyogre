@@ -1,7 +1,7 @@
 from discord.ext import commands
-from meowth.context import Context
+from kyogre.context import Context
 
-class MeowthBot(commands.AutoShardedBot):
+class KyogreBot(commands.AutoShardedBot):
     """Custom Discord Bot class for Kyogre"""
 
     async def process_commands(self, message):

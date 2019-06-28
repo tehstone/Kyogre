@@ -5,8 +5,8 @@ import tempfile
 
 from discord.ext import commands
 
-from meowth import utils, checks
-from meowth.exts.db.kyogredb import *
+from kyogre import utils, checks
+from kyogre.exts.db.kyogredb import *
 
 class Location:
     def __init__(self, id, name, latitude, longitude, region, note):

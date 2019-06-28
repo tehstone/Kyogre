@@ -6,7 +6,7 @@ from fuzzywuzzy import process
 import discord
 import asyncio
 
-from meowth.exts import pokemon
+from kyogre.exts import pokemon
 
 Pokemon = pokemon.Pokemon
 
@@ -423,3 +423,34 @@ def sanitize_name(name):
     # Replace spaces with dashes
     ret = ret.replace(' ', '-')
     return ret
+
+# Given a list of types, return a
+# space-separated string of their type IDs,
+# as defined in the type_id_dict
+def types_to_str(guild, type_list, config):
+    ret = ''
+    for p_type in type_list:
+        p_type = p_type.lower()
+        x2 = ''
+        if p_type[-2:] == 'x2':
+            p_type = p_type[:-2]
+            x2 = 'x2'
+        # Append to string
+        ret += (parse_emoji(guild,
+                config['type_id_dict'][p_type]) + x2) + ' '
+    return ret
+
+# Given a string, if it fits the pattern :emoji name:,
+# and <emoji_name> is in the server's emoji list, then
+# return the string <:emoji name:emoji id>. Otherwise,
+# just return the string unmodified.
+
+def parse_emoji(guild, emoji_string):
+    if (emoji_string[0] == ':') and (emoji_string[-1] == ':'):
+        emoji = discord.utils.get(guild.emojis, name=emoji_string.strip(':'))
+        if emoji:
+            emoji_string = '<:{0}:{1}>'.format(emoji.name, emoji.id)
+    return emoji_string
+
+def simple_gmaps_query(lat,lng):
+    return f'https://www.google.com/maps/search/?api=1&query={lat},{lng}'
