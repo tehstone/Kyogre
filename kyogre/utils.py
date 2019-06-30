@@ -1,3 +1,4 @@
+import asyncio
 import re
 
 from fuzzywuzzy import fuzz
@@ -225,6 +226,27 @@ def get_effectiveness(type_eff):
         if type_eff == -2:
             return 0.51
         return 1
+
+async def simple_ask(Kyogre, message, destination, user_list=None, *, react_list=['✅', '❎']):
+    if user_list and not isinstance(user_list, list):
+        user_list = [user_list]
+    def check(reaction, user):
+        if user_list and isinstance(user_list, list):
+            return (user.id in user_list) and (reaction.message.id == message.id) and (reaction.emoji in react_list)
+        elif not user_list:
+            return (user.id != message.guild.me.id) and (reaction.message.id == message.id) and (reaction.emoji in react_list)
+    for r in react_list:
+        await asyncio.sleep(0.25)
+        try:
+            await message.add_reaction(r)
+        except:
+            print(f"couldn't add reaction {r}")
+    try:
+        reaction, user = await Kyogre.wait_for('reaction_add', check=check, timeout=60)
+        return reaction, user
+    except asyncio.TimeoutError:
+        await message.clear_reactions()
+        return  
 
 async def ask(bot, message, user_list=None, timeout=60, *, react_list=['✅', '❎'], multiple=False):
     finish_multiple = '👍'

@@ -34,7 +34,8 @@ from kyogre.exts.db.kyogredb import *
 KyogreDB.start('data/kyogre.db')
 
 
-from kyogre import checks, configuration, constants, list_helpers, raid_helpers, utils
+from kyogre import checks, configuration, constants, counters_helpers, embed_utils
+from kyogre import entity_updates, list_helpers, raid_helpers, raid_lobby_helpers, utils
 from kyogre.bot import KyogreBot
 from kyogre.errors import custom_error_handling
 from kyogre.logs import init_loggers
@@ -211,28 +212,7 @@ def create_gmaps_query(details, channel, type="raid"):
     if re.match (r'^\s*-?\d{1,2}\.?\d*,\s*-?\d{1,3}\.?\d*\s*$', details): #regex looks for lat/long in the format similar to 42.434546, -83.985195.
         return "https://www.google.com/maps/search/?api=1&query={0}".format('+'.join(details_list))
     loc_list = guild_dict[channel.guild.id]['configure_dict'][report]['report_channels'][channel.id].split()
-    return 'https://www.google.com/maps/search/?api=1&query={0}+{1}'.format('+'.join(details_list), '+'.join(loc_list))
-
-async def ask(message, destination, user_list=None, *, react_list=['✅', '❎']):
-    if user_list and not isinstance(user_list, list):
-        user_list = [user_list]
-    def check(reaction, user):
-        if user_list and isinstance(user_list, list):
-            return (user.id in user_list) and (reaction.message.id == message.id) and (reaction.emoji in react_list)
-        elif not user_list:
-            return (user.id != message.guild.me.id) and (reaction.message.id == message.id) and (reaction.emoji in react_list)
-    for r in react_list:
-        await asyncio.sleep(0.25)
-        try:
-            await message.add_reaction(r)
-        except:
-            print(f"couldn't add reaction {r}")
-    try:
-        reaction, user = await Kyogre.wait_for('reaction_add', check=check, timeout=60)
-        return reaction, user
-    except asyncio.TimeoutError:
-        await message.clear_reactions()
-        return    
+    return 'https://www.google.com/maps/search/?api=1&query={0}+{1}'.format('+'.join(details_list), '+'.join(loc_list))  
 
 @Kyogre.command(name='gym')
 async def _gym(ctx, *, name):
@@ -318,47 +298,6 @@ def get_category(channel, level, category_type="raid"):
         return category
     else:
         return None
-
-def get_raidtext(guild, raid_dict, gym, report_channel, raid_channel, report):
-    if 'type' in raid_dict:
-        type = raid_dict['type']
-    if 'pokemon' in raid_dict:
-        pkmn = raid_dict['pokemon']
-    if 'egglevel' in raid_dict:
-        level = raid_dict['egglevel']
-    if 'reporter' in raid_dict:
-        member = raid_dict['reporter']
-    if 'exp' in raid_dict:
-        raidexp = raid_dict['exp']
-    member = guild.get_member(member)
-    pkmn = Pokemon.get_pokemon(Kyogre, pkmn)
-    if report:
-        raidtext = build_raid_report_message(gym, type, pkmn, level, raidexp, report_channel)
-    else:
-        if type == "raid":
-            raidtext = "{pkmn} raid reported by {member} in {channel}! Coordinate here!\n\nFor help, react to this message with the question mark and I will DM you a list of commands you can use!".format(pkmn=pkmn.name(), member=member.display_name, channel=raid_channel.mention)
-        elif type == "egg":
-            raidtext = "Level {level} raid egg reported by {member} in {channel}! Coordinate here!\n\nFor help, react to this message with the question mark and I will DM you a list of commands you can use!".format(level=level, member=member.display_name, channel=raid_channel.mention)
-        elif type == "exraid":
-            raidtext = "EX raid reported by {member} in {channel}! Coordinate here!\n\nFor help, react to this message with the question mark and I will DM you a list of commands you can use!".format(member=member.display_name, channel=raid_channel.mention)
-    return raidtext
-
-def build_raid_report_message(gym, type, pkmn, level, raidexp, channel):
-    guild = channel.guild
-    enabled =raid_helpers.raid_channels_enabled(guild, channel, guild_dict)
-    if type == "raid":
-        msg = '{boss} @ {location}{ex}'.format(ex=" (EX) " if gym.ex_eligible else "", boss=pkmn, location=gym.name)
-        end_str = "Expires: "
-    elif type == "egg":
-        msg = 'T{level} egg @ {location}{ex}'.format(ex=" (EX) " if gym.ex_eligible else "", level=level, location=gym.name)
-        end_str = "Hatches: "
-    if raidexp is not False:
-        now = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
-        end = now + datetime.timedelta(minutes=raidexp)
-        msg += ' {type}{end}.'.format(end=end.strftime('%I:%M %p'), type=end_str)
-    if enabled:
-        msg += " Coordinate in {channel}".format(channel=channel.mention)
-    return msg
 
 async def create_raid_channel(raid_type, pkmn, level, gym, report_channel):
     guild = report_channel.guild
@@ -591,7 +530,7 @@ async def expire_wild(message):
     except (discord.errors.NotFound, discord.errors.Forbidden, discord.errors.HTTPException):
         pass
     del guild_dict[guild.id]['wildreport_dict'][message.id]
-    await _update_listing_channels(guild, 'wild', edit=True, regions=_get_channel_regions(channel, 'wild', guild_dict))
+    await list_helpers._update_listing_channels(Kyogre, guild_dict, guild, 'wild', edit=True, regions=_get_channel_regions(channel, 'wild', guild_dict))
 
 async def expiry_check(channel):
     logger.info('Expiry_Check - ' + channel.name)
@@ -740,7 +679,7 @@ async def expire_channel(channel):
                         reportmsg = await report_channel.fetch_message(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['raidreport'])
                         await reportmsg.edit(embed=discord.Embed(description=expiremsg, colour=channel.guild.me.colour))
                         await reportmsg.clear_reactions()
-                        await _update_listing_channels(guild, 'raid', edit=True, regions=guild_dict[guild.id]['raidchannel_dict'][channel.id].get('regions', None))
+                        await list_helpers._update_listing_channels(Kyogre, guild_dict, guild, 'raid', edit=True, regions=guild_dict[guild.id]['raidchannel_dict'][channel.id].get('regions', None))
                     except:
                         pass
                     # channel doesn't exist anymore in serverdict
@@ -995,8 +934,8 @@ async def message_cleanup(loop=True):
         # save server_dict changes after cleanup
         for id in update_ids:
             guild = Kyogre.get_guild(id)
-            await _update_listing_channels(guild, 'wild', edit=True)
-            await _update_listing_channels(guild, 'research', edit=True)
+            await list_helpers._update_listing_channels(Kyogre, guild_dict, guild, 'wild', edit=True)
+            await list_helpers._update_listing_channels(Kyogre, guild_dict, guild, 'research', edit=True)
         logger.info('message_cleanup - SAVING CHANGES')
         try:
             await _save(guild_id)
@@ -1942,7 +1881,7 @@ async def regional(ctx, regional):
         question = await ctx.channel.send(msg)
         try:
             timeout = False
-            res, reactuser = await ask(question, ctx.message.channel, ctx.message.author.id)
+            res, reactuser = await utils.simple_ask(Kyogre, question, ctx.message.channel, ctx.message.author.id)
         except TypeError:
             timeout = True
         await question.delete()
@@ -2231,7 +2170,7 @@ async def announce(ctx, *, announce=None):
     rusure = await channel.send(msg.format(owner_msg_add))
     try:
         timeout = False
-        res, reactuser = await ask(rusure, channel, author.id, react_list=reaction_list)
+        res, reactuser = await utils.simple_ask(Kyogre, rusure, channel, author.id, react_list=reaction_list)
     except TypeError:
         timeout = True
     if not timeout:
@@ -2582,7 +2521,7 @@ async def raid_json(ctx, level=None, *, newlist=None):
         question = await ctx.channel.send(msg)
         try:
             timeout = False
-            res, reactuser = await ask(question, ctx.channel, ctx.author.id)
+            res, reactuser = await utils.simple_ask(Kyogre, question, ctx.channel, ctx.author.id)
         except TypeError:
             timeout = True
         if timeout or res.emoji == '❎':
@@ -2647,7 +2586,7 @@ async def reset_board(ctx, *, user=None, type=None):
     question = await ctx.channel.send(msg)
     try:
         timeout = False
-        res, reactuser = await ask(question, ctx.message.channel, ctx.message.author.id)
+        res, reactuser = await utils.simple_ask(Kyogre, question, ctx.message.channel, ctx.message.author.id)
     except TypeError:
         timeout = True
     await question.delete()
@@ -2709,7 +2648,7 @@ async def changeraid_internal(guild, channel, newraid):
         report_channel = Kyogre.get_channel(raid_dict['reportchannel'])
         report_message = await report_channel.fetch_message(raid_dict['raidreport'])
         raid_embed = raid_message.embeds[0]
-        embed_indices = await get_embed_field_indices(raid_embed)
+        embed_indices = await embed_utils.get_embed_field_indices(raid_embed)
         if embed_indices["possible"] is not None:
             index = embed_indices["possible"]
             raid_embed.set_field_at(index, name="**Possible Bosses:**", value='{bosslist1}'.format(bosslist1='\n'.join(boss_list[::2])), inline=True)
@@ -2728,7 +2667,7 @@ async def changeraid_internal(guild, channel, newraid):
             report_message.content = re.sub(r'.*\sraid\sreported','Level {}'.format(newraid), report_message.content, flags=re.IGNORECASE)
         await raid_message.edit(new_content=raid_message.content, embed=raid_embed, content=raid_message.content)
         try:
-            raid_embed = await filter_fields_for_report_embed(raid_embed, embed_indices)
+            raid_embed = await embed_utils.filter_fields_for_report_embed(raid_embed, embed_indices)
             await report_message.edit(new_content=report_message.content, embed=raid_embed, content=report_message.content)
             if raid_dict['raidcityreport'] is not None:
                 report_city_channel = Kyogre.get_channel(raid_dict['reportcity'])
@@ -2761,7 +2700,7 @@ async def clearstatus(ctx):
     question = await ctx.channel.send(msg)
     try:
         timeout = False
-        res, reactuser = await ask(question, ctx.message.channel, ctx.message.author.id)
+        res, reactuser = await utils.simple_ask(Kyogre, question, ctx.message.channel, ctx.message.author.id)
     except TypeError:
         timeout = True
     await question.delete()
@@ -3865,7 +3804,7 @@ async def _lure_internal(message, content):
     lure_embed = discord.Embed(title=f'Click here for my directions to the {luretype.name.capitalize()} lure!', description=f"Ask {author.display_name} if my directions aren't perfect!", url=stop.maps_url, colour=discord.Colour.purple())
     lure_embed.set_footer(text='Reported by {author} - {timestamp}'.format(author=author.display_name, timestamp=timestamp), icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
     lurereportmsg = await channel.send(f'**{luretype.name.capitalize()}** lure reported by {author.display_name} at {stop.name}', embed=lure_embed)
-    await _update_listing_channels(guild, 'lure', edit=False, regions=lure_regions)
+    await list_helpers._update_listing_channels(Kyogre, guild_dict, guild, 'lure', edit=False, regions=lure_regions)
     details = {'regions': lure_regions, 'type': 'lure', 'lure_type': luretype.name, 'location': stop.name}
     await _send_notifications_async('lure', details, message.channel, [message.author.id])
     event_loop.create_task(lure_expiry_check(lurereportmsg, report.id))
@@ -3951,7 +3890,7 @@ async def _wild_internal(message, content):
     guild_dict[guild.id]['trainers'][channel_regions[0]][author.id]['wild_reports'] = wild_reports
     wild_details = {'pokemon': pkmn, 'perfect': is_perfect, 'location': wild_details, 'regions': channel_regions}
     event_loop.create_task(wild_expiry_check(wildreportmsg))
-    await _update_listing_channels(message.guild, 'wild', edit=False, regions=channel_regions)
+    await list_helpers._update_listing_channels(Kyogre, guild_dict, message.guild, 'wild', edit=False, regions=channel_regions)
     await _send_notifications_async('wild', wild_details, message.channel, [message.author.id])
 
 @Kyogre.group(name="raid", aliases=['r', 're', 'egg', 'regg', 'raidegg'])
@@ -4286,7 +4225,7 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
             raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**', inline=True)
             raid_embed.add_field(name='**Expires:**', value='Set with **!timerset**', inline=True)
         raid_img_url = raid_pokemon.img_url
-        msg = build_raid_report_message(gym, 'raid', raid_pokemon.name, '0', raidexp, raid_channel)
+        msg = entity_updates.build_raid_report_message(gym, 'raid', raid_pokemon.name, '0', raidexp, raid_channel, guild_dict)
     else:
         if enabled:
             if len(egg_info['pokemon']) > 1:
@@ -4298,13 +4237,13 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
             raid_embed.add_field(name='**Hatches:**', value='Set with **!timerset**', inline=True)
             raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**', inline=True)
         raid_img_url = 'https://raw.githubusercontent.com/klords/Kyogre/master/images/eggs/{}?cache=0'.format(str(egg_img))
-        msg = build_raid_report_message(gym, 'egg', '', level, raidexp, raid_channel)
+        msg = entity_updates.build_raid_report_message(gym, 'egg', '', level, raidexp, raid_channel, guild_dict)
     if enabled:
         raid_embed.set_footer(text='Reported by {author} - {timestamp}'.format(author=author.display_name, timestamp=timestamp), icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
         raid_embed.set_thumbnail(url=raid_img_url)
     report_embed = raid_embed
-    embed_indices = await get_embed_field_indices(report_embed)
-    report_embed = await filter_fields_for_report_embed(report_embed, embed_indices)
+    embed_indices = await embed_utils.get_embed_field_indices(report_embed)
+    report_embed = await embed_utils.filter_fields_for_report_embed(report_embed, embed_indices)
     raidreport = await channel.send(content=msg, embed=report_embed)
     await asyncio.sleep(1)
     raid_embed.add_field(name='**Tips:**', value='`!i` if interested\n`!c` if on the way\n`!h` when you arrive\n`!list` to view all interested\n`!s` to signal lobby start', inline=True)
@@ -4313,7 +4252,7 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
         raidmsg = "{pokemon} raid reported by {member} in {citychannel} at {location_details} gym. Coordinate here!\n\nClick the question mark reaction to get help on the commands that work in here.\n\nThis channel will be deleted five minutes after the timer expires.".format(pokemon=str(raid_pokemon), member=author.display_name, citychannel=channel.mention, location_details=raid_details)
         if str(level) in guild_dict[guild.id]['configure_dict']['counters']['auto_levels']:
             try:
-                ctrs_dict = await _get_generic_counters(guild, raid_pokemon, weather)
+                ctrs_dict = await counters_helpers._get_generic_counters(Kyogre, guild, raid_pokemon, weather)
                 ctrsmsg = "Here are the best counters for the raid boss in currently known weather conditions! Update weather with **!weather**. If you know the moveset of the boss, you can react to this message with the matching emoji and I will update the counters."
                 ctrsmessage = await raid_channel.send(content=ctrsmsg,embed=ctrs_dict[0]['embed'])
                 ctrsmessage_id = ctrsmessage.id
@@ -4355,7 +4294,7 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
         await _timerset(raid_channel, raidexp)
     else:
         await raid_channel.send(content='Hey {member}, if you can, set the time left on the raid using **!timerset <minutes>** so others can check it with **!timer**.'.format(member=author.mention))
-    await _update_listing_channels(guild, 'raid', edit=False, regions=gym_regions)
+    await list_helpers._update_listing_channels(Kyogre, guild_dict, guild, 'raid', edit=False, regions=gym_regions)
     if enabled:
         await _send_notifications_async('raid', raid_details, raid_channel, [author.id])
     else:
@@ -4411,7 +4350,7 @@ async def _eggassume(args, raid_channel, author=None):
     raid_gmaps_link = oldembed.url
     enabled =raid_helpers.raid_channels_enabled(raid_channel.guild, raid_channel, guild_dict)
     if enabled:
-        embed_indices = await get_embed_field_indices(oldembed)
+        embed_indices = await embed_utils.get_embed_field_indices(oldembed)
         raid_embed = discord.Embed(title='Click here for directions to the raid!', url=raid_gmaps_link, colour=raid_channel.guild.me.colour)
         raid_embed.add_field(name=(oldembed.fields[embed_indices["gym"]].name), value=oldembed.fields[embed_indices["gym"]].value, inline=True)
         cp_range = ''
@@ -4434,8 +4373,8 @@ async def _eggassume(args, raid_channel, author=None):
         except discord.errors.NotFound:
             raid_message = None
         try:
-            embed_indices = await get_embed_field_indices(raid_embed)
-            raid_embed = await filter_fields_for_report_embed(raid_embed, embed_indices)
+            embed_indices = await embed_utils.get_embed_field_indices(raid_embed)
+            raid_embed = await embed_utils.filter_fields_for_report_embed(raid_embed, embed_indices)
             await egg_report.edit(new_content=egg_report.content, embed=raid_embed, content=egg_report.content)
             egg_report = egg_report.id
         except discord.errors.NotFound:
@@ -4450,7 +4389,7 @@ async def _eggassume(args, raid_channel, author=None):
                 city_report = None
     await raid_channel.send('This egg will be assumed to be {pokemon} when it hatches!'.format(pokemon=raid_pokemon.full_name))
     if str(egglevel) in guild_dict[guild.id]['configure_dict']['counters']['auto_levels']:
-        ctrs_dict = await _get_generic_counters(guild, raid_pokemon, weather)
+        ctrs_dict = await counters_helpers._get_generic_counters(Kyogre, guild, raid_pokemon, weather)
         ctrsmsg = "Here are the best counters for the raid boss in currently known weather conditions! Update weather with **!weather**. If you know the moveset of the boss, you can react to this message with the matching emoji and I will update the counters."
         ctrsmessage = await raid_channel.send(content=ctrsmsg,embed=ctrs_dict[0]['embed'])
         ctrsmessage_id = ctrsmessage.id
@@ -4556,7 +4495,7 @@ async def _eggtoraid(entered_raid, raid_channel, author=None):
         raidmsg = "{pokemon} EX raid reported in {citychannel}! Details: {location_details}. Coordinate here{invitemsgstr2}!\n\nClick the question mark reaction to get help on the commands that work in here.\n\nThis channel will be deleted five minutes after the timer expires.".format(pokemon=entered_raid.capitalize(), citychannel=reportcitychannel.mention, location_details=egg_address, invitemsgstr2=invitemsgstr2)
     raid_channel_name = utils.sanitize_name(pkmn.name.lower() + '_' + egg_address)
     raid = discord.utils.get(raid_channel.guild.roles, name=pkmn.species)
-    embed_indices = await get_embed_field_indices(oldembed)
+    embed_indices = await embed_utils.get_embed_field_indices(oldembed)
     raid_embed = discord.Embed(title='Click here for directions to the raid!', url=raid_gmaps_link, colour=raid_channel.guild.me.colour)
     raid_embed.add_field(name=(oldembed.fields[embed_indices["gym"]].name), value=oldembed.fields[embed_indices["gym"]].value, inline=True)
     cp_range = ''
@@ -4615,8 +4554,8 @@ async def _eggtoraid(entered_raid, raid_channel, author=None):
     except (discord.errors.NotFound, AttributeError):
         raid_message = None
     try:
-        embed_indices = await get_embed_field_indices(raid_embed)
-        report_embed = await filter_fields_for_report_embed(raid_embed, embed_indices)
+        embed_indices = await embed_utils.get_embed_field_indices(raid_embed)
+        report_embed = await embed_utils.filter_fields_for_report_embed(raid_embed, embed_indices)
         await egg_report.edit(new_content=raidreportcontent, embed=report_embed, content=raidreportcontent)
         egg_report = egg_report.id
     except (discord.errors.NotFound, AttributeError):
@@ -4627,7 +4566,7 @@ async def _eggtoraid(entered_raid, raid_channel, author=None):
         except (discord.errors.NotFound, AttributeError):
             city_report = None
     if str(egglevel) in guild_dict[raid_channel.guild.id]['configure_dict']['counters']['auto_levels'] and not eggdetails.get('pokemon', None):
-        ctrs_dict = await _get_generic_counters(raid_channel.guild, pkmn, weather)
+        ctrs_dict = await counters_helpers._get_generic_counters(Kyogre, raid_channel.guild, pkmn, weather)
         ctrsmsg = "Here are the best counters for the raid boss in currently known weather conditions! Update weather with **!weather**. If you know the moveset of the boss, you can react to this message with the matching emoji and I will update the counters."
         ctrsmessage = await raid_channel.send(content=ctrsmsg,embed=ctrs_dict[0]['embed'])
         ctrsmessage_id = ctrsmessage.id
@@ -4666,68 +4605,9 @@ async def _eggtoraid(entered_raid, raid_channel, author=None):
     if author:
         raid_reports = guild_dict[raid_channel.guild.id].setdefault('trainers',{}).setdefault(regions[0], {}).setdefault(author.id,{}).setdefault('raid_reports',0) + 1
         guild_dict[raid_channel.guild.id]['trainers'][regions[0]][author.id]['raid_reports'] = raid_reports
-        await _edit_party(raid_channel, author)
-    await _update_listing_channels(raid_channel.guild, 'raid', edit=False, regions=regions)
+        await list_helpers._edit_party(ctx, Kyogre, guild_dict, raid_channel, author)
+    await list_helpers._update_listing_channels(Kyogre, guild_dict, raid_channel.guild, 'raid', edit=False, regions=regions)
     event_loop.create_task(expiry_check(raid_channel))
-
-async def get_embed_field_indices(embed):
-    index = 0
-    embed_indices = {"gym": None,
-                    "possible": None,
-                    "interest": None,
-                    "next": None,
-                    "hatch": None,
-                    "expires": None,
-                    "status": None,
-                    "team": None,
-                    "details": None,
-                    "weak": None,
-                    "tips": None
-                    }
-    for field in embed.fields:
-        if "gym" in field.name.lower():
-            embed_indices["gym"] = index
-        if "possible" in field.name.lower():
-            embed_indices["possible"] = index
-        if "interest" in field.name.lower():
-            embed_indices["interest"] = index
-        if "next" in field.name.lower():
-            embed_indices["next"] = index
-        if "hatch" in field.name.lower():
-            embed_indices["hatch"] = index
-        if "expires" in field.name.lower():
-            embed_indices["expires"] = index
-        if "status" in field.name.lower():
-            embed_indices["status"] = index
-        if "team" in field.name.lower():
-            embed_indices["team"] = index
-        if "details" in field.name.lower():
-            embed_indices["details"] = index
-        if "weak" in field.name.lower():
-            embed_indices["weak"] = index
-        if "tips" in field.name.lower():
-            embed_indices["tips"] = index
-        # if "" in field.name.lower():
-        #     embed_indices[""] = index
-        index += 1
-    return embed_indices
-
-async def filter_fields_for_report_embed(embed, embed_indices):
-    new_embed = copy.deepcopy(embed)
-    new_embed.clear_fields()
-    if embed_indices['gym'] is not None:
-        new_embed.add_field(name=embed.fields[embed_indices['gym']].name, value=embed.fields[embed_indices['gym']].value, inline=True) 
-    if embed_indices['hatch'] is not None:
-        new_embed.add_field(name=embed.fields[embed_indices['hatch']].name, value=embed.fields[embed_indices['hatch']].value, inline=True) 
-    if embed_indices['expires'] is not None:
-        new_embed.add_field(name=embed.fields[embed_indices['expires']].name, value=embed.fields[embed_indices['expires']].value, inline=True)
-    if embed_indices['next'] is not None:
-        new_embed.add_field(name=embed.fields[embed_indices['next']].name, value=embed.fields[embed_indices['next']].value, inline=True)
-    if embed_indices['team'] is not None:
-        new_embed.add_field(name=embed.fields[embed_indices['team']].name, value=embed.fields[embed_indices['team']].value, inline=True)
-    if embed_indices['status'] is not None:
-        new_embed.add_field(name=embed.fields[embed_indices['status']].name, value=embed.fields[embed_indices['status']].value, inline=True)
-    return new_embed
 
 @Kyogre.group(name="raidnotice", aliases=['rn'], case_insensitive=True)
 @checks.allowraidreport()
@@ -5039,7 +4919,7 @@ async def shinyquest(ctx, *, details):
     guild_dict[guild.id]['questreport_dict'] = research_dict
     research_reports = guild_dict[ctx.guild.id].setdefault('trainers',{}).setdefault(regions[0], {}).setdefault(author.id,{}).setdefault('research_reports',0) + 1
     guild_dict[ctx.guild.id]['trainers'][regions[0]][author.id]['research_reports'] = research_reports
-    await _update_listing_channels(guild, 'research', edit=False, regions=regions)
+    await list_helpers._update_listing_channels(Kyogre, guild_dict, guild, 'research', edit=False, regions=regions)
     pokemon = Pokemon.get_pokemon(Kyogre, 'feebas')
     research_details = {'pokemon': pokemon, 'location': location, 'regions': regions}
     await _send_notifications_async('shiny', research_details, channel, [message.author.id])
@@ -5195,7 +5075,7 @@ async def research(ctx, *, details = None):
         guild_dict[guild.id]['questreport_dict'] = research_dict
         research_reports = guild_dict[ctx.guild.id].setdefault('trainers',{}).setdefault(regions[0], {}).setdefault(author.id,{}).setdefault('research_reports',0) + 1
         guild_dict[ctx.guild.id]['trainers'][regions[0]][author.id]['research_reports'] = research_reports
-        await _update_listing_channels(guild, 'research', edit=False, regions=regions)
+        await list_helpers._update_listing_channels(Kyogre, guild_dict, guild, 'research', edit=False, regions=regions)
         if 'encounter' in reward.lower():
             pokemon = reward.rsplit(maxsplit=1)[0]
             research_details = {'pokemon': [Pokemon.get_pokemon(Kyogre, p) for p in re.split(r'\s*,\s*', pokemon)], 'location': location, 'regions': regions}
@@ -5993,109 +5873,13 @@ async def _rewards_remove(ctx, *, info):
 async def _refresh_listing_channels(ctx, type, *, regions=None):
     if regions:
         regions = [r.strip() for r in regions.split(',')]
-    await _update_listing_channels(ctx.guild, type, edit=True, regions=regions)
+    await list_helpers._update_listing_channels(Kyogre, guild_dict, ctx.guild, type, edit=True, regions=regions)
     await ctx.message.add_reaction('\u2705')
 
 async def _refresh_listing_channels_internal(guild, type, *, regions=None):
     if regions:
         regions = [r.strip() for r in regions.split(',')]
-    await _update_listing_channels(guild, type, edit=True, regions=regions)
-
-async def _update_listing_channels(guild, type, edit=False, regions=None):
-    valid_types = ['raid', 'research', 'wild', 'nest', 'lure']
-    if type not in valid_types:
-        return
-    listing_dict = guild_dict[guild.id]['configure_dict'].get(type, {}).get('listings', None)
-    if not listing_dict or not listing_dict['enabled']:
-        return
-    if 'channel' in listing_dict:
-        channel = Kyogre.get_channel(listing_dict['channel']['id'])
-        return await _update_listing_channel(channel, type, edit)
-    if 'channels' in listing_dict:
-        if not regions:
-            regions = [r for r in listing_dict['channels']]
-        for region in regions:
-            channel_list = listing_dict['channels'].get(region, [])
-            if not isinstance(channel_list, list):
-                channel_list = [channel_list]
-            for channel_info in channel_list:
-                channel = Kyogre.get_channel(channel_info['id'])
-                await _update_listing_channel(channel, type, edit, region=region)
-
-async def _update_listing_channel(channel, type, edit, region=None):
-    lock = asyncio.Lock()
-    async with lock:
-        listing_dict = guild_dict[channel.guild.id]['configure_dict'].get(type, {}).get('listings', None)
-        if not listing_dict or not listing_dict['enabled']:
-            return
-        new_messages = await _get_listing_messages(type, channel, region)
-        previous_messages = await _get_previous_listing_messages(type, channel, region)
-        matches = itertools.zip_longest(new_messages, previous_messages)
-        new_ids = []
-        for pair in matches:
-            new_message = pair[0]
-            old_message = pair[1]
-            if pair[1]:
-                try:
-                    old_message = await channel.fetch_message(old_message)
-                except:
-                    old_message = None
-            if new_message:
-                new_embed = discord.Embed(description=new_message, colour=channel.guild.me.colour)
-                if old_message:
-                    if edit:
-                        await old_message.edit(embed=new_embed)
-                        new_ids.append(old_message.id)
-                        continue
-                    else:
-                        await old_message.delete()
-                new_message_obj = await channel.send(embed=new_embed)
-                new_ids.append(new_message_obj.id)
-            else: # old_message must be something if new_message is nothing
-                await old_message.delete()
-        if 'channel' in listing_dict:
-            listing_dict['channel']['messages'] = new_ids
-        elif 'channels' in listing_dict:
-            listing_dict['channels'][region]['messages'] = new_ids
-        guild_dict[channel.guild.id]['configure_dict'][type]['listings'] = listing_dict
-
-async def _get_previous_listing_messages(type, channel, region=None):
-    listing_dict = guild_dict[channel.guild.id]['configure_dict'].get(type, {}).get('listings', None)
-    if not listing_dict or not listing_dict['enabled']:
-        return
-    previous_messages = []
-    if 'channel' in listing_dict:
-        previous_messages = listing_dict['channel'].get('messages', [])
-    elif 'channels' in listing_dict:
-        if region:
-            previous_messages = listing_dict['channels'].get(region, {}).get('messages', [])
-        else:
-            for region, channel_info in listing_dict['channels'].items():
-                if channel_info['id'] == channel.id:
-                    previous_messages = channel_info.get('messages', [])
-                    break
-    else:
-        message_history = []
-        message_history = await channel.history(reverse=True).flatten()
-        if len(message_history) >= 1:
-            search_text = f"active {type}"
-            for message in message_history:
-                if search_text in message.embeds[0].description.lower():
-                    previous_messages.append(message.id)
-                    break
-    return previous_messages
-
-async def _get_listing_messages(type, channel, region=None):
-    if type == 'raid':
-        return await list_helpers._get_raid_listing_messages(Kyogre, channel, guild_dict, region)
-    elif type == 'wild':
-        return await list_helpers._get_wild_listing_messages(Kyogre, channel, guild_dict, region)
-    elif type == 'research':
-        return await list_helpers._get_research_listing_messages(Kyogre, channel, guild_dict, region)
-    elif type == 'lure':
-        return await list_helpers._get_lure_listing_messages(Kyogre, channel, guild_dict, region)
-    else:
-        return None
+    await list_helpers._update_listing_channels(Kyogre, guild_dict, guild, type, edit=True, regions=regions)
 
 """
 Raid Channel Management
@@ -6268,7 +6052,7 @@ async def _timerset(raidchannel, exptime):
     embed = raidmsg.embeds[0]
     for message in [raidmsg, reportmsg]:
         embed = message.embeds[0]
-        embed_indices = await get_embed_field_indices(embed)
+        embed_indices = await embed_utils.get_embed_field_indices(embed)
         if raid_dict['type'] == "raid":
             type = "expires"
         else:
@@ -6283,7 +6067,7 @@ async def _timerset(raidchannel, exptime):
             except discord.errors.NotFound:
                 pass
         else:
-            embed = await filter_fields_for_report_embed(embed, embed_indices)
+            embed = await embed_utils.filter_fields_for_report_embed(embed, embed_indices)
             try:
                 await message.edit(content=message.content,embed=embed)
             except discord.errors.NotFound:
@@ -6296,7 +6080,7 @@ async def _timerset(raidchannel, exptime):
                     city_report = city_report.id
                 except:
                     pass
-    await _update_listing_channels(raidchannel.guild, 'raid', edit=True, regions=raid_dict.get('regions', None))
+    await list_helpers._update_listing_channels(Kyogre, guild_dict, raidchannel.guild, 'raid', edit=True, regions=raid_dict.get('regions', None))
     raidchannel = Kyogre.get_channel(raidchannel.id)
     event_loop.create_task(expiry_check(raidchannel))
 
@@ -6384,7 +6168,7 @@ async def starttime(ctx,*,start_time=""):
                 rusure = await channel.send('There is already a start time of **{start}** set! Do you want to change it?'.format(start=alreadyset.strftime('%I:%M %p (%H:%M)')))
                 try:
                     timeout = False
-                    res, reactuser = await ask(rusure, channel, author.id)
+                    res, reactuser = await utils.simple_ask(Kyogre, rusure, channel, author.id)
                 except TypeError:
                     timeout = True
                 if timeout or res.emoji == '❎':
@@ -6409,14 +6193,14 @@ async def starttime(ctx,*,start_time=""):
         raidmsg = await channel.fetch_message(rc_d['raidmessage'])
         reportmsg = await report_channel.fetch_message(rc_d['raidreport'])
         embed = raidmsg.embeds[0]
-        embed_indices = await get_embed_field_indices(embed)
+        embed_indices = await embed_utils.get_embed_field_indices(embed)
         embed.set_field_at(embed_indices['next'], name=embed.fields[embed_indices['next']].name, value=nextgroup, inline=True)
         try:
             await raidmsg.edit(content=raidmsg.content,embed=embed)
         except discord.errors.NotFound:
             pass
         try:
-            embed = await filter_fields_for_report_embed(embed, embed_indices)
+            embed = await embed_utils.filter_fields_for_report_embed(embed, embed_indices)
             await reportmsg.edit(content=reportmsg.content,embed=embed)
         except discord.errors.NotFound:
             pass
@@ -6504,259 +6288,6 @@ async def new(ctx,*,content):
         await update_raid_location(message, report_channel, channel, gym)
         return
 
-async def update_raid_location(message, report_channel, raid_channel, gym):
-    guild = message.guild
-    raid_dict = guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
-    oldraidmsg = await raid_channel.fetch_message(raid_dict['raidmessage'])
-    oldreportmsg = await report_channel.fetch_message(raid_dict['raidreport'])
-    oldembed = oldraidmsg.embeds[0]
-    newloc = gym.maps_url
-    regions = [gym.region]
-    new_embed = discord.Embed(title=oldembed.title, url=newloc, colour=guild.me.colour)
-    for field in oldembed.fields:
-        t = 'team'
-        s = 'status'
-        if (t not in field.name.lower()) and (s not in field.name.lower()):
-            new_embed.add_field(name=field.name, value=field.value, inline=field.inline)
-    weather = raid_dict.get('weather', None)
-    enabled = raid_helper.raid_channels_enabled(raid_channel.guild, raid_channel, guild_dict)
-    if enabled:
-        embed_indices = await get_embed_field_indices(new_embed)
-        gym_embed = new_embed.fields[embed_indices['gym']]
-        gym_info = "**Name:** {0}\n**Notes:** {1}".format(gym.name, "_EX Eligible Gym_" if gym.ex_eligible else "N/A")
-        if weather is not None:
-            gym_info += "\n**Weather**: " + weather
-        new_embed.set_field_at(embed_indices['gym'], name=gym_embed.name, value=gym_info, inline=True)
-        new_embed.set_footer(text=oldembed.footer.text, icon_url=oldembed.footer.icon_url)
-        new_embed.set_thumbnail(url=oldembed.thumbnail.url)
-    otw_list = []
-    trainer_dict = copy.deepcopy(raid_dict['trainer_dict'])
-    for trainer in trainer_dict.keys():
-        if trainer_dict[trainer]['status']['coming']:
-            user = guild.get_member(trainer)
-            otw_list.append(user.mention)
-    await raid_channel.send(content='Someone has suggested a different location for the raid! Trainers {trainer_list}: make sure you are headed to the right place!'.format(trainer_list=', '.join(otw_list)))
-    channel_name = raid_channel.name
-    channel_prefix = channel_name.split("_")[0]
-    new_channel_name = utils.sanitize_name(channel_prefix + "_"+ gym.name)
-    await raid_channel.edit(name=new_channel_name)
-    try:
-        message_content = get_raidtext(guild, raid_dict, gym, report_channel, raid_channel, False)
-        await oldraidmsg.edit(new_content=message_content, embed=new_embed, content=message_content)
-    except:
-        pass
-    try:
-        if enabled:
-            embed_indices = await get_embed_field_indices(new_embed)
-            new_embed = await filter_fields_for_report_embed(new_embed, embed_indices)
-            message_content = get_raidtext(guild, raid_dict, gym, report_channel, raid_channel, True)
-            await oldreportmsg.edit(new_content=message_content, embed=new_embed, content=message_content)
-            if raid_dict['raidcityreport'] is not None:
-                report_city_channel = Kyogre.get_channel(raid_dict['reportcity'])
-                report_city_msg = await report_city_channel.fetch_message(raid_dict['raidcityreport'])
-                await report_city_msg.edit(new_content=message_content, embed=new_embed, content=message_content)
-    except:
-        pass
-    raid_dict['raidmessage'] = oldraidmsg.id
-    raid_dict['raidreport'] = oldreportmsg.id
-    raid_dict['gym'] = gym
-    raid_dict['address'] = gym.name
-    raid_dict['regions'] = regions
-    guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = raid_dict
-    
-    await _update_listing_channels(guild, "raid", True)
-    return
-
-@Kyogre.command()
-async def recover(ctx):
-    """Recover a raid channel if it is no longer responding to commands
-
-    Usage: !recover
-    Only necessary after a crash."""
-    if (checks.check_subscriptionchannel(ctx) or checks.check_citychannel(ctx) or checks.check_raidchannel(ctx) or checks.check_eggchannel(ctx) or checks.check_exraidchannel(ctx)):
-        await ctx.channel.send("I can't recover this channel because I know about it already!")
-    else:
-        channel = ctx.channel
-        guild = channel.guild
-        name = channel.name
-        topic = channel.topic
-        h = 'hatched-'
-        e = 'expired-'
-        while h in name or e in name:
-            name = name.replace(h,'')
-            name = name.replace(e,'')
-        egg = re.match('[1-5]-egg', name)
-        meetup = re.match('meetup', name)
-        now = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
-        reportchannel = None
-        raidmessage = None
-        trainer_dict = {}
-        name_split = name.replace('-', ' ').split('_')
-        pokemon = name_split[0]
-        async for message in channel.history(limit=500, reverse=True):
-            if message.author.id == guild.me.id:
-                c = 'Coordinate here'
-                if c in message.content:
-                    reportchannel = message.raw_channel_mentions[0]
-                    raidmessage = message
-                    break
-        if egg:
-            raidtype = 'egg'
-            chsplit = egg.string.split('-')
-            del chsplit[0]
-            egglevel = chsplit[0]
-            del chsplit[0]
-            del chsplit[0]
-            raid_details = ' '.join(chsplit)
-            raid_details = raid_details.strip()
-            if (not topic):
-                exp = raidmessage.created_at.replace(tzinfo=datetime.timezone.utc).timestamp() + (60 * raid_info['raid_eggs'][egglevel]['hatchtime'])
-                manual_timer = False
-            else:
-                topicsplit = topic.split('|')
-                localhatch = datetime.datetime.strptime(topicsplit[0][:(- 9)], 'Hatches on %B %d at %I:%M %p')
-                utchatch = localhatch - datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
-                exp = utchatch.replace(year=now.year, tzinfo=datetime.timezone.utc).timestamp()
-                manual_timer = True
-            pokemon = ''
-            if len(raid_info['raid_eggs'][egglevel]['pokemon']) == 1:
-                pokemon = raid_info['raid_eggs'][egglevel]['pokemon'][0]
-        elif pokemon in get_raidlist():
-            raidtype = 'raid'
-            egglevel = '0'
-            raid_details = ' '.join(name_split[1:])
-            raid_details = raid_details.strip()
-            if (not topic):
-                exp = raidmessage.created_at.replace(tzinfo=datetime.timezone.utc).timestamp() + (60 * raid_info['raid_eggs'][utils.get_level(Kyogre, pokemon)]['raidtime'])
-                manual_timer = False
-            else:
-                localend = datetime.datetime.strptime(topic[:(- 8)], 'Ends on %B %d at %I:%M %p')
-                utcend = localend - datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
-                exp = utcend.replace(year=now.year, tzinfo=datetime.timezone.utc).timestamp()
-                manual_timer = True
-        elif name.split('-')[0] == 'ex':
-            raidtype = 'egg'
-            egglevel = 'EX'
-            chsplit = name.split('-')
-            del chsplit[0]
-            del chsplit[0]
-            del chsplit[0]
-            raid_details = ' '.join(chsplit)
-            raid_details = raid_details.strip()
-            if (not topic):
-                exp = raidmessage.created_at.replace(tzinfo=datetime.timezone.utc).timestamp() + (((60 * 60) * 24) * 14)
-                manual_timer = False
-            else:
-                topicsplit = topic.split('|')
-                localhatch = datetime.datetime.strptime(topicsplit[0][:(- 9)], 'Hatches on %B %d at %I:%M %p')
-                utchatch = localhatch - datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
-                exp = utchatch.replace(year=now.year, tzinfo=datetime.timezone.utc).timestamp()
-                manual_timer = True
-            pokemon = ''
-            if len(raid_info['raid_eggs']['EX']['pokemon']) == 1:
-                pokemon = raid_info['raid_eggs']['EX']['pokemon'][0]
-        elif meetup:
-            raidtype = 'egg'
-            egglevel = 'EX'
-            chsplit = name.split('-')
-            del chsplit[0]
-            raid_details = ' '.join(chsplit)
-            raid_details = raid_details.strip()
-            if (not topic):
-                exp = raidmessage.created_at.replace(tzinfo=datetime.timezone.utc).timestamp() + (((60 * 60) * 24) * 14)
-                manual_timer = False
-            else:
-                topicsplit = topic.split('|')
-                localhatch = datetime.datetime.strptime(topicsplit[0][:(- 9)], 'Hatches on %B %d at %I:%M %p')
-                utchatch = localhatch - datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
-                exp = utchatch.replace(year=now.year, tzinfo=datetime.timezone.utc).timestamp()
-                manual_timer = True
-            pokemon = ''
-        else:
-            await channel.send("I couldn't recognize this as a raid channel!")
-            return
-        async for message in channel.history(limit=500):
-            if message.author.id == guild.me.id:
-                if ('is interested' in message.content) or ('on the way' in message.content) or ('at the raid' in message.content) or ('no longer' in message.content) or ('left the raid' in message.content):
-                    if message.raw_mentions:
-                        if message.raw_mentions[0] not in trainer_dict:
-                            trainerid = message.raw_mentions[0]
-                            status = {'maybe':0, 'coming':0, 'here':0, 'lobby':0}
-                            trainerstatus = None
-                            if 'is interested' in message.content:
-                                trainerstatus = 'maybe'
-                            if 'on the way' in message.content:
-                                trainerstatus = 'coming'
-                            if 'at the raid' in message.content:
-                                trainerstatus = 'here'
-                            if ('no longer' in message.content) or ('left the raid' in message.content):
-                                trainerstatus = None
-                            if 'trainers' in message.content:
-                                messagesplit = message.content.split()
-                                if messagesplit[-1].isdigit():
-                                    count = int(messagesplit[-13])
-                                    party = {'mystic':int(messagesplit[-10]), 'valor':int(messagesplit[-7]), 'instinct':int(messagesplit[-4]), 'unknown':int(messagesplit[-1])}
-                                else:
-                                    count = 1
-                                    party = {'mystic':0, 'valor':0, 'instinct':0, 'unknown':count}
-                            else:
-                                count = 1
-                                user = ctx.guild.get_member(trainerid)
-                                for role in user.roles:
-                                    if role.name.lower() == 'mystic':
-                                        party = {'mystic':1, 'valor':0, 'instinct':0, 'unknown':0}
-                                        break
-                                    elif role.name.lower() == 'valor':
-                                        party = {'mystic':0, 'valor':1, 'instinct':0, 'unknown':0}
-                                        break
-                                    elif role.name.lower() == 'instinct':
-                                        party = {'mystic':0, 'valor':0, 'instinct':1, 'unknown':0}
-                                        break
-                                    else:
-                                        party = {'mystic':0, 'valor':0, 'instinct':0, 'unknown':1}
-                            if trainerstatus:
-                                status[trainerstatus] = count
-                            trainer_dict[trainerid] = {
-                                'status': status,
-                                'count': count,
-                                'party': party
-                            }
-                        else:
-                            continue
-                    else:
-                        continue
-        guild_dict[channel.guild.id]['raidchannel_dict'][channel.id] = {
-            'reportcity': reportchannel,
-            'trainer_dict': trainer_dict,
-            'exp': exp,
-            'manual_timer': manual_timer,
-            'active': True,
-            'raidmessage': raidmessage.id,
-            'raidreport': None,
-            'address': raid_details,
-            'type': raidtype,
-            'pokemon': pokemon,
-            'egglevel': egglevel
-        }
-        await _edit_party(channel, message.author)
-        recovermsg = "This channel has been recovered! However, there may be some inaccuracies in what I remembered! Here's what I have:"
-        bulletpoint = '🔹'
-        recovermsg += ('\n' + bulletpoint) + (await list_helpers._interest(ctx, Kyogre, guild_dict))
-        recovermsg += ('\n' + bulletpoint) + (await list_helpers._otw(ctx, Kyogre, guild_dict))
-        recovermsg += ('\n' + bulletpoint) + (await list_helpers._waiting(ctx, Kyogre, guild_dict))
-        if (not manual_timer):
-            if raidtype == 'egg':
-                action = 'hatch'
-                type = 'egg'
-            elif raidtype == 'raid':
-                action = 'end'
-                type = 'raid'
-            recovermsg += "\nI'm not sure when this {raidtype} will {action}, so please use **!timerset** if you can!".format(raidtype=type, action=action)
-        else:
-            recovermsg += ('\n' + bulletpoint) + (await print_raid_timer(channel))
-        await _edit_party(channel, ctx.message.author)
-        await channel.send(recovermsg)
-        event_loop.create_task(expiry_check(channel))
 
 @Kyogre.command()
 @checks.activechannel()
@@ -6805,7 +6336,7 @@ async def duplicate(ctx):
         rusure = await channel.send('Are you sure you wish to remove this {raidtype}?'.format(raidtype=raidtype))
         try:
             timeout = False
-            res, reactuser = await ask(rusure, channel, author.id)
+            res, reactuser = await utils.simple_ask(Kyogre, rusure, channel, author.id)
         except TypeError:
             timeout = True
         if not timeout:
@@ -6899,7 +6430,7 @@ async def counters(ctx, *, args=''):
                     'partlycloudy', 'cloudy', 'windy', 'snow', 'fog']
                 weather = next((w for w in weather_list if re.sub(rgx, '', w) in re.sub(rgx, '', args.lower())), None)
         pkmn = Pokemon.get_pokemon(Kyogre, pkmn)
-        return await _counters(ctx, pkmn, user, weather, movesetstr)
+        return await counters_helpers._counters(ctx, Kyogre, pkmn, user, weather, movesetstr)
     if args:
         args_split = args.split()
         for arg in args_split:
@@ -6922,183 +6453,8 @@ async def counters(ctx, *, args=''):
         await ctx.channel.send("You're missing some details! Be sure to enter a pokemon that appears in raids! Usage: **!counters <pkmn> [weather] [user ID]**")
         return
     pkmn = Pokemon.get_pokemon(Kyogre, pkmn)
-    await _counters(ctx, pkmn, user, weather, "Unknown Moveset")
+    await counters_helpers._counters(ctx, Kyogre, pkmn, user, weather, "Unknown Moveset")
 
-async def _counters(ctx, pkmn, user = None, weather = None, movesetstr = "Unknown Moveset"):
-    if isinstance(pkmn, str):
-        pkmn = Pokemon.get_pokemon(Kyogre, pkmn)
-    if not pkmn:
-        return
-    img_url = pkmn.img_url
-    level = pkmn.raid_level
-    if not level.isdigit():
-        level = "5"
-    pokebattler_name = pkmn.species.upper()
-    if pkmn.alolan:
-        pokebattler_name += "_ALOLA_FORM"
-    url = "https://fight.pokebattler.com/raids/defenders/{pkmn}/levels/RAID_LEVEL_{level}/attackers/".format(pkmn=pokebattler_name,level=level)
-    if user:
-        url += "users/{user}/".format(user=user)
-        userstr = "user #{user}'s".format(user=user)
-    else:
-        url += "levels/30/"
-        userstr = "Level 30"
-    weather_list = ['none', 'extreme', 'clear', 'sunny', 'rainy',
-                    'partlycloudy', 'cloudy', 'windy', 'snow', 'fog']
-    match_list = ['NO_WEATHER','NO_WEATHER','CLEAR','CLEAR','RAINY',
-                        'PARTLY_CLOUDY','OVERCAST','WINDY','SNOW','FOG']
-    if not weather:
-        index = 0
-    else:
-        index = weather_list.index(weather)
-    weather = match_list[index]
-    url += "strategies/CINEMATIC_ATTACK_WHEN_POSSIBLE/DEFENSE_RANDOM_MC?sort=OVERALL&"
-    url += "weatherCondition={weather}&dodgeStrategy=DODGE_REACTION_TIME&aggregation=AVERAGE".format(weather=weather)
-    async with ctx.typing():
-        async with aiohttp.ClientSession() as sess:
-            async with sess.get(url) as resp:
-                data = await resp.json()
-        title_url = url.replace('https://fight', 'https://www')
-        colour = ctx.guild.me.colour
-        hyperlink_icon = 'https://i.imgur.com/fn9E5nb.png'
-        pbtlr_icon = 'https://www.pokebattler.com/favicon-32x32.png'
-        data = data['attackers'][0]
-        raid_cp = data['cp']
-        atk_levels = '30'
-        if movesetstr == "Unknown Moveset":
-            ctrs = data['randomMove']['defenders'][-6:]
-            est = data['randomMove']['total']['estimator']
-        else:
-            for moveset in data['byMove']:
-                move1 = moveset['move1'][:-5].lower().title().replace('_', ' ')
-                move2 = moveset['move2'].lower().title().replace('_', ' ')
-                moveset_str = f'{move1} | {move2}'
-                if moveset_str == movesetstr:
-                    ctrs = moveset['defenders'][-6:]
-                    est = moveset['total']['estimator']
-                    break
-            else:
-                movesetstr = "Unknown Moveset"
-                ctrs = data['randomMove']['defenders'][-6:]
-                est = data['randomMove']['total']['estimator']
-        def clean(txt):
-            return txt.replace('_', ' ').title()
-        title = '{pkmn} | {weather} | {movesetstr}'.format(pkmn=pkmn.name,weather=weather_list[index].title(),movesetstr=movesetstr)
-        stats_msg = "**CP:** {raid_cp}\n".format(raid_cp=raid_cp)
-        stats_msg += "**Weather:** {weather}\n".format(weather=clean(weather))
-        stats_msg += "**Attacker Level:** {atk_levels}".format(atk_levels=atk_levels)
-        ctrs_embed = discord.Embed(colour=colour)
-        ctrs_embed.set_author(name=title,url=title_url,icon_url=hyperlink_icon)
-        ctrs_embed.set_thumbnail(url=img_url)
-        ctrs_embed.set_footer(text='Results courtesy of Pokebattler', icon_url=pbtlr_icon)
-        index = 1
-        for ctr in reversed(ctrs):
-            ctr_name = clean(ctr['pokemonId'])
-            ctr_nick = clean(ctr.get('name',''))
-            ctr_cp = ctr['cp']
-            moveset = ctr['byMove'][-1]
-            moves = "{move1} | {move2}".format(move1=clean(moveset['move1'])[:-5], move2=clean(moveset['move2']))
-            name = "#{index} - {ctr_name}"/format(index=index, ctr_name=(ctr_nick or ctr_name))
-            cpstr = "CP"
-            ctrs_embed.add_field(name=name,value=f"{cpstr}: {ctr_cp}\n{moves}")
-            index += 1
-        ctrs_embed.add_field(name="Results with {userstr} attackers".format(userstr=userstr), value="[See your personalized results!](https://www.pokebattler.com/raids/{pkmn})".format(pkmn=pokebattler_name))
-        if user:
-            ctrs_embed.add_field(name="Pokebattler Estimator:", value="Difficulty rating: {est}".format(est=est))
-            await ctx.author.send(embed=ctrs_embed)
-            return
-        await ctx.channel.send(embed=ctrs_embed)
-
-async def _get_generic_counters(guild, pkmn, weather=None):
-    if isinstance(pkmn, str):
-        pkmn = Pokemon.get_pokemon(Kyogre, pkmn)
-    if not pkmn:
-        return
-    emoji_dict = {0: '0\u20e3', 1: '1\u20e3', 2: '2\u20e3', 3: '3\u20e3', 4: '4\u20e3', 5: '5\u20e3', 6: '6\u20e3', 7: '7\u20e3', 8: '8\u20e3', 9: '9\u20e3', 10: '10\u20e3'}
-    ctrs_dict = {}
-    ctrs_index = 0
-    ctrs_dict[ctrs_index] = {}
-    ctrs_dict[ctrs_index]['moveset'] = "Unknown Moveset"
-    ctrs_dict[ctrs_index]['emoji'] = '0\u20e3'
-    img_url = pkmn.img_url
-    level = pkmn.raid_level
-    if not level.isdigit():
-        level = "5"
-    pokebattler_name = pkmn.species.upper()
-    if pkmn.alolan:
-        pokebattler_name = f"{pkmn.species.upper()}_ALOLA_FORM"
-    url = "https://fight.pokebattler.com/raids/defenders/{pkmn}/levels/RAID_LEVEL_{level}/attackers/".format(pkmn=pokebattler_name,level=level)
-    url += "levels/30/"
-    weather_list = ['none', 'extreme', 'clear', 'sunny', 'rainy',
-                    'partlycloudy', 'cloudy', 'windy', 'snow', 'fog']
-    match_list = ['NO_WEATHER','NO_WEATHER','CLEAR','CLEAR','RAINY',
-                        'PARTLY_CLOUDY','OVERCAST','WINDY','SNOW','FOG']
-    if not weather:
-        index = 0
-    else:
-        index = weather_list.index(weather)
-    weather = match_list[index]
-    url += "strategies/CINEMATIC_ATTACK_WHEN_POSSIBLE/DEFENSE_RANDOM_MC?sort=OVERALL&"
-    url += "weatherCondition={weather}&dodgeStrategy=DODGE_REACTION_TIME&aggregation=AVERAGE".format(weather=weather)
-    title_url = url.replace('https://fight', 'https://www')
-    hyperlink_icon = 'https://i.imgur.com/fn9E5nb.png'
-    pbtlr_icon = 'https://www.pokebattler.com/favicon-32x32.png'
-    async with aiohttp.ClientSession() as sess:
-        async with sess.get(url) as resp:
-            data = await resp.json()
-    data = data['attackers'][0]
-    raid_cp = data['cp']
-    atk_levels = '30'
-    ctrs = data['randomMove']['defenders'][-6:]
-    def clean(txt):
-        return txt.replace('_', ' ').title()
-    title = '{pkmn} | {weather} | Unknown Moveset'.format(pkmn=pkmn.name,weather=weather_list[index].title())
-    stats_msg = "**CP:** {raid_cp}\n".format(raid_cp=raid_cp)
-    stats_msg += "**Weather:** {weather}\n".format(weather=clean(weather))
-    stats_msg += "**Attacker Level:** {atk_levels}".format(atk_levels=atk_levels)
-    ctrs_embed = discord.Embed(colour=guild.me.colour)
-    ctrs_embed.set_author(name=title,url=title_url,icon_url=hyperlink_icon)
-    ctrs_embed.set_thumbnail(url=img_url)
-    ctrs_embed.set_footer(text='Results courtesy of Pokebattler', icon_url=pbtlr_icon)
-    ctrindex = 1
-    for ctr in reversed(ctrs):
-        ctr_name = clean(ctr['pokemonId'])
-        moveset = ctr['byMove'][-1]
-        moves = "{move1} | {move2}".format(move1=clean(moveset['move1'])[:-5], move2=clean(moveset['move2']))
-        name = "#{index} - {ctr_name}".format(index=ctrindex, ctr_name=ctr_name)
-        ctrs_embed.add_field(name=name,value=moves)
-        ctrindex += 1
-    ctrs_dict[ctrs_index]['embed'] = ctrs_embed
-    for moveset in data['byMove']:
-        ctrs_index += 1
-        move1 = moveset['move1'][:-5].lower().title().replace('_', ' ')
-        move2 = moveset['move2'].lower().title().replace('_', ' ')
-        movesetstr = f'{move1} | {move2}'
-        ctrs = moveset['defenders'][-6:]
-        title = '{pkmn} | {weather} | {movesetstr}'.format(pkmn=pkmn.name, weather=weather_list[index].title(), movesetstr=movesetstr)
-        ctrs_embed = discord.Embed(colour=guild.me.colour)
-        ctrs_embed.set_author(name=title,url=title_url,icon_url=hyperlink_icon)
-        ctrs_embed.set_thumbnail(url=img_url)
-        ctrs_embed.set_footer(text='Results courtesy of Pokebattler', icon_url=pbtlr_icon)
-        ctrindex = 1
-        for ctr in reversed(ctrs):
-            ctr_name = clean(ctr['pokemonId'])
-            moveset = ctr['byMove'][-1]
-            moves = "{move1} | {move2}".format(move1=clean(moveset['move1'])[:-5], move2=clean(moveset['move2']))
-            name = "#{index} - {ctr_name}".format(index=ctrindex, ctr_name=ctr_name)
-            ctrs_embed.add_field(name=name,value=moves)
-            ctrindex += 1
-        ctrs_dict[ctrs_index] = {'moveset': movesetstr, 'embed': ctrs_embed, 'emoji': emoji_dict[ctrs_index]}
-    moveset_list = []
-    for moveset in ctrs_dict:
-        moveset_list.append(f"{ctrs_dict[moveset]['emoji']}: {ctrs_dict[moveset]['moveset']}\n")
-    for moveset in ctrs_dict:
-        ctrs_split = int(round(len(moveset_list)/2+0.1))
-        ctrs_dict[moveset]['embed'].add_field(name="**Possible Movesets:**", value=f"{''.join(moveset_list[:ctrs_split])}", inline=True)
-        ctrs_dict[moveset]['embed'].add_field(name="\u200b", value=f"{''.join(moveset_list[ctrs_split:])}",inline=True)
-        ctrs_dict[moveset]['embed'].add_field(name="Results with Level 30 attackers", value="[See your personalized results!](https://www.pokebattler.com/raids/{pkmn})".format(pkmn=pokebattler_name),inline=False)
-
-    return ctrs_dict
 
 @Kyogre.command()
 @checks.activechannel()
@@ -7112,31 +6468,7 @@ async def weather(ctx, *, weather):
     if weather.lower() not in weather_list:
         return await ctx.channel.send("Enter one of the following weather conditions: {}".format(", ".join(weather_list)))
     else:
-        guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['weather'] = weather.lower()
-        pkmn = guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id].get('pokemon', None)
-        pkmn = Pokemon.get_pokemon(Kyogre, pkmn)
-        if pkmn:
-            if str(pkmn.raid_level) in guild_dict[ctx.guild.id]['configure_dict']['counters']['auto_levels']:
-                ctrs_dict = await _get_generic_counters(ctx.guild, pkmn, weather.lower())
-                try:
-                    ctrsmessage = await ctx.channel.fetch_message(guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['ctrsmessage'])
-                    moveset = guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['moveset']
-                    newembed = ctrs_dict[moveset]['embed']
-                    await ctrsmessage.edit(embed=newembed)
-                except (discord.errors.NotFound, discord.errors.Forbidden, discord.errors.HTTPException):
-                    pass
-                guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['ctrs_dict'] = ctrs_dict
-        raid_message = guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['raidmessage']
-        raid_message = await ctx.channel.fetch_message(raid_message)
-        embed = raid_message.embeds[0]
-        embed_indices = await get_embed_field_indices(embed)
-        new_embed = embed
-        gym_embed = embed.fields[embed_indices['gym']]
-        gym_embed_value = '\n'.join(gym_embed.value.split('\n')[:2])
-        gym_embed_value += "\n**Weather**: " + weather
-        new_embed.set_field_at(embed_indices['gym'], name=gym_embed.name, value=gym_embed_value, inline=True)
-        await raid_message.edit(embed=new_embed)
-        return await ctx.channel.send("Weather set to {}!".format(weather.lower()))
+        raid_lobby_helpers._weather(ctx, Kyogre, guild_dict, weather)
 
 """
 Status Management
@@ -7221,53 +6553,7 @@ async def interested(ctx, *, teamcounts: str=None):
     if isinstance(result, list):
         count = result[0]
         partylist = result[1]
-        await _maybe(ctx, count, partylist, entered_interest)
-
-async def _maybe(ctx, count, party, entered_interest=None):
-    channel = ctx.channel
-    author = ctx.author
-    trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
-    allblue = 0
-    allred = 0
-    allyellow = 0
-    allunknown = 0
-    if (not party):
-        for role in author.roles:
-            if role.name.lower() == 'mystic':
-                allblue = count
-                break
-            elif role.name.lower() == 'valor':
-                allred = count
-                break
-            elif role.name.lower() == 'instinct':
-                allyellow = count
-                break
-        else:
-            allunknown = count
-        party = {'mystic':allblue, 'valor':allred, 'instinct':allyellow, 'unknown':allunknown}
-    if count == 1:
-        team_emoji = max(party, key=lambda key: party[key])
-        if team_emoji == "unknown":
-            team_emoji = "❔"
-        else:
-            team_emoji = utils.parse_emoji(channel.guild, config['team_dict'][team_emoji])
-        await channel.send('**{member}** is interested! {emoji}: 1'.format(member=author.display_name, emoji=team_emoji))
-    else:
-        msg = '**{member}** is interested with a total of {trainer_count} trainers!'.format(member=author.display_name, trainer_count=count)
-        await channel.send('{msg} {blue_emoji}: {mystic} | {red_emoji}: {valor} | {yellow_emoji}: {instinct} | ❔: {unknown}'.format(msg=msg, blue_emoji=utils.parse_emoji(channel.guild, config['team_dict']['mystic']), mystic=party['mystic'], red_emoji=utils.parse_emoji(channel.guild, config['team_dict']['valor']), valor=party['valor'], instinct=party['instinct'], yellow_emoji=utils.parse_emoji(channel.guild, config['team_dict']['instinct']), unknown=party['unknown']))
-    await ctx.message.delete()
-    if author.id not in guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']:
-        trainer_dict[author.id] = {}
-    trainer_dict[author.id]['status'] = {'maybe':count, 'coming':0, 'here':0, 'lobby':0}
-    if entered_interest:
-        trainer_dict[author.id]['interest'] = list(entered_interest)
-    trainer_dict[author.id]['count'] = count
-    trainer_dict[author.id]['party'] = party
-    await _edit_party(channel, author)
-    guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
-    regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
-    if regions:
-        await _update_listing_channels(channel.guild, 'raid', edit=True, regions=regions)
+        await list_helpers._maybe(ctx, Kyogre, guild_dict, count, partylist, entered_interest)
 
 @Kyogre.command(aliases=['c'])
 @checks.activechannel()
@@ -7289,55 +6575,7 @@ async def coming(ctx, *, teamcounts: str=None):
     if isinstance(result, list):
         count = result[0]
         partylist = result[1]
-        await _coming(ctx, count, partylist, entered_interest)
-
-async def _coming(ctx, count, party, entered_interest=None):
-    channel = ctx.channel
-    author = ctx.author
-    allblue = 0
-    allred = 0
-    allyellow = 0
-    allunknown = 0
-    trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
-    if (not party):
-        for role in author.roles:
-            if role.name.lower() == 'mystic':
-                allblue = count
-                break
-            elif role.name.lower() == 'valor':
-                allred = count
-                break
-            elif role.name.lower() == 'instinct':
-                allyellow = count
-                break
-        else:
-            allunknown = count
-        party = {'mystic':allblue, 'valor':allred, 'instinct':allyellow, 'unknown':allunknown}
-    if count == 1:
-        team_emoji = max(party, key=lambda key: party[key])
-        if team_emoji == "unknown":
-            team_emoji = "❔"
-        else:
-            team_emoji = utils.parse_emoji(channel.guild, config['team_dict'][team_emoji])
-        await channel.send('**{member}** is on the way! {emoji}: 1'.format(member=author.display_name, emoji=team_emoji))
-    else:
-        msg = '**{member}** is on the way with a total of {trainer_count} trainers!'.format(member=author.display_name, trainer_count=count)
-        await channel.send('{msg} {blue_emoji}: {mystic} | {red_emoji}: {valor} | {yellow_emoji}: {instinct} | ❔: {unknown}'.format(msg=msg, blue_emoji=utils.parse_emoji(channel.guild, config['team_dict']['mystic']), mystic=party['mystic'], red_emoji=utils.parse_emoji(channel.guild, config['team_dict']['valor']), valor=party['valor'], instinct=party['instinct'], yellow_emoji=utils.parse_emoji(channel.guild, config['team_dict']['instinct']), unknown=party['unknown']))
-    await ctx.message.delete()
-    if author.id not in trainer_dict:
-        trainer_dict[author.id] = {
-
-        }
-    trainer_dict[author.id]['status'] = {'maybe':0, 'coming':count, 'here':0, 'lobby':0}
-    trainer_dict[author.id]['count'] = count
-    trainer_dict[author.id]['party'] = party
-    if entered_interest:
-        trainer_dict[author.id]['interest'] = entered_interest
-    await _edit_party(channel, author)
-    guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
-    regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
-    if regions:
-        await _update_listing_channels(channel.guild, 'raid', edit=True, regions=regions)
+        await list_helpers._coming(ctx, Kyogre, guild_dict, count, partylist, entered_interest)
 
 @Kyogre.command(aliases=['h'])
 @checks.activechannel()
@@ -7359,64 +6597,7 @@ async def here(ctx, *, teamcounts: str=None):
     if isinstance(result, list):
         count = result[0]
         partylist = result[1]
-        await _here(ctx, count, partylist, entered_interest)
-
-async def _here(ctx, count, party, entered_interest=None):
-    channel = ctx.channel
-    author = ctx.author
-    lobbymsg = ''
-    allblue = 0
-    allred = 0
-    allyellow = 0
-    allunknown = 0
-    trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
-    raidtype = "event" if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('meetup',False) else "raid"
-    try:
-        if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['lobby']:
-            lobbymsg += '\nThere is a group already in the lobby! Use **!lobby** to join them or **!backout** to request a backout! Otherwise, you may have to wait for the next group!'
-    except KeyError:
-        pass
-    if (not party):
-        for role in author.roles:
-            if role.name.lower() == 'mystic':
-                allblue = count
-                break
-            elif role.name.lower() == 'valor':
-                allred = count
-                break
-            elif role.name.lower() == 'instinct':
-                allyellow = count
-                break
-        else:
-            allunknown = count
-        party = {'mystic':allblue, 'valor':allred, 'instinct':allyellow, 'unknown':allunknown}
-    if count == 1:
-        team_emoji = max(party, key=lambda key: party[key])
-        if team_emoji == "unknown":
-            team_emoji = "❔"
-        else:
-            team_emoji = utils.parse_emoji(channel.guild, config['team_dict'][team_emoji])
-        msg = '**{member}** is at the {raidtype}! {emoji}: 1'.format(member=author.display_name, emoji=team_emoji, raidtype=raidtype)
-        await channel.send(msg + lobbymsg)
-    else:
-        msg = '**{member}** is at the {raidtype} with a total of {trainer_count} trainers!'.format(member=author.display_name, trainer_count=count, raidtype=raidtype)
-        msg += ' {blue_emoji}: {mystic} | {red_emoji}: {valor} | {yellow_emoji}: {instinct} | ❔: {unknown}'.format(blue_emoji=utils.parse_emoji(channel.guild, config['team_dict']['mystic']), mystic=party['mystic'], red_emoji=utils.parse_emoji(channel.guild, config['team_dict']['valor']), valor=party['valor'], instinct=party['instinct'], yellow_emoji=utils.parse_emoji(channel.guild, config['team_dict']['instinct']), unknown=party['unknown'])
-        await channel.send(msg + lobbymsg)
-    await ctx.message.delete()
-    if author.id not in trainer_dict:
-        trainer_dict[author.id] = {
-
-        }
-    trainer_dict[author.id]['status'] = {'maybe':0, 'coming':0, 'here':count, 'lobby':0}
-    trainer_dict[author.id]['count'] = count
-    trainer_dict[author.id]['party'] = party
-    if entered_interest:
-        trainer_dict[author.id]['interest'] = entered_interest
-    await _edit_party(channel, author)
-    guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
-    regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
-    if regions:
-        await _update_listing_channels(channel.guild, 'raid', edit=True, regions=regions)
+        await list_helpers._here(ctx, Kyogre, guild_dict, count, partylist, entered_interest)
 
 async def _party_status(ctx, total, teamcounts):
     channel = ctx.channel
@@ -7502,92 +6683,6 @@ async def _party_status(ctx, total, teamcounts):
     result = [total, partylist]
     return result
 
-async def _edit_party(channel, author=None):
-    egglevel = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['egglevel']
-    if egglevel != "0":
-        boss_dict = {}
-        boss_list = []
-        display_list = []
-        for entry in raid_info['raid_eggs'][egglevel]['pokemon']:
-            p = Pokemon.get_pokemon(Kyogre, entry)
-            boss_list.append(p)
-            boss_dict[p.name] = {"type": utils.types_to_str(channel.guild, p.types, Kyogre.config), "total": 0}
-    channel_dict = {"mystic":0,"valor":0,"instinct":0,"unknown":0,"maybe":0,"coming":0,"here":0,"total":0,"boss":0}
-    team_list = ["mystic","valor","instinct","unknown"]
-    status_list = ["maybe","coming","here"]
-    trainer_dict = copy.deepcopy(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
-    for trainer in trainer_dict:
-        for team in team_list:
-            channel_dict[team] += int(trainer_dict[trainer]['party'][team])
-        for status in status_list:
-            if trainer_dict[trainer]['status'][status]:
-                channel_dict[status] += int(trainer_dict[trainer]['count'])
-        if egglevel != "0":
-            for boss in boss_list:
-                if boss.name.lower() in trainer_dict[trainer].get('interest',[]):
-                    boss_dict[boss.name]['total'] += int(trainer_dict[trainer]['count'])
-                    channel_dict["boss"] += int(trainer_dict[trainer]['count'])
-    if egglevel != "0":
-        for boss in boss_list:
-            if boss_dict[boss.name]['total'] > 0:
-                bossstr = "{name} ({number}) {types} : **{count}**".format(name=boss.name,number=boss.id,types=boss_dict[boss.name]['type'],count=boss_dict[boss.name]['total'])
-                display_list.append(bossstr)
-            elif boss_dict[boss.name]['total'] == 0:
-                bossstr = "{name} ({number}) {types}".format(name=boss.name,number=boss.id,types=boss_dict[boss.name]['type'])
-                display_list.append(bossstr)
-    channel_dict["total"] = channel_dict["maybe"] + channel_dict["coming"] + channel_dict["here"]
-    reportchannel = Kyogre.get_channel(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['reportchannel'])
-    try:
-        reportmsg = await reportchannel.fetch_message(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['raidreport'])
-    except:
-        pass
-    try:
-        raidmsg = await channel.fetch_message(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['raidmessage'])
-    except:
-        async for message in channel.history(limit=500, reverse=True):
-            if author and message.author.id == channel.guild.me.id:
-                c = 'Coordinate here'
-                if c in message.content:
-                    reportchannel = message.raw_channel_mentions[0]
-                    raidmsg = message
-                    break
-    reportembed = raidmsg.embeds[0]
-    newembed = discord.Embed(title=reportembed.title, url=reportembed.url, colour=channel.guild.me.colour)
-    index = 0
-    t = 'team'
-    s = 'status'
-    embed_indices = await get_embed_field_indices(reportembed)
-    for field in reportembed.fields:
-        if (t not in field.name.lower()) and (s not in field.name.lower()):
-            newembed.add_field(name=field.name, value=field.value, inline=field.inline)
-    if egglevel != "0" and not guild_dict[channel.guild.id].get('raidchannel_dict',{}).get(channel.id,{}).get('meetup',{}):
-        index = max(i for i in [embed_indices["possible"],embed_indices["interest"],embed_indices["details"]] if i is not None)
-        if channel_dict["boss"] > 0:
-            name = "**Boss Interest:**"
-        else:
-            name = "**Possible Bosses:**"
-        if len(boss_list) > 1:
-            newembed.set_field_at(index, name=name, value='{bosslist1}'.format(bosslist1='\n'.join(display_list[::2])), inline=True)
-            newembed.set_field_at(index+1, name='\u200b', value='{bosslist2}'.format(bosslist2='\n'.join(display_list[1::2])), inline=True)
-        else:
-            newembed.set_field_at(index, name=name, value='{bosslist}'.format(bosslist=''.join(display_list)), inline=True)
-            newembed.set_field_at(index+1, name='\u200b', value='\u200b', inline=True)
-    if channel_dict["total"] > 0:
-        newembed.add_field(name='**Status List**', value='Maybe: **{channelmaybe}** | Coming: **{channelcoming}** | Here: **{channelhere}**'.format(channelmaybe=channel_dict["maybe"], channelcoming=channel_dict["coming"], channelhere=channel_dict["here"]), inline=True)
-        newembed.add_field(name='**Team List**', value='{blue_emoji}: **{channelblue}** | {red_emoji}: **{channelred}** | {yellow_emoji}: **{channelyellow}** | ❔: **{channelunknown}**'.format(blue_emoji=utils.parse_emoji(channel.guild, config['team_dict']['mystic']), channelblue=channel_dict["mystic"], red_emoji=utils.parse_emoji(channel.guild, config['team_dict']['valor']), channelred=channel_dict["valor"], yellow_emoji=utils.parse_emoji(channel.guild, config['team_dict']['instinct']), channelyellow=channel_dict["instinct"], channelunknown=channel_dict["unknown"]), inline=True)
-    newembed.set_footer(text=reportembed.footer.text, icon_url=reportembed.footer.icon_url)
-    newembed.set_thumbnail(url=reportembed.thumbnail.url)
-    try:
-        await raidmsg.edit(embed=newembed)
-    except:
-        pass
-    try:
-        embed_indices = await get_embed_field_indices(newembed)
-        newembed = await filter_fields_for_report_embed(newembed, embed_indices)
-        await reportmsg.edit(embed=newembed)
-    except:
-        pass
-
 @Kyogre.command(aliases=['l'])
 @checks.activeraidchannel()
 async def lobby(ctx, *, count: str=None):
@@ -7644,76 +6739,7 @@ async def cancel(ctx):
     Usage: !cancel
     Works only in raid channels. Removes you and your party
     from the list of trainers who are "otw" or "here"."""
-    await _cancel(ctx)
-
-async def _cancel(ctx):
-    channel = ctx.channel
-    author = ctx.author
-    guild = channel.guild
-    raidtype = "event" if guild_dict[guild.id]['raidchannel_dict'][channel.id].get('meetup',False) else "raid"
-    await ctx.message.delete()
-    try:
-        t_dict = guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'][author.id]
-    except KeyError:
-        await channel.send('{member} has no status to cancel!'.format(member=author.name))
-        return
-    if t_dict['status']['maybe']:
-        if t_dict['count'] == 1:
-            await channel.send('**{member}** is no longer interested!'.format(member=author.display_name))
-        else:
-            await channel.send('**{member}** and their total of {trainer_count} trainers are no longer interested!'.format(member=author.display_name, trainer_count=t_dict['count']))
-    if t_dict['status']['here']:
-        if t_dict['count'] == 1:
-            await channel.send('**{member}** has left the {raidtype}!'.format(member=author.display_name, raidtype=raidtype))
-        else:
-            await channel.send('**{member}** and their total of {trainer_count} trainers have left the {raidtype}!'.format(member=author.display_name, trainer_count=t_dict['count'], raidtype=raidtype))
-    if t_dict['status']['coming']:
-        if t_dict['count'] == 1:
-            await channel.send('**{member}** is no longer on their way!'.format(member=author.display_name))
-        else:
-            await channel.send('**{member}** and their total of {trainer_count} trainers are no longer on their way!'.format(member=author.display_name, trainer_count=t_dict['count']))
-    if t_dict['status']['lobby']:
-        if t_dict['count'] == 1:
-            await channel.send('**{member}** has backed out of the lobby!'.format(member=author.display_name))
-        else:
-            await channel.send('**{member}** and their total of {trainer_count} trainers have backed out of the lobby!'.format(member=author.display_name, trainer_count=t_dict['count']))
-    t_dict['status'] = {'maybe':0, 'coming':0, 'here':0, 'lobby':0}
-    t_dict['party'] = {'mystic':0, 'valor':0, 'instinct':0, 'unknown':0}
-    t_dict['interest'] = []
-    t_dict['count'] = 1
-    await _edit_party(channel, author)
-    regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
-    if regions:
-        await _update_listing_channels(guild, 'raid', edit=True, regions=regions)
-
-async def lobby_countdown(ctx):
-    await asyncio.sleep(120)
-    if ('lobby' not in guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]) or (time.time() < guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['lobby']['exp']):
-        return
-    ctx_lobbycount = 0
-    trainer_delete_list = []
-    for trainer in ctx.trainer_dict:
-        if ctx.trainer_dict[trainer]['status']['lobby']:
-            ctx_lobbycount += ctx.trainer_dict[trainer]['status']['lobby']
-            trainer_delete_list.append(trainer)
-    if ctx_lobbycount > 0:
-        await ctx.channel.send('The group of {count} in the lobby has entered the raid! Wish them luck!'.format(count=str(ctx_lobbycount)))
-    for trainer in trainer_delete_list:
-        if team in ctx.team_names:
-            ctx.trainer_dict[trainer]['status'] = {'maybe':0, 'coming':0, 'here':herecount - teamcount, 'lobby': lobbycount}
-            ctx.trainer_dict[trainer]['party'][team] = 0
-            ctx.trainer_dict[trainer]['count'] = ctx.trainer_dict[trainer]['count'] - teamcount
-        else:
-            del ctx.trainer_dict[trainer]
-    try:
-        del guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['lobby']
-    except KeyError:
-        pass
-    await _edit_party(ctx.channel, ctx.author)
-    guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict'] = ctx.trainer_dict
-    regions = guild_dict[ctx.channel.guild.id]['raidchannel_dict'][ctx.channel.id].get('regions', None)
-    if regions:
-        await _update_listing_channels(ctx.guild, 'raid', edit=True, regions=regions)
+    await list_helpers._cancel(ctx, Kyogre, guild_dict)
 
 @Kyogre.command(aliases=['s'])
 @checks.activeraidchannel()
@@ -7723,79 +6749,7 @@ async def starting(ctx, team: str = ''):
     Usage: !starting [team]
     Works only in raid channels. Sends a message and clears the waiting list. Users who are waiting
     for a second group must reannounce with the :here: emoji or !here."""
-    channel = ctx.channel
-    guild = ctx.guild
-    ctx_startinglist = []
-    team_list = []
-    ctx.team_names = ["mystic", "valor", "instinct", "unknown"]
-    team = team if team and team.lower() in ctx.team_names else "all"
-    ctx.trainer_dict = copy.deepcopy(guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
-    regions = guild_dict[guild.id]['raidchannel_dict'][channel.id]['regions']
-    if guild_dict[guild.id]['raidchannel_dict'][channel.id].get('type',None) == 'egg':
-        if guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] - 60 < datetime.datetime.now().timestamp():
-            starting_str = "Please tell me which raid boss has hatched before starting your lobby."
-        else:
-            starting_str = "How can you start when the egg hasn't hatched!?"
-        await channel.send(starting_str)
-        return
-    if guild_dict[guild.id]['raidchannel_dict'][channel.id].get('lobby',False):
-        starting_str = "Please wait for the group in the lobby to enter the raid."
-        await channel.send(starting_str)
-        return
-    trainer_joined = False
-    for trainer in ctx.trainer_dict:
-        count = ctx.trainer_dict[trainer]['count']
-        user = guild.get_member(trainer)
-        if team in ctx.team_names:
-            if ctx.trainer_dict[trainer]['party'][team]:
-                team_list.append(user.id)
-            teamcount = ctx.trainer_dict[trainer]['party'][team]
-            herecount = ctx.trainer_dict[trainer]['status']['here']
-            lobbycount = ctx.trainer_dict[trainer]['status']['lobby']
-            if ctx.trainer_dict[trainer]['status']['here'] and (user.id in team_list):
-                ctx.trainer_dict[trainer]['status'] = {'maybe':0, 'coming':0, 'here':herecount - teamcount, 'lobby':lobbycount + teamcount}
-                trainer_joined = True
-                ctx_startinglist.append(user.mention)
-        else:
-            if ctx.trainer_dict[trainer]['status']['here'] and (user.id in team_list or team == "all"):
-                ctx.trainer_dict[trainer]['status'] = {'maybe':0, 'coming':0, 'here':0, 'lobby':count}
-                trainer_joined = True
-                ctx_startinglist.append(user.mention)
-        if trainer_joined:
-            joined = guild_dict[guild.id].setdefault('trainers',{}).setdefault(regions[0], {}).setdefault(trainer,{}).setdefault('joined',0) + 1
-            guild_dict[guild.id]['trainers'][regions[0]][trainer]['joined'] = joined
-            
-    if len(ctx_startinglist) == 0:
-        starting_str = "How can you start when there's no one waiting at this raid!?"
-        await channel.send(starting_str)
-        return
-    guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = ctx.trainer_dict
-    starttime = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('starttime',None)
-    if starttime:
-        timestr = ' to start at **{}** '.format(starttime.strftime('%I:%M %p (%H:%M)'))
-        guild_dict[guild.id]['raidchannel_dict'][channel.id]['starttime'] = None
-    else:
-        timestr = ' '
-    starting_str = 'Starting - The group that was waiting{timestr}is starting the raid! Trainers {trainer_list}, if you are not in this group and are waiting for the next group, please respond with {here_emoji} or **!here**. If you need to ask those that just started to back out of their lobby, use **!backout**'.format(timestr=timestr, trainer_list=', '.join(ctx_startinglist), here_emoji=utils.parse_emoji(guild, config['here_id']))
-    guild_dict[guild.id]['raidchannel_dict'][channel.id]['lobby'] = {"exp":time.time() + 120, "team":team}
-    if starttime:
-        starting_str += '\n\nThe start time has also been cleared, new groups can set a new start time wtih **!starttime HH:MM AM/PM** (You can also omit AM/PM and use 24-hour time!).'
-        report_channel = Kyogre.get_channel(guild_dict[guild.id]['raidchannel_dict'][channel.id]['reportcity'])
-        raidmsg = await channel.fetch_message(guild_dict[guild.id]['raidchannel_dict'][channel.id]['raidmessage'])
-        reportmsg = await report_channel.fetch_message(guild_dict[guild.id]['raidchannel_dict'][channel.id]['raidreport'])
-        embed = raidmsg.embeds[0]
-        embed_indices = await get_embed_field_indices(embed)
-        embed.set_field_at(embed_indices["next"], name="**Next Group**", value="Set with **!starttime**", inline=True)
-        try:
-            await raidmsg.edit(content=raidmsg.content,embed=embed)
-        except discord.errors.NotFound:
-            pass
-        try:
-            await reportmsg.edit(content=reportmsg.content,embed=embed)
-        except discord.errors.NotFound:
-            pass
-    await channel.send(starting_str)
-    ctx.bot.loop.create_task(lobby_countdown(ctx))
+    await raid_lobby_helpers._starting(ctx, Kyogre, guild_dict, team)
 
 @Kyogre.command()
 @checks.activeraidchannel()
@@ -7804,63 +6758,8 @@ async def backout(ctx):
 
     Usage: !backout
     Will alert all trainers in the lobby that a backout is requested."""
-    message = ctx.message
-    channel = message.channel
-    author = message.author
-    guild = channel.guild
-    trainer_dict = guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
-    if (author.id in trainer_dict) and (trainer_dict[author.id]['status']['lobby']):
-        count = trainer_dict[author.id]['count']
-        trainer_dict[author.id]['status'] = {'maybe':0, 'coming':0,'here':count,'lobby':0}
-        lobby_list = []
-        for trainer in trainer_dict:
-            count = trainer_dict[trainer]['count']
-            if trainer_dict[trainer]['status']['lobby']:
-                user = guild.get_member(trainer)
-                lobby_list.append(user.mention)
-                trainer_dict[trainer]['status'] = {'maybe':0, 'coming':0, 'here':count, 'lobby':0}
-        if (not lobby_list):
-            await channel.send("There's no one else in the lobby for this raid!")
-            try:
-                del guild_dict[guild.id]['raidchannel_dict'][channel.id]['lobby']
-            except KeyError:
-                pass
-            return
-        await channel.send('Backout - {author} has indicated that the group consisting of {lobby_list} and the people with them has backed out of the lobby! If this is inaccurate, please use **!lobby** or **!cancel** to help me keep my lists accurate!'.format(author=author.mention, lobby_list=', '.join(lobby_list)))
-        try:
-            del guild_dict[guild.id]['raidchannel_dict'][channel.id]['lobby']
-        except KeyError:
-            pass
-    else:
-        lobby_list = []
-        trainer_list = []
-        for trainer in trainer_dict:
-            if trainer_dict[trainer]['status']['lobby']:
-                user = guild.get_member(trainer)
-                lobby_list.append(user.mention)
-                trainer_list.append(trainer)
-        if (not lobby_list):
-            await channel.send("There's no one in the lobby for this raid!")
-            return
-
-        backoutmsg = await channel.send('Backout - {author} has requested a backout! If one of the following trainers reacts with the check mark, I will assume the group is backing out of the raid lobby as requested! {lobby_list}'.format(author=author.mention, lobby_list=', '.join(lobby_list)))
-        try:
-            timeout = False
-            res, reactuser = await ask(backoutmsg, channel, trainer_list, react_list=['✅'])
-        except TypeError:
-            timeout = True
-        if not timeout and res.emoji == '✅':
-            for trainer in trainer_list:
-                count = trainer_dict[trainer]['count']
-                if trainer in trainer_dict:
-                    trainer_dict[trainer]['status'] = {'maybe':0, 'coming':0, 'here':count, 'lobby':0}
-            await channel.send('{user} confirmed the group is backing out!'.format(user=reactuser.mention))
-            try:
-                del guild_dict[guild.id]['raidchannel_dict'][channel.id]['lobby']
-            except KeyError:
-                pass
-        else:
-            return
+    await raid_lobby_helpers._backout(ctx, Kyogre, guild_dict)
+     
 
 """
 List Commands
@@ -7883,7 +6782,7 @@ async def _list(ctx):
             region = None
             if guild_dict[guild.id]['configure_dict'].get('regions', {}).get('enabled', False) and raid_dict.get('categories', None) == 'region':
                 region = raid_dict.get('category_dict', {}).get(channel.id, None)
-            listmsg = await _get_listing_messages('raid', channel, region)
+            listmsg = await _get_listing_messages(Kyogre, guild_dict, 'raid', channel, region)
         elif checks.check_raidactive(ctx):
             team_list = ["mystic","valor","instinct","unknown"]
             tag = False

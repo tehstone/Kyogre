@@ -1,5 +1,7 @@
+import asyncio
 import copy
 import datetime
+import itertools
 import time
 
 from operator import itemgetter
@@ -8,7 +10,19 @@ import discord
 
 from kyogre.exts.pokemon import Pokemon
 from kyogre.exts.db.kyogredb import *
-from kyogre import constants, raid_helpers, utils
+from kyogre import constants, embed_utils, raid_helpers, utils
+
+async def _get_listing_messages(Kyogre, guild_dict, type, channel, region=None):
+    if type == 'raid':
+        return await _get_raid_listing_messages(Kyogre, channel, guild_dict, region)
+    elif type == 'wild':
+        return await _get_wild_listing_messages(Kyogre, channel, guild_dict, region)
+    elif type == 'research':
+        return await _get_research_listing_messages(Kyogre, channel, guild_dict, region)
+    elif type == 'lure':
+        return await _get_lure_listing_messages(Kyogre, channel, guild_dict, region)
+    else:
+        return None
 
 async def _get_raid_listing_messages(Kyogre, channel, guild_dict, region=None):
     '''
@@ -336,6 +350,52 @@ async def _interest(ctx, Kyogre, guild_dict, tag=False, team=False):
     listmsg = ' {trainer_count} interested{including_string}!'.format(trainer_count=str(ctx_maybecount), including_string=maybe_exstr)
     return listmsg
 
+async def _maybe(ctx, Kyogre, guild_dict, count, party, entered_interest=None):
+    channel = ctx.channel
+    author = ctx.author
+    trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
+    allblue = 0
+    allred = 0
+    allyellow = 0
+    allunknown = 0
+    if (not party):
+        for role in author.roles:
+            if role.name.lower() == 'mystic':
+                allblue = count
+                break
+            elif role.name.lower() == 'valor':
+                allred = count
+                break
+            elif role.name.lower() == 'instinct':
+                allyellow = count
+                break
+        else:
+            allunknown = count
+        party = {'mystic':allblue, 'valor':allred, 'instinct':allyellow, 'unknown':allunknown}
+    if count == 1:
+        team_emoji = max(party, key=lambda key: party[key])
+        if team_emoji == "unknown":
+            team_emoji = "❔"
+        else:
+            team_emoji = utils.parse_emoji(channel.guild, Kyogre.config['team_dict'][team_emoji])
+        await channel.send('**{member}** is interested! {emoji}: 1'.format(member=author.display_name, emoji=team_emoji))
+    else:
+        msg = '**{member}** is interested with a total of {trainer_count} trainers!'.format(member=author.display_name, trainer_count=count)
+        await channel.send('{msg} {blue_emoji}: {mystic} | {red_emoji}: {valor} | {yellow_emoji}: {instinct} | ❔: {unknown}'.format(msg=msg, blue_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['mystic']), mystic=party['mystic'], red_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['valor']), valor=party['valor'], instinct=party['instinct'], yellow_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['instinct']), unknown=party['unknown']))
+    await ctx.message.delete()
+    if author.id not in guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']:
+        trainer_dict[author.id] = {}
+    trainer_dict[author.id]['status'] = {'maybe':count, 'coming':0, 'here':0, 'lobby':0}
+    if entered_interest:
+        trainer_dict[author.id]['interest'] = list(entered_interest)
+    trainer_dict[author.id]['count'] = count
+    trainer_dict[author.id]['party'] = party
+    await _edit_party(ctx, Kyogre, guild_dict, channel, author)
+    guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
+    regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
+    if regions:
+        await _update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
+
 async def _otw(ctx, Kyogre, guild_dict, tag=False, team=False):
     ctx_comingcount = 0
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
@@ -369,6 +429,54 @@ async def _otw(ctx, Kyogre, guild_dict, tag=False, team=False):
             otw_exstr = ' including {trainer_list} and the people with them! Be considerate and wait for them if possible'.format(trainer_list=', '.join(name_list))
     listmsg = ' {trainer_count} on the way{including_string}!'.format(trainer_count=str(ctx_comingcount), including_string=otw_exstr)
     return listmsg
+
+async def _coming(ctx, Kyogre, guild_dict, count, party, entered_interest=None):
+    channel = ctx.channel
+    author = ctx.author
+    allblue = 0
+    allred = 0
+    allyellow = 0
+    allunknown = 0
+    trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
+    if (not party):
+        for role in author.roles:
+            if role.name.lower() == 'mystic':
+                allblue = count
+                break
+            elif role.name.lower() == 'valor':
+                allred = count
+                break
+            elif role.name.lower() == 'instinct':
+                allyellow = count
+                break
+        else:
+            allunknown = count
+        party = {'mystic':allblue, 'valor':allred, 'instinct':allyellow, 'unknown':allunknown}
+    if count == 1:
+        team_emoji = max(party, key=lambda key: party[key])
+        if team_emoji == "unknown":
+            team_emoji = "❔"
+        else:
+            team_emoji = utils.parse_emoji(channel.guild, Kyogre.config['team_dict'][team_emoji])
+        await channel.send('**{member}** is on the way! {emoji}: 1'.format(member=author.display_name, emoji=team_emoji))
+    else:
+        msg = '**{member}** is on the way with a total of {trainer_count} trainers!'.format(member=author.display_name, trainer_count=count)
+        await channel.send('{msg} {blue_emoji}: {mystic} | {red_emoji}: {valor} | {yellow_emoji}: {instinct} | ❔: {unknown}'.format(msg=msg, blue_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['mystic']), mystic=party['mystic'], red_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['valor']), valor=party['valor'], instinct=party['instinct'], yellow_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['instinct']), unknown=party['unknown']))
+    await ctx.message.delete()
+    if author.id not in trainer_dict:
+        trainer_dict[author.id] = {
+
+        }
+    trainer_dict[author.id]['status'] = {'maybe':0, 'coming':count, 'here':0, 'lobby':0}
+    trainer_dict[author.id]['count'] = count
+    trainer_dict[author.id]['party'] = party
+    if entered_interest:
+        trainer_dict[author.id]['interest'] = entered_interest
+    await _edit_party(ctx, Kyogre, guild_dict, channel, author)
+    guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
+    regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
+    if regions:
+        await _update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
 
 async def _waiting(ctx, Kyogre, guild_dict, tag=False, team=False):
     ctx_herecount = 0
@@ -406,6 +514,190 @@ async def _waiting(ctx, Kyogre, guild_dict, tag=False, team=False):
             here_exstr = " including {trainer_list} and the people with them! Be considerate and let them know if and when you'll be there".format(trainer_list=', '.join(name_list))
     listmsg = ' {trainer_count} waiting at the {raidtype}{including_string}!'.format(trainer_count=str(ctx_herecount), raidtype=raidtype, including_string=here_exstr)
     return listmsg
+
+async def _here(ctx, Kyogre, guild_dict, count, party, entered_interest=None):
+    channel = ctx.channel
+    author = ctx.author
+    lobbymsg = ''
+    allblue = 0
+    allred = 0
+    allyellow = 0
+    allunknown = 0
+    trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
+    raidtype = "event" if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('meetup',False) else "raid"
+    try:
+        if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['lobby']:
+            lobbymsg += '\nThere is a group already in the lobby! Use **!lobby** to join them or **!backout** to request a backout! Otherwise, you may have to wait for the next group!'
+    except KeyError:
+        pass
+    if (not party):
+        for role in author.roles:
+            if role.name.lower() == 'mystic':
+                allblue = count
+                break
+            elif role.name.lower() == 'valor':
+                allred = count
+                break
+            elif role.name.lower() == 'instinct':
+                allyellow = count
+                break
+        else:
+            allunknown = count
+        party = {'mystic':allblue, 'valor':allred, 'instinct':allyellow, 'unknown':allunknown}
+    if count == 1:
+        team_emoji = max(party, key=lambda key: party[key])
+        if team_emoji == "unknown":
+            team_emoji = "❔"
+        else:
+            team_emoji = utils.parse_emoji(channel.guild, Kyogre.config['team_dict'][team_emoji])
+        msg = '**{member}** is at the {raidtype}! {emoji}: 1'.format(member=author.display_name, emoji=team_emoji, raidtype=raidtype)
+        await channel.send(msg + lobbymsg)
+    else:
+        msg = '**{member}** is at the {raidtype} with a total of {trainer_count} trainers!'.format(member=author.display_name, trainer_count=count, raidtype=raidtype)
+        msg += ' {blue_emoji}: {mystic} | {red_emoji}: {valor} | {yellow_emoji}: {instinct} | ❔: {unknown}'.format(blue_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['mystic']), mystic=party['mystic'], red_emoji=utils.parse_emoji(channel.guild, Kyogre.
+            Kyogre.config['team_dict']['valor']), valor=party['valor'], instinct=party['instinct'], yellow_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['instinct']), unknown=party['unknown'])
+        await channel.send(msg + lobbymsg)
+    await ctx.message.delete()
+    if author.id not in trainer_dict:
+        trainer_dict[author.id] = {
+
+        }
+    trainer_dict[author.id]['status'] = {'maybe':0, 'coming':0, 'here':count, 'lobby':0}
+    trainer_dict[author.id]['count'] = count
+    trainer_dict[author.id]['party'] = party
+    if entered_interest:
+        trainer_dict[author.id]['interest'] = entered_interest
+    await _edit_party(ctx, Kyogre, guild_dict, channel, author)
+    guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
+    regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
+    if regions:
+        await _update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
+
+async def _cancel(ctx, Kyogre, guild_dict):
+    channel = ctx.channel
+    author = ctx.author
+    guild = channel.guild
+    raidtype = "event" if guild_dict[guild.id]['raidchannel_dict'][channel.id].get('meetup',False) else "raid"
+    await ctx.message.delete()
+    try:
+        t_dict = guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'][author.id]
+    except KeyError:
+        await channel.send('{member} has no status to cancel!'.format(member=author.name))
+        return
+    if t_dict['status']['maybe']:
+        if t_dict['count'] == 1:
+            await channel.send('**{member}** is no longer interested!'.format(member=author.display_name))
+        else:
+            await channel.send('**{member}** and their total of {trainer_count} trainers are no longer interested!'.format(member=author.display_name, trainer_count=t_dict['count']))
+    if t_dict['status']['here']:
+        if t_dict['count'] == 1:
+            await channel.send('**{member}** has left the {raidtype}!'.format(member=author.display_name, raidtype=raidtype))
+        else:
+            await channel.send('**{member}** and their total of {trainer_count} trainers have left the {raidtype}!'.format(member=author.display_name, trainer_count=t_dict['count'], raidtype=raidtype))
+    if t_dict['status']['coming']:
+        if t_dict['count'] == 1:
+            await channel.send('**{member}** is no longer on their way!'.format(member=author.display_name))
+        else:
+            await channel.send('**{member}** and their total of {trainer_count} trainers are no longer on their way!'.format(member=author.display_name, trainer_count=t_dict['count']))
+    if t_dict['status']['lobby']:
+        if t_dict['count'] == 1:
+            await channel.send('**{member}** has backed out of the lobby!'.format(member=author.display_name))
+        else:
+            await channel.send('**{member}** and their total of {trainer_count} trainers have backed out of the lobby!'.format(member=author.display_name, trainer_count=t_dict['count']))
+    t_dict['status'] = {'maybe':0, 'coming':0, 'here':0, 'lobby':0}
+    t_dict['party'] = {'mystic':0, 'valor':0, 'instinct':0, 'unknown':0}
+    t_dict['interest'] = []
+    t_dict['count'] = 1
+    await _edit_party(ctx, Kyogre, guild_dict, channel, author)
+    regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
+    if regions:
+        await _update_listing_channels(Kyogre, guild_dict, guild, 'raid', edit=True, regions=regions)
+
+async def _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author=None):
+    egglevel = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['egglevel']
+    if egglevel != "0":
+        boss_dict = {}
+        boss_list = []
+        display_list = []
+        for entry in raid_info['raid_eggs'][egglevel]['pokemon']:
+            p = Pokemon.get_pokemon(Kyogre, entry)
+            boss_list.append(p)
+            boss_dict[p.name] = {"type": utils.types_to_str(channel.guild, p.types, Kyogre.config), "total": 0}
+    channel_dict = {"mystic":0,"valor":0,"instinct":0,"unknown":0,"maybe":0,"coming":0,"here":0,"total":0,"boss":0}
+    team_list = ["mystic","valor","instinct","unknown"]
+    status_list = ["maybe","coming","here"]
+    trainer_dict = copy.deepcopy(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
+    for trainer in trainer_dict:
+        for team in team_list:
+            channel_dict[team] += int(trainer_dict[trainer]['party'][team])
+        for status in status_list:
+            if trainer_dict[trainer]['status'][status]:
+                channel_dict[status] += int(trainer_dict[trainer]['count'])
+        if egglevel != "0":
+            for boss in boss_list:
+                if boss.name.lower() in trainer_dict[trainer].get('interest',[]):
+                    boss_dict[boss.name]['total'] += int(trainer_dict[trainer]['count'])
+                    channel_dict["boss"] += int(trainer_dict[trainer]['count'])
+    if egglevel != "0":
+        for boss in boss_list:
+            if boss_dict[boss.name]['total'] > 0:
+                bossstr = "{name} ({number}) {types} : **{count}**".format(name=boss.name,number=boss.id,types=boss_dict[boss.name]['type'],count=boss_dict[boss.name]['total'])
+                display_list.append(bossstr)
+            elif boss_dict[boss.name]['total'] == 0:
+                bossstr = "{name} ({number}) {types}".format(name=boss.name,number=boss.id,types=boss_dict[boss.name]['type'])
+                display_list.append(bossstr)
+    channel_dict["total"] = channel_dict["maybe"] + channel_dict["coming"] + channel_dict["here"]
+    reportchannel = Kyogre.get_channel(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['reportchannel'])
+    try:
+        reportmsg = await reportchannel.fetch_message(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['raidreport'])
+    except:
+        pass
+    try:
+        raidmsg = await channel.fetch_message(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['raidmessage'])
+    except:
+        async for message in channel.history(limit=500, reverse=True):
+            if author and message.author.id == channel.guild.me.id:
+                c = 'Coordinate here'
+                if c in message.content:
+                    reportchannel = message.raw_channel_mentions[0]
+                    raidmsg = message
+                    break
+    reportembed = raidmsg.embeds[0]
+    newembed = discord.Embed(title=reportembed.title, url=reportembed.url, colour=channel.guild.me.colour)
+    index = 0
+    t = 'team'
+    s = 'status'
+    embed_indices = await embed_utils.get_embed_field_indices(reportembed)
+    for field in reportembed.fields:
+        if (t not in field.name.lower()) and (s not in field.name.lower()):
+            newembed.add_field(name=field.name, value=field.value, inline=field.inline)
+    if egglevel != "0" and not guild_dict[channel.guild.id].get('raidchannel_dict',{}).get(channel.id,{}).get('meetup',{}):
+        index = max(i for i in [embed_indices["possible"],embed_indices["interest"],embed_indices["details"]] if i is not None)
+        if channel_dict["boss"] > 0:
+            name = "**Boss Interest:**"
+        else:
+            name = "**Possible Bosses:**"
+        if len(boss_list) > 1:
+            newembed.set_field_at(index, name=name, value='{bosslist1}'.format(bosslist1='\n'.join(display_list[::2])), inline=True)
+            newembed.set_field_at(index+1, name='\u200b', value='{bosslist2}'.format(bosslist2='\n'.join(display_list[1::2])), inline=True)
+        else:
+            newembed.set_field_at(index, name=name, value='{bosslist}'.format(bosslist=''.join(display_list)), inline=True)
+            newembed.set_field_at(index+1, name='\u200b', value='\u200b', inline=True)
+    if channel_dict["total"] > 0:
+        newembed.add_field(name='**Status List**', value='Maybe: **{channelmaybe}** | Coming: **{channelcoming}** | Here: **{channelhere}**'.format(channelmaybe=channel_dict["maybe"], channelcoming=channel_dict["coming"], channelhere=channel_dict["here"]), inline=True)
+        newembed.add_field(name='**Team List**', value='{blue_emoji}: **{channelblue}** | {red_emoji}: **{channelred}** | {yellow_emoji}: **{channelyellow}** | ❔: **{channelunknown}**'.format(blue_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['mystic']), channelblue=channel_dict["mystic"], red_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['valor']), channelred=channel_dict["valor"], yellow_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['instinct']), channelyellow=channel_dict["instinct"], channelunknown=channel_dict["unknown"]), inline=True)
+    newembed.set_footer(text=reportembed.footer.text, icon_url=reportembed.footer.icon_url)
+    newembed.set_thumbnail(url=reportembed.thumbnail.url)
+    try:
+        await raidmsg.edit(embed=newembed)
+    except:
+        pass
+    try:
+        embed_indices = await embed_utils.get_embed_field_indices(newembed)
+        newembed = await embed_utils.filter_fields_for_report_embed(newembed, embed_indices)
+        await reportmsg.edit(embed=newembed)
+    except:
+        pass
 
 async def _lobbylist(ctx, Kyogre, guild_dict, tag=False, team=False):
     ctx_lobbycount = 0
@@ -503,7 +795,7 @@ async def _teamlist(ctx, Kyogre, guild_dict):
                     team_dict[team][status] += int(trainer_dict[trainer]['party'][team])
     for team in team_list[:-1]:
         if team_dict[team]['total'] > 0:
-            teamliststr += '{emoji} **{total} total,** {interested} interested, {coming} coming, {here} waiting {emoji}\n'.format(emoji=utils.parse_emoji(ctx.guild, config['team_dict'][team]), total=team_dict[team]['total'], interested=team_dict[team]['maybe'], coming=team_dict[team]['coming'], here=team_dict[team]['here'])
+            teamliststr += '{emoji} **{total} total,** {interested} interested, {coming} coming, {here} waiting {emoji}\n'.format(emoji=utils.parse_emoji(ctx.guild, Kyogre.config['team_dict'][team]), total=team_dict[team]['total'], interested=team_dict[team]['maybe'], coming=team_dict[team]['coming'], here=team_dict[team]['here'])
     if team_dict["unknown"]['total'] > 0:
         teamliststr += '❔ '
         teamliststr += '**{grey_number} total,** {greymaybe} interested, {greycoming} coming, {greyhere} waiting'
@@ -521,3 +813,87 @@ async def get_region_reporting_channels(guild, region, guild_dict):
         if guild_dict[guild.id]['configure_dict']['raid']['report_channels'][c] == region:
             report_channels.append(c)
     return report_channels
+
+async def _update_listing_channels(Kyogre, guild_dict, guild, type, edit=False, regions=None):
+    valid_types = ['raid', 'research', 'wild', 'nest', 'lure']
+    if type not in valid_types:
+        return
+    listing_dict = guild_dict[guild.id]['configure_dict'].get(type, {}).get('listings', None)
+    if not listing_dict or not listing_dict['enabled']:
+        return
+    if 'channel' in listing_dict:
+        channel = Kyogre.get_channel(listing_dict['channel']['id'])
+        return await _update_listing_channel(Kyogre, guild_dict, channel, type, edit)
+    if 'channels' in listing_dict:
+        if not regions:
+            regions = [r for r in listing_dict['channels']]
+        for region in regions:
+            channel_list = listing_dict['channels'].get(region, [])
+            if not isinstance(channel_list, list):
+                channel_list = [channel_list]
+            for channel_info in channel_list:
+                channel = Kyogre.get_channel(channel_info['id'])
+                await _update_listing_channel(Kyogre, guild_dict, channel, type, edit, region=region)
+
+async def _update_listing_channel(Kyogre, guild_dict, channel, type, edit, region=None):
+    lock = asyncio.Lock()
+    async with lock:
+        listing_dict = guild_dict[channel.guild.id]['configure_dict'].get(type, {}).get('listings', None)
+        if not listing_dict or not listing_dict['enabled']:
+            return
+        new_messages = await _get_listing_messages(Kyogre, guild_dict, type, channel, region)
+        previous_messages = await _get_previous_listing_messages(Kyogre, guild_dict, type, channel, region)
+        matches = itertools.zip_longest(new_messages, previous_messages)
+        new_ids = []
+        for pair in matches:
+            new_message = pair[0]
+            old_message = pair[1]
+            if pair[1]:
+                try:
+                    old_message = await channel.fetch_message(old_message)
+                except:
+                    old_message = None
+            if new_message:
+                new_embed = discord.Embed(description=new_message, colour=channel.guild.me.colour)
+                if old_message:
+                    if edit:
+                        await old_message.edit(embed=new_embed)
+                        new_ids.append(old_message.id)
+                        continue
+                    else:
+                        await old_message.delete()
+                new_message_obj = await channel.send(embed=new_embed)
+                new_ids.append(new_message_obj.id)
+            else: # old_message must be something if new_message is nothing
+                await old_message.delete()
+        if 'channel' in listing_dict:
+            listing_dict['channel']['messages'] = new_ids
+        elif 'channels' in listing_dict:
+            listing_dict['channels'][region]['messages'] = new_ids
+        guild_dict[channel.guild.id]['configure_dict'][type]['listings'] = listing_dict
+
+async def _get_previous_listing_messages(Kyogre, guild_dict, type, channel, region=None):
+    listing_dict = guild_dict[channel.guild.id]['configure_dict'].get(type, {}).get('listings', None)
+    if not listing_dict or not listing_dict['enabled']:
+        return
+    previous_messages = []
+    if 'channel' in listing_dict:
+        previous_messages = listing_dict['channel'].get('messages', [])
+    elif 'channels' in listing_dict:
+        if region:
+            previous_messages = listing_dict['channels'].get(region, {}).get('messages', [])
+        else:
+            for region, channel_info in listing_dict['channels'].items():
+                if channel_info['id'] == channel.id:
+                    previous_messages = channel_info.get('messages', [])
+                    break
+    else:
+        message_history = []
+        message_history = await channel.history(reverse=True).flatten()
+        if len(message_history) >= 1:
+            search_text = f"active {type}"
+            for message in message_history:
+                if search_text in message.embeds[0].description.lower():
+                    previous_messages.append(message.id)
+                    break
+    return previous_messages
