@@ -350,7 +350,7 @@ async def _interest(ctx, Kyogre, guild_dict, tag=False, team=False):
     listmsg = ' {trainer_count} interested{including_string}!'.format(trainer_count=str(ctx_maybecount), including_string=maybe_exstr)
     return listmsg
 
-async def _maybe(ctx, Kyogre, guild_dict, count, party, entered_interest=None):
+async def _maybe(ctx, Kyogre, guild_dict, raid_info, count, party, entered_interest=None):
     channel = ctx.channel
     author = ctx.author
     trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
@@ -390,11 +390,12 @@ async def _maybe(ctx, Kyogre, guild_dict, count, party, entered_interest=None):
         trainer_dict[author.id]['interest'] = list(entered_interest)
     trainer_dict[author.id]['count'] = count
     trainer_dict[author.id]['party'] = party
-    await _edit_party(ctx, Kyogre, guild_dict, channel, author)
+    await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
         await _update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
+
 
 async def _otw(ctx, Kyogre, guild_dict, tag=False, team=False):
     ctx_comingcount = 0
@@ -430,7 +431,7 @@ async def _otw(ctx, Kyogre, guild_dict, tag=False, team=False):
     listmsg = ' {trainer_count} on the way{including_string}!'.format(trainer_count=str(ctx_comingcount), including_string=otw_exstr)
     return listmsg
 
-async def _coming(ctx, Kyogre, guild_dict, count, party, entered_interest=None):
+async def _coming(ctx, Kyogre, guild_dict, raid_info, count, party, entered_interest=None):
     channel = ctx.channel
     author = ctx.author
     allblue = 0
@@ -472,7 +473,7 @@ async def _coming(ctx, Kyogre, guild_dict, count, party, entered_interest=None):
     trainer_dict[author.id]['party'] = party
     if entered_interest:
         trainer_dict[author.id]['interest'] = entered_interest
-    await _edit_party(ctx, Kyogre, guild_dict, channel, author)
+    await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
@@ -515,7 +516,7 @@ async def _waiting(ctx, Kyogre, guild_dict, tag=False, team=False):
     listmsg = ' {trainer_count} waiting at the {raidtype}{including_string}!'.format(trainer_count=str(ctx_herecount), raidtype=raidtype, including_string=here_exstr)
     return listmsg
 
-async def _here(ctx, Kyogre, guild_dict, count, party, entered_interest=None):
+async def _here(ctx, Kyogre, guild_dict, raid_info, count, party, entered_interest=None):
     channel = ctx.channel
     author = ctx.author
     lobbymsg = ''
@@ -567,13 +568,13 @@ async def _here(ctx, Kyogre, guild_dict, count, party, entered_interest=None):
     trainer_dict[author.id]['party'] = party
     if entered_interest:
         trainer_dict[author.id]['interest'] = entered_interest
-    await _edit_party(ctx, Kyogre, guild_dict, channel, author)
+    await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
         await _update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
 
-async def _cancel(ctx, Kyogre, guild_dict):
+async def _cancel(ctx, Kyogre, guild_dict, raid_info):
     channel = ctx.channel
     author = ctx.author
     guild = channel.guild
@@ -608,7 +609,7 @@ async def _cancel(ctx, Kyogre, guild_dict):
     t_dict['party'] = {'mystic':0, 'valor':0, 'instinct':0, 'unknown':0}
     t_dict['interest'] = []
     t_dict['count'] = 1
-    await _edit_party(ctx, Kyogre, guild_dict, channel, author)
+    await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
         await _update_listing_channels(Kyogre, guild_dict, guild, 'raid', edit=True, regions=regions)

@@ -1,8 +1,12 @@
 import asyncio
 import copy
+import datetime
 import time
 
-from kyogre import counters_helpers, list_helpers, utils
+import discord
+
+from kyogre.exts.pokemon import Pokemon
+from kyogre import counters_helpers, embed_utils, list_helpers, utils
 
 async def _backout(ctx, Kyogre, guild_dict):
     message = ctx.message
@@ -63,7 +67,7 @@ async def _backout(ctx, Kyogre, guild_dict):
         else:
             return
 
-async def _starting(ctx, Kyogre, guild_dict, team):
+async def _starting(ctx, Kyogre, guild_dict, raid_info, team):
     channel = ctx.channel
     guild = ctx.guild
     ctx_startinglist = []
@@ -136,9 +140,10 @@ async def _starting(ctx, Kyogre, guild_dict, team):
         except discord.errors.NotFound:
             pass
     await channel.send(starting_str)
-    ctx.bot.loop.create_task(lobby_countdown(ctx, team, guild_dict))
+    ctx.bot.loop.create_task(lobby_countdown(ctx, Kyogre, team, guild_dict, raid_info))
 
-async def lobby_countdown(ctx, team, guild_dict):
+
+async def lobby_countdown(ctx, Kyogre, team, guild_dict, raid_info):
     await asyncio.sleep(120)
     if ('lobby' not in guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]) or (time.time() < guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['lobby']['exp']):
         return
@@ -152,7 +157,9 @@ async def lobby_countdown(ctx, team, guild_dict):
         await ctx.channel.send('The group of {count} in the lobby has entered the raid! Wish them luck!'.format(count=str(ctx_lobbycount)))
     for trainer in trainer_delete_list:
         if team in ctx.team_names:
-            ctx.trainer_dict[trainer]['status'] = {'maybe':0, 'coming':0, 'here':herecount - teamcount, 'lobby': lobbycount}
+            herecount = ctx.trainer_dict[trainer]['status'].get('here', 0)
+            teamcount = ctx.trainer_dict[trainer]['party'][team]
+            ctx.trainer_dict[trainer]['status'] = {'maybe': 0, 'coming': 0, 'here':herecount - teamcount, 'lobby': ctx_lobbycount}
             ctx.trainer_dict[trainer]['party'][team] = 0
             ctx.trainer_dict[trainer]['count'] = ctx.trainer_dict[trainer]['count'] - teamcount
         else:
@@ -161,11 +168,11 @@ async def lobby_countdown(ctx, team, guild_dict):
         del guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['lobby']
     except KeyError:
         pass
-    await list_helpers._edit_party(ctx, Kyogre, guild_dict, ctx.channel, ctx.author)
+    await list_helpers._edit_party(ctx, Kyogre, guild_dict, raid_info, ctx.channel, ctx.author)
     guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict'] = ctx.trainer_dict
     regions = guild_dict[ctx.channel.guild.id]['raidchannel_dict'][ctx.channel.id].get('regions', None)
     if regions:
-        await _update_listing_channels(Kyogre, guild_dict, ctx.guild, 'raid', edit=True, regions=regions)
+        await list_helpers._update_listing_channels(Kyogre, guild_dict, ctx.guild, 'raid', edit=True, regions=regions)
 
 async def _weather(ctx, Kyogre, guild_dict, weather):
     guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['weather'] = weather.lower()

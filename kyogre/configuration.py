@@ -1,5 +1,6 @@
 import copy
 import re
+import time
 
 import discord
 from kyogre import checks, utils, constants
@@ -618,7 +619,7 @@ async def _configure_raid(ctx,Kyogre):
                     config_dict_temp['raid']['raid_channels'][region] = False
                 break
         config_dict_temp['raid']['category_dict'] = category_dict
-        config_dict_temp['raid']['listings'] = await _get_listings(Kyogre, guild, owner, config_dict_temp)
+        config_dict_temp['raid']['listings'] = await _get_listings(ctx, Kyogre, guild, owner, config_dict_temp)
     ctx.config_dict_temp = config_dict_temp
     return ctx
 
@@ -973,7 +974,7 @@ async def _configure_wild(ctx,Kyogre):
                     await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description="The number of cities doesn't match the number of channels you gave me earlier!\n\nI'll show you the two lists to compare:\n\n{channellist}\n{citylist}\n\nPlease double check that your locations match up with your provided channels and resend your response.".format(channellist=', '.join(citychannel_names), citylist=', '.join(city_list))))
                     continue
         config_dict_temp['wild']['report_channels'] = citychannel_dict
-        config_dict_temp['wild']['listings'] = await _get_listings(Kyogre, guild, owner, config_dict_temp)
+        config_dict_temp['wild']['listings'] = await _get_listings(ctx, Kyogre, guild, owner, config_dict_temp)
         await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description='Wild Reporting Locations are set'))
     ctx.config_dict_temp = config_dict_temp
     return ctx
@@ -1074,7 +1075,7 @@ async def _configure_research(ctx,Kyogre):
                     await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description="The number of cities doesn't match the number of channels you gave me earlier!\n\nI'll show you the two lists to compare:\n\n{channellist}\n{citylist}\n\nPlease double check that your locations match up with your provided channels and resend your response.".format(channellist=', '.join(citychannel_names), citylist=', '.join(city_list))))
                     continue
         config_dict_temp['research']['report_channels'] = citychannel_dict
-        config_dict_temp['research']['listings'] = await _get_listings(Kyogre, guild, owner, config_dict_temp)
+        config_dict_temp['research']['listings'] = await _get_listings(ctx, Kyogre, guild, owner, config_dict_temp)
         await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description='Research Reporting Locations are set'))
     ctx.config_dict_temp = config_dict_temp
     return ctx
@@ -1512,7 +1513,7 @@ async def _configure_lure(ctx,Kyogre):
                     await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description="The number of cities doesn't match the number of channels you gave me earlier!\n\nI'll show you the two lists to compare:\n\n{channellist}\n{citylist}\n\nPlease double check that your locations match up with your provided channels and resend your response.".format(channellist=', '.join(citychannel_names), citylist=', '.join(city_list))))
                     continue
         config_dict_temp['lure']['report_channels'] = citychannel_dict
-        config_dict_temp['lure']['listings'] = await _get_listings(Kyogre, guild, owner, config_dict_temp)
+        config_dict_temp['lure']['listings'] = await _get_listings(ctx, Kyogre, guild, owner, config_dict_temp)
         await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description='Lure Reporting Locations are set'))
     ctx.config_dict_temp = config_dict_temp
     return ctx
@@ -1733,7 +1734,7 @@ async def _configure_trade(ctx,Kyogre):
     ctx.config_dict_temp = config_dict_temp
     return ctx
 
-async def _get_listings(Kyogre, guild, owner, config_dict_temp):
+async def _get_listings(ctx, Kyogre, guild, owner, config_dict_temp):
     listing_dict = {}
     if config_dict_temp.get('regions', {}).get('enabled', None):
         region_names = list(config_dict_temp['regions']['info'].keys())
@@ -1793,12 +1794,12 @@ async def _get_listings(Kyogre, guild, owner, config_dict_temp):
         await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="I can also provide a listing that I will keep updated automatically as events are reported, updated, or expired. To enable this, please provide a channel name where this listing should be shown.\n\n**IMPORTANT** I recommend you set the permissions for this channel to allow only me to post to it. I will moderate the channel to remove other messages, but it will save me some work!").set_author(name='Listing Channels', icon_url=Kyogre.user.avatar_url))
         while True:
             listing_channels = await Kyogre.wait_for('message', check=(lambda message: (message.guild == None) and message.author == owner))
-            listing_channels = listing_channel.content.lower()
-            if listing_channel == 'n':
+            listing_channels = listing_channels.content.lower()
+            if listing_channels == 'n':
                 listing_dict['enabled'] = False
                 await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description='Listing disabled'))
                 break
-            elif listing_channel == 'cancel':
+            elif listing_channels == 'cancel':
                 await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description='**CONFIG CANCELLED!**\n\nNo changes have been made.'))
                 return None
             else:

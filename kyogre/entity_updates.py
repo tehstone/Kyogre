@@ -1,7 +1,9 @@
 import copy
 import datetime
 
-from kyogre import embed_utils, list_helpers, raid_helpers
+import discord
+
+from kyogre import embed_utils, list_helpers, raid_helpers, utils
 from kyogre.exts.pokemon import Pokemon
 
 async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid_channel, gym):
@@ -41,7 +43,7 @@ async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid
     new_channel_name = utils.sanitize_name(channel_prefix + "_"+ gym.name)
     await raid_channel.edit(name=new_channel_name)
     try:
-        message_content = get_raidtext(guild, raid_dict, gym, report_channel, raid_channel, False)
+        message_content = get_raidtext(Kyogre, guild, guild_dict, raid_dict, gym, report_channel, raid_channel, False)
         await oldraidmsg.edit(new_content=message_content, embed=new_embed, content=message_content)
     except:
         pass
@@ -49,7 +51,7 @@ async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid
         if enabled:
             embed_indices = await embed_utils.get_embed_field_indices(new_embed)
             new_embed = await embed_utils.filter_fields_for_report_embed(new_embed, embed_indices)
-            message_content = get_raidtext(guild, raid_dict, gym, report_channel, raid_channel, True)
+            message_content = get_raidtext(Kyogre, guild, guild_dict, raid_dict, gym, report_channel, raid_channel, True)
             await oldreportmsg.edit(new_content=message_content, embed=new_embed, content=message_content)
             if raid_dict['raidcityreport'] is not None:
                 report_city_channel = Kyogre.get_channel(raid_dict['reportcity'])
@@ -67,7 +69,7 @@ async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid
     await list_helpers._update_listing_channels(Kyogre, guild_dict, guild, "raid", True)
     return
 
-def get_raidtext(guild, raid_dict, gym, report_channel, raid_channel, report):
+def get_raidtext(Kyogre, guild, guild_dict, raid_dict, gym, report_channel, raid_channel, report):
     if 'type' in raid_dict:
         type = raid_dict['type']
     if 'pokemon' in raid_dict:

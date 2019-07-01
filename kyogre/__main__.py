@@ -2,16 +2,10 @@ import asyncio
 import copy
 import datetime
 import errno
-import functools
 import gettext
-import heapq
 import io
-import itertools
-import json
 import os
 import pickle
-import random
-import re
 import sys
 import tempfile
 import textwrap
@@ -19,12 +13,9 @@ import time
 import traceback
 
 from contextlib import redirect_stdout
-from io import BytesIO
-from time import strftime
 
 import aiohttp
 import dateparser
-from dateutil import tz
 from dateutil.relativedelta import relativedelta
 
 import discord
@@ -76,7 +67,7 @@ def _load_data(bot):
         logger.info('Serverdict Not Found - Looking for Backup')
         try:
             with open(os.path.join('data', 'serverdict_backup'), 'rb') as fd:
-                bot.guild_dict = renamed_load(fd)
+                bot.guild_dict = RenameUnpickler(fd).load()
             logger.info('Serverdict Backup Loaded Successfully')
         except OSError:
             logger.info('Serverdict Backup Not Found - Creating New Serverdict')
@@ -530,7 +521,7 @@ async def expire_wild(message):
     except (discord.errors.NotFound, discord.errors.Forbidden, discord.errors.HTTPException):
         pass
     del guild_dict[guild.id]['wildreport_dict'][message.id]
-    await list_helpers._update_listing_channels(Kyogre, guild_dict, guild, 'wild', edit=True, regions=_get_channel_regions(channel, 'wild', guild_dict))
+    await list_helpers._update_listing_channels(Kyogre, guild_dict, guild, 'wild', edit=True, regions=raid_helpers._get_channel_regions(channel, 'wild', guild_dict))
 
 async def expiry_check(channel):
     logger.info('Expiry_Check - ' + channel.name)
@@ -551,7 +542,7 @@ async def expiry_check(channel):
                     if start and guild_dict[guild.id]['raidchannel_dict'][channel.id]['type'] == 'egg':
                         if start < now:
                             pokemon = raid_info['raid_eggs']['EX']['pokemon'][0]
-                            await _eggtoraid(pokemon.lower(), channel, author=None)
+                            await _eggtoraid(None, pokemon.lower(), channel, author=None)
                     if end and end < now:
                         event_loop.create_task(expire_channel(channel))
                         try:
@@ -580,7 +571,7 @@ async def expiry_check(channel):
                                     except ValueError:
                                         logger.info(
                                             'Expire_Channel - Channel Removal From Active Raid Failed - Not in List - ' + channel.name)
-                                    await _eggtoraid(pokemon.lower(), channel, author=None)
+                                    await _eggtoraid(None, pokemon.lower(), channel, author=None)
                                     break
                             event_loop.create_task(expire_channel(channel))
                             try:
@@ -595,6 +586,7 @@ async def expiry_check(channel):
                 pass
             await asyncio.sleep(30)
             continue
+
 
 async def expire_channel(channel):
     guild = channel.guild
@@ -630,7 +622,7 @@ async def expire_channel(channel):
             if (not alreadyexpired):
                 pkmn = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('pokemon', None)
                 if pkmn:
-                    await _eggtoraid(pkmn.lower(), channel)
+                    await _eggtoraid(None, pkmn.lower(), channel)
                     return
                 maybe_list = []
                 trainer_dict = copy.deepcopy(
@@ -1155,7 +1147,7 @@ async def on_message(message):
                     except:
                         pass
                     emoji_count = message.content.count(omw_emoji)
-                    await _coming(message.channel, message.author, emoji_count, party=None)
+                    await list_helpers._coming(message.channel, message.author, emoji_count, party=None)
                     return
                 here_emoji = utils.parse_emoji(message.guild, config['here_id'])
                 if message.content.startswith(here_emoji):
@@ -1167,7 +1159,7 @@ async def on_message(message):
                     except:
                         pass
                     emoji_count = message.content.count(here_emoji)
-                    await _here(message.channel, message.author, emoji_count, party=None)
+                    await list_helpers._here(message.channel, message.author, emoji_count, party=None)
                     return
                 if "/maps" in message.content and "http" in message.content:
                     newcontent = message.content.replace("<","").replace(">","")
@@ -1526,7 +1518,7 @@ async def modify_raid_report(payload, raid_report):
                             if guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]:
                                 err_msg =  await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"A raid has already been reported for {gym.name}"))
                         else:
-                            await update_raid_location(message, report_channel, raid_channel, gym)
+                            await entity_updates.update_raid_location(message, report_channel, raid_channel, gym)
                             await _refresh_listing_channels_internal(guild, "raid")
                             success_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description="Raid location updated"))
                             await gymmsg.delete()
@@ -2624,9 +2616,9 @@ async def changeraid(ctx, newraid):
     message = ctx.message
     guild = message.guild
     channel = message.channel
-    return await changeraid_internal(guild, channel, newraid)
+    return await changeraid_internal(ctx, guild, channel, newraid)
 
-async def changeraid_internal(guild, channel, newraid):
+async def changeraid_internal(ctx, guild, channel, newraid):
     if (not channel) or (channel.id not in guild_dict[guild.id]['raidchannel_dict']):
         await channel.send('The channel you entered is not a raid channel.')
         return
@@ -2686,7 +2678,7 @@ async def changeraid_internal(guild, channel, newraid):
         author_id = raid_dict.get('reporter', None)
         if author_id is not None:
             author = guild.get_member(author_id)
-        await _eggtoraid(newraid.lower(), channel, author=author)
+        await _eggtoraid(ctx, newraid.lower(), channel, author=author)
 
 @Kyogre.command()
 @commands.has_permissions(manage_channels=True)
@@ -2840,7 +2832,7 @@ async def team(ctx,*,content):
                 temp_role = await guild.create_role(name=team.lower(), hoist=False, mentionable=True)
                 guild_roles.append(team.lower())
             except discord.errors.HTTPException:
-                await message.channel.send('Maximum guild roles reached.')
+                await ctx.channel.send('Maximum guild roles reached.')
                 return
             if temp_role.position > position:
                 high_roles.append(temp_role.name)
@@ -3935,7 +3927,7 @@ async def _raid_internal(ctx, content):
             if config['allow_assume'][egglevel] == 'False':
                 return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description='**!raid assume** is not allowed for this level egg.'))
             if guild_dict[guild.id]['raidchannel_dict'][channel.id]['active'] == False:
-                await _eggtoraid(raid_split[1].lower(), channel, author)
+                await _eggtoraid(ctx, raid_split[1].lower(), channel, author)
                 return
             else:
                 await _eggassume(" ".join(raid_split), channel, author)
@@ -4018,9 +4010,9 @@ async def _raid_internal(ctx, content):
     else:
         new_content = ' '.join(content.split()[len(raid_pokemon.full_name.split()):])
     if fromegg:
-        return await _eggtoraid(raid_pokemon.full_name.lower(), channel, author)
+        return await _eggtoraid(ctx, raid_pokemon.full_name.lower(), channel, author)
     if eggtoraid:
-        return await _eggtoraid(new_content.lower(), channel, author)
+        return await _eggtoraid(ctx, new_content.lower(), channel, author)
     raid_split = new_content.strip().split()
     if len(raid_split) == 0:
         return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description='Give more details when reporting! Usage: **!raid <pokemon name> <location>**'))
@@ -4164,7 +4156,7 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
                 location = raid_dict_entry.get('address', 'unknown gym')
                 if not enabled:
                     await channel.send(f"The egg at {location} has hatched into a {raid_pokemon.name} raid!")
-                return await _eggtoraid(raid_pokemon.name.lower(), raid_channel)
+                return await _eggtoraid(ctx, raid_pokemon.name.lower(), raid_channel)
 
         raid_details = gym.name
         raid_gmaps_link = gym.maps_url
@@ -4289,7 +4281,6 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
         raid_dict['ctrsmessage'] = ctrsmessage_id
         raid_dict['ctrs_dict'] = ctrs_dict
     guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = raid_dict
-    event_loop.create_task(expiry_check(raid_channel))
     if raidexp is not False:
         await _timerset(raid_channel, raidexp)
     else:
@@ -4325,6 +4316,7 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
             await _eggassume('assume ' + raid_info['raid_eggs'][str(level)]['pokemon'][0], raid_channel)
         elif level == "5" and guild_dict[raid_channel.guild.id]['configure_dict']['settings'].get('regional',None) in raid_info['raid_eggs']["5"]['pokemon']:
             await _eggassume('assume ' + guild_dict[raid_channel.guild.id]['configure_dict']['settings']['regional'], raid_channel)
+    event_loop.create_task(expiry_check(raid_channel))
     return raid_channel
 
 async def _eggassume(args, raid_channel, author=None):
@@ -4342,13 +4334,13 @@ async def _eggassume(args, raid_channel, author=None):
     if not raid_pokemon:
         return
     if not raid_pokemon.is_raid:
-        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f'The Pokemon {raid_pokemon.name} does not appear in raids!'))
+        return await raid_channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f'The Pokemon {raid_pokemon.name} does not appear in raids!'))
     elif raid_pokemon.name.lower() not in raid_info['raid_eggs'][egglevel]['pokemon']:
-        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f'The Pokemon {raid_pokemon.name} does not hatch from level {egglevel} raid eggs!'))
+        return await raid_channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f'The Pokemon {raid_pokemon.name} does not hatch from level {egglevel} raid eggs!'))
     eggdetails['pokemon'] = raid_pokemon.name
     oldembed = raid_message.embeds[0]
     raid_gmaps_link = oldembed.url
-    enabled =raid_helpers.raid_channels_enabled(raid_channel.guild, raid_channel, guild_dict)
+    enabled = raid_helpers.raid_channels_enabled(raid_channel.guild, raid_channel, guild_dict)
     if enabled:
         embed_indices = await embed_utils.get_embed_field_indices(oldembed)
         raid_embed = discord.Embed(title='Click here for directions to the raid!', url=raid_gmaps_link, colour=raid_channel.guild.me.colour)
@@ -4405,7 +4397,7 @@ async def _eggassume(args, raid_channel, author=None):
     guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = eggdetails
     return
 
-async def _eggtoraid(entered_raid, raid_channel, author=None):
+async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
     pkmn = Pokemon.get_pokemon(Kyogre, entered_raid)
     if not pkmn:
         return
@@ -4460,7 +4452,7 @@ async def _eggtoraid(entered_raid, raid_channel, author=None):
     meetup = eggdetails.get('meetup',{})
     raid_match = pkmn.is_raid
     if (not raid_match):
-        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f'The Pokemon {pkmn.full_name} does not appear in raids!'))
+        return await raid_channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f'The Pokemon {pkmn.full_name} does not appear in raids!'))
     if (egglevel.isdigit() and int(egglevel) > 0) or egglevel == 'EX':
         raidexp = eggdetails['exp'] + 60 * raid_info['raid_eggs'][str(egglevel)]['raidtime']
     else:
@@ -4494,7 +4486,6 @@ async def _eggtoraid(entered_raid, raid_channel, author=None):
         raidreportcontent = 'The EX egg has hatched into a {pokemon} raid! Details: {location_details}. {invitemsgstr} coordinate in {raid_channel}'.format(pokemon=entered_raid.capitalize(), location_details=egg_address, invitemsgstr=invitemsgstr,raid_channel=raid_channel.mention)
         raidmsg = "{pokemon} EX raid reported in {citychannel}! Details: {location_details}. Coordinate here{invitemsgstr2}!\n\nClick the question mark reaction to get help on the commands that work in here.\n\nThis channel will be deleted five minutes after the timer expires.".format(pokemon=entered_raid.capitalize(), citychannel=reportcitychannel.mention, location_details=egg_address, invitemsgstr2=invitemsgstr2)
     raid_channel_name = utils.sanitize_name(pkmn.name.lower() + '_' + egg_address)
-    raid = discord.utils.get(raid_channel.guild.roles, name=pkmn.species)
     embed_indices = await embed_utils.get_embed_field_indices(oldembed)
     raid_embed = discord.Embed(title='Click here for directions to the raid!', url=raid_gmaps_link, colour=raid_channel.guild.me.colour)
     raid_embed.add_field(name=(oldembed.fields[embed_indices["gym"]].name), value=oldembed.fields[embed_indices["gym"]].value, inline=True)
@@ -4605,8 +4596,9 @@ async def _eggtoraid(entered_raid, raid_channel, author=None):
     if author:
         raid_reports = guild_dict[raid_channel.guild.id].setdefault('trainers',{}).setdefault(regions[0], {}).setdefault(author.id,{}).setdefault('raid_reports',0) + 1
         guild_dict[raid_channel.guild.id]['trainers'][regions[0]][author.id]['raid_reports'] = raid_reports
-        await list_helpers._edit_party(ctx, Kyogre, guild_dict, raid_channel, author)
+        await list_helpers._edit_party(ctx, Kyogre, guild_dict, raid_info, raid_channel, author)
     await list_helpers._update_listing_channels(Kyogre, guild_dict, raid_channel.guild, 'raid', edit=False, regions=regions)
+    await asyncio.sleep(1)
     event_loop.create_task(expiry_check(raid_channel))
 
 @Kyogre.group(name="raidnotice", aliases=['rn'], case_insensitive=True)
@@ -4649,7 +4641,7 @@ async def _raid_available(ctx, exptime=None):
                     pass
             role_to_remove = discord.utils.get(guild.roles, name=role_to_assign)
             try:
-                await user.remove_roles(*[role_to_remove], reason="Raid availability expired or was cancelled by user.")
+                await trainer.remove_roles(*[role_to_remove], reason="Raid availability expired or was cancelled by user.")
             except:
                 pass
             return
@@ -4680,18 +4672,17 @@ async def _raid_available(ctx, exptime=None):
     if region is not None:
         footer_text = f"Use the **@{region}-raids** tag to notify all trainers who are currently available"
         raid_notice_embed.set_footer(text=footer_text)
-    raid_notice_msg = await channel.send(content=('{trainer} is available for Raids!').format(trainer=trainer.display_name),embed=raid_notice_embed)
+    raid_notice_msg = await channel.send(content=('{trainer} is available for Raids!').format(trainer=trainer.display_name), embed=raid_notice_embed)
     await raid_notice_msg.add_reaction('\u23f2')
     await raid_notice_msg.add_reaction('🚫')
-    #pvp_embed.set_thumbnail(url="https://github.com/KyogreBot/Kyogre/blob/master/images/misc/pvpn_large.png?raw=true")
     expiremsg ='**{trainer} is no longer available for Raids!**'.format(trainer=trainer.display_name)
-    raid_notice_dict = copy.deepcopy(guild_dict[guild.id].get('raid_notice_dict',{}))
+    raid_notice_dict = copy.deepcopy(guild_dict[guild.id].get('raid_notice_dict', {}))
     raid_notice_dict[raid_notice_msg.id] = {
         'exp':time.time() + (expiration_minutes * 60),
-        'expedit': {"content":"","embedcontent":expiremsg},
-        'reportmessage':message.id,
-        'reportchannel':channel.id,
-        'reportauthor':trainer.id,
+        'expedit': {"content": "", "embedcontent": expiremsg},
+        'reportmessage': message.id,
+        'reportchannel': channel.id,
+        'reportauthor': trainer.id,
     }
     guild_dict[guild.id]['raid_notice_dict'] = raid_notice_dict
     event_loop.create_task(raid_notice_expiry_check(raid_notice_msg))
@@ -4745,7 +4736,7 @@ async def _exraid(ctx, location):
     boss_list = []
     for entry in egg_info['pokemon']:
         p = Pokemon.get_pokemon(Kyogre, entry)
-        boss_list.append(str(p) + ' (' + str(p.id) + ') ' + utils.types_to_str(guild, p.types, Kyogre.config))
+        boss_list.append(str(p) + ' (' + str(p.id) + ') ' + utils.types_to_str(ctx.guild, p.types, Kyogre.config))
     raid_channel = await create_raid_channel("exraid", None, None, gym, message.channel)
     if config_dict['invite']['enabled']:
         for role in channel.guild.role_hierarchy:
@@ -4812,7 +4803,7 @@ async def exinvite(ctx):
     """Join an EX Raid.
 
     Usage: !invite"""
-    await _invite(ctx)
+    await _exinvite(ctx)
 
 async def _exinvite(ctx):
     bot = ctx.bot
@@ -4856,7 +4847,7 @@ async def _exinvite(ctx):
         except (discord.errors.Forbidden, discord.errors.HTTPException, discord.errors.InvalidArgument):
             pass
         exraidmsg = await channel.send('Alright {0}, you can now send messages in {1}! Make sure you let the trainers in there know if you can make it to the EX Raid!').format(author.mention, exraid_channel.mention)
-        await _maybe(exraid_channel, author, 1, party=None)
+        await list_helpers._maybe(ctx, Kyogre, guild_dict, raid_info, 0, None)
     else:
         await exraidchoice.delete()
         exraidmsg = await channel.send("I couldn't understand your reply! Try the **!invite** command again!")
@@ -5088,7 +5079,7 @@ async def research(ctx, *, details = None):
         research_embed.clear_fields()
         research_embed.add_field(name='**Research Report Cancelled**', value="Your report has been cancelled because you {error}! Retry when you're ready.".format(error=error), inline=False)
         confirmation = await channel.send(embed=research_embed)
-        return await utils.sleep_and_cleanup([message,confirmatiom], 10)
+        return await utils.sleep_and_cleanup([message,confirmation], 10)
 
 async def _get_quest(ctx, name):
     channel = ctx.channel
@@ -5099,18 +5090,18 @@ async def _get_quest_v(channel, author, name):
     """gets a quest by name or id"""
     if not name:
         return
-    id = None
+    quest_id = None
     if str(name).isnumeric():
-        id = int(name)
+        quest_id = int(name)
     try:
         query = QuestTable.select()
-        if id is not None:
-            query = query.where(QuestTable.id == id)
+        if quest_id is not None:
+            query = query.where(QuestTable.id == quest_id)
         query = query.execute()
         result = [d for d in query]
     except:
         return await channel.send("No quest data available!")
-    if id is not None:
+    if quest_id is not None:
         return None if not result else result[0]
     quest_names = [q.name.lower() for q in result]
     if name.lower() not in quest_names:
@@ -5118,10 +5109,12 @@ async def _get_quest_v(channel, author, name):
         name = await prompt_match_result(channel, author, name, candidates)
     return next((q for q in result if q.name is not None and q.name.lower() == name.lower()), None)
 
+
 async def _prompt_reward(ctx, quest, reward_type=None):
     channel = ctx.channel
     author = ctx.message.author.id
     return await _prompt_reward_v(channel, author, quest, reward_type)
+
 
 async def _prompt_reward_v(channel, author, quest, reward_type=None):
     """prompts user for reward info selection using quest's reward pool
@@ -5129,7 +5122,7 @@ async def _prompt_reward_v(channel, author, quest, reward_type=None):
     if not quest or not quest.reward_pool:
         return
     if reward_type:
-        if not reward_type in quest.reward_pool:
+        if reward_type not in quest.reward_pool:
             raise ValueError("Starting point provided is invalid")
     else:
         candidates = [k for k, v in quest.reward_pool.items() if len(v) > 0]
@@ -5167,6 +5160,7 @@ async def _prompt_reward_v(channel, author, quest, reward_type=None):
         if not quantity:
             return
         return f"{quantity} {reward_type.title()}"
+
 
 @Kyogre.command(aliases=['event'])
 @checks.allowmeetupreport()
@@ -5232,6 +5226,7 @@ async def _meetup(ctx, location):
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[raid_channel.guild.id]['configure_dict']['settings']['offset'])
     await raid_channel.send(content='Hey {member}, if you can, set the time that the event starts with **!starttime <date and time>** and also set the time that the event ends using **!timerset <date and time>**.'.format(member=message.author.mention))
     event_loop.create_task(expiry_check(raid_channel))
+
 
 async def _send_notifications_async(type, details, new_channel, exclusions=[]):
     valid_types = ['raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure']
@@ -5349,8 +5344,9 @@ async def _send_notifications_async(type, details, new_channel, exclusions=[]):
         role_name = utils.sanitize_name(f"{type} {pokemon_names} {location}".title())
     return await _generate_role_notification_async(role_name, new_channel, outbound_dict)
 
+
 async def _generate_role_notification_async(role_name, channel, outbound_dict):
-    '''Generates and handles a temporary role notification in the new raid channel'''
+    """Generates and handles a temporary role notification in the new raid channel"""
     if len(outbound_dict) == 0:
         return
     guild = channel.guild
@@ -5362,16 +5358,17 @@ async def _generate_role_notification_async(role_name, channel, outbound_dict):
     obj = next(iter(outbound_dict.values()))
     message = obj['message']
     msg_obj = await channel.send(f'~{temp_role.mention} {message}')
+
     async def cleanup():
         await asyncio.sleep(300)
         await temp_role.delete()
         await msg_obj.delete()
     asyncio.ensure_future(cleanup())
 
+
 """
 Data Management Commands
 """
-
 @Kyogre.group(name="reports")
 @commands.has_permissions(manage_guild=True)
 async def _reports(ctx):
@@ -5379,21 +5376,24 @@ async def _reports(ctx):
     if ctx.invoked_subcommand == None:
         raise commands.BadArgument()
 
+
 @_reports.command(name="list", aliases=["ls"])
-async def _reports_list(ctx, *, type, regions=''):
+async def _reports_list(ctx, *, list_type, regions=''):
     """Lists the current active reports of the specified type, optionally for one or more regions"""
     valid_types = ['raid', 'research']
     channel = ctx.channel
-    type = type.lower()
-    if type not in valid_types:
-        await channel.send(f"'{type}' is either invalid or unsupported. Please use one of the following: {', '.join(valid_types)}")
-    await ctx.channel.send(f"This is a {type} listing")
+    list_type = list_type.lower()
+    if list_type not in valid_types:
+        await channel.send(f"'{list_type}' is either invalid or unsupported. Please use one of the following: {', '.join(valid_types)}")
+    await ctx.channel.send(f"This is a {list_type} listing")
+
 
 @Kyogre.group(name="loc")
 async def _loc(ctx):
     """Location data management command"""
     if ctx.invoked_subcommand == None:
         raise commands.BadArgument()
+
 
 @_loc.command(name="add")
 @commands.has_permissions(manage_guild=True)
@@ -5404,7 +5404,7 @@ async def _loc_add(ctx, *, info):
     Optionally a true/false for ex eligibility can be provided as well."""
     channel = ctx.channel
     message = ctx.message
-    type = None
+    loc_type = None
     name = None
     region = None
     latitude = None
@@ -5417,9 +5417,9 @@ async def _loc_add(ctx, *, info):
             if len(info_split) < 5:
                 error_msg = "Please provide the following when using this command: `location type, name, region, latitude, longitude, (optional) ex eligible`"
             elif len(info_split) == 5:
-                type, name, region, latitude, longitude = [x.strip() for x in info.split(',')]
+                loc_type, name, region, latitude, longitude = [x.strip() for x in info.split(',')]
             elif len(info_split) == 6:
-                type, name, region, latitude, longitude, ex_eligible = [x.strip() for x in info.split(',')]
+                loc_type, name, region, latitude, longitude, ex_eligible = [x.strip() for x in info.split(',')]
         else:
             error_msg = "Please provide the following when using this command: `location type, name, region, latitude, longitude, (optional) ex eligible`"
     except:
@@ -5428,7 +5428,7 @@ async def _loc_add(ctx, *, info):
         return await channel.send(error_msg)
     data = {}
     data["coordinates"] = f"{latitude},{longitude}"
-    if type == "gym":
+    if loc_type == "gym":
         if ex_eligible is not None:
             data["ex_eligible"] = bool(ex_eligible)
         else:
@@ -5437,13 +5437,14 @@ async def _loc_add(ctx, *, info):
     data["guild"] = str(ctx.guild.id)
     error_msg = LocationTable.create_location(name, data)
     if error_msg is None:
-        success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Successfully added {type}: {name}."))
+        success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Successfully added {loc_type}: {name}."))
         await message.add_reaction('✅')
         return await utils.sleep_and_cleanup([success], 10)
     else:
-        failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Failed to add {type}: {name}."))
+        failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Failed to add {loc_type}: {name}."))
         await message.add_reaction('❌')   
         return await utils.sleep_and_cleanup([failed], 10)
+
 
 @_loc.command(name="convert", aliases=["c"])
 @commands.has_permissions(manage_guild=True)
@@ -5453,14 +5454,13 @@ async def _loc_convert(ctx, *, info):
     Requires the name of a Pokestop."""
     channel = ctx.channel
     author = ctx.message.author
-    stops = None
     stops = get_stops(ctx.guild.id, None)
     stop = await location_match_prompt(channel, author.id, info, stops)
     if not stop:
         no_stop_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No pokestop found with name **{info}**"))
         return await utils.sleep_and_cleanup([no_stop_msg], 10)
     result = await stopToGym(ctx, stop.name)
-    if (result[0] == 0):
+    if result[0] == 0:
         failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Failed to convert stop to gym."))
         await ctx.message.add_reaction('❌') 
         return await utils.sleep_and_cleanup([failed], 10)       
@@ -5468,6 +5468,7 @@ async def _loc_convert(ctx, *, info):
         success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Converted {result[0]} stop(s) to gym(s)."))
         await ctx.message.add_reaction('✅')
         return await utils.sleep_and_cleanup([success], 10)
+
 
 @_loc.command(name="extoggle", aliases=["ext"])
 @commands.has_permissions(manage_guild=True)
@@ -5498,7 +5499,8 @@ async def _loc_extoggle(ctx, *, info):
         await asyncio.sleep(15)
         await success.delete()
         return
-    
+
+
 @_loc.command(name="changeregion", aliases=["cr"])
 @commands.has_permissions(manage_guild=True)
 async def _loc_change_region(ctx, *, info):
@@ -5513,10 +5515,8 @@ async def _loc_change_region(ctx, *, info):
     stop, gym = None, None
     if len(info) != 3:
         failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Please provide (comma separated) the location type (stop or gym), name of the Pokestop or gym, and the new region it should be assigned to."))
-        await message.add_reaction('❌')        
-        await asyncio.sleep(10)
-        await failed.delete()
-        return
+        await message.add_reaction('❌')
+        return await utils.sleep_and_cleanup([failed], 10)
     if info[0].lower() == "stop":
         stops = get_stops(ctx.guild.id, None)
         stop = await location_match_prompt(channel, author.id, info[1], stops)
@@ -5530,22 +5530,17 @@ async def _loc_change_region(ctx, *, info):
     if not stop and not gym:
         failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No {info[0]} found with name {info[1]}."))
         await message.add_reaction('❌')        
-        await asyncio.sleep(10)
-        await failed.delete()
-        return
+        return await utils.sleep_and_cleanup([failed], 10)
     result = await changeRegion(ctx, name, info[2])
     if result == 0:
         failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Failed to change location for {name}."))
         await message.add_reaction('❌')        
-        await asyncio.sleep(10)
-        await failed.delete()
-        return
+        return await utils.sleep_and_cleanup([failed], 10)
     else:
         success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Successfully changed location for {name}."))
         await message.add_reaction('✅')
-        await asyncio.sleep(10)
-        await success.delete()
-        return
+        return await utils.sleep_and_cleanup([success], 10)
+
 
 @_loc.command(name="deletelocation", aliases=["del"])
 @commands.has_permissions(manage_guild=True)
@@ -5561,19 +5556,17 @@ async def _loc_deletelocation(ctx, *, info):
     info = info.split(',')
     if len(info) != 2:
         failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Please provide (comma separated) the location type (stop or gym) and the name of the Pokestop or gym."))
-        await message.add_reaction('❌')        
-        await asyncio.sleep(10)
-        await failed.delete()
-        return
-    type = info[0].lower()
+        await message.add_reaction('❌')
+        return await utils.sleep_and_cleanup([failed], 10)
+    loc_type = info[0].lower()
     stop = None
     gym = None
-    if type == "stop":
+    if loc_type == "stop":
         stops = get_stops(ctx.guild.id, None)
         stop = await location_match_prompt(channel, author.id, info[1], stops)
         if stop is not None:
             name = stop.name
-    elif type == "gym":
+    elif loc_type == "gym":
         gyms = get_gyms(ctx.guild.id, None)
         gym = await location_match_prompt(channel, author.id, info[1], gyms)
         if gym is not None:
@@ -5581,22 +5574,17 @@ async def _loc_deletelocation(ctx, *, info):
     if not stop and not gym:
         failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No {info[0]} found with name {info[1]}."))
         await message.add_reaction('❌')        
-        await asyncio.sleep(10)
-        await failed.delete()
-        return
-    result = await deleteLocation(ctx, type, name)
+        return await utils.sleep_and_cleanup([failed], 10)
+    result = await deleteLocation(ctx, loc_type, name)
     if result == 0:
-        failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Failed to delete {type}: {name}."))
+        failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Failed to delete {loc_type}: {name}."))
         await message.add_reaction('❌')        
-        await asyncio.sleep(10)
-        await failed.delete()
-        return
+        return await utils.sleep_and_cleanup([failed], 10)
     else:
-        success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Successfully deleted {type}: {name}."))
+        success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Successfully deleted {loc_type}: {name}."))
         await message.add_reaction('✅')
-        await asyncio.sleep(10)
-        await success.delete()
-        return
+        return await utils.sleep_and_cleanup([success], 10)
+
 
 async def deleteLocation(ctx, type, name):
     channel = ctx.channel
@@ -5622,6 +5610,7 @@ async def deleteLocation(ctx, type, name):
             txn.rollback()
     return deleted
 
+
 async def stopToGym(ctx, name):
     channel = ctx.channel
     guild = ctx.guild
@@ -5641,6 +5630,7 @@ async def stopToGym(ctx, name):
             txn.rollback()
     return (deleted, created)
 
+
 async def toggleEX(ctx, name):
     channel = ctx.channel
     guild = ctx.guild
@@ -5657,6 +5647,7 @@ async def toggleEX(ctx, name):
             await channel.send(e)
             txn.rollback()
     return success
+
 
 async def changeRegion(ctx, name, region):
     success = 0
@@ -5690,11 +5681,13 @@ async def changeRegion(ctx, name, region):
             txn.rollback()
     return success
 
+
 @Kyogre.group(name="quest")
 async def _quest(ctx):
     """Quest data management command"""
     if ctx.invoked_subcommand == None:
         raise commands.BadArgument()
+
 
 @_quest.command(name="info", aliases=["lookup", "get", "find"])
 @checks.allowresearchreport()
@@ -5708,6 +5701,7 @@ async def _quest_info(ctx, *, name):
         return await channel.send("Unable to find quest by that name")
     await channel.send(format_quest_info(quest))
 
+
 @_quest.command(name="add")
 @commands.has_permissions(manage_guild=True)
 async def _quest_add(ctx, *, info):
@@ -5717,8 +5711,6 @@ async def _quest_add(ctx, *, info):
     
     Reward pool should be provided as a JSON string. If not provided, an empty default will be used."""
     channel = ctx.channel
-    name = None
-    pool = None
     if ',' in info:
         name, pool = info.split(',', 1)
     else:
@@ -5743,15 +5735,14 @@ async def _quest_remove(ctx, id):
     
     Usage: !quest remove <id>"""
     channel = ctx.channel
-
     try:
         deleted = QuestTable.delete().where(QuestTable.id == id).execute()
     except:
         deleted = False
-    
     if deleted:
         return await channel.send("Successfully deleted record")
     return await channel.send("Unable to delete record")
+
 
 def format_quest_info(quest):
     pool = quest.reward_pool
@@ -5775,12 +5766,14 @@ def format_quest_info(quest):
             output += f"\n\t{name.title()}: {quantities[0] if len(quantities) == 1 else str(quantities[0]) + ' - ' + str(quantities[-1])}"
     return output
 
+
 @Kyogre.group(name="rewards")
 @commands.has_permissions(manage_guild=True)
 async def _rewards(ctx):
     """Quest reward pool data management command"""
-    if ctx.invoked_subcommand == None:
+    if not ctx.invoked_subcommand:
         raise commands.BadArgument()
+
 
 @_rewards.command(name="add")
 async def _rewards_add(ctx, *, info):
@@ -5792,32 +5785,33 @@ async def _rewards_add(ctx, *, info):
     If type is not encounters, stardust, or xp, it will be assumed to be an item."""
     channel = ctx.channel
     try:
-        id, type, value = re.split(r'\s*,\s*', info)
-        id = int(id)
-        type = type.lower()
+        reward_id, reward_type, value = re.split(r'\s*,\s*', info)
+        reward_id = int(reward_id)
+        reward_type = reward_type.lower()
     except:
         return await channel.send("Error parsing input. Please check the format and try again")
     try:
-        quest = QuestTable[id]
+        quest = QuestTable[reward_id]
     except:
-        return await channel.send(f"Unable to get quest with id {id}")
+        return await channel.send(f"Unable to get quest with id {reward_id}")
     pool = quest.reward_pool
-    if type.startswith("encounter"):
+    if reward_type.startswith("encounter"):
         pokemon = Pokemon.get_pokemon(Kyogre, value)
         if pokemon:
             pool.setdefault("encounters", []).append(pokemon.name.lower())
     else:
         if not value.isnumeric():
             return await channel.send("Value must be a numeric quantity")
-        if type == "stardust":
+        if reward_type == "stardust":
             pool.setdefault("stardust", []).append(int(value))
-        elif type == "xp":
+        elif reward_type == "xp":
             pool.setdefault("xp", []).append(int(value))
         else:
-            pool.setdefault("items", {}).setdefault(type, []).append(int(value))
+            pool.setdefault("items", {}).setdefault(reward_type, []).append(int(value))
     quest.reward_pool = pool
     quest.save()
     await channel.send("Successfully added reward to pool")
+
 
 @_rewards.command(name="remove", aliases=["rm", "delete", "del"])
 async def _rewards_remove(ctx, *, info):
@@ -5911,7 +5905,7 @@ async def print_raid_timer(channel):
     else:
         raidtype = 'raid'
         raidaction = 'end'
-    if (not guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['active']):
+    if not guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['active']:
         timerstr += "This {raidtype}'s timer has already expired as of {expiry_time}!".format(raidtype=raidtype, expiry_time=end.strftime('%I:%M %p (%H:%M)'))
     elif (guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['egglevel'] == 'EX') or (guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['type'] == 'exraid'):
         if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['manual_timer']:
@@ -5949,7 +5943,7 @@ async def raid_time_check(channel,time, error = None):
 
 @Kyogre.command(aliases=['ts'])
 @checks.raidchannel()
-async def timerset(ctx, *,timer):
+async def timerset(ctx, *, timer):
     """Set the remaining duration on a raid.
 
     Usage: !timerset <minutes>
@@ -5972,7 +5966,7 @@ async def timerset(ctx, *,timer):
             maxtime = raid_info['raid_eggs'][raidlevel]['raidtime']
         raidexp = False
         if timer.isdigit() or ':' in timer:
-            raidexp = await raid_time_check(channel,timer)
+            raidexp = await raid_time_check(channel, timer)
             if raidexp is False:
                 return
             if _timercheck(raidexp, maxtime):
@@ -6049,7 +6043,6 @@ async def _timerset(raidchannel, exptime):
     report_channel = Kyogre.get_channel(raid_dict['reportchannel'])
     raidmsg = await raidchannel.fetch_message(raid_dict['raidmessage'])
     reportmsg = await report_channel.fetch_message(raid_dict['raidreport'])
-    embed = raidmsg.embeds[0]
     for message in [raidmsg, reportmsg]:
         embed = message.embeds[0]
         embed_indices = await embed_utils.get_embed_field_indices(embed)
@@ -6081,8 +6074,7 @@ async def _timerset(raidchannel, exptime):
                 except:
                     pass
     await list_helpers._update_listing_channels(Kyogre, guild_dict, raidchannel.guild, 'raid', edit=True, regions=raid_dict.get('regions', None))
-    raidchannel = Kyogre.get_channel(raidchannel.id)
-    event_loop.create_task(expiry_check(raidchannel))
+    Kyogre.get_channel(raidchannel.id)
 
 @Kyogre.command()
 @checks.raidchannel()
@@ -6285,7 +6277,7 @@ async def new(ctx,*,content):
             regions = [gym.region]
         else:
             newloc = create_gmaps_query(details, report_channel, type="raid")
-        await update_raid_location(message, report_channel, channel, gym)
+        await entity_updates.update_raid_location(message, report_channel, channel, gym)
         return
 
 
@@ -6553,7 +6545,7 @@ async def interested(ctx, *, teamcounts: str=None):
     if isinstance(result, list):
         count = result[0]
         partylist = result[1]
-        await list_helpers._maybe(ctx, Kyogre, guild_dict, count, partylist, entered_interest)
+        await list_helpers._maybe(ctx, Kyogre, guild_dict, raid_info, count, partylist, entered_interest)
 
 @Kyogre.command(aliases=['c'])
 @checks.activechannel()
@@ -6575,7 +6567,7 @@ async def coming(ctx, *, teamcounts: str=None):
     if isinstance(result, list):
         count = result[0]
         partylist = result[1]
-        await list_helpers._coming(ctx, Kyogre, guild_dict, count, partylist, entered_interest)
+        await list_helpers._coming(ctx, Kyogre, guild_dict, raid_info, count, partylist, entered_interest)
 
 @Kyogre.command(aliases=['h'])
 @checks.activechannel()
@@ -6597,7 +6589,7 @@ async def here(ctx, *, teamcounts: str=None):
     if isinstance(result, list):
         count = result[0]
         partylist = result[1]
-        await list_helpers._here(ctx, Kyogre, guild_dict, count, partylist, entered_interest)
+        await list_helpers._here(ctx, Kyogre, guild_dict, raid_info, count, partylist, entered_interest)
 
 async def _party_status(ctx, total, teamcounts):
     channel = ctx.channel
@@ -6714,22 +6706,27 @@ async def lobby(ctx, *, count: str=None):
         count = 1
     await _lobby(ctx.message, count)
 
-async def _lobby(message, count):
-    if 'lobby' not in guild_dict[message.guild.id]['raidchannel_dict'][message.channel.id]:
-        await message.channel.send('There is no group in the lobby for you to join! Use **!starting** if the group waiting at the raid is entering the lobby!')
-        return
-    trainer_dict = guild_dict[message.guild.id]['raidchannel_dict'][message.channel.id]['trainer_dict']
-    if count == 1:
-        await message.channel.send('{member} is entering the lobby!'.format(member=message.author.mention))
-    else:
-        await message.channel.send('{member} is entering the lobby with a total of {trainer_count} trainers!'.format(member=message.author.mention, trainer_count=count))
-    if message.author.id not in trainer_dict:
-        trainer_dict[message.author.id] = {
 
-        }
-    trainer_dict[message.author.id]['status'] = {'maybe':0, 'coming':0, 'here':0, 'lobby':count}
-    trainer_dict[message.author.id]['count'] = count
-    guild_dict[message.guild.id]['raidchannel_dict'][message.channel.id]['trainer_dict'] = trainer_dict
+async def _lobby(message, count):
+    trainer = message.author
+    guild = message.guild
+    channel = message.channel
+    if 'lobby' not in guild_dict[guild.id]['raidchannel_dict'][channel.id]:
+        await channel.send('There is no group in the lobby for you to join! Use **!starting** if the group waiting at the raid is entering the lobby!')
+        return
+    trainer_dict = guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
+    if count == 1:
+        await channel.send('{member} is entering the lobby!'.format(member=trainer.mention))
+    else:
+        await channel.send('{member} is entering the lobby with a total of {trainer_count} trainers!'.format(member = trainer.mention, trainer_count=count))
+        joined = guild_dict[guild.id].setdefault('trainers', {}).setdefault(regions[0], {}).setdefault(trainer.id, {}).setdefault('joined', 0) + 1
+        guild_dict[guild.id]['trainers'][regions[0]][trainer.id]['joined'] = joined
+    if trainer.id not in trainer_dict:
+        trainer_dict[trainer.id] = {}
+    trainer_dict[trainer.id]['status'] = {'maybe': 0, 'coming': 0, 'here': 0, 'lobby': count}
+    trainer_dict[trainer.id]['count'] = count
+    guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
+
 
 @Kyogre.command(aliases=['x'])
 @checks.raidchannel()
@@ -6739,7 +6736,8 @@ async def cancel(ctx):
     Usage: !cancel
     Works only in raid channels. Removes you and your party
     from the list of trainers who are "otw" or "here"."""
-    await list_helpers._cancel(ctx, Kyogre, guild_dict)
+    await list_helpers._cancel(ctx, Kyogre, guild_dict, raid_info)
+
 
 @Kyogre.command(aliases=['s'])
 @checks.activeraidchannel()
@@ -6749,7 +6747,8 @@ async def starting(ctx, team: str = ''):
     Usage: !starting [team]
     Works only in raid channels. Sends a message and clears the waiting list. Users who are waiting
     for a second group must reannounce with the :here: emoji or !here."""
-    await raid_lobby_helpers._starting(ctx, Kyogre, guild_dict, team)
+    await raid_lobby_helpers._starting(ctx, Kyogre, guild_dict, raid_info, team)
+
 
 @Kyogre.command()
 @checks.activeraidchannel()
@@ -6782,7 +6781,7 @@ async def _list(ctx):
             region = None
             if guild_dict[guild.id]['configure_dict'].get('regions', {}).get('enabled', False) and raid_dict.get('categories', None) == 'region':
                 region = raid_dict.get('category_dict', {}).get(channel.id, None)
-            listmsg = await _get_listing_messages(Kyogre, guild_dict, 'raid', channel, region)
+            listmsg = await list_helpers._get_listing_messages(Kyogre, guild_dict, 'raid', channel, region)
         elif checks.check_raidactive(ctx):
             team_list = ["mystic","valor","instinct","unknown"]
             tag = False
