@@ -199,7 +199,7 @@ async def _get_wild_listing_messages(Kyogre, channel, guild_dict, region=None):
             report_channel = guild.get_channel(wild_dict[wildid]['reportchannel'])
         except:
             continue
-        if not region or region in raid_helpers._get_channel_regions(report_channel, 'wild', guild_dict):
+        if not region or region in raid_helpers.get_channel_regions(report_channel, 'wild', guild_dict):
             try:
                 await report_channel.fetch_message(wildid)
                 newmsg += ('\n🔹')
@@ -235,7 +235,7 @@ async def _get_research_listing_messages(Kyogre, channel, guild_dict, region=Non
             report_channel = guild.get_channel(research_dict[questid]['reportchannel'])
         except:
             continue
-        if not region or region in raid_helpers._get_channel_regions(report_channel, 'research', guild_dict):
+        if not region or region in raid_helpers.get_channel_regions(report_channel, 'research', guild_dict):
             try:
                 await report_channel.fetch_message(questid) # verify quest message exists
                 cat = research_dict[questid]['quest'].title()
@@ -394,7 +394,7 @@ async def _maybe(ctx, Kyogre, guild_dict, raid_info, count, party, entered_inter
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
-        await _update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
+        await update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
 
 
 async def _otw(ctx, Kyogre, guild_dict, tag=False, team=False):
@@ -477,7 +477,7 @@ async def _coming(ctx, Kyogre, guild_dict, raid_info, count, party, entered_inte
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
-        await _update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
+        await update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
 
 async def _waiting(ctx, Kyogre, guild_dict, tag=False, team=False):
     ctx_herecount = 0
@@ -572,7 +572,7 @@ async def _here(ctx, Kyogre, guild_dict, raid_info, count, party, entered_intere
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
-        await _update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
+        await update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
 
 async def _cancel(ctx, Kyogre, guild_dict, raid_info):
     channel = ctx.channel
@@ -612,7 +612,7 @@ async def _cancel(ctx, Kyogre, guild_dict, raid_info):
     await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
-        await _update_listing_channels(Kyogre, guild_dict, guild, 'raid', edit=True, regions=regions)
+        await update_listing_channels(Kyogre, guild_dict, guild, 'raid', edit=True, regions=regions)
 
 async def _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author=None):
     egglevel = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['egglevel']
@@ -775,7 +775,7 @@ async def _bosslist(ctx, Kyogre, guild_dict, raid_info):
         listmsg = ' Nobody has told me what boss they want!'
     return listmsg
 
-async def _teamlist(ctx, Kyogre, guild_dict):
+async def teamlist(ctx, Kyogre, guild_dict):
     message = ctx.message
     team_dict = {}
     team_dict["mystic"] = {"total":0,"maybe":0,"coming":0,"here":0}
@@ -815,7 +815,7 @@ async def get_region_reporting_channels(guild, region, guild_dict):
             report_channels.append(c)
     return report_channels
 
-async def _update_listing_channels(Kyogre, guild_dict, guild, type, edit=False, regions=None):
+async def update_listing_channels(Kyogre, guild_dict, guild, type, edit=False, regions=None):
     valid_types = ['raid', 'research', 'wild', 'nest', 'lure']
     if type not in valid_types:
         return

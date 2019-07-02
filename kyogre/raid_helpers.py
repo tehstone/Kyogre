@@ -1,14 +1,15 @@
 
 def raid_channels_enabled(guild, channel, guild_dict):
     enabled = True
-    regions = _get_channel_regions(channel, 'raid', guild_dict)
+    regions = get_channel_regions(channel, 'raid', guild_dict)
     # TODO: modify this to accomodate multiple regions once necessary
     if regions and len(regions) > 0:
         enabled_dict = guild_dict[guild.id]['configure_dict']['raid'].setdefault('raid_channels', {})
         enabled = enabled_dict.setdefault(regions[0], True)
     return enabled
 
-def _get_channel_regions(channel, type, guild_dict):
+
+def get_channel_regions(channel, type, guild_dict):
     regions = None
     config_dict = guild_dict[channel.guild.id]['configure_dict']
     if config_dict.get(type, {}).get('enabled', None):

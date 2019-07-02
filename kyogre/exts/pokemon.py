@@ -104,7 +104,6 @@ class Pokemon():
         'deerling': ['spring', 'summer', 'autumn', 'winter'],
         'sawsbuck': ['spring', 'summer', 'autumn', 'winter']
     }
-    _pkmn_dict = {r['name'].lower(): r for r in PokemonTable.select().where(PokemonTable.released == True).dicts()}
 
     def __init__(self, bot, pkmn, guild=None, **attribs):
         self.bot = bot
@@ -131,6 +130,10 @@ class Pokemon():
 
     def __str__(self):
         return self.name
+
+    @staticmethod
+    def get_pkmn_dict():
+        return {r['name'].lower(): r for r in PokemonTable.select().where(PokemonTable.released).dicts()}
 
     @property
     def name(self):
@@ -343,9 +346,9 @@ class Pokemon():
     @classmethod
     def find_obj(cls, pkmn):
         if pkmn.isdigit():
-            p_obj = next((v for k, v in Pokemon._pkmn_dict.items() if v['id'] == int(pkmn)), None)
+            p_obj = next((v for k, v in Pokemon.get_pkmn_dict().items() if v['id'] == int(pkmn)), None)
         else:
-            p_obj = next((v for k, v in Pokemon._pkmn_dict.items() if k == pkmn.strip().lower()), None)
+            p_obj = next((v for k, v in Pokemon.get_pkmn_dict().items() if k == pkmn.strip().lower()), None)
         return p_obj
 
     @classmethod
@@ -383,7 +386,7 @@ class Pokemon():
             if len(arg_split) > 0:
                 p_obj = Pokemon.find_obj(arg_split[0].strip(','))
         if not p_obj:
-            pkmn_list = [p for p in Pokemon._pkmn_dict]
+            pkmn_list = [p for p in Pokemon.get_pkmn_dict()]
             match = utils.get_match(pkmn_list, argument, score_cutoff=80)[0]
         else:
             match = p_obj['name']

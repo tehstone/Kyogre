@@ -172,7 +172,7 @@ async def lobby_countdown(ctx, Kyogre, team, guild_dict, raid_info):
     guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict'] = ctx.trainer_dict
     regions = guild_dict[ctx.channel.guild.id]['raidchannel_dict'][ctx.channel.id].get('regions', None)
     if regions:
-        await list_helpers._update_listing_channels(Kyogre, guild_dict, ctx.guild, 'raid', edit=True, regions=regions)
+        await list_helpers.update_listing_channels(Kyogre, guild_dict, ctx.guild, 'raid', edit=True, regions=regions)
 
 async def _weather(ctx, Kyogre, guild_dict, weather):
     guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['weather'] = weather.lower()
