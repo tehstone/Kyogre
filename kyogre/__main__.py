@@ -1086,6 +1086,7 @@ async def on_guild_remove(guild):
 async def on_member_join(member):
     """Welcome message to the server and some basic instructions."""
     guild = member.guild
+    await calculate_invite_used(guild)
     team_msg = ' or '.join(['**!team {0}**'.format(team)
                            for team in config['team_dict'].keys()])
     if not guild_dict[guild.id]['configure_dict']['welcome']['enabled']:
@@ -1114,6 +1115,24 @@ async def on_member_join(member):
             await send_to.send(welcomemessage.format(server=guild.name, user=member.mention))
     else:
         return
+
+
+async def calculate_invite_used(guild):
+    t_guild_dict = copy.deepcopy(guild_dict)
+    invite_dict = t_guild_dict[guild.id]['configure_dict'].get('invite_counts', {})
+    all_invites = await guild.invites()
+    for inv in all_invites:
+        if inv.code in invite_dict:
+            count = invite_dict.get(inv.code, inv.uses)
+            if inv.uses > count:
+                if guild.system_channel:
+                    await guild.system_channel.send(f"Using invite code: {inv.code}")
+        elif inv.uses == 1:
+            await guild.system_channel.send(f"Possibly using invite code: {inv.code}")
+        invite_dict[inv.code] = inv.uses
+
+    guild_dict[guild.id]['configure_dict']['invite_counts'] = invite_dict
+    return
 
 
 @Kyogre.event
