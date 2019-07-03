@@ -128,7 +128,7 @@ Kyogre.defense_chart = defense_chart
 Kyogre.config = config
 Kyogre.raid_json_path = raid_path
 
-default_exts = ['raiddatahandler', 'tutorial', 'silph', 'utilities', 'pokemon', 'trade', 'locationmatching']
+default_exts = ['raiddatahandler', 'tutorial', 'silph', 'utilities', 'pokemon', 'trade', 'locationmatching', 'inviterole']
 
 for ext in default_exts:
     try:
@@ -1087,7 +1087,7 @@ async def on_member_join(member):
     """Welcome message to the server and some basic instructions."""
     guild = member.guild
     if guild_dict[guild.id]['configure_dict']['invite_tracking']['enabled']:
-        await calculate_invite_used(guild)
+        await calculate_invite_used(member)
     team_msg = ' or '.join(['**!team {0}**'.format(team)
                            for team in config['team_dict'].keys()])
     if not guild_dict[guild.id]['configure_dict']['welcome']['enabled']:
@@ -1118,18 +1118,22 @@ async def on_member_join(member):
         return
 
 
-async def calculate_invite_used(guild):
+async def calculate_invite_used(member):
+    guild = member.guild
     t_guild_dict = copy.deepcopy(guild_dict)
     invite_dict = t_guild_dict[guild.id]['configure_dict']['invite_tracking']['invite_counts']
     all_invites = await guild.invites()
     messages = []
+    invite_codes = []
     for inv in all_invites:
         if inv.code in invite_dict:
             count = invite_dict.get(inv.code, inv.uses)
             if inv.uses > count:
                 messages.append(f"Using invite code: {inv.code} for: {inv.channel} created by: {inv.inviter}")
+                invite_codes.append(inv.code)
         elif inv.uses == 1:
             messages.append(f"Using new invite code: {inv.code} for: {inv.channel} created by: {inv.inviter}")
+            invite_codes.append(inv.code)
         invite_dict[inv.code] = inv.uses
     destination = t_guild_dict[guild.id]['configure_dict']['invite_tracking'].get('destination', None)
     if destination and len(messages) > 0:
@@ -1138,6 +1142,14 @@ async def calculate_invite_used(guild):
             await Kyogre.get_channel(destination).send(notify)
         except AttributeError:
             pass
+    if len(invite_codes) > 0:
+        invite_roles = (InviteRoleTable
+                        .select(InviteRoleTable.role)
+                        .where(InviteRoleTable.invite << invite_codes))
+        role_ids = [i.role for i in invite_roles]
+        roles = [discord.utils.get(guild.roles, id=r) for r in role_ids]
+        await member.add_roles(*roles)
+
     guild_dict[guild.id]['configure_dict']['invite_tracking']['invite_counts'] = invite_dict
     return
 

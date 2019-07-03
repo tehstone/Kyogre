@@ -25,7 +25,8 @@ class KyogreDB:
             ResearchTable, SightingTable, RaidBossRelation, 
             RaidTable, SubscriptionTable, TradeTable,
             LocationNoteTable, RewardTable, LureTable,
-            LureTypeTable, LureTypeRelation
+            LureTypeTable, LureTypeRelation,
+            InviteRoleTable
         ])
         cls.init()
         cls._migrator = SqliteMigrator(cls._db)
@@ -334,3 +335,11 @@ class TradeTable(BaseModel):
     channel = BigIntegerField()
     offer = TextField()
     wants = TextField()
+
+class InviteRoleTable(BaseModel):
+    guild = ForeignKeyField(GuildTable, field=GuildTable.snowflake, backref='inviteroles', index=True)
+    invite = TextField(index=True)
+    role = BigIntegerField(index=True)
+
+    class Meta:
+        constraints = [SQL('UNIQUE(guild_id, invite)')]
