@@ -1318,6 +1318,7 @@ async def _configure_subscriptions(ctx,Kyogre):
                 continue
     ctx.config_dict_temp = config_dict_temp
     return ctx
+
 async def _configure_pvp(ctx,Kyogre):
     guild_dict = Kyogre.guild_dict
     config = Kyogre.config
@@ -1517,6 +1518,7 @@ async def _configure_lure(ctx,Kyogre):
         await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description='Lure Reporting Locations are set'))
     ctx.config_dict_temp = config_dict_temp
     return ctx
+
 async def _configure_archive(ctx,Kyogre):
     guild_dict = Kyogre.guild_dict
     config = Kyogre.config
@@ -1731,6 +1733,95 @@ async def _configure_trade(ctx,Kyogre):
             else:
                 await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description="The channel list you provided doesn't match with your servers channels.\n\nThe following aren't in your server: **{invalid_channels}**\n\nPlease double check your channel list and resend your reponse.".format(invalid_channels=', '.join(trade_list_errors))))
                 continue
+    ctx.config_dict_temp = config_dict_temp
+    return ctx
+
+async def _configure_trackinvites(ctx, Kyogre):
+    guild_dict = Kyogre.guild_dict
+    guild = ctx.guild
+    owner = ctx.message.author
+    config_dict_temp = getattr(ctx, 'config_dict_temp',copy.deepcopy(guild_dict[guild.id]['configure_dict']))
+    if 'invite_tracking' not in config_dict_temp:
+        config_dict_temp['invite_tracking'] = {'enabled': False, 'destination': None, 'invite_counts': {}}
+    invite_dict = config_dict_temp['invite_tracking'].get('invite_counts', {})
+    message = """Kyogre can track which users joined with each invite link created.\n\nReply **Y** if you would like \
+    to enable this or **N** if you would not. To cancel this configuration session, reply with **cancel**.\
+    """
+    await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description=message)
+        .set_author(name='Invite Tracking Configuration', icon_url=Kyogre.user.avatar_url))
+    while True:
+        enable_msg = await Kyogre.wait_for('message', check=(lambda message: (message.guild == None) and message.author == owner))
+        if enable_msg.content.lower() == 'cancel':
+            await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description='**CONFIG CANCELLED!**\n\nNo changes have been made.'))
+            return None
+        elif enable_msg.content.lower() == 'n' or enable_msg.content.lower() == 'no':
+            enabled = False
+            config_dict_temp['invite_tracking']['invite_counts'] = {}
+            await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description='Invite tracking disabled.'))
+            break
+        elif enable_msg.content.lower() == 'y' or enable_msg.content.lower() == 'yes':
+            enabled = True
+            all_invites = await guild.invites()
+            for inv in all_invites:
+                invite_dict[inv.code] = inv.uses
+            config_dict_temp['invite_tracking']['invite_counts'] = invite_dict
+            await owner.send(embed=discord.Embed(colour=discord.Colour.green(), 
+                description='**Invite tracking enabled!**\n\nCurrent invite counts have been saved.'))
+            break
+        else:
+            await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), 
+                description="I'm sorry I don't understand. Please reply with either **N** to disable, or **Y** to enable."))
+            continue
+    config_dict_temp['invite_tracking']['enabled'] = enabled
+    if enabled:
+        message = """Kyogre can send notifications to a particular channel when a user joins via an invite link.\n\n\
+        Reply with the channel name or ID to set this destination.\nReply with **default** to set the destination \
+        to the channel join messages are already sent to.\nOr reply with **none** to disable this feature."""
+        await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description=message)
+        .set_author(name='Invite Tracking Configuration', icon_url=Kyogre.user.avatar_url))
+        while True:
+            dest_msg = await Kyogre.wait_for('message', check=(lambda message: (message.guild == None) and message.author == owner))
+            if dest_msg.content.lower() == 'cancel':
+                await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description='**CONFIG CANCELLED!**\n\nNo changes have been made.'))
+                return None
+            elif dest_msg.content.lower() == 'default':
+                if guild.system_channel:
+                    config_dict_temp['invite_tracking']['destination'] = guild.system_channel.id
+                else:
+                    config_dict_temp['invite_tracking']['destination'] = None
+                break
+            else:
+                item = dest_msg.content
+                channel = None
+                if item.isdigit():
+                    channel = discord.utils.get(guild.text_channels, id=int(item))
+                if not channel:
+                    item = re.sub('[^a-zA-Z0-9 _\\-]+', '', item)
+                    item = item.replace(" ","-")
+                    name = await utils.letter_case(guild.text_channels, item.lower())
+                    channel = discord.utils.get(guild.text_channels, name=name)
+                if channel:
+                    guild_channel_list = []
+                    for textchannel in guild.text_channels:
+                        guild_channel_list.append(textchannel.id)
+                    diff = set([channel.id]) - set(guild_channel_list)
+                else:
+                    diff = True
+                if (not diff):
+                    config_dict_temp['invite_tracking']['destination'] = channel.id
+                    ow = channel.overwrites_for(Kyogre.user)
+                    ow.send_messages = True
+                    ow.read_messages = True
+                    ow.manage_roles = True
+                    try:
+                        await channel.set_permissions(Kyogre.user, overwrite = ow)
+                    except (discord.errors.Forbidden, discord.errors.HTTPException, discord.errors.InvalidArgument):
+                        await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description='I couldn\'t set my own permissions in this channel. Please ensure I have the correct permissions in {channel} using **{prefix}get perms**.'.format(prefix=ctx.prefix, channel=channel.mention)))
+                    await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description='Invite Tracking Destination Channel set to {channel}'.format(channel=dest_msg.content.lower())))
+                    break
+                else:
+                    await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description="The channel you provided isn't in your server. Please double check your channel and resend your response."))
+                    continue
     ctx.config_dict_temp = config_dict_temp
     return ctx
 

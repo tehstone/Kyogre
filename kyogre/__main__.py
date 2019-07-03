@@ -1086,7 +1086,8 @@ async def on_guild_remove(guild):
 async def on_member_join(member):
     """Welcome message to the server and some basic instructions."""
     guild = member.guild
-    await calculate_invite_used(guild)
+    if guild_dict[guild.id]['configure_dict']['invite_tracking']['enabled']:
+        await calculate_invite_used(guild)
     team_msg = ' or '.join(['**!team {0}**'.format(team)
                            for team in config['team_dict'].keys()])
     if not guild_dict[guild.id]['configure_dict']['welcome']['enabled']:
@@ -1119,19 +1120,25 @@ async def on_member_join(member):
 
 async def calculate_invite_used(guild):
     t_guild_dict = copy.deepcopy(guild_dict)
-    invite_dict = t_guild_dict[guild.id]['configure_dict'].get('invite_counts', {})
+    invite_dict = t_guild_dict[guild.id]['configure_dict']['invite_tracking']['invite_counts']
     all_invites = await guild.invites()
+    messages = []
     for inv in all_invites:
         if inv.code in invite_dict:
             count = invite_dict.get(inv.code, inv.uses)
             if inv.uses > count:
-                if guild.system_channel:
-                    await guild.system_channel.send(f"Using invite code: {inv.code}")
+                messages.append(f"Using invite code: {inv.code} for: {inv.channel} created by: {inv.inviter}")
         elif inv.uses == 1:
-            await guild.system_channel.send(f"Possibly using invite code: {inv.code}")
+            messages.append(f"Using new invite code: {inv.code} for: {inv.channel} created by: {inv.inviter}")
         invite_dict[inv.code] = inv.uses
-
-    guild_dict[guild.id]['configure_dict']['invite_counts'] = invite_dict
+    destination = t_guild_dict[guild.id]['configure_dict']['invite_tracking'].get('destination', None)
+    if destination and len(messages) > 0:
+        notify = '\n'.join(messages)
+        try:
+            await Kyogre.get_channel(destination).send(notify)
+        except AttributeError:
+            pass
+    guild_dict[guild.id]['configure_dict']['invite_tracking']['invite_counts'] = invite_dict
     return
 
 
@@ -2230,7 +2237,9 @@ async def _configure(ctx, configlist):
             del guild_dict[guild.id]['configure_dict']['settings']['config_sessions'][session]
     config_dict_temp = getattr(ctx, 'config_dict_temp',copy.deepcopy(guild_dict[guild.id]['configure_dict']))
     firstconfig = False
-    all_commands = ['team', 'welcome', 'regions', 'raid', 'exraid', 'exinvite', 'counters', 'wild', 'research', 'meetup', 'subscriptions', 'archive', 'trade', 'timezone', 'pvp', 'join', 'lure']
+    all_commands = ['team', 'welcome', 'regions', 'raid', 'exraid', 'exinvite', 
+                    'counters', 'wild', 'research', 'meetup', 'subscriptions', 'archive', 
+                    'trade', 'timezone', 'pvp', 'join', 'lure', 'trackinvites']
     enabled_commands = []
     configreplylist = []
     config_error = False
@@ -2255,15 +2264,16 @@ async def _configure(ctx, configlist):
             if config_dict_temp[commandconfig].get('enabled',False):
                 enabled_commands.append(commandconfig)
         configmessage += "\n\n**Enabled Commands:**\n{enabled_commands}".format(enabled_commands=", ".join(enabled_commands))
-        configmessage += "\n\n**All Commands:**\n**all** - To redo configuration\n\
-**team** - For Team Assignment configuration\n**welcome** - For Welcome Message configuration\n\
-**regions** - for region configuration\n**raid** - for raid command configuration\n\
-**exraid** - for EX raid command configuration\n**invite** - for invite command configuration\n\
-**counters** - for automatic counters configuration\n**wild** - for wild command configuration\n\
-**research** - for !research command configuration\n**meetup** - for !meetup command configuration\n\
-**subscriptions** - for subscription command configuration\n**archive** - For !archive configuration\n\
-**trade** - For trade command configuration\n**timezone** - For timezone configuration\n\
-**join** - For !join command configuration\n**pvp** - For !pvp command configuration"
+        configmessage += """\n\n**All Commands:**\n**all** - To redo configuration\n\
+                        **team** - For Team Assignment configuration\n**welcome** - For Welcome Message configuration\n\
+                        **regions** - for region configuration\n**raid** - for raid command configuration\n\
+                        **exraid** - for EX raid command configuration\n**invite** - for invite command configuration\n\
+                        **counters** - for automatic counters configuration\n**wild** - for wild command configuration\n\
+                        **research** - for !research command configuration\n**meetup** - for !meetup command configuration\n\
+                        **subscriptions** - for subscription command configuration\n**archive** - For !archive configuration\n\
+                        **trade** - For trade command configuration\n**timezone** - For timezone configuration\n\
+                        **join** - For !join command configuration\n**pvp** - For !pvp command configuration\n\
+                        **trackinvites** - For invite tracking configuration"""
         configmessage += '\n\nReply with **cancel** at any time throughout the questions to cancel the configure process.'
         await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description=configmessage).set_author(name='Kyogre Configuration - {guild}'.format(guild=guild.name), icon_url=Kyogre.user.avatar_url))
         while True:
@@ -2312,7 +2322,8 @@ async def _configure(ctx, configlist):
                 "settings":configuration._configure_settings,
                 "pvp":configuration._configure_pvp,
                 "join":configuration._configure_join,
-                "lure":configuration._configure_lure
+                "lure":configuration._configure_lure,
+                "trackinvites":configuration._configure_trackinvites
                 }
         for item in configreplylist:
             try:
@@ -3433,12 +3444,15 @@ async def _sub_add(ctx, *, content):
             try:
                 result, __ = SubscriptionTable.get_or_create(trainer=trainer, type=s_type, target=s_target)
                 current_gym_ids = result.specific
+                split_ids = []
                 if current_gym_ids:
                     current_gym_ids = current_gym_ids.strip('[').strip(']')
-                    split_ids = current_gym_ids.split(', ')
-                    split_ids = [int(s) for s in split_ids]
-                else:
-                    split_ids = []
+                    split_id_string = current_gym_ids.split(', ')
+                    for s in split_id_string:
+                        try:
+                            split_ids.append(int(s))
+                        except ValueError: 
+                            pass
                 spec = [int(s) for s in spec]
                 new_ids = set(split_ids + spec)
                 result.specific = list(new_ids)
@@ -3552,12 +3566,15 @@ async def _sub_remove(ctx,*,content):
             try:
                 result, __ = SubscriptionTable.get_or_create(trainer=trainer, type='gym', target=s_target)
                 current_gym_ids = result.specific
+                split_ids = []
                 if current_gym_ids:
                     current_gym_ids = current_gym_ids.strip('[').strip(']')
-                    split_ids = current_gym_ids.split(', ')
-                    split_ids = [int(s) for s in split_ids]
-                else:
-                    split_ids = []
+                    split_id_string = current_gym_ids.split(', ')
+                    for s in split_id_string:
+                        try:
+                            split_ids.append(int(s))
+                        except ValueError: 
+                            pass
                 for s in spec:
                     if s in split_ids:
                         remove_count += 1
@@ -3653,8 +3670,14 @@ async def _sub_list(ctx, *, content=None):
     for r in results:
         if r.specific:
             current_gym_ids = r.specific.strip('[').strip(']')
-            split_ids = current_gym_ids.split(', ')
-            split_ids = [int(s) for s in split_ids]
+            split_id_string = current_gym_ids.split(', ')
+            split_ids = []
+            for s in split_id_string:
+                try:
+                    split_ids.append(int(s))
+                except ValueError: 
+                    pass
+            
             gyms = (GymTable
                     .select(LocationTable.id,
                             LocationTable.name, 
@@ -5358,8 +5381,13 @@ async def _send_notifications_async(type, details, new_channel, exclusions=[]):
             if targets[tier]:
                 try:
                     current_gym_ids = targets[tier].strip('[').strip(']')
-                    split_ids = current_gym_ids.split(', ')
-                    split_ids = [int(s) for s in split_ids]
+                    split_id_string = current_gym_ids.split(', ')
+                    split_ids = []
+                    for s in split_id_string:
+                        try:
+                            split_ids.append(int(s))
+                        except ValueError: 
+                            pass
                     target_gyms = (GymTable
                         .select(LocationTable.id,
                                 LocationTable.name, 
