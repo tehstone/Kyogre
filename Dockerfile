@@ -22,4 +22,4 @@ RUN python3 -m pip install -U git+https://github.com/Rapptz/discord.py
 ADD . /src
 
 # Set default container command
-ENTRYPOINT ["dumb-init", "--", "python", "-m", "meowth", "launcher"]
+ENTRYPOINT ["dumb-init", "--", "python", "-m", "kyogre", "launcher"]
