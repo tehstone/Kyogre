@@ -21,7 +21,7 @@ from dateutil.relativedelta import relativedelta
 import discord
 from discord.ext import commands
 
-from kyogre import checks, configuration, counters_helpers, embed_utils
+from kyogre import checks, configuration, constants, counters_helpers, embed_utils
 from kyogre import entity_updates, list_helpers, raid_helpers, raid_lobby_helpers, utils
 from kyogre.bot import KyogreBot
 from kyogre.errors import custom_error_handling
@@ -3294,8 +3294,8 @@ async def _parse_subscription_content(content, source, message = None):
                                 gym_level_dict['ids'].append(gym.id)
                                 gym_level_dict['names'].append(gym.name)
                                 gym_dict[l] = gym_level_dict
-                            else:
-                                error_list.append(t)
+                        else:
+                            error_list.append(t)
                     else:
                         error_list.append(t)
                 for l in gym_dict.keys():
@@ -3439,7 +3439,7 @@ async def _sub_add(ctx, *, content):
 
     confirmation_msg = '{member}, successfully added {count} new subscriptions'.format(member=ctx.author.mention, count=sub_count)
     if sub_count > 0:
-        confirmation_msg += '\n**{sub_count} Added:** \n\t{sub_list}'.format(sub_count=sub_count, sub_list=', '.join(sub_list))
+        confirmation_msg += '\n**{sub_count} Added:** \n\t{sub_list}'.format(sub_count=sub_count, sub_list=',\n'.join(sub_list))
     if existing_count > 0:
         confirmation_msg += '\n**{existing_count} Already Existing:** \n\t{existing_list}'.format(existing_count=existing_count, existing_list=', '.join(existing_list))
     if error_count > 0:
@@ -3570,7 +3570,7 @@ async def _sub_remove(ctx,*,content):
 
     confirmation_msg = '{member}, successfully removed {count} subscriptions'.format(member=ctx.author.mention, count=remove_count)
     if remove_count > 0:
-        confirmation_msg += '\n**{remove_count} Removed:** \n\t{remove_list}'.format(remove_count=remove_count, remove_list=', '.join(remove_list))
+        confirmation_msg += '\n**{remove_count} Removed:** \n\t{remove_list}'.format(remove_count=remove_count, remove_list=',\n'.join(remove_list))
     if not_found_count > 0:
         confirmation_msg += '\n**{not_found_count} Not Found:** \n\t{not_found_list}'.format(not_found_count=not_found_count, not_found_list=', '.join(not_found_list))
     if error_count > 0:
@@ -3589,12 +3589,13 @@ async def _sub_list(ctx, *, content=None):
     message = ctx.message
     channel = message.channel
     author = message.author
+    guild = message.guild
     subscription_types = ['pokemon','raid','research','wild','nest','gym','item']
     response_msg = ''
     invalid_types = []
     valid_types = []
     results = (SubscriptionTable
-                .select(SubscriptionTable.type, SubscriptionTable.target)
+                .select(SubscriptionTable.type, SubscriptionTable.target, SubscriptionTable.specific)
                 .join(TrainerTable, on=(SubscriptionTable.trainer == TrainerTable.snowflake))
                 .where(SubscriptionTable.trainer == ctx.author.id)
                 .where(TrainerTable.guild == ctx.guild.id))
@@ -3622,21 +3623,71 @@ async def _sub_list(ctx, *, content=None):
     response_msg = f"{author.mention}, check your inbox! I've sent your subscriptions to you directly!" + response_msg  
     subscription_msg = ''
     types = set([s.type for s in results])
-    subscriptions = {t: [s.target for s in results if s.type == t] for t in types}
-    
-    for sub in subscriptions:
-        subscription_msg += '**{category}**:\n\t{subs}\n\n'.format(category=sub.title(),subs='\n\t'.join(subscriptions[sub]))
-    if subscription_msg:
-        if valid_types:
-            listmsg = 'Your current {types} subscriptions are:\n\n{subscriptions}'.format(types = ', '.join(valid_types), subscriptions=subscription_msg)
+    for r in results:
+        if r.specific:
+            current_gym_ids = r.specific.strip('[').strip(']')
+            split_ids = current_gym_ids.split(', ')
+            split_ids = [int(s) for s in split_ids]
+            gyms = (GymTable
+                    .select(LocationTable.id,
+                            LocationTable.name, 
+                            LocationTable.latitude, 
+                            LocationTable.longitude, 
+                            RegionTable.name.alias('region'),
+                            GymTable.ex_eligible,
+                            LocationNoteTable.note)
+                    .join(LocationTable)
+                    .join(LocationRegionRelation)
+                    .join(RegionTable)
+                    .join(LocationNoteTable, JOIN.LEFT_OUTER, on=(LocationNoteTable.location_id == LocationTable.id))
+                    .where((LocationTable.guild == guild.id) &
+                           (LocationTable.guild == RegionTable.guild) &
+                           (LocationTable.id << split_ids)))
+            result = gyms.objects(Gym)
+            r.specific = ",\n\t".join([o.name for o in result])
+    subscriptions = {}
+    for t in types:
+        if t == 'raid':
+            for r in results:
+                if r.type == 'raid':
+                    if r.specific:
+                        subscriptions[f"Level {r.target} Raids at"] = r.specific
+                    else:
+                        msg = subscriptions.get('raid', "")
+                        if len(msg) < 1:
+                            msg = r.target
+                        else:
+                            msg += f', {r.target}'
+                        subscriptions['raid'] = msg
+
         else:
-            listmsg = 'Your current subscriptions are:\n\n{subscriptions}'.format(subscriptions=subscription_msg)
+            subscriptions[t] = [s.target for s in results if s.type == t and t != 'raid']
+    listmsg_list = []
+    subscription_msg = ""
+    for sub in subscriptions.keys():
+        if not isinstance(subscriptions[sub], list):
+            subscriptions[sub] = [subscriptions[sub]]
+        new_msg = '**{category}**:\n\t{subs}\n\n'.format(category=sub.title(),subs='\n\t'.join(subscriptions[sub]))
+        if len(subscription_msg) + len(new_msg) < constants.MAX_MESSAGE_LENGTH:
+            subscription_msg += new_msg
+        else:
+            listmsg_list.append(subscription_msg)
+            subscription_msg = new_msg
+    listmsg_list.append(subscription_msg)
+    if len(listmsg_list) > 0:
+        if valid_types:
+            await author.send(f"Your current {', '.join(valid_types)} subscriptions are:")
+            for message in listmsg_list:
+                await author.send(message)
+        else:
+            await author.send('Your current subscriptions are:')
+            for message in listmsg_list:
+                await author.send(message)
     else:
         if valid_types:
-            listmsg = "You don\'t have any subscriptions for {types}! use the **!subscription add** command to add some.".format(types = ', '.join(valid_types))
+            await author.send("You don\'t have any subscriptions for {types}! use the **!subscription add** command to add some.".format(types = ', '.join(valid_types)))
         else:
-            listmsg = "You don\'t have any subscriptions! use the **!subscription add** command to add some."
-    await author.send(listmsg)
+            await author.send("You don\'t have any subscriptions! use the **!subscription add** command to add some.")
     response = await channel.send(response_msg)
     await utils.sleep_and_cleanup([message,response], 10)
 
@@ -4903,7 +4954,7 @@ async def research(ctx, *, details = None):
     guild = message.guild
     timestamp = (message.created_at + datetime.timedelta(
         hours=guild_dict[message.channel.guild.id]['configure_dict']['settings']['offset']))
-    to_midnight = 24*60*60 - timestamp-timestamp.replace(hour=0, minute=0, second=0, microsecond=0).seconds
+    to_midnight = 24*60*60 - (timestamp-timestamp.replace(hour=0, minute=0, second=0, microsecond=0)).seconds
     error = False
     loc_url = create_gmaps_query("", message.channel, type="research")
     research_embed = discord.Embed(
