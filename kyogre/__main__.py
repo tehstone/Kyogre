@@ -217,6 +217,9 @@ def create_gmaps_query(details, channel, type="raid"):
 
 @Kyogre.command(name='gym')
 async def _gym(ctx, *, name):
+    """Lookup locations to a gym by providing it's name.
+    Gym name provided should be as close as possible to
+    the name displayed in game."""
     message = ctx.message
     channel = ctx.channel
     guild = ctx.guild
@@ -3171,6 +3174,7 @@ async def _pvp_add_friend(ctx, *, friends):
         await success_msg.delete()
     return
 
+
 @_pvp.command(name="remove", aliases=["rem"])
 async def _pvp_remove_friend(ctx, *, friends: str = ''):
     """Remove a user from your friends list
@@ -3276,21 +3280,21 @@ async def _parse_subscription_content(content, source, message = None):
             gyms = get_gyms(guild.id)
             if gyms:
                 gym_dict = {}
-                entry_spec = ''
                 for t in target.split(','):
                     gym = await location_match_prompt(channel, trainer, t, gyms)
                     if gym:
-                        question_spec = ''
                         if source == 'add':
                             question_spec = 'would you like to be notified'
                         else:
                             question_spec = 'would you like to remove notifications'
-                        level = await utils.ask_list(Kyogre, f"For {gym.name} which level raids {question_spec}?", channel, ['All'] + list(range(1,6)), user_list=[author], multiple=True)
+                        level = await utils.ask_list(Kyogre, f"For {gym.name} which level raids {question_spec}?",
+                                                     channel, ['All'] + list(range(1, 6)),
+                                                     user_list=[author], multiple=True)
                         if level:
                             if 'All' in level:
-                                level = list(range(1,6))
+                                level = list(range(1, 6))
                             for l in level:
-                                gym_level_dict = gym_dict.get(l, {'ids': [],'names': []})
+                                gym_level_dict = gym_dict.get(l, {'ids': [], 'names': []})
                                 gym_level_dict['ids'].append(gym.id)
                                 gym_level_dict['names'].append(gym.name)
                                 gym_dict[l] = gym_level_dict
@@ -3300,7 +3304,7 @@ async def _parse_subscription_content(content, source, message = None):
                         error_list.append(t)
                 for l in gym_dict.keys():
                     entry = f"L{l} Raids at {', '.join(gym_dict[l]['names'])}"
-                    sub_list.append(('raid', l, entry, gym_dict[l]['ids']))
+                    sub_list.append(('gym', l, entry, gym_dict[l]['ids']))
             return sub_list, error_list
     if sub_type == 'item':
         result = RewardTable.select(RewardTable.name,RewardTable.quantity)
@@ -3361,12 +3365,14 @@ async def _parse_subscription_content(content, source, message = None):
     
     return sub_list, error_list
 
+
 @Kyogre.group(name="subscription", aliases=["sub"])
 @checks.allowsubscription()
 async def _sub(ctx):
     """Handles user subscriptions"""
     if ctx.invoked_subcommand == None:
         raise commands.BadArgument()
+
 
 @_sub.command(name="add")
 async def _sub_add(ctx, *, content):
@@ -3392,14 +3398,12 @@ async def _sub_add(ctx, *, content):
         error_message = _get_subscription_command_error(content, subscription_types)
         if error_message:
             response = await message.channel.send(error_message)
-            return await utils.sleep_and_cleanup([message,response], 10)
+            return await utils.sleep_and_cleanup([message, response], 10)
 
         candidate_list, error_list = await _parse_subscription_content(content, 'add', message)
     
     existing_list = []
-    sub_list = []    
-    guild_obj, __ = GuildTable.get_or_create(snowflake=guild.id)
-    trainer_obj, __ = TrainerTable.get_or_create(snowflake=trainer, guild=guild.id)
+    sub_list = []
 
     for sub in candidate_list:
         s_type = sub[0]
@@ -3408,7 +3412,7 @@ async def _sub_add(ctx, *, content):
         if len(sub) > 3:
             spec = sub[3]
             try:
-                result, __ = SubscriptionTable.get_or_create(trainer=trainer, type='raid', target=s_target)
+                result, __ = SubscriptionTable.get_or_create(trainer=trainer, type=s_type, target=s_target)
                 current_gym_ids = result.specific
                 if current_gym_ids:
                     current_gym_ids = current_gym_ids.strip('[').strip(']')
@@ -3446,6 +3450,7 @@ async def _sub_add(ctx, *, content):
         confirmation_msg += '\n**{error_count} Errors:** \n\t{error_list}\n(Check the spelling and try again)'.format(error_count=error_count, error_list=', '.join(error_list))
 
     await channel.send(content=confirmation_msg)
+
 
 @_sub.command(name="remove", aliases=["rm", "rem"])
 async def _sub_remove(ctx,*,content):
@@ -3525,24 +3530,24 @@ async def _sub_remove(ctx,*,content):
         s_entry = sub[2]
         if len(sub) > 3:
             spec = sub[3]
-            #try:
-            result, __ = SubscriptionTable.get_or_create(trainer=trainer, type='raid', target=s_target)
-            current_gym_ids = result.specific
-            if current_gym_ids:
-                current_gym_ids = current_gym_ids.strip('[').strip(']')
-                split_ids = current_gym_ids.split(', ')
-                split_ids = [int(s) for s in split_ids]
-            else:
-                split_ids = []
-            for s in spec:
-                if s in split_ids:
-                    remove_count += 1
-                    split_ids.remove(s)
-            result.specific = split_ids
-            result.save()
-            remove_list.append(s_entry)
-            # except:
-            #     error_list.append(s_entry)
+            try:
+                result, __ = SubscriptionTable.get_or_create(trainer=trainer, type='gym', target=s_target)
+                current_gym_ids = result.specific
+                if current_gym_ids:
+                    current_gym_ids = current_gym_ids.strip('[').strip(']')
+                    split_ids = current_gym_ids.split(', ')
+                    split_ids = [int(s) for s in split_ids]
+                else:
+                    split_ids = []
+                for s in spec:
+                    if s in split_ids:
+                        remove_count += 1
+                        split_ids.remove(s)
+                result.specific = split_ids
+                result.save()
+                remove_list.append(s_entry)
+            except:
+                error_list.append(s_entry)
         else:
             try:
                 if s_type == 'all':
@@ -3568,15 +3573,19 @@ async def _sub_remove(ctx,*,content):
     not_found_count = len(not_found_list)
     error_count = len(error_list)
 
-    confirmation_msg = '{member}, successfully removed {count} subscriptions'.format(member=ctx.author.mention, count=remove_count)
+    confirmation_msg = '{member}, successfully removed {count} subscriptions'\
+        .format(member=ctx.author.mention, count=remove_count)
     if remove_count > 0:
-        confirmation_msg += '\n**{remove_count} Removed:** \n\t{remove_list}'.format(remove_count=remove_count, remove_list=',\n'.join(remove_list))
+        confirmation_msg += '\n**{remove_count} Removed:** \n\t{remove_list}'\
+            .format(remove_count=remove_count, remove_list=',\n'.join(remove_list))
     if not_found_count > 0:
-        confirmation_msg += '\n**{not_found_count} Not Found:** \n\t{not_found_list}'.format(not_found_count=not_found_count, not_found_list=', '.join(not_found_list))
+        confirmation_msg += '\n**{not_found_count} Not Found:** \n\t{not_found_list}'\
+            .format(not_found_count=not_found_count, not_found_list=', '.join(not_found_list))
     if error_count > 0:
-        confirmation_msg += '\n**{error_count} Errors:** \n\t{error_list}\n(Check the spelling and try again)'.format(error_count=error_count, error_list=', '.join(error_list))
-
+        confirmation_msg += '\n**{error_count} Errors:** \n\t{error_list}\n(Check the spelling and try again)'\
+            .format(error_count=error_count, error_list=', '.join(error_list))
     await channel.send(content=confirmation_msg)
+
 
 @_sub.command(name="list", aliases=["ls"])
 async def _sub_list(ctx, *, content=None):
@@ -3608,20 +3617,19 @@ async def _sub_list(ctx, *, content=None):
             else:
                 invalid_types.append(s)
 
-        if (valid_types):
+        if valid_types:
             results = results.where(SubscriptionTable.type << valid_types)
         else:
             response_msg = "No valid subscription types found! Valid types are: {types}".format(types=', '.join(subscription_types))
             response = await channel.send(response_msg)
             return await utils.sleep_and_cleanup([message,response], 10)
         
-        if (invalid_types):
+        if invalid_types:
             response_msg = "\nUnable to find these subscription types: {inv}".format(inv=', '.join(invalid_types))
     
     results = results.execute()
         
-    response_msg = f"{author.mention}, check your inbox! I've sent your subscriptions to you directly!" + response_msg  
-    subscription_msg = ''
+    response_msg = f"{author.mention}, check your inbox! I've sent your subscriptions to you directly!" + response_msg
     types = set([s.type for s in results])
     for r in results:
         if r.specific:
@@ -3647,21 +3655,21 @@ async def _sub_list(ctx, *, content=None):
             r.specific = ",\n\t".join([o.name for o in result])
     subscriptions = {}
     for t in types:
-        if t == 'raid':
+        if t == 'gym':
             for r in results:
-                if r.type == 'raid':
+                if r.type == 'gym':
                     if r.specific:
                         subscriptions[f"Level {r.target} Raids at"] = r.specific
                     else:
-                        msg = subscriptions.get('raid', "")
+                        msg = subscriptions.get('gym', "")
                         if len(msg) < 1:
                             msg = r.target
                         else:
                             msg += f', {r.target}'
-                        subscriptions['raid'] = msg
+                        subscriptions['gym'] = msg
 
         else:
-            subscriptions[t] = [s.target for s in results if s.type == t and t != 'raid']
+            subscriptions[t] = [s.target for s in results if s.type == t and t != 'gym']
     listmsg_list = []
     subscription_msg = ""
     for sub in subscriptions.keys():
@@ -3685,11 +3693,12 @@ async def _sub_list(ctx, *, content=None):
                 await author.send(message)
     else:
         if valid_types:
-            await author.send("You don\'t have any subscriptions for {types}! use the **!subscription add** command to add some.".format(types = ', '.join(valid_types)))
+            await author.send("You don\'t have any subscriptions for {types}! use the **!subscription add** command to add some.".format(types=', '.join(valid_types)))
         else:
             await author.send("You don\'t have any subscriptions! use the **!subscription add** command to add some.")
     response = await channel.send(response_msg)
     await utils.sleep_and_cleanup([message,response], 10)
+
 
 @_sub.command(name="adminlist", aliases=["alist"])
 @commands.has_permissions(manage_guild=True)
@@ -3697,7 +3706,6 @@ async def _sub_adminlist(ctx, *, trainer=None):
     message = ctx.message
     channel = message.channel
     author = message.author
-    response_msg = ''
 
     if not trainer:
         response_msg = "Please provide a trainer name or id"
@@ -3738,11 +3746,11 @@ async def _sub_adminlist(ctx, *, trainer=None):
             none_msg = await channel.send(f"No subscriptions found for user: {trainer}")
             await message.add_reaction('✅')
             return await utils.sleep_and_cleanup([none_msg], 10)
-
     except:
         response_msg = f"Encountered an error while looking up subscriptions for trainer with name: {trainer}"
         await channel.send(response_msg)
         return await utils.sleep_and_cleanup([response_msg, message], 10)
+
 
 """
 Reporting
@@ -3757,6 +3765,7 @@ def get_existing_raid(guild, location, only_ex = False):
         return report.get('gym', None) and report['gym'].name.lower() == location.name.lower()
     return [channel_id for channel_id, report in report_dict.items() if matches_existing(report)]
 
+
 def get_existing_research(guild, location):
     """returns a list of confirmation message ids for research reported at the location provided"""
     report_dict = guild_dict[guild.id]['questreport_dict']
@@ -3766,44 +3775,58 @@ def get_existing_research(guild, location):
 
 
 @Kyogre.command(name='lure', aliases=['lu'])
-#@checks.allowwildreport()
 async def _lure(ctx, type, *, location):
     """Report that you're luring a pokestop.
 
     Usage: !lure <type> <location>
-    Location should be the name of a Pokestop."""
+    Location should be the name of a Pokestop.
+    Valid lure types are: normal, glacial, mossy, magnetic"""
     content = f"{type} {location}"
     await _lure_internal(ctx.message, content)
+
 
 async def _lure_internal(message, content):
     guild = message.guild
     channel = message.channel
     author = message.author
     if len(content.split()) <= 1:
-        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description='Give more details when reporting! Usage: **!lure <type> <location>**'))
-    timestamp = (message.created_at + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])).strftime('%Y-%m-%d %H:%M:%S')
+        return await channel.send(
+            embed=discord.Embed(colour=discord.Colour.red(),
+                                description='Give more details when reporting! Usage: **!lure <type> <location>**'))
+    timestamp = (message.created_at +
+                 datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset']))\
+        .strftime('%Y-%m-%d %H:%M:%S')
     luretype = content.split()[0]
-    pokestop =  ' '.join(content.split()[1:])
+    pokestop = ' '.join(content.split()[1:])
     query = LureTypeTable.select()
     if id is not None:
         query = query.where(LureTypeTable.name == luretype)
     query = query.execute()
     result = [d for d in query]
     if len(result) != 1:
-        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description='Unable to find the lure type provided, please try again.'))
+        return await channel.send(
+            embed=discord.Embed(colour=discord.Colour.red(),
+                                description='Unable to find the lure type provided, please try again.'))
     luretype = result[0]
     lure_regions = raid_helpers.get_channel_regions(channel, 'lure', guild_dict)
-    stops = None
     stops = get_stops(guild.id, lure_regions)
     if stops:
         stop = await location_match_prompt(channel, author.id, pokestop, stops)
         if not stop:
-            return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description="Unable to find that Pokestop. Please check the name and try again!"))
+            return await channel.send(
+                embed=discord.Embed(colour=discord.Colour.red(),
+                                    description="Unable to find that Pokestop. Please check the name and try again!"))
     report = TrainerReportRelation.create(created=timestamp, trainer=author.id, location=stop.id)
     lure = LureTable.create(trainer_report=report)
     LureTypeRelation.create(lure=lure, type=luretype)
-    lure_embed = discord.Embed(title=f'Click here for my directions to the {luretype.name.capitalize()} lure!', description=f"Ask {author.display_name} if my directions aren't perfect!", url=stop.maps_url, colour=discord.Colour.purple())
-    lure_embed.set_footer(text='Reported by {author} - {timestamp}'.format(author=author.display_name, timestamp=timestamp), icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
+    lure_embed = discord.Embed(
+        title=f'Click here for my directions to the {luretype.name.capitalize()} lure!',
+        description=f"Ask {author.display_name} if my directions aren't perfect!",
+        url=stop.maps_url, colour=discord.Colour.purple())
+    lure_embed.set_footer(
+        text='Reported by {author} - {timestamp}'
+            .format(author=author.display_name, timestamp=timestamp),
+        icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
     lurereportmsg = await channel.send(f'**{luretype.name.capitalize()}** lure reported by {author.display_name} at {stop.name}', embed=lure_embed)
     await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, 'lure', edit=False, regions=lure_regions)
     details = {'regions': lure_regions, 'type': 'lure', 'lure_type': luretype.name, 'location': stop.name}
@@ -3813,7 +3836,7 @@ async def _lure_internal(message, content):
         
 @Kyogre.command(name="wild", aliases=['w'])
 @checks.allowwildreport()
-async def _wild(ctx,pokemon,*,location):
+async def _wild(ctx, pokemon, *, location):
     """Report a wild Pokemon spawn location.
 
     Usage: !wild <species> <location>
@@ -3821,26 +3844,33 @@ async def _wild(ctx,pokemon,*,location):
     content = f"{pokemon} {location}"
     await _wild_internal(ctx.message, content)
 
+
 async def _wild_internal(message, content):
     guild = message.guild
     channel = message.channel
     author = message.author
-    timestamp = (message.created_at + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])).strftime('%I:%M %p (%H:%M)')
+    timestamp = (message.created_at +
+                 datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset']))\
+                .strftime('%I:%M %p (%H:%M)')
     if len(content.split()) <= 1:
-        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description='Give more details when reporting! Usage: **!wild <pokemon name> <location>**'))
+        return await channel.send(
+            embed=discord.Embed(colour=discord.Colour.red(),
+                                description='Give more details when reporting! Usage: **!wild <pokemon name> <location>**'))
     channel_regions = raid_helpers.get_channel_regions(channel, 'wild', guild_dict)
     rgx = r'\s*((100(\s*%)?|perfect)(\s*ivs?\b)?)\s*'
     content, count = re.subn(rgx, '', content.strip(), flags=re.I)
     is_perfect = count > 0
     entered_wild, wild_details = content.split(' ', 1)
-    if (Pokemon.has_forms(entered_wild)):
+    if Pokemon.has_forms(entered_wild):
         prompt = 'Which form of this Pokemon are you reporting?'
         choices_list = [f.capitalize() for f in Pokemon.get_forms_for_pokemon(entered_wild)]
         match = await utils.ask_list(Kyogre, prompt, channel, choices_list, user_list=author.id)
         content = ' '.join([match, content])
     pkmn = Pokemon.get_pokemon(Kyogre, entered_wild if entered_wild.isdigit() else content)
     if not pkmn:
-        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description="Unable to find that pokemon. Please check the name and try again!"))
+        return await channel.send(
+            embed=discord.Embed(colour=discord.Colour.red(),
+                                description="Unable to find that pokemon. Please check the name and try again!"))
     wild_number = pkmn.id
     wild_img_url = pkmn.img_url
     expiremsg = '**This {pokemon} has despawned!**'.format(pokemon=pkmn.full_name)
@@ -3894,6 +3924,7 @@ async def _wild_internal(message, content):
     await list_helpers.update_listing_channels(Kyogre, guild_dict, message.guild, 'wild', edit=False, regions=channel_regions)
     await _send_notifications_async('wild', wild_details, message.channel, [message.author.id])
 
+
 @Kyogre.group(name="raid", aliases=['r', 're', 'egg', 'regg', 'raidegg'])
 @checks.allowraidreport()
 async def _raid(ctx,pokemon,*,location:commands.clean_content(fix_channel_mentions=True)="", weather=None, timer=None):
@@ -3914,6 +3945,7 @@ async def _raid(ctx,pokemon,*,location:commands.clean_content(fix_channel_mentio
         new_channel = await _raid_internal(ctx, content)
     ctx.raid_channel = new_channel
 
+
 async def _raid_internal(ctx, content):
     message = ctx.message
     channel = message.channel
@@ -3929,13 +3961,13 @@ async def _raid_internal(ctx, content):
     if raid_split[0] == 'egg':
         await _raidegg(ctx, content)
         return
-    if fromegg == True:
+    if fromegg:
         eggdetails = guild_dict[guild.id]['raidchannel_dict'][channel.id]
         egglevel = eggdetails['egglevel']
         if raid_split[0].lower() == 'assume':
             if config['allow_assume'][egglevel] == 'False':
                 return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description='**!raid assume** is not allowed for this level egg.'))
-            if guild_dict[guild.id]['raidchannel_dict'][channel.id]['active'] == False:
+            if not guild_dict[guild.id]['raidchannel_dict'][channel.id]['active']:
                 await _eggtoraid(ctx, raid_split[1].lower(), channel, author)
                 return
             else:
@@ -3988,13 +4020,13 @@ async def _raid_internal(ctx, content):
             try:
                 pokemon_msg = await Kyogre.wait_for('message', timeout=30, check=(lambda reply: reply.author == author))
             except asyncio.TimeoutError:
-                timeout_error_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.light_grey(), description="You took too long to reply. Raid report cancelled."))
+                await channel.send(embed=discord.Embed(colour=discord.Colour.light_grey(), description="You took too long to reply. Raid report cancelled."))
                 await pkmnquery_msg.delete()
                 return
             if pokemon_msg.clean_content.lower() == "cancel":
                 await pkmnquery_msg.delete()
                 await pokemon_msg.delete()
-                cancelled_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.light_grey(), description="Raid report cancelled."))
+                await channel.send(embed=discord.Embed(colour=discord.Colour.light_grey(), description="Raid report cancelled."))
                 return
             if pokemon_msg.clean_content.isdigit():
                 if int(pokemon_msg.clean_content) > 0 and int(pokemon_msg.clean_content) <= 5:
