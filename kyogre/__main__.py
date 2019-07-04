@@ -3447,6 +3447,10 @@ async def _sub_add(ctx, *, content):
     existing_list = []
     sub_list = []
 
+    # don't remove. this makes sure the guild and trainer are in the db
+    guild_obj, __ = GuildTable.get_or_create(snowflake=guild.id)
+    trainer_obj, __ = TrainerTable.get_or_create(snowflake=trainer, guild=guild.id)
+
     for sub in candidate_list:
         s_type = sub[0]
         s_target = sub[1]
@@ -5251,7 +5255,15 @@ async def _prompt_reward_v(channel, author, quest, reward_type=None):
     target_pool = quest.reward_pool[reward_type]
     # handle encounters
     if reward_type == "encounters":
-        return f"{', '.join([p.title() for p in target_pool])} Encounter"
+        any = f"{' or '.join([p.title() for p in target_pool])} Encounter"
+        if len(target_pool) > 1:
+            candidates = [f"{p.title()} Encounter" for p in target_pool]
+            candidates.append(any)
+            prompt = "If you know which encounter this task gives, please select it below. \
+                      Otherwise select the last option"
+            return await utils.ask_list(Kyogre, prompt, channel, candidates, user_list=author)
+        else:
+            return any
     # handle items
     if reward_type == "items":
         if len(target_pool) == 1:
