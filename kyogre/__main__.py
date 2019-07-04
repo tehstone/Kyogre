@@ -1271,7 +1271,6 @@ async def on_raw_reaction_add(payload):
     else:
         raid_report = get_raid_report(guild, message.id)
     if raid_report is not None and user.id != Kyogre.user.id:
-        reporter = raid_dict[raid_report].get('reporter', 0)
         if (raid_dict[raid_report].get('reporter', 0) == payload.user_id or can_manage(user)):
             try:
                 await message.remove_reaction(payload.emoji, user)
@@ -5841,12 +5840,14 @@ async def _quest_add(ctx, *, info):
     
     Reward pool should be provided as a JSON string. If not provided, an empty default will be used."""
     channel = ctx.channel
+    name, pool = None, None
     if ',' in info:
         name, pool = info.split(',', 1)
     else:
         name = info
     if '{' in name:
-        return await channel.send('Please check the format of your message and try again. The name and reward pool should be separated by a comma')
+        return await channel.send('Please check the format of your message and try again.\
+                                   The name and reward pool should be separated by a comma')
     if pool:
         try:
             pool = json.loads(pool)
@@ -5855,8 +5856,10 @@ async def _quest_add(ctx, *, info):
     try:
         new_quest = QuestTable.create(name=name, reward_pool=pool if pool else {})
     except:
-        return await channel.send("Unable to add record. Please ensure the quest does not already exist with the find command.")
+        return await channel.send("Unable to add record.\
+                                   Please ensure the quest does not already exist with the find command.")
     await channel.send(f"Successfully added new quest: {new_quest.name} ({new_quest.id})")
+
 
 @_quest.command(name="remove", aliases=["rm", "delete", "del"])
 @commands.has_permissions(manage_guild=True)
@@ -6000,15 +6003,16 @@ async def _refresh_listing_channels(ctx, type, *, regions=None):
     await list_helpers.update_listing_channels(Kyogre, guild_dict, ctx.guild, type, edit=True, regions=regions)
     await ctx.message.add_reaction('\u2705')
 
+
 async def _refresh_listing_channels_internal(guild, type, *, regions=None):
     if regions:
         regions = [r.strip() for r in regions.split(',')]
     await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, type, edit=True, regions=regions)
 
+
 """
 Raid Channel Management
 """
-
 async def print_raid_timer(channel):
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[channel.guild.id]['configure_dict']['settings']['offset'])
     end = now + datetime.timedelta(seconds=guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['exp'] - time.time())
@@ -6156,7 +6160,7 @@ async def _timerset(raidchannel, exptime):
     end = now + datetime.timedelta(minutes=exptime)
     raid_dict = guild_dict[guild.id]['raidchannel_dict'][raidchannel.id]
     raid_dict['exp'] = time.time() + (exptime * 60)
-    if (not raid_dict['active']):
+    if not raid_dict['active']:
         await raidchannel.send('The channel has been reactivated.')
     raid_dict['active'] = True
     raid_dict['manual_timer'] = True
