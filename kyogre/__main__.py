@@ -14,7 +14,6 @@ import traceback
 
 from contextlib import redirect_stdout
 
-import aiohttp
 import dateparser
 from dateutil.relativedelta import relativedelta
 
@@ -2092,14 +2091,10 @@ async def outputlog(ctx):
     """Get current Kyogre log.
 
     Usage: !outputlog
-    Output is a link to hastebin."""
-    with open(os.path.join('logs', 'kyogre.log'), 'r', encoding='latin-1', errors='replace') as logfile:
-        logdata = logfile.read()
-        async with aiohttp.ClientSession() as session:
-            async with session.post("https://hastebin.com/documents",data=logdata.encode('utf-8')) as post:
-                post = await post.json()
-                reply = "https://hastebin.com/{}".format(post['key'])
-    await ctx.channel.send(reply)
+    Replies with a file download of the current log file."""
+    with open(os.path.join('logs', 'kyogre.log'), 'rb') as logfile:
+        await ctx.channel.send(file=discord.File(logfile, filename=f'log{int(time.time())}.txt'))
+
 
 @Kyogre.command(aliases=['say'])
 @commands.has_permissions(manage_guild=True)
