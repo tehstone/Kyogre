@@ -1502,18 +1502,18 @@ async def modify_raid_report(payload, raid_report):
                 if gyms:
                     gym = await location_match_prompt(channel, user.id, gymmsg.clean_content, gyms)
                     if not gym:
-                        err_msg =  await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"I couldn't find a gym named '{gymmsg.clean_content}'. Try again using the exact gym name!"))
+                        await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"I couldn't find a gym named '{gymmsg.clean_content}'. Try again using the exact gym name!"))
                     else:
                         location = gym.name
                         raid_channel_ids = get_existing_raid(guild, gym)
                         if raid_channel_ids:
                             raid_channel = Kyogre.get_channel(raid_channel_ids[0])
                             if guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]:
-                                err_msg =  await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"A raid has already been reported for {gym.name}"))
+                                await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"A raid has already been reported for {gym.name}"))
                         else:
-                            await entity_updates.update_raid_location(message, report_channel, raid_channel, gym)
+                            await entity_updates.update_raid_location(Kyogre, guild_dict, message, report_channel, raid_channel, gym)
                             await _refresh_listing_channels_internal(guild, "raid")
-                            success_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description="Raid location updated"))
+                            await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description="Raid location updated"))
                             await gymmsg.delete()
                             await query_msg.delete()
 
@@ -1643,7 +1643,7 @@ async def save(ctx):
         await _save(ctx.guild.id)
         logger.info('CONFIG SAVED')
     except Exception as err:
-        await _print(Kyogre.owner, 'Error occured while trying to save!')
+        await _print(Kyogre.owner, 'Error occurred while trying to save!')
         await _print(Kyogre.owner, err)
 
 async def _save(guildid):
@@ -1683,7 +1683,7 @@ async def restart(ctx):
     try:
         await _save(ctx.guild.id)
     except Exception as err:
-        await _print(Kyogre.owner, 'Error occured while trying to save!')
+        await _print(Kyogre.owner, 'Error occurred while trying to save!')
         await _print(Kyogre.owner, err)
     await ctx.channel.send('Restarting...')
     Kyogre._shutdown_mode = 26
@@ -1699,7 +1699,7 @@ async def exit(ctx):
     try:
         await _save(ctx.guild.id)
     except Exception as err:
-        await _print(Kyogre.owner, 'Error occured while trying to save!')
+        await _print(Kyogre.owner, 'Error occurred while trying to save!')
         await _print(Kyogre.owner, err)
     await ctx.channel.send('Shutting down...')
     Kyogre._shutdown_mode = 0
@@ -3066,8 +3066,7 @@ async def _pvp_available(ctx, exptime=None):
     if exptime:
         if exptime.isdigit():
             expiration_minutes = await time_to_minute_count(channel, exptime)
-    else:
-        time_err = "No expiration time provided, your PvP session will remain active for 30 minutes"
+    time_err = "No expiration time provided, your PvP session will remain active for 30 minutes"
     if expiration_minutes is False:
         time_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.orange(), description=time_err))
         expiration_minutes = 30
@@ -4109,17 +4108,17 @@ async def _raid_internal(ctx, content):
     raid_split = new_content.strip().split()
     if len(raid_split) == 0:
         return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description='Give more details when reporting! Usage: **!raid <pokemon name> <location>**'))
-    raidexp = False
-    if raid_split[-1].isdigit() or ':' in raid_split[-1]:
-        raidexp = await time_to_minute_count(channel, raid_split[-1])
-        if raidexp is False:
-            return
-        else:
-            del raid_split[-1]
-            if _timercheck(raidexp, raid_info['raid_eggs'][raid_pokemon.raid_level]['raidtime']):
-                time_embed = discord.Embed(description="That's too long. Level {raidlevel} Raid currently last no more than {hatchtime} minutes...\nExpire time will not be set.".format(raidlevel=raid_pokemon.raid_level, hatchtime=raid_info['raid_eggs'][raid_pokemon.raid_level]['hatchtime']), colour=discord.Colour.red())
-                await channel.send(embed=time_embed)
-                raidexp = False
+    raidexp = await time_to_minute_count(channel, raid_split[-1], False)
+    if raidexp:
+        del raid_split[-1]
+        if _timercheck(raidexp, raid_info['raid_eggs'][raid_pokemon.raid_level]['raidtime']):
+            time_embed = discord.Embed(description="That's too long. Level {raidlevel} Raid currently last no more than {hatchtime} minutes...\nExpire time will not be set.".format(raidlevel=raid_pokemon.raid_level, hatchtime=raid_info['raid_eggs'][raid_pokemon.raid_level]['hatchtime']), colour=discord.Colour.red())
+            await channel.send(embed=time_embed)
+            raidexp = False
+    else:
+        await channel.send(
+            embed=discord.Embed(colour=discord.Colour.orange(),
+                                description='Could not determine expiration time. Using default of 45 minutes'))
     raid_details = ' '.join(raid_split)
     raid_details = raid_details.strip()
     if raid_details == '':
@@ -4180,14 +4179,16 @@ async def _raidegg(ctx, content):
         del raidegg_split[0]
     else:
         return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description='Give more details when reporting! Use at least: **!raidegg <level> <location>**. Type **!help** raidegg for more info.'))
-    raidexp = await time_to_minute_count(channel, raidegg_split[-1])
-    if not raidexp:
-        return
-    else:
+    raidexp = await time_to_minute_count(channel, raidegg_split[-1], False)
+    if raidexp:
         del raidegg_split[-1]
         if _timercheck(raidexp, raid_info['raid_eggs'][str(egg_level)]['hatchtime']):
             await channel.send("That's too long. Level {raidlevel} Raid Eggs currently last no more than {hatchtime} minutes...".format(raidlevel=egg_level, hatchtime=raid_info['raid_eggs'][str(egg_level)]['hatchtime']))
             return
+    else:
+        await channel.send(
+            embed=discord.Embed(colour=discord.Colour.orange(),
+                                description='Could not determine hatch time. Using default of 60 minutes'))
     raid_details = ' '.join(raidegg_split)
     raid_details = raid_details.strip()
     if raid_details == '':
@@ -6048,15 +6049,19 @@ async def print_raid_timer(channel):
     return timerstr
 
 
-async def time_to_minute_count(channel, time):
-    if time.isdigit() and len(time) < 3:
-        return int(time)
-    elif ':' in time or len(time) > 2:
-        if time.isdigit():
-            time = time[:-2] + ':' + time[-2:]
+async def time_to_minute_count(channel, timestr, error=True):
+    if 'am' in timestr.lower():
+        timestr = timestr.strip('am')
+    if 'pm' in timestr.lower():
+        timestr = timestr.strip('pm')
+    if timestr.isdigit() and len(timestr) < 3:
+        return int(timestr)
+    if timestr.isdigit():
+        timestr = timestr[:-2] + ':' + timestr[-2:]
+    if ':' in timestr:
         now = datetime.datetime.utcnow() + datetime.timedelta(
             hours=guild_dict[channel.guild.id]['configure_dict']['settings']['offset'])
-        start = dateparser.parse(time, settings={'PREFER_DATES_FROM': 'future'})
+        start = dateparser.parse(timestr, settings={'PREFER_DATES_FROM': 'future'})
         start = start.replace(month=now.month, day=now.day, year=now.year)
         timediff = relativedelta(start, now)
         if timediff.hours <= -10:
@@ -6064,15 +6069,17 @@ async def time_to_minute_count(channel, time):
             timediff = relativedelta(start, now)
         raidexp = (timediff.hours * 60) + timediff.minutes + 1
         if raidexp < 0:
-            await channel.send(embed=discord.Embed(
-                colour=discord.Colour.red(),
-                description='Please enter a time in the future.'))
+            if error:
+                await channel.send(embed=discord.Embed(
+                    colour=discord.Colour.red(),
+                    description='Please enter a time in the future.'))
             return False
         return raidexp
     else:
-        await channel.send(embed=discord.Embed(
-            colour=discord.Colour.red(),
-            description="I couldn't understand your time format. Try again like this: **!timerset <minutes>**"))
+        if error:
+            await channel.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description="I couldn't understand your time format."))
         return False
 
 
@@ -6099,13 +6106,11 @@ async def timerset(ctx, *, timer):
             raidlevel = utils.get_level(Kyogre, guild_dict[guild.id]['raidchannel_dict'][channel.id]['pokemon'])
             raidtype = 'Raid'
             maxtime = raid_info['raid_eggs'][raidlevel]['raidtime']
-        raidexp = False
-        if timer.isdigit() or ':' in timer:
-            raidexp = await time_to_minute_count(channel, timer)
-            if raidexp is False:
-                return
-            if _timercheck(raidexp, maxtime):
-                return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"That's too long. Level {raidlevel} {raidtype.capitalize()}s currently last no more than {maxtime} minutes."))
+        raidexp = await time_to_minute_count(channel, timer)
+        if raidexp is False:
+            return
+        if _timercheck(raidexp, maxtime):
+            return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"That's too long. Level {raidlevel} {raidtype.capitalize()}s currently last no more than {maxtime} minutes."))
         await _timerset(channel, raidexp)
     if checks.check_exraidchannel(ctx):
         if checks.check_eggchannel(ctx) or checks.check_meetupchannel(ctx):
@@ -6387,7 +6392,7 @@ async def new(ctx, *, content):
             regions = [gym.region]
         else:
             newloc = create_gmaps_query(details, report_channel, type="raid")
-        await entity_updates.update_raid_location(message, report_channel, channel, gym)
+        await entity_updates.update_raid_location(Kyogre, guild_dict, message, report_channel, channel, gym)
         return
 
 
