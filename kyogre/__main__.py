@@ -52,7 +52,7 @@ Kyogre = KyogreBot(
     activity=discord.Game(name="Pokemon Go"))
 
 custom_error_handling(Kyogre, logger)
-
+Kyogre.logger = logger
 
 class RenameUnpickler(pickle.Unpickler):
     def find_class(self, module, name):
@@ -127,7 +127,9 @@ Kyogre.defense_chart = defense_chart
 Kyogre.config = config
 Kyogre.raid_json_path = raid_path
 
-default_exts = ['raiddatahandler', 'tutorial', 'silph', 'utilities', 'pokemon', 'trade', 'locationmatching', 'inviterole']
+default_exts = ['raiddatahandler', 'tutorial', 'silph', 'utilities',
+                'pokemon', 'trade', 'locationmatching', 'inviterole',
+                'admincommands']
 
 for ext in default_exts:
     try:
@@ -859,7 +861,10 @@ async def channel_cleanup(loop=True):
         # save server_dict changes after cleanup
         logger.info('Channel_Cleanup - SAVING CHANGES')
         try:
-            await _save(guildid)
+            admin_commands_cog = Kyogre.cogs.get('AdminCommands')
+            if not admin_commands_cog:
+                return None
+            await admin_commands_cog ._save(guildid)
         except Exception as err:
             logger.info('Channel_Cleanup - SAVING FAILED' + str(err))
         logger.info('Channel_Cleanup ------ END ------')
@@ -891,7 +896,10 @@ async def guild_cleanup(loop=True):
                 pass
         logger.info('Server_Cleanup - SAVING CHANGES')
         try:
-            await _save(guild_id)
+            admin_commands_cog = Kyogre.cogs.get('AdminCommands')
+            if not admin_commands_cog:
+                return None
+            await admin_commands_cog._save(guild_id)
         except Exception as err:
             logger.info('Server_Cleanup - SAVING FAILED' + str(err))
         logger.info('Server_Cleanup ------ END ------')
@@ -951,7 +959,10 @@ async def message_cleanup(loop=True):
             await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, 'research', edit=True)
         logger.info('message_cleanup - SAVING CHANGES')
         try:
-            await _save(guild_id)
+            admin_commands_cog = Kyogre.cogs.get('AdminCommands')
+            if not admin_commands_cog:
+                return None
+            await admin_commands_cog._save(guild_id)
         except Exception as err:
             logger.info('message_cleanup - SAVING FAILED' + str(err))
         logger.info('message_cleanup ------ END ------')
@@ -1563,147 +1574,7 @@ async def modify_raid_report(payload, raid_report):
 """
 Admin Commands
 """
-@Kyogre.command(hidden=True, name='mention_toggle', aliases=['mt'])
-@commands.has_permissions(manage_roles=True)
-async def mention_toggle(ctx, rolename):
-    role = discord.utils.get(ctx.guild.roles, name=rolename)
-    if role:
-        await role.edit(mentionable = not role.mentionable)
-        if role.mentionable:
-            outcome = "on"
-        else:
-            outcome = "off"
-        confirmation = await ctx.channel.send(f"{rolename} mention turned {outcome}")
-        await asyncio.sleep(5)
-        await ctx.message.delete()
-        await confirmation.delete()
-    else:
-        await ctx.message.add_reaction('❎')
 
-
-@Kyogre.command(hidden=True, name="eval")
-@checks.is_dev_or_owner()
-async def _eval(ctx, *, body: str):
-    """Evaluates a code"""
-    env = {
-        'bot': ctx.bot,
-        'ctx': ctx,
-        'channel': ctx.channel,
-        'author': ctx.author,
-        'guild': ctx.guild,
-        'message': ctx.message
-    }
-    def cleanup_code(content):
-        """Automatically removes code blocks from the code."""
-        # remove ```py\n```
-        if content.startswith('```') and content.endswith('```'):
-            return '\n'.join(content.split('\n')[1:-1])
-        # remove `foo`
-        return content.strip('` \n')
-    env.update(globals())
-    body = cleanup_code(body)
-    stdout = io.StringIO()
-    to_compile = (f'async def func():\n{textwrap.indent(body, "  ")}')
-    try:
-        exec(to_compile, env)
-    except Exception as e:
-        return await ctx.send(f'```py\n{e.__class__.__name__}: {e}\n```')
-    func = env['func']
-    try:
-        with redirect_stdout(stdout):
-            ret = await func()
-    except Exception as e:
-        value = stdout.getvalue()
-        await ctx.send(f'```py\n{value}{traceback.format_exc()}\n```')
-    else:
-        value = stdout.getvalue()
-        try:
-            await ctx.message.add_reaction('\u2705')
-        except:
-            pass
-        if ret is None:
-            if value:
-                paginator = commands.Paginator(prefix='```py')
-                for line in textwrap.wrap(value, 80):
-                    paginator.add_line(line.rstrip().replace('`', '\u200b`'))
-                for p in paginator.pages:
-                    await ctx.send(p)
-        else:
-            ctx.bot._last_result = ret
-            await ctx.send(f'```py\n{value}{ret}\n```')
-
-@Kyogre.command()
-@checks.is_owner()
-async def save(ctx):
-    """Save persistent state to file.
-
-    Usage: !save
-    File path is relative to current directory."""
-    try:
-        await _save(ctx.guild.id)
-        logger.info('CONFIG SAVED')
-    except Exception as err:
-        await _print(Kyogre.owner, 'Error occurred while trying to save!')
-        await _print(Kyogre.owner, err)
-
-async def _save(guildid):
-    with tempfile.NamedTemporaryFile('wb', dir=os.path.dirname(os.path.join('data', 'serverdict')), delete=False) as tf:
-        pickle.dump(guild_dict, tf, -1)
-        tempname = tf.name
-    try:
-        os.remove(os.path.join('data', 'serverdict_backup'))
-    except OSError as e:
-        pass
-    try:
-        os.rename(os.path.join('data', 'serverdict'), os.path.join('data', 'serverdict_backup'))
-    except OSError as e:
-        if e.errno != errno.ENOENT:
-            raise
-    os.rename(tempname, os.path.join('data', 'serverdict'))
-
-    location_matching_cog = Kyogre.cogs.get('LocationMatching')
-    if not location_matching_cog:
-        await _print(Kyogre.owner, 'Pokestop and Gym data not saved!')
-        return None
-    stop_save = location_matching_cog.saveStopsToJson(guildid)
-    gym_save = location_matching_cog.saveGymsToJson(guildid)
-    if stop_save is not None:
-        await _print(Kyogre.owner, f'Failed to save pokestop data with error: {stop_save}!')
-    if gym_save is not None:
-        await _print(Kyogre.owner, f'Failed to save gym data with error: {gym_save}!')
-
-
-@Kyogre.command()
-@checks.is_owner()
-async def restart(ctx):
-    """Restart after saving.
-
-    Usage: !restart.
-    Calls the save function and restarts Kyogre."""
-    try:
-        await _save(ctx.guild.id)
-    except Exception as err:
-        await _print(Kyogre.owner, 'Error occurred while trying to save!')
-        await _print(Kyogre.owner, err)
-    await ctx.channel.send('Restarting...')
-    Kyogre._shutdown_mode = 26
-    await Kyogre.logout()
-
-@Kyogre.command()
-@checks.is_owner()
-async def exit(ctx):
-    """Exit after saving.
-
-    Usage: !exit.
-    Calls the save function and quits the script."""
-    try:
-        await _save(ctx.guild.id)
-    except Exception as err:
-        await _print(Kyogre.owner, 'Error occurred while trying to save!')
-        await _print(Kyogre.owner, err)
-    await ctx.channel.send('Shutting down...')
-    Kyogre._shutdown_mode = 0
-    await Kyogre.logout()
 
 @Kyogre.command()
 @commands.has_permissions(manage_guild=True)
