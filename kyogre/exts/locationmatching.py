@@ -3,6 +3,7 @@ import json
 import os
 import tempfile
 
+import discord
 from discord.ext import commands
 
 from kyogre import utils, checks
@@ -264,7 +265,7 @@ class LocationMatching(commands.Cog):
         channel = ctx.channel
         guild = ctx.guild
         gyms = self.get_gyms(guild.id)
-        gym = await match_prompt(channel, message.author.id, name, gyms)
+        gym = await self.match_prompt(channel, message.author.id, name, gyms)
         if not gym:
             return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No gym found with name '{name}'. Try again using the exact gym name!"))
         else:
