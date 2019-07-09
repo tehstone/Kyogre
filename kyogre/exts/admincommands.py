@@ -87,22 +87,22 @@ class AdminCommands(commands.Cog):
                 ctx.bot._last_result = ret
                 await ctx.send(f'```py\n{value}{ret}\n```')
 
-    @commands.command()
+    @commands.command(name='save')
     @checks.is_owner()
-    async def save(self, ctx):
+    async def save_command(self, ctx):
         """Save persistent state to file.
 
         Usage: !save
         File path is relative to current directory."""
         try:
-            await self._save(ctx.guild.id)
+            await self.save(ctx.guild.id)
             self.bot.logger.info('CONFIG SAVED')
             await ctx.message.add_reaction('✅')
         except Exception as err:
             await self._print(self.bot.owner, 'Error occurred while trying to save!')
             await self._print(self.bot.owner, err)
 
-    async def _save(self, guildid):
+    async def save(self, guildid):
         with tempfile.NamedTemporaryFile('wb', dir=os.path.dirname(os.path.join('data', 'serverdict')),
                                          delete=False) as tf:
             pickle.dump(self.bot.guild_dict, tf, -1)
@@ -144,7 +144,7 @@ class AdminCommands(commands.Cog):
         Usage: !restart.
         Calls the save function and restarts Kyogre."""
         try:
-            await self._save(ctx.guild.id)
+            await self.save(ctx.guild.id)
         except Exception as err:
             await self._print(self.bot.owner, 'Error occurred while trying to save!')
             await self._print(self.bot.owner, err)
@@ -160,7 +160,7 @@ class AdminCommands(commands.Cog):
         Usage: !exit.
         Calls the save function and quits the script."""
         try:
-            await self._save(ctx.guild.id)
+            await self.save(ctx.guild.id)
         except Exception as err:
             await self._print(self.bot.owner, 'Error occurred while trying to save!')
             await self._print(self.bot.owner, err)
@@ -168,6 +168,41 @@ class AdminCommands(commands.Cog):
         self.bot._shutdown_mode = 0
         await self.bot.logout()
 
+    @commands.command(name='load')
+    @checks.is_owner()
+    async def _load(self, ctx, *extensions):
+        for ext in extensions:
+            try:
+                self.bot.load_extension(f"kyogre.exts.{ext}")
+            except Exception as e:
+                error_title = '**Error when loading extension'
+                await ctx.send(f'{error_title} {ext}:**\n'
+                               f'{type(e).__name__}: {e}')
+            else:
+                await ctx.send('**Extension {ext} Loaded.**\n'.format(ext=ext))
+
+    @commands.command(name='reload')
+    @checks.is_owner()
+    async def _reload(self, ctx, *extensions):
+        for ext in extensions:
+            try:
+                self.bot.reload_extension(f"kyogre.exts.{ext}")
+            except Exception as e:
+                error_title = '**Error when reloading extension'
+                await ctx.send(f'{error_title} {ext}:**\n'
+                               f'{type(e).__name__}: {e}')
+            else:
+                await ctx.send('**Extension {ext} Reloaded.**\n'.format(ext=ext))
+
+
+    @commands.command(name='unload')
+    @checks.is_owner()
+    async def _unload(self, ctx, *extensions):
+        exts = [ex for ex in extensions if f"kyogre.exts.{ex}" in self.bot.extensions]
+        for ex in exts:
+            self.bot.unload_extension(f"kyogre.exts.{ex}")
+        s = 's' if len(exts) > 1 else ''
+        await ctx.send("**Extension{plural} {est} unloaded.**\n".format(plural=s, est=', '.join(exts)))
 
 def setup(bot):
     bot.add_cog(AdminCommands(bot))

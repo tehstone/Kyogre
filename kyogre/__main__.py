@@ -23,8 +23,7 @@ from discord.ext import commands
 from kyogre import checks, configuration, constants, counters_helpers, embed_utils
 from kyogre import entity_updates, list_helpers, raid_helpers, raid_lobby_helpers, utils
 from kyogre.bot import KyogreBot
-from kyogre.errors import custom_error_handling
-from kyogre.logs import init_loggers
+
 from kyogre.exts.pokemon import Pokemon
 from kyogre.exts.bosscp import boss_cp_chart
 from kyogre.exts.locationmatching import Gym
@@ -32,61 +31,19 @@ from kyogre.exts.locationmatching import Gym
 from kyogre.exts.db.kyogredb import *
 KyogreDB.start('data/kyogre.db')
 
-logger = init_loggers()
 _ = gettext.gettext
 
 
-def _get_prefix(bot, message):
-    guild = message.guild
-    try:
-        prefix = bot.guild_dict[guild.id]['configure_dict']['settings']['prefix']
-    except (KeyError, AttributeError):
-        prefix = None
-    if not prefix:
-        prefix = bot.config['default_prefix']
-    return commands.when_mentioned_or(prefix)(bot, message)
 
-
-Kyogre = KyogreBot(
-    command_prefix=_get_prefix, case_insensitive=True,
-    activity=discord.Game(name="Pokemon Go"))
-
-custom_error_handling(Kyogre, logger)
-Kyogre.logger = logger
-
-class RenameUnpickler(pickle.Unpickler):
-    def find_class(self, module, name):
-        module = module.replace("meowth", "kyogre")
-        return super().find_class(module, name)
-
-
-def _load_data(bot):
-    try:
-        with open(os.path.join('data', 'serverdict'), 'rb') as fd:
-            bot.guild_dict = RenameUnpickler(fd).load()
-        logger.info('Serverdict Loaded Successfully')
-    except OSError:
-        logger.info('Serverdict Not Found - Looking for Backup')
-        try:
-            with open(os.path.join('data', 'serverdict_backup'), 'rb') as fd:
-                bot.guild_dict = RenameUnpickler(fd).load()
-            logger.info('Serverdict Backup Loaded Successfully')
-        except OSError:
-            logger.info('Serverdict Backup Not Found - Creating New Serverdict')
-            bot.guild_dict = {}
-            with open(os.path.join('data', 'serverdict'), 'wb') as fd:
-                pickle.dump(bot.guild_dict, fd, -1)
-            logger.info('Serverdict Created')
-
-
-_load_data(Kyogre)
+Kyogre = KyogreBot()
 
 guild_dict = Kyogre.guild_dict
 
-config = {}
-defense_chart = {}
-type_list = []
-raid_info = {}
+config = Kyogre.config
+defense_chart = Kyogre.defense_chart
+type_list = Kyogre.type_list
+raid_info = Kyogre.raid_info
+raid_path = Kyogre.raid_path_source
 
 active_raids = []
 active_wilds = []
@@ -97,85 +54,6 @@ active_lures = []
 """
 Helper functions
 """
-def load_config():
-    global config
-    global defense_chart
-    global type_list
-    global raid_info
-    # Load configuration
-    with open('config.json', 'r') as fd:
-        config = json.load(fd)
-    # Set up message catalog access
-    # Load raid info
-    raid_path_source = os.path.join('data', 'raid_info.json')
-    with open(raid_path_source, 'r') as fd:
-        raid_info = json.load(fd)
-    # Load type information
-    with open(os.path.join('data', 'defense_chart.json'), 'r') as fd:
-        defense_chart = json.load(fd)
-    with open(os.path.join('data', 'type_list.json'), 'r') as fd:
-        type_list = json.load(fd)
-    return raid_path_source
-
-
-raid_path = load_config()
-
-Kyogre.raid_info = raid_info
-Kyogre.type_list = type_list
-Kyogre.defense_chart = defense_chart
-
-Kyogre.config = config
-Kyogre.raid_json_path = raid_path
-
-default_exts = ['raiddatahandler', 'tutorial', 'silph', 'utilities',
-                'pokemon', 'trade', 'locationmatching', 'inviterole',
-                'admincommands']
-
-for ext in default_exts:
-    try:
-        Kyogre.load_extension(f"kyogre.exts.{ext}")
-    except Exception as e:
-        print(f'**Error when loading extension {ext}:**\n{type(e).__name__}: {e}')
-    else:
-        if 'debug' in sys.argv[1:]:
-            print(f'Loaded {ext} extension.')
-
-
-@Kyogre.command(name='load')
-@checks.is_owner()
-async def _load(ctx, *extensions):
-    for ext in extensions:
-        try:
-            ctx.bot.unload_extension(f"kyogre.exts.{ext}")
-            ctx.bot.load_extension(f"kyogre.exts.{ext}")
-        except Exception as e:
-            error_title = '**Error when loading extension'
-            await ctx.send(f'{error_title} {ext}:**\n'
-                           f'{type(e).__name__}: {e}')
-        else:
-            await ctx.send('**Extension {ext} Loaded.**\n'.format(ext=ext))
-
-
-@Kyogre.command(name='unload')
-@checks.is_owner()
-async def _unload(ctx, *extensions):
-    exts = [ex for ex in extensions if f"exts.{ex}" in Kyogre.extensions]
-    for ex in exts:
-        ctx.bot.unload_extension(f"exts.{ex}")
-    s = 's' if len(exts) > 1 else ''
-    await ctx.send("**Extension{plural} {est} unloaded.**\n".format(plural=s, est=', '.join(exts)))
-
-
-def get_raidlist():
-    raidlist = []
-    for level in raid_info['raid_eggs']:
-        for entry in raid_info['raid_eggs'][level]['pokemon']:
-            pokemon = Pokemon.get_pokemon(Kyogre, entry)
-            raidlist.append(pokemon.id)
-            raidlist.append(str(pokemon).lower())
-    return raidlist
-
-
 def print_emoji_name(guild, emoji_string):
     # By default, just print the emoji_string
     ret = ('`' + emoji_string) + '`'
@@ -864,7 +742,7 @@ async def channel_cleanup(loop=True):
             admin_commands_cog = Kyogre.cogs.get('AdminCommands')
             if not admin_commands_cog:
                 return None
-            await admin_commands_cog ._save(guildid)
+            await admin_commands_cog.save(guildid)
         except Exception as err:
             logger.info('Channel_Cleanup - SAVING FAILED' + str(err))
         logger.info('Channel_Cleanup ------ END ------')
@@ -899,7 +777,7 @@ async def guild_cleanup(loop=True):
             admin_commands_cog = Kyogre.cogs.get('AdminCommands')
             if not admin_commands_cog:
                 return None
-            await admin_commands_cog._save(guild_id)
+            await admin_commands_cog.save(guild_id)
         except Exception as err:
             logger.info('Server_Cleanup - SAVING FAILED' + str(err))
         logger.info('Server_Cleanup ------ END ------')
@@ -962,7 +840,7 @@ async def message_cleanup(loop=True):
             admin_commands_cog = Kyogre.cogs.get('AdminCommands')
             if not admin_commands_cog:
                 return None
-            await admin_commands_cog._save(guild_id)
+            await admin_commands_cog.save(guild_id)
         except Exception as err:
             logger.info('message_cleanup - SAVING FAILED' + str(err))
         logger.info('message_cleanup ------ END ------')
@@ -1721,230 +1599,6 @@ async def _list(ctx):
     await asyncio.sleep(20)
     await resp.delete()
 
-@Kyogre.group(name='set', case_insensitive=True)
-async def _set(ctx):
-    """Changes a setting."""
-    if ctx.invoked_subcommand == None:
-        raise commands.BadArgument()
-
-@_set.command()
-@commands.has_permissions(manage_guild=True)
-async def regional(ctx, regional):
-    """Changes server regional pokemon."""
-    regional = regional.lower()
-    if regional == "reset" and checks.is_dev_or_owner(ctx):
-        msg = "Are you sure you want to clear all regionals?"
-        question = await ctx.channel.send(msg)
-        try:
-            timeout = False
-            res, reactuser = await utils.simple_ask(Kyogre, question, ctx.message.channel, ctx.message.author.id)
-        except TypeError:
-            timeout = True
-        await question.delete()
-        if timeout or res.emoji == '❎':
-            return
-        elif res.emoji == '✅':
-            pass
-        else:
-            return
-        guild_dict_copy = copy.deepcopy(guild_dict)
-        for guildid in guild_dict_copy.keys():
-            guild_dict[guildid]['configure_dict']['settings']['regional'] = None
-        return
-    elif regional == 'clear':
-        regional = None
-        _set_regional(Kyogre, ctx.guild, regional)
-        await ctx.message.channel.send("Regional raid boss cleared!")
-        return
-    regional = Pokemon.get_pokemon(Kyogre, regional)
-    if regional.is_raid:
-        _set_regional(Kyogre, ctx.guild, regional)
-        await ctx.message.channel.send("Regional raid boss set to **{boss}**!").format(boss=regional.name)
-    else:
-        await ctx.message.channel.send("That Pokemon doesn't appear in raids!")
-        return
-
-def _set_regional(bot, guild, regional):
-    bot.guild_dict[guild.id]['configure_dict']['settings']['regional'] = regional
-
-
-@_set.command()
-@commands.has_permissions(manage_guild=True)
-async def timezone(ctx, *, timezone: str = ''):
-    """Changes server timezone."""
-    try:
-        timezone = float(timezone)
-    except ValueError:
-        await ctx.channel.send("I couldn't convert your answer to an appropriate timezone! Please double check what you sent me and resend a number from **-12** to **12**.")
-        return
-    if (not ((- 12) <= timezone <= 14)):
-        await ctx.channel.send("I couldn't convert your answer to an appropriate timezone! Please double check what you sent me and resend a number from **-12** to **12**.")
-        return
-    _set_timezone(Kyogre, ctx.guild, timezone)
-    now = datetime.datetime.utcnow() + datetime.timedelta(
-        hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
-    await ctx.channel.send("Timezone has been set to: `UTC{offset}`\nThe current time is **{now}**").format(
-        offset=timezone, now=now.strftime("%H:%M"))
-
-
-def _set_timezone(bot, guild, timezone):
-    bot.guild_dict[guild.id]['configure_dict']['settings']['offset'] = timezone
-
-
-@_set.command()
-@commands.has_permissions(manage_guild=True)
-async def prefix(ctx, prefix=None):
-    """Changes server prefix."""
-    if prefix == 'clear':
-        prefix = None
-    prefix = prefix.strip()
-    _set_prefix(Kyogre, ctx.guild, prefix)
-    if prefix != None:
-        await ctx.channel.send('Prefix has been set to: `{}`'.format(prefix))
-    else:
-        default_prefix = Kyogre.config['default_prefix']
-        await ctx.channel.send('Prefix has been reset to default: `{}`'.format(default_prefix))
-
-def _set_prefix(bot, guild, prefix):
-    bot.guild_dict[guild.id]['configure_dict']['settings']['prefix'] = prefix
-
-@_set.command()
-async def silph(ctx, silph_user: str = None):
-    """Links a server member to a Silph Road Travelers Card."""
-    if not silph_user:
-        await ctx.send('Silph Road Travelers Card cleared!')
-        try:
-            del guild_dict[ctx.guild.id]['trainers'].setdefault('info', {})[ctx.author.id]['silphid']
-        except:
-            pass
-        return
-
-    silph_cog = ctx.bot.cogs.get('Silph')
-    if not silph_cog:
-        return await ctx.send(
-            "The Silph Extension isn't accessible at the moment, sorry!")
-
-    async with ctx.typing():
-        card = await silph_cog.get_silph_card(silph_user)
-        if not card:
-            return await ctx.send('Silph Card for {silph_user} not found.'.format(silph_user=silph_user))
-
-    if not card.discord_name:
-        return await ctx.send(
-            'No Discord account found linked to this Travelers Card!')
-
-    if card.discord_name != str(ctx.author):
-        return await ctx.send(
-            'This Travelers Card is linked to another Discord account!')
-
-    try:
-        offset = ctx.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset']
-    except KeyError:
-        offset = None
-
-    trainers = guild_dict[ctx.guild.id].get('trainers', {})
-    author = trainers.setdefault('info', {}).get(ctx.author.id,{})
-    author['silphid'] = silph_user
-    trainers.setdefault('info', {})[ctx.author.id] = author
-    guild_dict[ctx.guild.id]['trainers'] = trainers
-
-    await ctx.send(
-        'This Travelers Card has been successfully linked to you!',
-        embed=card.embed(offset))
-
-@_set.command()
-async def pokebattler(ctx, pbid: int = 0):
-    """Links a server member to a PokeBattler ID."""
-    if not pbid:
-        await ctx.send('Pokebattler ID cleared!')
-        try:
-            del guild_dict[ctx.guild.id]['trainers'].setdefault('info', {})[ctx.author.id]['pokebattlerid']
-        except:
-            pass
-        return
-    trainers = guild_dict[ctx.guild.id].get('trainers',{})
-    author = trainers.setdefault('info', {}).get(ctx.author.id,{})
-    author['pokebattlerid'] = pbid
-    trainers.setdefault('info', {})[ctx.author.id] = author
-    guild_dict[ctx.guild.id]['trainers'] = trainers
-    await ctx.send('Pokebattler ID set to {pbid}!'.format(pbid=pbid))
-
-@Kyogre.group(name='get', case_insensitive=True)
-@commands.has_permissions(manage_guild=True)
-async def _get(ctx):
-    """Get a setting value"""
-    if ctx.invoked_subcommand == None:
-        raise commands.BadArgument()
-
-@_get.command()
-@commands.has_permissions(manage_guild=True)
-async def prefix(ctx):
-    """Get server prefix."""
-    prefix = _get_prefix(Kyogre, ctx.message)
-    await ctx.channel.send('Prefix for this server is: `{}`'.format(prefix))
-
-@_get.command()
-@commands.has_permissions(manage_guild=True)
-async def perms(ctx, channel_id = None):
-    """Show Kyogre's permissions for the guild and channel."""
-    channel = discord.utils.get(ctx.bot.get_all_channels(), id=channel_id)
-    guild = channel.guild if channel else ctx.guild
-    channel = channel or ctx.channel
-    guild_perms = guild.me.guild_permissions
-    chan_perms = channel.permissions_for(guild.me)
-    req_perms = discord.Permissions(268822608)
-
-    embed = discord.Embed(colour=ctx.guild.me.colour)
-    embed.set_author(name='Bot Permissions', icon_url="https://i.imgur.com/wzryVaS.png")
-
-    wrap = functools.partial(textwrap.wrap, width=20)
-    names = [wrap(channel.name), wrap(guild.name)]
-    if channel.category:
-        names.append(wrap(channel.category.name))
-    name_len = max(len(n) for n in names)
-    def same_len(txt):
-        return '\n'.join(txt + ([' '] * (name_len-len(txt))))
-    names = [same_len(n) for n in names]
-    chan_msg = [f"**{names[0]}** \n{channel.id} \n"]
-    guild_msg = [f"**{names[1]}** \n{guild.id} \n"]
-    def perms_result(perms):
-        data = []
-        meet_req = perms >= req_perms
-        result = "**PASS**" if meet_req else "**FAIL**"
-        data.append(f"{result} - {perms.value} \n")
-        true_perms = [k for k, v in dict(perms).items() if v is True]
-        false_perms = [k for k, v in dict(perms).items() if v is False]
-        req_perms_list = [k for k, v in dict(req_perms).items() if v is True]
-        true_perms_str = '\n'.join(true_perms)
-        if not meet_req:
-            missing = '\n'.join([p for p in false_perms if p in req_perms_list])
-            meet_req_result = "**MISSING**"
-            data.append(f"{meet_req_result} \n{missing} \n")
-        if true_perms_str:
-            meet_req_result = "**ENABLED**"
-            data.append(f"{meet_req_result} \n{true_perms_str} \n")
-        return '\n'.join(data)
-    guild_msg.append(perms_result(guild_perms))
-    chan_msg.append(perms_result(chan_perms))
-    embed.add_field(name='GUILD', value='\n'.join(guild_msg))
-    if channel.category:
-        cat_perms = channel.category.permissions_for(guild.me)
-        cat_msg = [f"**{names[2]}** \n{channel.category.id} \n"]
-        cat_msg.append(perms_result(cat_perms))
-        embed.add_field(name='CATEGORY', value='\n'.join(cat_msg))
-    embed.add_field(name='CHANNEL', value='\n'.join(chan_msg))
-
-    try:
-        await ctx.send(embed=embed)
-    except discord.errors.Forbidden:
-        # didn't have permissions to send a message with an embed
-        try:
-            msg = "I couldn't send an embed here, so I've sent you a DM"
-            await ctx.send(msg)
-        except discord.errors.Forbidden:
-            # didn't have permissions to send a message at all
-            pass
-        await ctx.author.send(embed=embed)
 
 @Kyogre.command()
 @commands.has_permissions(manage_guild=True)
@@ -6399,7 +6053,7 @@ async def counters(ctx, *, args=''):
             movesetstr = guild_dict[guild.id]['raidchannel_dict'][channel.id]['ctrs_dict'].get(moveset,{}).get('moveset',"Unknown Moveset")
             weather = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('weather', None)
         else:
-            pkmn = next((str(p) for p in get_raidlist() if not str(p).isdigit() and re.sub(rgx, '', str(p)) in re.sub(rgx, '', args.lower())), None)
+            pkmn = next((str(p) for p in utils.get_raidlist() if not str(p).isdigit() and re.sub(rgx, '', str(p)) in re.sub(rgx, '', args.lower())), None)
             if not pkmn:
                 await ctx.channel.send("You're missing some details! Be sure to enter a pokemon that appears in raids! Usage: **!counters <pkmn> [weather] [user ID]**")
                 return
@@ -6417,7 +6071,7 @@ async def counters(ctx, *, args=''):
                 user = arg
                 break
         rgx = '[^a-zA-Z0-9]'
-        pkmn = next((str(p) for p in get_raidlist() if not str(p).isdigit() and re.sub(rgx, '', str(p)) in re.sub(rgx, '', args.lower())), None)
+        pkmn = next((str(p) for p in utils.get_raidlist() if not str(p).isdigit() and re.sub(rgx, '', str(p)) in re.sub(rgx, '', args.lower())), None)
         if not pkmn:
             pkmn = guild_dict[guild.id]['raidchannel_dict'].get(channel.id,{}).get('pokemon', None)
         weather_list = ['none', 'extreme', 'clear', 'sunny', 'rainy',
