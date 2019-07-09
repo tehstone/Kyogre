@@ -19,7 +19,7 @@ from dateutil.relativedelta import relativedelta
 import discord
 from discord.ext import commands
 
-from kyogre import checks, configuration, constants, counters_helpers, embed_utils
+from kyogre import checks, constants, counters_helpers, embed_utils
 from kyogre import entity_updates, list_helpers, raid_helpers, raid_lobby_helpers, utils
 from kyogre.bot import KyogreBot
 
@@ -50,46 +50,6 @@ active_lures = []
 """
 Helper functions
 """
-def print_emoji_name(guild, emoji_string):
-    # By default, just print the emoji_string
-    ret = ('`' + emoji_string) + '`'
-    emoji = utils.parse_emoji(guild, emoji_string)
-    # If the string was transformed by the parse_emoji
-    # call, then it really was an emoji and we should
-    # add the raw string so people know what to write.
-    if emoji != emoji_string:
-        ret = ((emoji + ' (`') + emoji_string) + '`)'
-    return ret
-
-
-def create_gmaps_query(details, channel, type="raid"):
-    """Given an arbitrary string, create a Google Maps
-    query using the configured hints"""
-    if type == "raid" or type == "egg":
-        report = "raid"
-    else:
-        report = type
-    if "/maps" in details and "http" in details:
-        mapsindex = details.find('/maps')
-        newlocindex = details.rfind('http', 0, mapsindex)
-        if newlocindex == -1:
-            return
-        newlocend = details.find(' ', newlocindex)
-        if newlocend == -1:
-            newloc = details[newlocindex:]
-            return newloc
-        else:
-            newloc = details[newlocindex:newlocend + 1]
-            return newloc
-    details_list = details.split()
-    # look for lat/long coordinates in the location details. If provided,
-    # then channel location hints are not needed in the  maps query
-    if re.match (r'^\s*-?\d{1,2}\.?\d*,\s*-?\d{1,3}\.?\d*\s*$', details): #regex looks for lat/long in the format similar to 42.434546, -83.985195.
-        return "https://www.google.com/maps/search/?api=1&query={0}".format('+'.join(details_list))
-    loc_list = guild_dict[channel.guild.id]['configure_dict'][report]['report_channels'][channel.id].split()
-    return 'https://www.google.com/maps/search/?api=1&query={0}+{1}'.format('+'.join(details_list), '+'.join(loc_list))  
-
-
 def get_gyms(guild_id, regions=None):
     location_matching_cog = Kyogre.cogs.get('LocationMatching')
     if not location_matching_cog:
@@ -882,167 +842,6 @@ async def on_ready():
 
 
 @Kyogre.event
-async def on_guild_join(guild):
-    owner = guild.owner
-    guild_dict[guild.id] = {
-        'configure_dict':{
-            'welcome': {'enabled':False,'welcomechan':'','welcomemsg':''},
-            'want': {'enabled':False, 'report_channels': []},
-            'raid': {'enabled':False, 'report_channels': {}, 'categories':'same','category_dict':{}},
-            'exraid': {'enabled':False, 'report_channels': {}, 'categories':'same','category_dict':{}, 'permissions':'everyone'},
-            'counters': {'enabled':False, 'auto_levels': []},
-            'wild': {'enabled':False, 'report_channels': {}},
-            'lure': {'enabled':False, 'report_channels': {}},
-            'research': {'enabled':False, 'report_channels': {}},
-            'archive': {'enabled':False, 'category':'same','list':None},
-            'invite': {'enabled':False},
-            'team':{'enabled':False},
-            'settings':{'offset':0,'regional':None,'done':False,'prefix':None,'config_sessions':{}}
-        },
-        'wildreport_dict:':{},
-        'questreport_dict':{},
-        'raidchannel_dict':{},
-        'trainers':{},
-        'trade_dict': {}
-    }
-    await owner.send("I'm Kyogre, a Discord helper bot for Pokemon Go communities, and someone has invited me to your server! Type **!help** to see a list of things I can do, and type **!configure** in any channel of your server to begin!")
-
-
-@Kyogre.event
-async def on_guild_remove(guild):
-    try:
-        if guild.id in guild_dict:
-            try:
-                del guild_dict[guild.id]
-            except KeyError:
-                pass
-    except KeyError:
-        pass
-
-
-@Kyogre.event
-async def on_member_join(member):
-    """Welcome message to the server and some basic instructions."""
-    guild = member.guild
-    if guild_dict[guild.id]['configure_dict']['invite_tracking']['enabled']:
-        await calculate_invite_used(member)
-    team_msg = ' or '.join(['**!team {0}**'.format(team)
-                           for team in config['team_dict'].keys()])
-    if not guild_dict[guild.id]['configure_dict']['welcome']['enabled']:
-        return
-    # Build welcome message
-    if guild_dict[guild.id]['configure_dict']['welcome'].get('welcomemsg', 'default') == "default":
-        admin_message = ' If you have any questions just ask an admin.'
-        welcomemessage = 'Welcome to {server}, {user}! '
-        if guild_dict[guild.id]['configure_dict']['team']['enabled']:
-            welcomemessage += 'Set your team by typing {team_command}.'.format(
-                team_command=team_msg)
-        welcomemessage += admin_message
-    else:
-        welcomemessage = guild_dict[guild.id]['configure_dict']['welcome']['welcomemsg']
-
-    if guild_dict[guild.id]['configure_dict']['welcome']['welcomechan'] == 'dm':
-        send_to = member
-    elif str(guild_dict[guild.id]['configure_dict']['welcome']['welcomechan']).isdigit():
-        send_to = discord.utils.get(guild.text_channels, id=int(guild_dict[guild.id]['configure_dict']['welcome']['welcomechan']))
-    else:
-        send_to = discord.utils.get(guild.text_channels, name=guild_dict[guild.id]['configure_dict']['welcome']['welcomechan'])
-    if send_to:
-        if welcomemessage.startswith("[") and welcomemessage.endswith("]"):
-            await send_to.send(embed=discord.Embed(colour=guild.me.colour, description=welcomemessage[1:-1].format(server=guild.name, user=member.mention)))
-        else:
-            await send_to.send(welcomemessage.format(server=guild.name, user=member.mention))
-    else:
-        return
-
-
-async def calculate_invite_used(member):
-    guild = member.guild
-    t_guild_dict = copy.deepcopy(guild_dict)
-    invite_dict = t_guild_dict[guild.id]['configure_dict']['invite_tracking']['invite_counts']
-    all_invites = await guild.invites()
-    messages = []
-    invite_codes = []
-    for inv in all_invites:
-        if inv.code in invite_dict:
-            count = invite_dict.get(inv.code, inv.uses)
-            if inv.uses > count:
-                messages.append(f"Using invite code: {inv.code} for: {inv.channel} created by: {inv.inviter}")
-                invite_codes.append(inv.code)
-        elif inv.uses == 1:
-            messages.append(f"Using new invite code: {inv.code} for: {inv.channel} created by: {inv.inviter}")
-            invite_codes.append(inv.code)
-        invite_dict[inv.code] = inv.uses
-    destination = t_guild_dict[guild.id]['configure_dict']['invite_tracking'].get('destination', None)
-    if destination and len(messages) > 0:
-        notify = '\n'.join(messages)
-        try:
-            await Kyogre.get_channel(destination).send(notify)
-        except AttributeError:
-            pass
-    if len(invite_codes) > 0:
-        invite_roles = (InviteRoleTable
-                        .select(InviteRoleTable.role)
-                        .where(InviteRoleTable.invite << invite_codes))
-        role_ids = [i.role for i in invite_roles]
-        roles = [discord.utils.get(guild.roles, id=r) for r in role_ids]
-        await member.add_roles(*roles)
-
-    guild_dict[guild.id]['configure_dict']['invite_tracking']['invite_counts'] = invite_dict
-    return
-
-
-@Kyogre.event
-async def on_member_update(before, after):
-    guild = after.guild
-    region_dict = guild_dict[guild.id]['configure_dict'].get('regions',None)
-    if region_dict:
-        notify_channel = region_dict.get('notify_channel',None)
-        if (not before.bot) and notify_channel is not None:
-            prev_roles = set([r.name for r in before.roles])
-            post_roles = set([r.name for r in after.roles])
-            added_roles = post_roles-prev_roles
-            removed_roles = prev_roles-post_roles
-            regioninfo_dict = region_dict.get('info',None)
-            if regioninfo_dict:
-                notify = None
-                if len(added_roles) > 0:
-                    # a single member update event should only ever have 1 role change
-                    role = list(added_roles)[0]
-                    if role in regioninfo_dict.keys():
-                        notify = await Kyogre.get_channel(notify_channel).send(f"{after.mention} you have joined the {role.capitalize()} region.")
-                if len(removed_roles) > 0:
-                    # a single member update event should only ever have 1 role change
-                    role = list(removed_roles)[0]
-                    if role in regioninfo_dict.keys():
-                        notify = await Kyogre.get_channel(notify_channel).send(f"{after.mention} you have left the {role.capitalize()} region.")
-                if notify:
-                    await asyncio.sleep(8)
-                    await notify.delete()
-
-
-@Kyogre.event
-@checks.good_standing()
-async def on_message(message):
-    if (not message.author.bot):
-        await Kyogre.process_commands(message)
-
-@Kyogre.event
-async def on_message_delete(message):
-    guild = message.guild
-    channel = message.channel
-    author = message.author
-    if not channel or not guild:
-        return
-    if channel.id in guild_dict[guild.id]['raidchannel_dict'] and guild_dict[guild.id]['configure_dict']['archive']['enabled']:
-        if message.content.strip() == "!archive":
-            guild_dict[guild.id]['raidchannel_dict'][channel.id]['archive'] = True
-        if guild_dict[guild.id]['raidchannel_dict'][channel.id].get('archive', False):
-            logs = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('logs', {})
-            logs[message.id] = {'author_id': author.id, 'author_str': str(author),'author_avy':author.avatar_url,'author_nick':author.nick,'color_int':author.color.value,'content': message.clean_content,'created_at':message.created_at}
-            guild_dict[guild.id]['raidchannel_dict'][channel.id]['logs'] = logs
-
-@Kyogre.event
 @checks.good_standing()
 async def on_raw_reaction_add(payload):
     channel = Kyogre.get_channel(payload.channel_id)
@@ -1551,388 +1350,6 @@ async def _list(ctx):
 
 
 @Kyogre.command()
-@commands.has_permissions(manage_guild=True)
-async def welcome(ctx, user: discord.Member=None):
-    """Test welcome on yourself or mentioned member.
-
-    Usage: !welcome [@member]"""
-    if (not user):
-        user = ctx.author
-    await on_member_join(user)
-
-@Kyogre.command(hidden=True,aliases=['opl'])
-@commands.has_permissions(manage_guild=True)
-async def outputlog(ctx):
-    """Get current Kyogre log.
-
-    Usage: !outputlog
-    Replies with a file download of the current log file."""
-    with open(os.path.join('logs', 'kyogre.log'), 'rb') as logfile:
-        await ctx.channel.send(file=discord.File(logfile, filename=f'log{int(time.time())}.txt'))
-
-
-@Kyogre.command(aliases=['say'])
-@commands.has_permissions(manage_guild=True)
-async def announce(ctx, *, announce=None):
-    """Repeats your message in an embed from Kyogre.
-
-    Usage: !announce [announcement]
-    If the announcement isn't added at the same time as the command, Kyogre will wait 3 minutes for a followup message containing the announcement."""
-    message = ctx.message
-    channel = message.channel
-    guild = message.guild
-    author = message.author
-    announcetitle = 'Announcement'
-    if announce == None:
-        titlewait = await channel.send("If you would like to set a title for your announcement please reply with the title, otherwise reply with 'skip'.")
-        titlemsg = await Kyogre.wait_for('message', timeout=180, check=(lambda reply: reply.author == message.author))
-        await titlewait.delete()
-        if titlemsg != None:
-            if titlemsg.content.lower() == "skip":
-                pass
-            else:
-                announcetitle = titlemsg.content
-            await titlemsg.delete()
-        announcewait = await channel.send("I'll wait for your announcement!")
-        announcemsg = await Kyogre.wait_for('message', timeout=180, check=(lambda reply: reply.author == message.author))
-        await announcewait.delete()
-        if announcemsg != None:
-            announce = announcemsg.content
-            await announcemsg.delete()
-        else:
-            confirmation = await channel.send("You took too long to send me your announcement! Retry when you're ready.")
-    embeddraft = discord.Embed(colour=guild.me.colour, description=announce)
-    if ctx.invoked_with == "announce":
-        title = announcetitle
-        if Kyogre.user.avatar_url:
-            embeddraft.set_author(name=title, icon_url=Kyogre.user.avatar_url)
-        else:
-            embeddraft.set_author(name=title)
-    draft = await channel.send(embed=embeddraft)
-    reaction_list = ['❔', '✅', '❎']
-    owner_msg_add = ''
-    if checks.is_owner_check(ctx):
-        owner_msg_add = '🌎 '
-        owner_msg_add += 'to send it to all servers, '
-        reaction_list.insert(0, '🌎')
-
-    def check(reaction, user):
-        if user.id == author.id:
-            if (str(reaction.emoji) in reaction_list) and (reaction.message.id == rusure.id):
-                return True
-        return False
-    msg = "That's what you sent, does it look good? React with "
-    msg += "{}❔ "
-    msg += "to send to another channel, "
-    msg += "✅ "
-    msg += "to send it to this channel, or "
-    msg += "❎ "
-    msg += "to cancel"
-    rusure = await channel.send(msg.format(owner_msg_add))
-    try:
-        timeout = False
-        res, reactuser = await utils.simple_ask(Kyogre, rusure, channel, author.id, react_list=reaction_list)
-    except TypeError:
-        timeout = True
-    if not timeout:
-        await rusure.delete()
-        if res.emoji == '❎':
-            confirmation = await channel.send('Announcement Cancelled.')
-            await draft.delete()
-        elif res.emoji == '✅':
-            confirmation = await channel.send('Announcement Sent.')
-        elif res.emoji == '❔':
-            channelwait = await channel.send('What channel would you like me to send it to?')
-            channelmsg = await Kyogre.wait_for('message', timeout=60, check=(lambda reply: reply.author == message.author))
-            if channelmsg.content.isdigit():
-                sendchannel = Kyogre.get_channel(int(channelmsg.content))
-            elif channelmsg.raw_channel_mentions:
-                sendchannel = Kyogre.get_channel(channelmsg.raw_channel_mentions[0])
-            else:
-                sendchannel = discord.utils.get(guild.text_channels, name=channelmsg.content)
-            if (channelmsg != None) and (sendchannel != None):
-                announcement = await sendchannel.send(embed=embeddraft)
-                confirmation = await channel.send('Announcement Sent.')
-            elif sendchannel == None:
-                confirmation = await channel.send("That channel doesn't exist! Retry when you're ready.")
-            else:
-                confirmation = await channel.send("You took too long to send me your announcement! Retry when you're ready.")
-            await channelwait.delete()
-            await channelmsg.delete()
-            await draft.delete()
-        elif (res.emoji == '🌎') and checks.is_owner_check(ctx):
-            failed = 0
-            sent = 0
-            count = 0
-            recipients = {
-
-            }
-            embeddraft.set_footer(text='For support, contact us on our Discord server. Invite Code: hhVjAN8')
-            embeddraft.colour = discord.Colour.lighter_grey()
-            for guild in Kyogre.guilds:
-                recipients[guild.name] = guild.owner
-            for (guild, destination) in recipients.items():
-                try:
-                    await destination.send(embed=embeddraft)
-                except discord.HTTPException:
-                    failed += 1
-                    logger.info('Announcement Delivery Failure: {} - {}'.format(destination.name, guild))
-                else:
-                    sent += 1
-                count += 1
-            logger.info('Announcement sent to {} server owners: {} successful, {} failed.'.format(count, sent, failed))
-            confirmation = await channel.send('Announcement sent to {} server owners: {} successful, {} failed.').format(count, sent, failed)
-        await asyncio.sleep(10)
-        await confirmation.delete()
-    else:
-        await rusure.delete()
-        confirmation = await channel.send('Announcement Timed Out.')
-        await asyncio.sleep(10)
-        await confirmation.delete()
-    await asyncio.sleep(30)
-    await message.delete()
-
-@Kyogre.group(case_insensitive=True, invoke_without_command=True)
-@commands.has_permissions(manage_guild=True)
-async def configure(ctx, *, configlist: str=""):
-    """Kyogre Configuration
-
-    Usage: !configure [list]
-    Kyogre will DM you instructions on how to configure Kyogre for your server.
-    If it is not your first time configuring, you can choose a section to jump to.
-    You can also include a comma separated [list] of sections from the following:
-    all, team, welcome, regions, raid, exraid, invite, counters, wild, research, meetup, subscription, archive, trade, timezone"""
-    await _configure(ctx, configlist)
-
-async def _configure(ctx, configlist):
-    guild = ctx.message.guild
-    owner = ctx.message.author
-    try:
-        await ctx.message.delete()
-    except (discord.errors.Forbidden, discord.errors.HTTPException):
-        pass
-    config_sessions = guild_dict[ctx.guild.id]['configure_dict']['settings'].setdefault('config_sessions',{}).setdefault(owner.id,0) + 1
-    guild_dict[ctx.guild.id]['configure_dict']['settings']['config_sessions'][owner.id] = config_sessions
-    for session in guild_dict[guild.id]['configure_dict']['settings']['config_sessions'].keys():
-        if not guild.get_member(session):
-            del guild_dict[guild.id]['configure_dict']['settings']['config_sessions'][session]
-    config_dict_temp = getattr(ctx, 'config_dict_temp',copy.deepcopy(guild_dict[guild.id]['configure_dict']))
-    firstconfig = False
-    all_commands = ['team', 'welcome', 'regions', 'raid', 'exraid', 'exinvite', 
-                    'counters', 'wild', 'research', 'meetup', 'subscriptions', 'archive', 
-                    'trade', 'timezone', 'pvp', 'join', 'lure', 'trackinvites']
-    enabled_commands = []
-    configreplylist = []
-    config_error = False
-    if not config_dict_temp['settings']['done']:
-        firstconfig = True
-    if configlist and not firstconfig:
-        configlist = configlist.lower().replace("timezone","settings").split(",")
-        configlist = [x.strip().lower() for x in configlist]
-        diff = set(configlist) - set(all_commands)
-        if diff and "all" in diff:
-            configreplylist = all_commands
-        elif not diff:
-            configreplylist = configlist
-        else:
-            await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description="I'm sorry, I couldn't understand some of what you entered. Let's just start here."))
-    if config_dict_temp['settings']['config_sessions'][owner.id] > 1:
-        await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description="**MULTIPLE SESSIONS!**\n\nIt looks like you have **{yoursessions}** active configure sessions. I recommend you send **cancel** first and then send your request again to avoid confusing me.\n\nYour Sessions: **{yoursessions}** | Total Sessions: **{allsessions}**".format(allsessions=sum(config_dict_temp['settings']['config_sessions'].values()),yoursessions=config_dict_temp['settings']['config_sessions'][owner.id])))
-    configmessage = "Welcome to the configuration for Kyogre! I will be guiding you through some steps to get me setup on your server.\n\n**Role Setup**\nBefore you begin the configuration, please make sure my role is moved to the top end of the server role hierarchy. It can be under admins and mods, but must be above team and general roles. [Here is an example](http://i.imgur.com/c5eaX1u.png)"
-    if not firstconfig and not configreplylist:
-        configmessage += "\n\n**Welcome Back**\nThis isn't your first time configuring. You can either reconfigure everything by replying with **all** or reply with a comma separated list to configure those commands. Example: `subscription, raid, wild`"
-        for commandconfig in config_dict_temp.keys():
-            if config_dict_temp[commandconfig].get('enabled',False):
-                enabled_commands.append(commandconfig)
-        configmessage += "\n\n**Enabled Commands:**\n{enabled_commands}".format(enabled_commands=", ".join(enabled_commands))
-        configmessage += """\n\n**All Commands:**\n**all** - To redo configuration\n\
-                        **team** - For Team Assignment configuration\n**welcome** - For Welcome Message configuration\n\
-                        **regions** - for region configuration\n**raid** - for raid command configuration\n\
-                        **exraid** - for EX raid command configuration\n**invite** - for invite command configuration\n\
-                        **counters** - for automatic counters configuration\n**wild** - for wild command configuration\n\
-                        **research** - for !research command configuration\n**meetup** - for !meetup command configuration\n\
-                        **subscriptions** - for subscription command configuration\n**archive** - For !archive configuration\n\
-                        **trade** - For trade command configuration\n**timezone** - For timezone configuration\n\
-                        **join** - For !join command configuration\n**pvp** - For !pvp command configuration\n\
-                        **trackinvites** - For invite tracking configuration"""
-        configmessage += '\n\nReply with **cancel** at any time throughout the questions to cancel the configure process.'
-        await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description=configmessage).set_author(name='Kyogre Configuration - {guild}'.format(guild=guild.name), icon_url=Kyogre.user.avatar_url))
-        while True:
-            config_error = False
-            def check(m):
-                return m.guild == None and m.author == owner
-            configreply = await Kyogre.wait_for('message', check=check)
-            configreply.content = configreply.content.replace("timezone", "settings")
-            if configreply.content.lower() == 'cancel':
-                await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description='**CONFIG CANCELLED!**\n\nNo changes have been made.'))
-                del guild_dict[guild.id]['configure_dict']['settings']['config_sessions'][owner.id]
-                return None
-            elif "all" in configreply.content.lower():
-                configreplylist = all_commands
-                break
-            else:
-                configreplylist = configreply.content.lower().split(",")
-                configreplylist = [x.strip() for x in configreplylist]
-                for configreplyitem in configreplylist:
-                    if configreplyitem not in all_commands:
-                        config_error = True
-                        break
-            if config_error:
-                await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description="I'm sorry I don't understand. Please reply with the choices above."))
-                continue
-            else:
-                break
-    elif firstconfig == True:
-        configmessage += '\n\nReply with **cancel** at any time throughout the questions to cancel the configure process.'
-        await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description=configmessage).set_author(name='Kyogre Configuration - {guild}'.format(guild=guild.name), icon_url=Kyogre.user.avatar_url))
-        configreplylist = all_commands
-    try:
-        config_func_dict = {"team":configuration._configure_team,
-                "welcome":configuration._configure_welcome,
-                "regions":configuration._configure_regions,
-                "raid":configuration._configure_raid,
-                "exraid":configuration._configure_exraid,
-                "meetup":configuration._configure_meetup,
-                "exinvite":configuration._configure_exinvite,
-                "counters":configuration._configure_counters,
-                "wild":configuration._configure_wild,
-                "research":configuration._configure_research,
-                "subscriptions":configuration._configure_subscriptions,
-                "archive":configuration._configure_archive,
-                "trade":configuration._configure_trade,
-                "settings":configuration._configure_settings,
-                "pvp":configuration._configure_pvp,
-                "join":configuration._configure_join,
-                "lure":configuration._configure_lure,
-                "trackinvites":configuration._configure_trackinvites
-                }
-        for item in configreplylist:
-            try:
-                func = config_func_dict[item]
-                ctx = await func(ctx, Kyogre)
-                if not ctx:
-                    return None
-            except:
-                pass
-    finally:
-        if ctx:
-            ctx.config_dict_temp['settings']['done'] = True
-            await ctx.channel.send("Config changed: overwriting config dict.")
-            guild_dict[guild.id]['configure_dict'] = ctx.config_dict_temp
-            await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="Alright! Your settings have been saved and I'm ready to go! If you need to change any of these settings, just type **!configure** in your server again.").set_author(name='Configuration Complete', icon_url=Kyogre.user.avatar_url))
-        del guild_dict[guild.id]['configure_dict']['settings']['config_sessions'][owner.id]
-
-@configure.command(name='all')
-async def configure_all(ctx):
-    """All settings"""
-    await _configure(ctx, "all")
-
-async def _check_sessions_and_invoke(ctx, func_ref):
-    guild = ctx.message.guild
-    owner = ctx.message.author
-    try:
-        await ctx.message.delete()
-    except (discord.errors.Forbidden, discord.errors.HTTPException):
-        pass
-    if not guild_dict[guild.id]['configure_dict']['settings']['done']:
-        await _configure(ctx, "all")
-        return
-    config_sessions = guild_dict[ctx.guild.id]['configure_dict']['settings'].setdefault('config_sessions',{}).setdefault(owner.id,0) + 1
-    guild_dict[ctx.guild.id]['configure_dict']['settings']['config_sessions'][owner.id] = config_sessions
-    if guild_dict[guild.id]['configure_dict']['settings']['config_sessions'][owner.id] > 1:
-        await owner.send(embed=discord.Embed(colour=discord.Colour.orange(), description="**MULTIPLE SESSIONS!**\n\nIt looks like you have **{yoursessions}** active configure sessions. I recommend you send **cancel** first and then send your request again to avoid confusing me.\n\nYour Sessions: **{yoursessions}** | Total Sessions: **{allsessions}**".format(allsessions=sum(guild_dict[guild.id]['configure_dict']['settings']['config_sessions'].values()),yoursessions=guild_dict[guild.id]['configure_dict']['settings']['config_sessions'][owner.id])))
-    ctx = await func_ref(ctx, Kyogre)
-    if ctx:
-        guild_dict[guild.id]['configure_dict'] = ctx.config_dict_temp
-        await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="Alright! Your settings have been saved and I'm ready to go! If you need to change any of these settings, just type **!configure** in your server again.").set_author(name='Configuration Complete', icon_url=Kyogre.user.avatar_url))
-    del guild_dict[guild.id]['configure_dict']['settings']['config_sessions'][owner.id]
-
-@configure.command()
-async def team(ctx):
-    """!team command settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_team)
-
-@configure.command()
-async def welcome(ctx):
-    """Welcome message settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_welcome)
-
-@configure.command()
-async def regions(ctx):
-    """region configuration for server"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_regions)
-
-@configure.command()
-async def raid(ctx):
-    """!raid reporting settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_raid)
-
-@configure.command()
-async def exraid(ctx):
-    """!exraid reporting settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_exraid)
-
-@configure.command()
-async def exinvite(ctx):
-    """!invite command settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_exinvite)
-
-@configure.command()
-async def counters(ctx):
-    """Automatic counters settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_counters)
-
-@configure.command()
-async def wild(ctx):
-    """!wild reporting settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_wild)
-
-@configure.command()
-async def research(ctx):
-    """!research reporting settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_research)
-
-@configure.command(aliases=['event'])
-async def meetup(ctx):
-    """!meetup reporting settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_meetup)
-
-@configure.command()
-async def subscriptions(ctx):
-    """!subscription settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_subscriptions)
-
-@configure.command()
-async def pvp(ctx):
-    """!pvp settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_pvp)
-
-@configure.command()
-async def join(ctx):
-    """!join settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_join)
-
-@configure.command()
-async def lure(ctx):
-    """!lure settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_lure)
-
-@configure.command()
-async def archive(ctx):
-    """Configure !archive command settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_archive)
-
-@configure.command(aliases=['settings'])
-async def timezone(ctx):
-    """Configure timezone and other settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_settings)
-
-@configure.command()
-async def trade(ctx):
-    """!trade reporting settings"""
-    return await _check_sessions_and_invoke(ctx, configuration._configure_trade)
-
-@Kyogre.command()
 @checks.is_owner()
 async def reload_json(ctx):
     """Reloads the JSON files for the server
@@ -2198,88 +1615,9 @@ async def setstatus(ctx, member: discord.Member, status,*, status_counts: str = 
     ctx.message.content = "{}{} {}".format(ctx.prefix, status, status_counts)
     await ctx.bot.process_commands(ctx.message)
 
-@Kyogre.command()
-@checks.allowarchive()
-async def archive(ctx):
-    """Marks a raid channel for archival.
-
-    Usage: !archive"""
-    message = ctx.message
-    channel = message.channel
-    await ctx.message.delete()
-    await _archive(channel)
-
-async def _archive(channel):
-    guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['archive'] = True
-    await asyncio.sleep(10)
-    guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['archive'] = True
-
 """
 Miscellaneous
 """
-
-@Kyogre.command(name='uptime')
-async def cmd_uptime(ctx):
-    "Shows Kyogre's uptime"
-    guild = ctx.guild
-    channel = ctx.channel
-    embed_colour = guild.me.colour or discord.Colour.lighter_grey()
-    uptime_str = await _uptime(Kyogre)
-    embed = discord.Embed(colour=embed_colour, icon_url=Kyogre.user.avatar_url)
-    embed.add_field(name='Uptime', value=uptime_str)
-    try:
-        await channel.send(embed=embed)
-    except discord.HTTPException:
-        await channel.send('I need the `Embed links` permission to send this')
-
-async def _uptime(bot):
-    'Shows info about Kyogre'
-    time_start = bot.uptime
-    time_now = datetime.datetime.now()
-    ut = relativedelta(time_now, time_start)
-    (ut.years, ut.months, ut.days, ut.hours, ut.minutes)
-    if ut.years >= 1:
-        uptime = '{yr}y {mth}m {day}d {hr}:{min}'.format(yr=ut.years, mth=ut.months, day=ut.days, hr=ut.hours, min=ut.minutes)
-    elif ut.months >= 1:
-        uptime = '{mth}m {day}d {hr}:{min}'.format(mth=ut.months, day=ut.days, hr=ut.hours, min=ut.minutes)
-    elif ut.days >= 1:
-        uptime = '{day} days {hr} hrs {min} mins'.format(day=ut.days, hr=ut.hours, min=ut.minutes)
-    elif ut.hours >= 1:
-        uptime = '{hr} hrs {min} mins {sec} secs'.format(hr=ut.hours, min=ut.minutes, sec=ut.seconds)
-    else:
-        uptime = '{min} mins {sec} secs'.format(min=ut.minutes, sec=ut.seconds)
-    return uptime
-
-@Kyogre.command()
-async def about(ctx):
-    'Shows info about Kyogre'
-    repo_url = 'https://github.com/klords/Kyogre'
-    owner = Kyogre.owner
-    channel = ctx.channel
-    uptime_str = await _uptime(Kyogre)
-    yourserver = ctx.message.guild.name
-    yourmembers = len(ctx.message.guild.members)
-    embed_colour = ctx.guild.me.colour or discord.Colour.lighter_grey()
-    about = "I'm Kyogre! A Pokemon Go helper bot for Discord!\n\nI'm a variant of the open-source Kyogre bot made by FoglyOgly.\n\nFor questions or feedback regarding Kyogre, please contact us on [our GitHub repo]({repo_url})\n\n".format(repo_url=repo_url)
-    member_count = 0
-    guild_count = 0
-    for guild in Kyogre.guilds:
-        guild_count += 1
-        member_count += len(guild.members)
-    embed = discord.Embed(colour=embed_colour, icon_url=Kyogre.user.avatar_url)
-    embed.add_field(name='About Kyogre', value=about, inline=False)
-    embed.add_field(name='Owner', value=owner)
-    if guild_count > 1:
-        embed.add_field(name='Servers', value=guild_count)
-        embed.add_field(name='Members', value=member_count)
-    embed.add_field(name="Your Server", value=yourserver)
-    embed.add_field(name="Your Members", value=yourmembers)
-    embed.add_field(name='Uptime', value=uptime_str)
-    try:
-        await channel.send(embed=embed)
-    except discord.HTTPException:
-        await channel.send('I need the `Embed links` permission to send this')
-
 @Kyogre.command()
 @checks.allowteam()
 async def team(ctx,*,content):
@@ -6003,7 +5341,7 @@ async def counters(ctx, *, args=''):
             movesetstr = guild_dict[guild.id]['raidchannel_dict'][channel.id]['ctrs_dict'].get(moveset,{}).get('moveset',"Unknown Moveset")
             weather = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('weather', None)
         else:
-            pkmn = next((str(p) for p in utils.get_raidlist() if not str(p).isdigit() and re.sub(rgx, '', str(p)) in re.sub(rgx, '', args.lower())), None)
+            pkmn = next((str(p) for p in Pokemon.get_raidlist() if not str(p).isdigit() and re.sub(rgx, '', str(p)) in re.sub(rgx, '', args.lower())), None)
             if not pkmn:
                 await ctx.channel.send("You're missing some details! Be sure to enter a pokemon that appears in raids! Usage: **!counters <pkmn> [weather] [user ID]**")
                 return
@@ -6021,7 +5359,7 @@ async def counters(ctx, *, args=''):
                 user = arg
                 break
         rgx = '[^a-zA-Z0-9]'
-        pkmn = next((str(p) for p in utils.get_raidlist() if not str(p).isdigit() and re.sub(rgx, '', str(p)) in re.sub(rgx, '', args.lower())), None)
+        pkmn = next((str(p) for p in Pokemon.get_raidlist() if not str(p).isdigit() and re.sub(rgx, '', str(p)) in re.sub(rgx, '', args.lower())), None)
         if not pkmn:
             pkmn = guild_dict[guild.id]['raidchannel_dict'].get(channel.id,{}).get('pokemon', None)
         weather_list = ['none', 'extreme', 'clear', 'sunny', 'rainy',
@@ -6490,6 +5828,47 @@ async def teams(ctx):
     Works only in raid channels."""
     listmsg = await list_helpers.teamlist(ctx, Kyogre, guild_dict)
     await ctx.channel.send(listmsg)
+
+def print_emoji_name(guild, emoji_string):
+    # By default, just print the emoji_string
+    ret = ('`' + emoji_string) + '`'
+    emoji = utils.parse_emoji(guild, emoji_string)
+    # If the string was transformed by the parse_emoji
+    # call, then it really was an emoji and we should
+    # add the raw string so people know what to write.
+    if emoji != emoji_string:
+        ret = ((emoji + ' (`') + emoji_string) + '`)'
+    return ret
+
+
+def create_gmaps_query(details, channel, type="raid"):
+    """Given an arbitrary string, create a Google Maps
+    query using the configured hints"""
+    if type == "raid" or type == "egg":
+        report = "raid"
+    else:
+        report = type
+    if "/maps" in details and "http" in details:
+        mapsindex = details.find('/maps')
+        newlocindex = details.rfind('http', 0, mapsindex)
+        if newlocindex == -1:
+            return
+        newlocend = details.find(' ', newlocindex)
+        if newlocend == -1:
+            newloc = details[newlocindex:]
+            return newloc
+        else:
+            newloc = details[newlocindex:newlocend + 1]
+            return newloc
+    details_list = details.split()
+    # look for lat/long coordinates in the location details. If provided,
+    # then channel location hints are not needed in the  maps query
+    if re.match (r'^\s*-?\d{1,2}\.?\d*,\s*-?\d{1,3}\.?\d*\s*$', details): #regex looks for lat/long in the format similar to 42.434546, -83.985195.
+        return "https://www.google.com/maps/search/?api=1&query={0}".format('+'.join(details_list))
+    loc_list = guild_dict[channel.guild.id]['configure_dict'][report]['report_channels'][channel.id].split()
+    return 'https://www.google.com/maps/search/?api=1&query={0}+{1}'.format('+'.join(details_list), '+'.join(loc_list))  
+
+
 
 try:
     event_loop.run_until_complete(Kyogre.start(config['bot_token']))

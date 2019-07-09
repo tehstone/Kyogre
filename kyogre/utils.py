@@ -7,9 +7,6 @@ from fuzzywuzzy import process
 import discord
 import asyncio
 
-from kyogre.exts import pokemon
-
-Pokemon = pokemon.Pokemon
 
 def get_match(word_list: list, word: str, score_cutoff: int = 60, isPartial: bool = False, limit: int = 1):
     """Uses fuzzywuzzy to see if word is close to entries in word_list
@@ -203,15 +200,6 @@ async def get_raid_help(prefix, avatar, user=None):
     if not user:
         return helpembed
     await user.send(embed=helpembed)
-
-def get_raidlist(bot):
-    raidlist = []
-    for level in bot.raid_info['raid_eggs']:
-        for pokemon in bot.raid_info['raid_eggs'][level]['pokemon']:
-            mon = Pokemon.get_pokemon(bot, pokemon)
-            if mon:
-                raidlist.append(mon.name.lower())
-    return raidlist
 
 def get_level(bot, pkmn):
     for level, pkmn_list in bot.raid_info['raid_eggs'].items():

@@ -260,7 +260,7 @@ class Pokemon():
     @property
     def is_raid(self):
         """:class:`bool` : Indicates if the pokemon can show in Raids"""
-        return self.name.lower() in utils.get_raidlist(self.bot)
+        return self.name.lower() in self.get_raidlist()
 
     @property
     def is_exraid(self):
@@ -416,6 +416,15 @@ class Pokemon():
     @staticmethod
     def get_forms_list():
         return Pokemon._form_list
+
+    def get_raidlist(self):
+        raidlist = []
+        for level in self.bot.raid_info['raid_eggs']:
+            for pokemon in self.bot.raid_info['raid_eggs'][level]['pokemon']:
+                mon = self.get_pokemon(self.bot, pokemon)
+                if mon:
+                    raidlist.append(mon.name.lower())
+        return raidlist
 
 def setup(bot):
     bot.add_cog(Pokedex(bot))

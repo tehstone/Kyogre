@@ -44,7 +44,8 @@ class AdminCommands(commands.Cog):
             'channel': ctx.channel,
             'author': ctx.author,
             'guild': ctx.guild,
-            'message': ctx.message
+            'message': ctx.message,
+            'guild_dict': ctx.bot.guild_dict
         }
 
         def cleanup_code(content):
@@ -194,7 +195,6 @@ class AdminCommands(commands.Cog):
             else:
                 await ctx.send('**Extension {ext} Reloaded.**\n'.format(ext=ext))
 
-
     @commands.command(name='unload')
     @checks.is_owner()
     async def _unload(self, ctx, *extensions):
@@ -203,6 +203,159 @@ class AdminCommands(commands.Cog):
             self.bot.unload_extension(f"kyogre.exts.{ex}")
         s = 's' if len(exts) > 1 else ''
         await ctx.send("**Extension{plural} {est} unloaded.**\n".format(plural=s, est=', '.join(exts)))
+
+    @commands.command()
+    @commands.has_permissions(manage_guild=True)
+    async def welcome(self, ctx, user: discord.Member=None):
+        """Test welcome on yourself or mentioned member.
+
+        Usage: !welcome [@member]"""
+        if (not user):
+            user = ctx.author
+        await self.bot.on_member_join(user)
+
+    @commands.command(hidden=True,aliases=['opl'])
+    @commands.has_permissions(manage_guild=True)
+    async def outputlog(self, ctx):
+        """Get current Kyogre log.
+
+        Usage: !outputlog
+        Replies with a file download of the current log file."""
+        with open(os.path.join('logs', 'kyogre.log'), 'rb') as logfile:
+            await ctx.send(file=discord.File(logfile, filename=f'log{int(time.time())}.txt'))
+
+
+    @commands.command(aliases=['say'])
+    @commands.has_permissions(manage_guild=True)
+    async def announce(self, ctx, *, announce=None):
+        """Repeats your message in an embed from Kyogre.
+
+        Usage: !announce [announcement]
+        If the announcement isn't added at the same time as the command, Kyogre will wait 3 minutes for a followup message containing the announcement."""
+        message = ctx.message
+        channel = message.channel
+        guild = message.guild
+        author = message.author
+        announcetitle = 'Announcement'
+        if announce == None:
+            titlewait = await channel.send("If you would like to set a title for your announcement please reply with the title, otherwise reply with 'skip'.")
+            titlemsg = await self.bot.wait_for('message', timeout=180, check=(lambda reply: reply.author == message.author))
+            await titlewait.delete()
+            if titlemsg != None:
+                if titlemsg.content.lower() == "skip":
+                    pass
+                else:
+                    announcetitle = titlemsg.content
+                await titlemsg.delete()
+            announcewait = await channel.send("I'll wait for your announcement!")
+            announcemsg = await self.bot.wait_for('message', timeout=180, check=(lambda reply: reply.author == message.author))
+            await announcewait.delete()
+            if announcemsg != None:
+                announce = announcemsg.content
+                await announcemsg.delete()
+            else:
+                confirmation = await channel.send("You took too long to send me your announcement! Retry when you're ready.")
+        embeddraft = discord.Embed(colour=guild.me.colour, description=announce)
+        if ctx.invoked_with == "announce":
+            title = announcetitle
+            if self.bot.user.avatar_url:
+                embeddraft.set_author(name=title, icon_url=self.bot.user.avatar_url)
+            else:
+                embeddraft.set_author(name=title)
+        draft = await channel.send(embed=embeddraft)
+        reaction_list = ['❔', '✅', '❎']
+        owner_msg_add = ''
+        if checks.is_owner_check(ctx):
+            owner_msg_add = '🌎 '
+            owner_msg_add += 'to send it to all servers, '
+            reaction_list.insert(0, '🌎')
+
+        def check(reaction, user):
+            if user.id == author.id:
+                if (str(reaction.emoji) in reaction_list) and (reaction.message.id == rusure.id):
+                    return True
+            return False
+        msg = "That's what you sent, does it look good? React with "
+        msg += "{}❔ "
+        msg += "to send to another channel, "
+        msg += "✅ "
+        msg += "to send it to this channel, or "
+        msg += "❎ "
+        msg += "to cancel"
+        rusure = await channel.send(msg.format(owner_msg_add))
+        try:
+            timeout = False
+            res, reactuser = await utils.simple_ask(self.bot, rusure, channel, author.id, react_list=reaction_list)
+        except TypeError:
+            timeout = True
+        if not timeout:
+            await rusure.delete()
+            if res.emoji == '❎':
+                confirmation = await channel.send('Announcement Cancelled.')
+                await draft.delete()
+            elif res.emoji == '✅':
+                confirmation = await channel.send('Announcement Sent.')
+            elif res.emoji == '❔':
+                channelwait = await channel.send('What channel would you like me to send it to?')
+                channelmsg = await self.bot.wait_for('message', timeout=60, check=(lambda reply: reply.author == message.author))
+                if channelmsg.content.isdigit():
+                    sendchannel = self.bot.get_channel(int(channelmsg.content))
+                elif channelmsg.raw_channel_mentions:
+                    sendchannel = self.bot.get_channel(channelmsg.raw_channel_mentions[0])
+                else:
+                    sendchannel = discord.utils.get(guild.text_channels, name=channelmsg.content)
+                if (channelmsg != None) and (sendchannel != None):
+                    announcement = await sendchannel.send(embed=embeddraft)
+                    confirmation = await channel.send('Announcement Sent.')
+                elif sendchannel == None:
+                    confirmation = await channel.send("That channel doesn't exist! Retry when you're ready.")
+                else:
+                    confirmation = await channel.send("You took too long to send me your announcement! Retry when you're ready.")
+                await channelwait.delete()
+                await channelmsg.delete()
+                await draft.delete()
+            elif (res.emoji == '🌎') and checks.is_owner_check(ctx):
+                failed = 0
+                sent = 0
+                count = 0
+                recipients = {
+
+                }
+                embeddraft.set_footer(text='For support, contact us on our Discord server. Invite Code: hhVjAN8')
+                embeddraft.colour = discord.Colour.lighter_grey()
+                for guild in self.bot.guilds:
+                    recipients[guild.name] = guild.owner
+                for (guild, destination) in recipients.items():
+                    try:
+                        await destination.send(embed=embeddraft)
+                    except discord.HTTPException:
+                        failed += 1
+                        logger.info('Announcement Delivery Failure: {} - {}'.format(destination.name, guild))
+                    else:
+                        sent += 1
+                    count += 1
+                logger.info('Announcement sent to {} server owners: {} successful, {} failed.'.format(count, sent, failed))
+                confirmation = await channel.send('Announcement sent to {} server owners: {} successful, {} failed.').format(count, sent, failed)
+            await asyncio.sleep(10)
+            await confirmation.delete()
+        else:
+            await rusure.delete()
+            confirmation = await channel.send('Announcement Timed Out.')
+            await asyncio.sleep(10)
+            await confirmation.delete()
+        await asyncio.sleep(30)
+        await message.delete()
+
+    @commands.command()
+    @checks.allowarchive()
+    async def archive(self, ctx):
+        """Marks a raid channel for archival.
+
+        Usage: !archive"""
+        message = ctx.message
+        channel = message.channel
+        await ctx.message.delete()
+        self.guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['archive'] = True
 
 def setup(bot):
     bot.add_cog(AdminCommands(bot))
