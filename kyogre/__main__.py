@@ -2,7 +2,6 @@ import asyncio
 import copy
 import datetime
 import errno
-import gettext
 import io
 import os
 import pickle
@@ -31,11 +30,8 @@ from kyogre.exts.locationmatching import Gym
 from kyogre.exts.db.kyogredb import *
 KyogreDB.start('data/kyogre.db')
 
-_ = gettext.gettext
-
-
-
 Kyogre = KyogreBot()
+logger = Kyogre.logger
 
 guild_dict = Kyogre.guild_dict
 
@@ -94,25 +90,6 @@ def create_gmaps_query(details, channel, type="raid"):
     return 'https://www.google.com/maps/search/?api=1&query={0}+{1}'.format('+'.join(details_list), '+'.join(loc_list))  
 
 
-@Kyogre.command(name='gym')
-async def _gym(ctx, *, name):
-    """Lookup locations to a gym by providing it's name.
-    Gym name provided should be as close as possible to
-    the name displayed in game."""
-    message = ctx.message
-    channel = ctx.channel
-    guild = ctx.guild
-    gyms = get_gyms(guild.id)
-    gym = await location_match_prompt(channel, message.author.id, name, gyms)
-    if not gym:
-        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No gym found with name '{name}'. Try again using the exact gym name!"))
-    else:
-        gym_embed = discord.Embed(title='Click here for directions to {0}!'.format(gym.name), url=gym.maps_url, colour=guild.me.colour)
-        gym_info = "**Name:** {name}\n**Region:** {region}\n**Notes:** {notes}".format(name=gym.name, notes="_EX Eligible Gym_" if gym.ex_eligible else "N/A", region=gym.region.title())
-        gym_embed.add_field(name='**Gym Information**', value=gym_info, inline=False)
-        return await channel.send(content="", embed=gym_embed)
-
-
 def get_gyms(guild_id, regions=None):
     location_matching_cog = Kyogre.cogs.get('LocationMatching')
     if not location_matching_cog:
@@ -138,35 +115,8 @@ def get_all_locations(guild_id, regions=None):
 
 
 async def location_match_prompt(channel, author_id, name, locations):
-    # note: the following logic assumes json constraints -- no duplicates in source data
     location_matching_cog = Kyogre.cogs.get('LocationMatching')
-    result = location_matching_cog.location_match(name, locations)
-    results = [(match.name, score) for match, score in result]
-    match = await prompt_match_result(channel, author_id, name, results)
-    return next((l for l in locations if l.name == match), None)
-
-
-async def prompt_match_result(channel, author_id, target, result_list):
-    if not isinstance(result_list, list):
-        result_list = [result_list]
-    if not result_list or result_list[0] is None or result_list[0][0] is None:
-        return None
-    # quick check if a full match exists
-    exact_match = [match for match, score in result_list if match.lower() == target.lower()]
-    if len(exact_match) == 1:
-        return exact_match[0]
-    # reminder: partial, exact matches have 100 score, that's why this check exists
-    perfect_scores = [match for match, score in result_list if score == 100]
-    if len(perfect_scores) != 1:
-        # one or more imperfect candidates only, ask user which to use
-        sorted_result = sorted(result_list, key=lambda t: t[1], reverse=True)
-        choices_list = [match for match, score in sorted_result]
-        prompt = "Didn't find an exact match for '{0}'. {1} potential matches found.".format(target, len(result_list))
-        match = await utils.ask_list(Kyogre, prompt, channel, choices_list, user_list=author_id)
-    else:
-        # found a solitary best match
-        match = perfect_scores[0]
-    return match
+    return await location_matching_cog.match_prompt(channel, author_id, name, locations)
 
 
 def get_category(channel, level, category_type="raid"):
