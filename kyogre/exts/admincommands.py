@@ -13,6 +13,7 @@ import discord
 from discord.ext import commands
 
 from kyogre import utils, checks
+from kyogre.exts.pokemon import Pokemon
 
 
 class AdminCommands(commands.Cog):
@@ -355,7 +356,79 @@ class AdminCommands(commands.Cog):
         message = ctx.message
         channel = message.channel
         await ctx.message.delete()
-        self.guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['archive'] = True
+        self.bot.guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['archive'] = True
+
+    @commands.command()
+    @checks.is_owner()
+    async def reload_json(self, ctx):
+        """Reloads the JSON files for the server
+
+        Usage: !reload_json
+        Useful to avoid a full restart if boss list changed"""
+        self.bot._load_config()
+        await ctx.message.add_reaction('☑')
+
+    @commands.command()
+    @checks.is_dev_or_owner()
+    async def raid_json(self, ctx, level=None, *, newlist=None):
+        'Edits or displays raid_info.json\n\n    Usage: !raid_json [level] [list]'
+        msg = ''
+        if (not level) and (not newlist):
+            for level in self.bot.raid_info['raid_eggs']:
+                msg += '\n**Level {level} raid list:** `{raidlist}` \n'.format(level=level, raidlist=self.bot.raid_info['raid_eggs'][level]['pokemon'])
+                for pkmn in self.bot.raid_info['raid_eggs'][level]['pokemon']:
+                    p = Pokemon.get_pokemon(self, pkmn)
+                    msg += '{name} ({number})'.format(name=str(p), number=p.id)
+                    msg += ' '
+                msg += '\n'
+            return await ctx.channel.send(msg)
+        elif level in self.bot.raid_info['raid_eggs'] and (not newlist):
+            msg += '**Level {level} raid list:** `{raidlist}` \n'.format(level=level, raidlist=self.bot.raid_info['raid_eggs'][level]['pokemon'])
+            for pkmn in self.bot.raid_info['raid_eggs'][level]['pokemon']:
+                p = Pokemon.get_pokemon(self, pkmn)
+                msg += '{name} ({number})'.format(name=str(p), number=p.id)
+                msg += ' '
+            msg += '\n'
+            return await ctx.channel.send(msg)
+        elif level in self.bot.raid_info['raid_eggs'] and newlist:
+            newlist = [re.sub(r'\'', '', item).strip() for item in newlist.strip('[]').split(',')]
+            try:
+                monlist = [Pokemon.get_pokemon(self, name).name.lower() for name in newlist]
+            except:
+                return await ctx.channel.send("I couldn't understand the list you supplied! Please use a comma-separated list of Pokemon species names.")
+            msg += 'I will replace this:\n'
+            msg += '**Level {level} raid list:** `{raidlist}` \n'.format(level=level, raidlist=self.bot.raid_info['raid_eggs'][level]['pokemon'])
+            for pkmn in self.bot.raid_info['raid_eggs'][level]['pokemon']:
+                p = Pokemon.get_pokemon(self, pkmn)
+                msg += '{name} ({number})'.format(name=p.name, number=p.id)
+                msg += ' '
+            msg += '\n\nWith this:\n'
+            msg += '**Level {level} raid list:** `{raidlist}` \n'.format(level=level, raidlist=monlist)
+            for p in monlist:
+                p = Pokemon.get_pokemon(self, p)
+                msg += '{name} ({number})'.format(name=p.name, number=p.id)
+                msg += ' '
+            msg += '\n\nContinue?'
+            question = await ctx.channel.send(msg)
+            try:
+                timeout = False
+                res, reactuser = await utils.simple_ask(self, question, ctx.channel, ctx.author.id)
+            except TypeError:
+                timeout = True
+            if timeout or res.emoji == '❎':
+                return await ctx.channel.send("Configuration cancelled!")
+            elif res.emoji == '✅':
+                with open(os.path.join('data', 'raid_info.json'), 'r') as fd:
+                    data = json.load(fd)
+                data['raid_eggs'][level]['pokemon'] = monlist
+                with open(os.path.join('data', 'raid_info.json'), 'w') as fd:
+                    json.dump(data, fd, indent=2, separators=(', ', ': '))
+                self.bot._load_config()
+                await question.clear_reactions()
+                await question.add_reaction('☑')
+                return await ctx.channel.send("Configuration successful!")
+            else:
+                return await ctx.channel.send("I'm not sure what went wrong, but configuration is cancelled!")
 
 def setup(bot):
     bot.add_cog(AdminCommands(bot))

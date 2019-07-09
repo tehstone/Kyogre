@@ -14,19 +14,21 @@ from kyogre.context import Context
 from kyogre.exts.db.kyogredb import InviteRoleTable
 
 
-default_exts = ['raiddatahandler',
-                'tutorial',
-                'silph',
-                'utilities',
-                'pokemon',
-                'trade',
-                'locationmatching',
-                'inviterole',
-                'admincommands',
-                'setcommands',
-                'getcommands',
+default_exts = ['admincommands',
                 'configuration',
-                'misc']
+                'getcommands',
+                'inviterole',
+                'locationmatching',
+                'misc',
+                'pokemon',
+                'raiddatahandler',
+                'regions',
+                'setcommands',
+                'social',
+                'silph',
+                'trade',
+                'tutorial',
+                'utilities']
 
 def _prefix_callable(bot, msg):
     user_id = bot.user.id

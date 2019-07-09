@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 
 from kyogre import utils, checks
-from kyogre.exts import config_items
+
 
 class Misc(commands.Cog):
     def __init__(self, bot):
@@ -73,6 +73,15 @@ class Misc(commands.Cog):
             await channel.send(embed=embed)
         except discord.HTTPException:
             await channel.send('I need the `Embed links` permission to send this')
+
+    @commands.command(aliases=["invite"])
+    @checks.allowjoin()
+    async def join(self, ctx):
+        channel = ctx.message.channel
+        guild = ctx.message.guild
+        join_dict = self.bot.guild_dict[guild.id]['configure_dict'].setdefault('join')
+        if join_dict.get('enabled', False):
+            return await channel.send(join_dict['link'])
 
 def setup(bot):
     bot.add_cog(Misc(bot))
