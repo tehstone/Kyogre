@@ -1,3 +1,4 @@
+import asyncio
 import re
 
 import discord
@@ -79,7 +80,7 @@ class Subscriptions(commands.Cog):
             targets = target.split(',')
             for t in targets:
                 candidates = utils.get_match(item_names, t, score_cutoff=60, isPartial=True, limit=20)
-                name = await prompt_match_result(channel, author.id, t, candidates)
+                name = await utils.prompt_match_result(self.bot, channel, author.id, t, candidates)
                 if name is not None:
                     sub_list.append((sub_type, name, name))
                 else:
@@ -99,7 +100,7 @@ class Subscriptions(commands.Cog):
             targets = target.split(',')
             for t in targets:
                 candidates = utils.get_match(lure_names, t, score_cutoff=60, isPartial=True, limit=20)
-                name = await prompt_match_result(channel, author.id, t, candidates)
+                name = await utils.prompt_match_result(self.bot, channel, author.id, t, candidates)
                 if name is not None:
                     sub_list.append((sub_type, name, name))
                 else:
@@ -538,6 +539,26 @@ class Subscriptions(commands.Cog):
             return None
         gyms = location_matching_cog.get_gyms(guild_id, regions)
         return gyms
+
+    async def generate_role_notification_async(self, role_name, channel, outbound_dict):
+        """Generates and handles a temporary role notification in the new raid channel"""
+        if len(outbound_dict) == 0:
+            return
+        guild = channel.guild
+        # generate new role
+        temp_role = await guild.create_role(name=role_name, hoist=False, mentionable=True)
+        for trainer in outbound_dict.values():
+            await trainer['discord_obj'].add_roles(temp_role)
+        # send notification message in channel
+        obj = next(iter(outbound_dict.values()))
+        message = obj['message']
+        msg_obj = await channel.send(f'{temp_role.mention} {message}')
+
+        async def cleanup():
+            await asyncio.sleep(300)
+            await temp_role.delete()
+            await msg_obj.delete()
+        asyncio.ensure_future(cleanup())
 
 def setup(bot):
     bot.add_cog(Subscriptions(bot))

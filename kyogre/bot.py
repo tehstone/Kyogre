@@ -22,6 +22,8 @@ default_exts = ['admincommands',
                 'locationmatching',
                 'misc',
                 'pokemon',
+                'pvp',
+                'questrewardmanagement',
                 'raiddatahandler',
                 'regions',
                 'setcommands',
@@ -60,6 +62,10 @@ class KyogreBot(commands.AutoShardedBot):
         self.guild_dict = {}
         self._load_data()
         self.raid_path_source = self._load_config()
+        self.active_raids = []
+        self.active_wilds = []
+        self.active_pvp = []
+        self.active_lures = []
 
         for ext in default_exts:
             try:

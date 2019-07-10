@@ -278,31 +278,8 @@ class LocationMatching(commands.Cog):
         # note: the following logic assumes json constraints -- no duplicates in source data
         result = self.location_match(name, locations)
         results = [(match.name, score) for match, score in result]
-        match = await self.prompt_match_result(channel, author_id, name, results)
+        match = await utils.prompt_match_result(self.bot, channel, author_id, name, results)
         return next((l for l in locations if l.name == match), None)
-
-
-    async def prompt_match_result(self, channel, author_id, target, result_list):
-        if not isinstance(result_list, list):
-            result_list = [result_list]
-        if not result_list or result_list[0] is None or result_list[0][0] is None:
-            return None
-        # quick check if a full match exists
-        exact_match = [match for match, score in result_list if match.lower() == target.lower()]
-        if len(exact_match) == 1:
-            return exact_match[0]
-        # reminder: partial, exact matches have 100 score, that's why this check exists
-        perfect_scores = [match for match, score in result_list if score == 100]
-        if len(perfect_scores) != 1:
-            # one or more imperfect candidates only, ask user which to use
-            sorted_result = sorted(result_list, key=lambda t: t[1], reverse=True)
-            choices_list = [match for match, score in sorted_result]
-            prompt = "Didn't find an exact match for '{0}'. {1} potential matches found.".format(target, len(result_list))
-            match = await utils.ask_list(self.bot, prompt, channel, choices_list, user_list=author_id)
-        else:
-            # found a solitary best match
-            match = perfect_scores[0]
-        return match
 
 def setup(bot):
     bot.add_cog(LocationMatching(bot))

@@ -254,7 +254,8 @@ async def ask(bot, message, user_list=None, timeout=60, *, react_list=['âœ…', 'â
             done, pending = await asyncio.wait([
                     bot.wait_for('reaction_add', check=check, timeout=timeout),
                     bot.wait_for('reaction_remove', check=check, timeout=timeout)
-                ], return_when=asyncio.FIRST_COMPLETED)
+                ], timeout=timeout,
+                return_when=asyncio.FIRST_COMPLETED)
             for future in pending:
                 future.cancel()
             try:
@@ -464,3 +465,58 @@ def parse_emoji(guild, emoji_string):
 
 def simple_gmaps_query(lat,lng):
     return f'https://www.google.com/maps/search/?api=1&query={lat},{lng}'
+
+async def time_to_minute_count(guild_dict, channel, timestr, error=True):
+    if 'am' in timestr.lower():
+        timestr = timestr.strip('am')
+    if 'pm' in timestr.lower():
+        timestr = timestr.strip('pm')
+    if timestr.isdigit() and len(timestr) < 3:
+        return int(timestr)
+    if timestr.isdigit():
+        timestr = timestr[:-2] + ':' + timestr[-2:]
+    if ':' in timestr:
+        now = datetime.datetime.utcnow() + datetime.timedelta(
+            hours=guild_dict[channel.guild.id]['configure_dict']['settings']['offset'])
+        start = dateparser.parse(timestr, settings={'PREFER_DATES_FROM': 'future'})
+        start = start.replace(month=now.month, day=now.day, year=now.year)
+        timediff = relativedelta(start, now)
+        if timediff.hours <= -10:
+            start = start + datetime.timedelta(hours=12)
+            timediff = relativedelta(start, now)
+        raidexp = (timediff.hours * 60) + timediff.minutes + 1
+        if raidexp < 0:
+            if error:
+                await channel.send(embed=discord.Embed(
+                    colour=discord.Colour.red(),
+                    description='Please enter a time in the future.'))
+            return False
+        return raidexp
+    else:
+        if error:
+            await channel.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description="I couldn't understand your time format."))
+        return False
+
+async def prompt_match_result(Kyogre, channel, author_id, target, result_list):
+        if not isinstance(result_list, list):
+            result_list = [result_list]
+        if not result_list or result_list[0] is None or result_list[0][0] is None:
+            return None
+        # quick check if a full match exists
+        exact_match = [match for match, score in result_list if match.lower() == target.lower()]
+        if len(exact_match) == 1:
+            return exact_match[0]
+        # reminder: partial, exact matches have 100 score, that's why this check exists
+        perfect_scores = [match for match, score in result_list if score == 100]
+        if len(perfect_scores) != 1:
+            # one or more imperfect candidates only, ask user which to use
+            sorted_result = sorted(result_list, key=lambda t: t[1], reverse=True)
+            choices_list = [match for match, score in sorted_result]
+            prompt = "Didn't find an exact match for '{0}'. {1} potential matches found.".format(target, len(result_list))
+            match = await ask_list(Kyogre, prompt, channel, choices_list, user_list=author_id)
+        else:
+            # found a solitary best match
+            match = perfect_scores[0]
+        return match
