@@ -1,13 +1,15 @@
 import asyncio
 import re
 
-import discord
 from discord.ext import commands
 
-from kyogre import utils, checks
+from kyogre.exts.pokemon import Pokemon
+from kyogre.exts.locationmatching import Gym
+from kyogre import constants, checks, utils
 from kyogre.exts.db.kyogredb import LureTypeTable, RewardTable, GuildTable, TrainerTable
 from kyogre.exts.db.kyogredb import SubscriptionTable, LocationTable, LocationNoteTable
 from kyogre.exts.db.kyogredb import LocationRegionRelation, RegionTable, GymTable, PokestopTable
+from kyogre.exts.db.kyogredb import Lure, Reward, JOIN, IntegrityError
 
 class Subscriptions(commands.Cog):
     def __init__(self, bot):
@@ -223,7 +225,6 @@ class Subscriptions(commands.Cog):
             confirmation_msg += '\n**{error_count} Errors:** \n\t{error_list}\n(Check the spelling and try again)'.format(error_count=error_count, error_list=', '.join(error_list))
 
         await channel.send(content=confirmation_msg)
-
 
     @_sub.command(name="remove", aliases=["rm", "rem"])
     async def _sub_remove(self, ctx,*,content):

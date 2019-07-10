@@ -1,10 +1,14 @@
+import asyncio
 import errno
 import io
+import json
 import os
 import pickle
+import re
 import sys
 import textwrap
 import tempfile
+import time
 import traceback
 
 from contextlib import redirect_stdout
@@ -331,11 +335,11 @@ class AdminCommands(commands.Cog):
                         await destination.send(embed=embeddraft)
                     except discord.HTTPException:
                         failed += 1
-                        logger.info('Announcement Delivery Failure: {} - {}'.format(destination.name, guild))
+                        self.bot.logger.info('Announcement Delivery Failure: {} - {}'.format(destination.name, guild))
                     else:
                         sent += 1
                     count += 1
-                logger.info('Announcement sent to {} server owners: {} successful, {} failed.'.format(count, sent, failed))
+                self.bot.logger.info('Announcement sent to {} server owners: {} successful, {} failed.'.format(count, sent, failed))
                 confirmation = await channel.send('Announcement sent to {} server owners: {} successful, {} failed.').format(count, sent, failed)
             await asyncio.sleep(10)
             await confirmation.delete()

@@ -113,7 +113,7 @@ class InviteRoleCog(commands.Cog):
         invite = discord.utils.get(invites, code=code)
         if not invite:
             await ctx.message.add_reaction('❌')
-            no_invite = await ctx.channel.send(f"No valid invite found with code: {invite_code}. Please try again.")
+            no_invite = await ctx.channel.send(f"No valid invite found with code: {code}. Please try again.")
             return (None, no_invite)
         return (invite, None)
 

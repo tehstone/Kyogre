@@ -1,17 +1,15 @@
 import copy
 import datetime
-import time
 
-import discord
 from discord.ext import commands
 
 from kyogre import utils, checks
 from kyogre.exts.pokemon import Pokemon
 
+
 class SetCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
 
     @commands.group(name='set', case_insensitive=True)
     async def _set(self, ctx):
@@ -58,7 +56,6 @@ class SetCommands(commands.Cog):
 
     def _set_regional(self, guild, regional):
         self.bot.guild_dict[guild.id]['configure_dict']['settings']['regional'] = regional
-
 
     @_set.command()
     @commands.has_permissions(manage_guild=True)

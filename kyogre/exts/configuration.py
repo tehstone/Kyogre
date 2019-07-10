@@ -143,7 +143,7 @@ class Configuration(commands.Cog):
     @configure.command(name='all')
     async def configure_all(self, ctx):
         """All settings"""
-        await _configure(ctx, "all")
+        await self._configure(ctx, "all")
 
     async def _check_sessions_and_invoke(self, ctx, func_ref):
         guild = ctx.message.guild
@@ -153,7 +153,7 @@ class Configuration(commands.Cog):
         except (discord.errors.Forbidden, discord.errors.HTTPException):
             pass
         if not self.bot.guild_dict[guild.id]['configure_dict']['settings']['done']:
-            await _configure(ctx, "all")
+            await self._configure(ctx, "all")
             return
         config_sessions = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings'].setdefault('config_sessions',{}).setdefault(owner.id,0) + 1
         self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['config_sessions'][owner.id] = config_sessions

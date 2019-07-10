@@ -1,13 +1,12 @@
-import datetime
-import json
 import os
 import tempfile
 
 import discord
 from discord.ext import commands
 
-from kyogre import utils, checks
+from kyogre import utils
 from kyogre.exts.db.kyogredb import *
+
 
 class Location:
     def __init__(self, id, name, latitude, longitude, region, note):

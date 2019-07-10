@@ -1,7 +1,7 @@
 import json
 import re
 from discord.ext import commands
-from kyogre import utils
+
 from kyogre import checks
 from kyogre.exts.pokemon import Pokemon
 

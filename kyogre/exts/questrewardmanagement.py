@@ -1,11 +1,12 @@
-import copy
+import json
 import re
 
-import discord
 from discord.ext import commands
 
+from kyogre.exts.pokemon import Pokemon
 from kyogre import utils, checks
 from kyogre.exts.db.kyogredb import QuestTable
+
 
 class QuestRewardManagement(commands.Cog):
     def __init__(self, bot):

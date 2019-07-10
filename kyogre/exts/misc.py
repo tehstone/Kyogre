@@ -4,14 +4,13 @@ from dateutil.relativedelta import relativedelta
 import discord
 from discord.ext import commands
 
-from kyogre import utils, checks
+from kyogre import checks
 
 
 class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        
     @commands.command(name='uptime')
     async def cmd_uptime(self, ctx):
         "Shows Kyogre's uptime"

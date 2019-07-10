@@ -1,14 +1,9 @@
-import copy
-import datetime
 import functools
 import textwrap
-import time
 
 import discord
 from discord.ext import commands
 
-from kyogre import utils, checks
-from kyogre.exts.pokemon import Pokemon
 
 class GetCommands(commands.Cog):
     def __init__(self, bot):

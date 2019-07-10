@@ -3,7 +3,6 @@ import copy
 import discord
 from discord.ext import commands
 
-from kyogre import utils, checks
 
 class Social(commands.Cog):
     def __init__(self, bot):

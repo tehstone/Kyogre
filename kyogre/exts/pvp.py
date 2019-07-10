@@ -9,6 +9,7 @@ from discord.ext import commands
 
 from kyogre import utils, checks
 
+
 class PvP(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

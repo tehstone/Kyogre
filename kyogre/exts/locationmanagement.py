@@ -1,22 +1,20 @@
 import discord
 from discord.ext import commands
 
-from kyogre import utils, checks
+from kyogre import utils
 from kyogre.exts.db.kyogredb import KyogreDB, RegionTable, GymTable, PokestopTable
-from kyogre.exts.db.kyogredb import LocationTable, LocationNoteTable, LocationRegionRelation
+from kyogre.exts.db.kyogredb import LocationTable, LocationRegionRelation
 
 
 class LocationManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
     @commands.group(name="loc")
     async def _loc(self, ctx):
         """Location data management command"""
         if ctx.invoked_subcommand == None:
             raise commands.BadArgument()
-
 
     @_loc.command(name="add")
     @commands.has_permissions(manage_guild=True)
@@ -156,7 +154,6 @@ class LocationManagement(commands.Cog):
             await message.add_reaction('✅')
             return await utils.sleep_and_cleanup([success], 10)
 
-
     @_loc.command(name="deletelocation", aliases=["del"])
     @commands.has_permissions(manage_guild=True)
     async def _loc_deletelocation(self, ctx, *, info):
@@ -199,7 +196,6 @@ class LocationManagement(commands.Cog):
             success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Successfully deleted {loc_type}: {name}."))
             await message.add_reaction('✅')
             return await utils.sleep_and_cleanup([success], 10)
-
 
     async def deleteLocation(self, ctx, type, name):
         channel = ctx.channel

@@ -1,20 +1,11 @@
 import asyncio
 import copy
 import datetime
-import errno
-import io
-import os
-import pickle
 import sys
-import tempfile
 import textwrap
 import time
-import traceback
-
-from contextlib import redirect_stdout
 
 import dateparser
-from dateutil.relativedelta import relativedelta
 
 import discord
 from discord.ext import commands
@@ -1036,7 +1027,6 @@ async def modify_research_report(payload):
         elif match == choices_list[2]:
             rewardwait = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(), description="What is the correct reward?"))
             quest = guild_dict[guild.id]['questreport_dict'].get(message.id, None)
-            quest = await questrewardmanagement_cog.get_quest_v(channel, user.id, questmsg.clean_content)
             reward = await questrewardmanagement_cog.prompt_reward_v(channel, user.id, quest)
             if not reward:
                 error = "didn't identify the reward"
@@ -2775,13 +2765,13 @@ async def research(ctx, *, details = None):
                 await questmsg.delete()
                 break
             elif questmsg:
-                quest = await questrewardmanagement_cog.get_quest(ctx, quest_name.strip())
+                quest = await questrewardmanagement_cog.get_quest(ctx, questmsg.clean_content.strip())
             await questmsg.delete()
             if not quest:
                 error = "didn't identify the quest"
                 break
             research_embed.add_field(name="**Quest:**",value='\n'.join(textwrap.wrap(quest.name.title(), width=30)),inline=True)
-            reward = await questrewardmanagement_cog.prompt_reward(ctx, quest_name)
+            reward = await questrewardmanagement_cog.prompt_reward(ctx, quest.name.title())
             if not reward:
                 error = "didn't identify the reward"
                 break
@@ -3854,14 +3844,20 @@ async def _lobby(message, count):
     guild = message.guild
     channel = message.channel
     if 'lobby' not in guild_dict[guild.id]['raidchannel_dict'][channel.id]:
-        await channel.send('There is no group in the lobby for you to join! Use **!starting** if the group waiting at the raid is entering the lobby!')
+        await channel.send('There is no group in the lobby for you to join!\
+        Use **!starting** if the group waiting at the raid is entering the lobby!')
         return
     trainer_dict = guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
     if count == 1:
         await channel.send('{member} is entering the lobby!'.format(member=trainer.mention))
     else:
-        await channel.send('{member} is entering the lobby with a total of {trainer_count} trainers!'.format(member = trainer.mention, trainer_count=count))
-        joined = guild_dict[guild.id].setdefault('trainers', {}).setdefault(regions[0], {}).setdefault(trainer.id, {}).setdefault('joined', 0) + 1
+        await channel.send('{member} is entering the lobby with a total of {trainer_count} trainers!'
+                           .format(member=trainer.mention, trainer_count=count))
+        regions = raid_helpers.get_channel_regions(channel, 'raid', guild_dict)
+        joined = guild_dict[guild.id].setdefault('trainers', {})\
+                     .setdefault(regions[0], {})\
+                     .setdefault(trainer.id, {})\
+                     .setdefault('joined', 0) + 1
         guild_dict[guild.id]['trainers'][regions[0]][trainer.id]['joined'] = joined
     if trainer.id not in trainer_dict:
         trainer_dict[trainer.id] = {}

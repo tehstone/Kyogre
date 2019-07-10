@@ -3,7 +3,8 @@ import re
 import discord
 from discord.ext import commands
 
-from kyogre import utils, checks
+from kyogre import checks
+
 
 class Regions(commands.Cog):
     def __init__(self, bot):
