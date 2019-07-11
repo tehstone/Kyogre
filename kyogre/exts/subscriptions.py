@@ -3,17 +3,30 @@ import re
 
 from discord.ext import commands
 
+from kyogre import constants, checks, utils
+
 from kyogre.exts.pokemon import Pokemon
 from kyogre.exts.locationmatching import Gym
-from kyogre import constants, checks, utils
+
 from kyogre.exts.db.kyogredb import LureTypeTable, RewardTable, GuildTable, TrainerTable
 from kyogre.exts.db.kyogredb import SubscriptionTable, LocationTable, LocationNoteTable
-from kyogre.exts.db.kyogredb import LocationRegionRelation, RegionTable, GymTable, PokestopTable
+from kyogre.exts.db.kyogredb import LocationRegionRelation, RegionTable, GymTable
 from kyogre.exts.db.kyogredb import Lure, Reward, JOIN, IntegrityError
+
 
 class Subscriptions(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    subscription_types = {"Raid Boss": "raid",
+                          "Raid Tier": "raid",
+                          "Gym": "gym",
+                          "EX-Eligible": "raid",
+                          "Research Reward": "research",
+                          "Wild Spawn": "wild",
+                          "Pokemon - All types (includes raid, research, and wild)": "pokemon",
+                          "Perfect (100 IV spawns)": "wild"
+                          }
 
     def _get_subscription_command_error(self, content, subscription_types):
         error_message = None
@@ -138,9 +151,85 @@ class Subscriptions(commands.Cog):
     @checks.allowsubscription()
     async def _sub(self, ctx):
         """Handles user subscriptions"""
-        if ctx.invoked_subcommand == None:
-            raise commands.BadArgument()
+        if ctx.invoked_subcommand is None:
+            # raise commands.BadArgument()
+            await self._guided_subscription(ctx)
 
+    async def _guided_subscription(self, ctx):
+        message = ctx.message
+        channel = message.channel
+        author = message.author
+        guild = message.guild
+        await message.delete()
+        prompt = "I'll help you manage your subscriptions!\n\n" \
+        + "Would you like to add a new subscription, remove a subscription, or see your current subscriptions?"
+        choices_list = ['Add', 'Remove', 'View Existing']
+
+        match = await utils.ask_list(self.bot, prompt, channel, choices_list, user_list=author.id)
+        if match == choices_list[0]:
+            prompt = "What type of subscription would you like to add?"
+            choices_list = list(self.subscription_types.keys())
+            match = await utils.ask_list(self.bot, prompt, channel, choices_list, user_list=author.id)
+            return await self._guided_add(ctx, match)
+        elif match == choices_list[1]:
+            pass
+        elif match == choices_list[2]:
+            pass
+        else:
+            return
+
+    async def _guided_add(self, ctx, type):
+        if type == "Raid Boss" or type == "Research Reward" \
+                or type == "Wild Spawn" or type == "Pokemon - All types (includes raid, research, and wild)":
+            prompt = await ctx.channel.send(
+                f"Please tell me which Pokemon you'd like to receive **{type}** notifications "
+                + "for with a comma between each name")
+            result = await self._prompt_selections(ctx)
+            await prompt.delete()
+            if result[0] is None:
+                return await ctx.send(result[1])
+            msg_content = self.subscription_types[type] + ' ' + result[0].clean_content
+            return await ctx.invoke(self.bot.get_command('sub add'), content=msg_content)
+        elif type == "Raid Tier":
+            prompt = await ctx.channel.send(
+                f"Please tell me which **Raid Tiers** you'd like to receive notifications "
+                + "for with a comma between each number")
+            result = await self._prompt_selections(ctx)
+            await prompt.delete()
+            if result[0] is None:
+                return await ctx.send(result[1])
+            msg_content = self.subscription_types[type] + ' ' + result[0].clean_content
+            return await ctx.invoke(self.bot.get_command('sub add'), content=msg_content)
+        elif type == "Gym":
+            prompt = await ctx.channel.send(
+                f"Please tell me which Gyms you'd like to receive raid notifications "
+                + "for with a comma between each Gym Name")
+            result = await self._prompt_selections(ctx)
+            await prompt.delete()
+            if result[0] is None:
+                return await ctx.send(result[1])
+            msg_content = self.subscription_types[type] + ' ' + result[0].clean_content
+            return await ctx.invoke(self.bot.get_command('sub add'), content=msg_content)
+        elif type == "EX-Eligible":
+            return await ctx.invoke(self.bot.get_command('sub add'), content="raid ex")
+        elif type == "Perfect (100 IV spawns)":
+            return await ctx.invoke(self.bot.get_command('sub add'), content="wild 100")
+
+    async def _prompt_selections(self, ctx):
+        try:
+            prompt_msg = await self.bot.wait_for('message', timeout=60,
+                                                 check=(lambda reply: reply.author == ctx.message.author))
+        except asyncio.TimeoutError:
+            pass
+        error = None
+        await prompt_msg.delete()
+        if not prompt_msg:
+            error = "you took too long to respond"
+        elif prompt_msg.clean_content.lower() == "cancel":
+            error = "you cancelled the report"
+        if error:
+            return None, f"Failed to add subscriptions because {error}"
+        return prompt_msg, None
 
     @_sub.command(name="add")
     async def _sub_add(self, ctx, *, content):

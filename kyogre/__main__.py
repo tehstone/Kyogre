@@ -4074,7 +4074,6 @@ def create_gmaps_query(details, channel, type="raid"):
     return 'https://www.google.com/maps/search/?api=1&query={0}+{1}'.format('+'.join(details_list), '+'.join(loc_list))  
 
 
-
 try:
     event_loop.run_until_complete(Kyogre.start(config['bot_token']))
 except discord.LoginFailure:
