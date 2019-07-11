@@ -1670,7 +1670,7 @@ async def _wild_internal(message, content):
     await _send_notifications_async('wild', wild_details, message.channel, [message.author.id])
 
 
-@Kyogre.group(name="raid", aliases=['r', 're', 'egg', 'regg', 'raidegg'])
+@Kyogre.group(name="raid", aliases=['r', 're', 'egg', 'regg', 'raidegg', '1', '2', '3', '4', '5'])
 @checks.allowraidreport()
 async def _raid(ctx,pokemon,*,location:commands.clean_content(fix_channel_mentions=True)="", weather=None, timer=None):
     """Report an ongoing raid or a raid egg.
@@ -1680,14 +1680,17 @@ async def _raid(ctx,pokemon,*,location:commands.clean_content(fix_channel_mentio
     Kyogre's message will also include the type weaknesses of the boss.
 
     Finally, Kyogre will create a separate channel for the raid report, for the purposes of organizing the raid."""
-    
-    content = f"{pokemon} {location}".lower()
-    if pokemon.isdigit():
+    if ctx.invoked_with.isdigit():
+        content = f"{ctx.invoked_with} {pokemon} {location} {weather if weather is not None else ''} {timer if timer is not None else ''}"
         new_channel = await _raidegg(ctx, content)
-    elif len(pokemon) == 2 and pokemon[0] == "t":
-        new_channel = await _raidegg(ctx, content[1:])
     else:
-        new_channel = await _raid_internal(ctx, content)
+        content = f"{pokemon} {location}".lower()
+        if pokemon.isdigit():
+            new_channel = await _raidegg(ctx, content)
+        elif len(pokemon) == 2 and pokemon[0] == "t":
+            new_channel = await _raidegg(ctx, content[1:])
+        else:
+            new_channel = await _raid_internal(ctx, content)
     ctx.raid_channel = new_channel
 
 

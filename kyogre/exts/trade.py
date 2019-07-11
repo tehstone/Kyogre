@@ -162,7 +162,7 @@ class Trade:
         return trade
 
     async def get_listmsg(self):
-        return await self.listing_channel.get_message(self.listing_id)
+        return await self.listing_channel.fetch_message(self.listing_id)
 
     async def offered_pokemon(self):
         listingmsg = await self.get_listmsg()
@@ -392,6 +392,7 @@ class Trading(commands.Cog):
                     Trade.from_data(
                         self.bot, message_id, trade_channel_data[message_id])
 
+    @commands.Cog.listener()
     async def on_message(self, message):
         ctx = await self.bot.get_context(message)
         if not ctx.guild:
