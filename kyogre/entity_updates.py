@@ -40,7 +40,7 @@ async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid
     await raid_channel.send(content='Someone has suggested a different location for the raid! Trainers {trainer_list}: make sure you are headed to the right place!'.format(trainer_list=', '.join(otw_list)))
     channel_name = raid_channel.name
     channel_prefix = channel_name.split("_")[0]
-    new_channel_name = utils.sanitize_name(channel_prefix + "_"+ gym.name)
+    new_channel_name = utils.sanitize_name(channel_prefix + "_" + gym.name)[:32]
     await raid_channel.edit(name=new_channel_name)
     try:
         message_content = get_raidtext(Kyogre, guild, guild_dict, raid_dict, gym, report_channel, raid_channel, False)

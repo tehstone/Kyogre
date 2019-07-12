@@ -80,21 +80,14 @@ async def _get_raid_listing_messages(Kyogre, channel, guild_dict, region=None):
         start_str = ''
         t_emoji = ''
         ex_eligibility = ''
-        ctx_herecount = 0
-        ctx_comingcount = 0
-        ctx_maybecount = 0
-        ctx_lobbycount = 0
+        trainer_count = {'mystic': 0, 'valor': 0, 'instinct': 0, 'unknown': 0}
         for trainer in rc_d[r]['trainer_dict'].keys():
             if not guild.get_member(trainer):
                 continue
-            if trainer_dict[trainer]['status']['here']:
-                ctx_herecount += trainer_dict[trainer]['count']
-            elif trainer_dict[trainer]['status']['coming']:
-                ctx_comingcount += trainer_dict[trainer]['count']
-            elif trainer_dict[trainer]['status']['maybe']:
-                ctx_maybecount += trainer_dict[trainer]['count']
-            elif trainer_dict[trainer]['status']['lobby']:
-                ctx_lobbycount += trainer_dict[trainer]['count']
+            for stat in trainer_dict[trainer]['status']:
+                if trainer_dict[trainer]['status'][stat] > 0:
+                    for team in trainer_dict[trainer]['party']:
+                        trainer_count[team] += trainer_dict[trainer]['party'][team]
         if rc_d[r]['manual_timer'] == False:
             assumed_str = ' (assumed)'
         else:
@@ -102,15 +95,15 @@ async def _get_raid_listing_messages(Kyogre, channel, guild_dict, region=None):
         starttime = rc_d[r].get('starttime',None)
         meetup = rc_d[r].get('meetup',{})
         if starttime and starttime > now and not meetup:
-            start_str = ' **Next Group**: {}'.format(starttime.strftime('%I:%M%p'))
+            start_str = '\n\t\t**Next Group**: {}'.format(starttime.strftime('%I:%M%p'))
         else:
             starttime = False
         egglevel = rc_d[r]['egglevel']
         if egglevel.isdigit() and (int(egglevel) > 0):
             t_emoji = str(egglevel) + '\u20e3'
-            expirytext = ' - Hatches: {expiry}{is_assumed}'.format(expiry=end.strftime('%I:%M%p'), is_assumed=assumed_str)
+            expirytext = '**Hatches**: {expiry}{is_assumed}'.format(expiry=end.strftime('%I:%M%p'), is_assumed=assumed_str)
         elif ((rc_d[r]['egglevel'] == 'EX') or (rc_d[r]['type'] == 'exraid')) and not meetup:
-            expirytext = ' - Hatches: {expiry}{is_assumed}'.format(expiry=end.strftime('%B %d at %I:%M%p'), is_assumed=assumed_str)
+            expirytext = '**Hatches**: {expiry}{is_assumed}'.format(expiry=end.strftime('%B %d at %I:%M%p'), is_assumed=assumed_str)
         elif meetup:
             meetupstart = meetup['start']
             meetupend = meetup['end']
@@ -122,7 +115,7 @@ async def _get_raid_listing_messages(Kyogre, channel, guild_dict, region=None):
             if not meetupstart and not meetupend:
                 expirytext = ' - Starts: {expiry}{is_assumed}'.format(expiry=end.strftime('%B %d at %I:%M%p'), is_assumed=assumed_str)
         else:
-            expirytext = ' - **Expires**: {expiry}{is_assumed}'.format(expiry=end.strftime('%I:%M%p'), is_assumed=assumed_str)
+            expirytext = '**Expires**: {expiry}{is_assumed}'.format(expiry=end.strftime('%I:%M%p'), is_assumed=assumed_str)
         boss = Pokemon.get_pokemon(Kyogre, rc_d[r].get('pokemon', ''))
         if not t_emoji and boss:
             t_emoji = str(boss.raid_level) + '\u20e3'
@@ -131,7 +124,19 @@ async def _get_raid_listing_messages(Kyogre, channel, guild_dict, region=None):
             ex_eligibility = ' *EX-Eligible*' if gym.ex_eligible else ''
         enabled = raid_helpers.raid_channels_enabled(guild, rchan, guild_dict)
         if enabled:
-            output += '\t{tier} {raidchannel}{ex_eligibility}{expiry_text} ({total_count} players){starttime}\n'.format(tier=t_emoji, raidchannel=rchan.mention, ex_eligibility=ex_eligibility, expiry_text=expirytext, total_count=sum([ctx_maybecount, ctx_comingcount, ctx_herecount, ctx_lobbycount]), starttime=start_str)
+            blue_emoji = utils.parse_emoji(rchan.guild, Kyogre.config['team_dict']['mystic'])
+            red_emoji = utils.parse_emoji(rchan.guild, Kyogre.config['team_dict']['valor'])
+            yellow_emoji = utils.parse_emoji(rchan.guild, Kyogre.config['team_dict']['instinct'])
+            team_emoji_dict = {'mystic': blue_emoji, 'valor': red_emoji, 'instinct': yellow_emoji, 'unknown': '❔'}
+            total_count = ''
+            for team in trainer_count:
+                total_count += trainer_count[team] * team_emoji_dict[team]
+            if len(total_count) < 1:
+                total_count = '0'
+            # sum([ctx_maybecount, ctx_comingcount, ctx_herecount, ctx_lobbycount])
+            output += '\t{tier} {chan}{ex}\n\t\t{expiry_text}{starttime}\n\t\t**Trainer Count**: {total_count}\n'\
+                .format(tier=t_emoji, chan=rchan.mention, ex=ex_eligibility, expiry_text=expirytext,
+                        total_count=total_count, starttime=start_str)
         else:
             channel_name = rchan.name.replace('_',': ').replace('-', ' ').title()
             map_url = ''
@@ -140,7 +145,9 @@ async def _get_raid_listing_messages(Kyogre, channel, guild_dict, region=None):
                 map_url = rc_d[r]['gym'].maps_url
             except:
                 pass
-            output += '\t{tier} **{raidchannel}**{ex_eligibility}{expiry_text} \n[Click for directions]({map_url})\n'.format(tier=t_emoji, raidchannel=channel_name, ex_eligibility=ex_eligibility, expiry_text=expirytext, total_count=sum([ctx_maybecount, ctx_comingcount, ctx_herecount, ctx_lobbycount]), starttime=start_str,map_url=map_url)
+            output += '\t{tier} **{raidchannel}**{ex_eligibility}{expiry_text} \n[Click for directions]({map_url})\n'\
+                .format(tier=t_emoji, raidchannel=channel_name, ex_eligibility=ex_eligibility,
+                        expiry_text=expirytext, map_url=map_url)
         return output
     
     def process_category(listmsg_list, category_title, category_list):

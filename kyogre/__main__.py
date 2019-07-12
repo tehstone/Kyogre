@@ -140,7 +140,7 @@ async def create_raid_channel(raid_type, pkmn, level, gym, report_channel):
         if role is not None:
             role_overwrite = {role: discord.PermissionOverwrite(send_messages=False, read_messages=False, read_message_history=False)}
             raid_channel_overwrite_dict.update(role_overwrite)
-    name = utils.sanitize_name(name+gym.name)
+    name = utils.sanitize_name(name+gym.name)[:32]
     return await guild.create_text_channel(name, overwrites=raid_channel_overwrite_dict, category=cat)
 
 
@@ -1146,7 +1146,7 @@ async def modify_raid_report(payload, raid_report):
             elif bossmsg.clean_content.lower() == "cancel":
                 error = "cancelled the report"
                 await bossmsg.delete()
-            await changeraid_internal(guild, raid_channel, bossmsg.clean_content)
+            await changeraid_internal(None, guild, raid_channel, bossmsg.clean_content)
             if not bossmsg.clean_content.isdigit():
                 await _timerset(raid_channel, 45)
             await _refresh_listing_channels_internal(guild, "raid")
@@ -1295,7 +1295,7 @@ async def changeraid_internal(ctx, guild, channel, newraid):
     raid_dict = guild_dict[guild.id]['raidchannel_dict'][channel.id]
     if newraid.isdigit():
         raid_channel_name = '{egg_level}-egg_'.format(egg_level=newraid)
-        raid_channel_name += utils.sanitize_name(raid_dict['address'])
+        raid_channel_name += utils.sanitize_name(raid_dict['address'])[:32]
         raid_dict['egglevel'] = newraid
         raid_dict['pokemon'] = ''
         changefrom = raid_dict['type']
@@ -1331,7 +1331,7 @@ async def changeraid_internal(ctx, guild, channel, newraid):
         try:
             raid_embed = await embed_utils.filter_fields_for_report_embed(raid_embed, embed_indices)
             await report_message.edit(new_content=report_message.content, embed=raid_embed, content=report_message.content)
-            if raid_dict['raidcityreport'] is not None:
+            if raid_dict.get('raidcityreport', None) is not None:
                 report_city_channel = Kyogre.get_channel(raid_dict['reportcity'])
                 report_city_msg = await report_city_channel.fetch_message(raid_dict['raidcityreport'])
                 await report_city_msg.edit(new_content=report_city_msg.content, embed=raid_embed, content=report_city_msg.content)
@@ -1995,11 +1995,10 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
         'reporter': author.id
     }
     raid_embed = discord.Embed(title='Click here for directions to the raid!', url=raid_gmaps_link, colour=guild.me.colour)
-    enabled =raid_helpers.raid_channels_enabled(guild, channel, guild_dict)
+    enabled = raid_helpers.raid_channels_enabled(guild, channel, guild_dict)
     if gym:
-        if enabled:
-            gym_info = "**Name:** {0}\n**Notes:** {1}".format(raid_details, "_EX Eligible Gym_" if gym.ex_eligible else "N/A")
-            raid_embed.add_field(name='**Gym:**', value=gym_info, inline=False)
+        gym_info = f"**{raid_details}**\n{'_EX Eligible Gym_' if gym.ex_eligible else ''}"
+        raid_embed.add_field(name='**Gym:**', value=gym_info, inline=False)
     cp_range = ''
     if raid_report:
         if enabled:
@@ -2034,7 +2033,7 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
     raid_embed.add_field(name='**Tips:**', value='`!i` if interested\n`!c` if on the way\n`!h` when you arrive\n`!list` to view all interested\n`!s` to signal lobby start', inline=True)
     ctrsmessage_id = None
     if raid_report:
-        raidmsg = "{pokemon} raid reported by {member} in {citychannel} at {location_details} gym. Coordinate here!\n\nClick the question mark reaction to get help on the commands that work in here.\n\nThis channel will be deleted five minutes after the timer expires.".format(pokemon=str(raid_pokemon), member=author.display_name, citychannel=channel.mention, location_details=raid_details)
+        raidmsg = "{pokemon} raid reported by {member} in {citychannel} at {location_details} gym. Coordinate here!\n\nClick the question mark reaction to get help on the commands that work in here.".format(pokemon=str(raid_pokemon), member=author.display_name, citychannel=channel.mention, location_details=raid_details)
         if str(level) in guild_dict[guild.id]['configure_dict']['counters']['auto_levels']:
             try:
                 ctrs_dict = await counters_helpers._get_generic_counters(Kyogre, guild, raid_pokemon, weather)
@@ -2055,7 +2054,7 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
         guild_dict[guild.id]['trainers'][gym.region][author.id]['raid_reports'] = raid_reports ######  
         raid_details = {'pokemon': raid_pokemon, 'tier': raid_pokemon.raid_level, 'ex-eligible': gym.ex_eligible if gym else False, 'location': raid_details, 'regions': gym_regions} ######   
     else:
-        raidmsg = "Level {level} raid egg reported by {member} in {citychannel} at {location_details} gym. Coordinate here!\n\nClick the question mark reaction to get help on the commands that work in here.\n\nThis channel will be deleted five minutes after the timer expires.".format(level=level, member=author.display_name, citychannel=channel.mention, location_details=raid_details)
+        raidmsg = "Level {level} raid egg reported by {member} in {citychannel} at {location_details} gym. Coordinate here!\n\nClick the question mark reaction to get help on the commands that work in here.".format(level=level, member=author.display_name, citychannel=channel.mention, location_details=raid_details)
         egg_reports = guild_dict[message.guild.id].setdefault('trainers',{}).setdefault(gym.region,{}).setdefault(author.id,{}).setdefault('egg_reports',0) + 1
         guild_dict[message.guild.id]['trainers'][gym.region][author.id]['egg_reports'] = egg_reports
         raid_details = {'tier': level, 'ex-eligible': gym.ex_eligible if gym else False, 'location': raid_details, 'regions': gym_regions}
@@ -2164,7 +2163,7 @@ async def _eggassume(args, raid_channel, author=None):
             egg_report = egg_report.id
         except discord.errors.NotFound:
             egg_report = None
-        if eggdetails['raidcityreport'] is not None:
+        if eggdetails.get('raidcityreport', None) is not None:
             report_city_channel = Kyogre.get_channel(eggdetails['reportcity'])
             city_report = await report_city_channel.fetch_message(eggdetails['raidcityreport'])
             try:
@@ -2172,7 +2171,6 @@ async def _eggassume(args, raid_channel, author=None):
                 city_report = city_report.id
             except discord.errors.NotFound:
                 city_report = None
-    await raid_channel.send('This egg will be assumed to be {pokemon} when it hatches!'.format(pokemon=raid_pokemon.full_name))
     if str(egglevel) in guild_dict[guild.id]['configure_dict']['counters']['auto_levels']:
         ctrs_dict = await counters_helpers._get_generic_counters(Kyogre, guild, raid_pokemon, weather)
         ctrsmsg = "Here are the best counters for the raid boss in currently known weather conditions! Update weather with **!weather**. If you know the moveset of the boss, you can react to this message with the matching emoji and I will update the counters."
@@ -2236,7 +2234,7 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
             egg_report = None
     if reportcitychannel:
         try:
-            city_report = await reportcitychannel.fetch_message(eggdetails['raidcityreport'])
+            city_report = await reportcitychannel.fetch_message(eggdetails.get('raidcityreport',0))
         except (discord.errors.NotFound, discord.errors.HTTPException):
             city_report = None
     starttime = eggdetails.get('starttime',None)
@@ -2278,7 +2276,7 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
             invitemsgstr2 = ""
         raidreportcontent = 'The EX egg has hatched into a {pokemon} raid! Details: {location_details}. {invitemsgstr} coordinate in {raid_channel}'.format(pokemon=entered_raid.capitalize(), location_details=egg_address, invitemsgstr=invitemsgstr,raid_channel=raid_channel.mention)
         raidmsg = "{pokemon} EX raid reported in {citychannel}! Details: {location_details}. Coordinate here{invitemsgstr2}!\n\nClick the question mark reaction to get help on the commands that work in here.\n\nThis channel will be deleted five minutes after the timer expires.".format(pokemon=entered_raid.capitalize(), citychannel=reportcitychannel.mention, location_details=egg_address, invitemsgstr2=invitemsgstr2)
-    raid_channel_name = utils.sanitize_name(pkmn.name.lower() + '_' + egg_address)
+    raid_channel_name = utils.sanitize_name(pkmn.name.lower() + '_' + egg_address)[:32]
     embed_indices = await embed_utils.get_embed_field_indices(oldembed)
     raid_embed = discord.Embed(title='Click here for directions to the raid!', url=raid_gmaps_link, colour=raid_channel.guild.me.colour)
     if embed_indices["gym"] is not None:
@@ -2345,7 +2343,7 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
         egg_report = egg_report.id
     except (discord.errors.NotFound, AttributeError):
         egg_report = None
-    if eggdetails['raidcityreport'] is not None:
+    if eggdetails.get('raidcityreport', None) is not None:
         try:
             await city_report.edit(new_content=city_report.content, embed=raid_embed, content=city_report.content)
         except (discord.errors.NotFound, AttributeError):
@@ -2848,7 +2846,7 @@ async def _meetup(ctx, location):
     raid_details = raid_details.strip()
     raid_gmaps_link = create_gmaps_query(raid_details, message.channel, type="meetup")
     raid_channel_name = 'meetup-'
-    raid_channel_name += utils.sanitize_name(raid_details)
+    raid_channel_name += utils.sanitize_name(raid_details)[:32]
     raid_channel_category = get_category(message.channel,"EX", category_type="meetup")
     raid_channel = await message.guild.create_text_channel(raid_channel_name, overwrites=message.channel.overwrites, category=raid_channel_category)
     ow = raid_channel.overwrites_for(raid_channel.guild.default_role)
@@ -3191,8 +3189,6 @@ async def _timerset(raidchannel, exptime):
     else:
         topicstr += 'Ends on {end}'.format(end=end.strftime('%B %d at %I:%M %p (%H:%M)'))
         endtime = end.strftime('%B %d at %I:%M %p (%H:%M)')
-    timerstr = await print_raid_timer(raidchannel)
-    await raidchannel.send(timerstr)
     await raidchannel.edit(topic=topicstr)
     report_channel = Kyogre.get_channel(raid_dict['reportchannel'])
     raidmsg = await raidchannel.fetch_message(raid_dict['raidmessage'])
@@ -3219,7 +3215,7 @@ async def _timerset(raidchannel, exptime):
                 await message.edit(content=message.content,embed=embed)
             except discord.errors.NotFound:
                 pass
-            if raid_dict.get('raidcityreport',None) is not None:
+            if raid_dict.get('raidcityreport', None) is not None:
                 report_city_channel = Kyogre.get_channel(raid_dict['reportcity'])
                 city_report = await report_city_channel.fetch_message(raid_dict['raidcityreport'])
                 try:
@@ -3321,7 +3317,7 @@ async def starttime(ctx, *, start_time=""):
                 await reportmsg.edit(content=reportmsg.content,embed=embed)
             except discord.errors.NotFound:
                 pass
-            if raid_dict['raidcityreport'] is not None:
+            if raid_dict.get('raidcityreport', None) is not None:
                 report_city_channel = Kyogre.get_channel(raid_dict['reportcity'])
                 city_report = await report_city_channel.fetch_message(raid_dict['raidcityreport'])
                 try:
