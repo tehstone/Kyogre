@@ -23,7 +23,7 @@
             "egg": "rare",
             "egg_img": "3.png",
             "pokemon": [
-                "machamp",
+                "machamp"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -33,7 +33,7 @@
             "egg_img": "4.png",
             "pokemon": [
                 "tyranitar",
-                "absol",
+                "absol"
             ],
             "hatchtime": 60,
             "raidtime": 45
