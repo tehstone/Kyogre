@@ -75,12 +75,15 @@ class Misc(commands.Cog):
 
     @commands.command(aliases=["invite"])
     @checks.allowjoin()
-    async def join(self, ctx):
+    async def join(self, ctx, region='general'):
         channel = ctx.message.channel
         guild = ctx.message.guild
         join_dict = self.bot.guild_dict[guild.id]['configure_dict'].setdefault('join')
         if join_dict.get('enabled', False):
-            return await channel.send(join_dict['link'])
+            if region in join_dict:
+                return await channel.send(join_dict[region])
+            else:
+                return await channel.send(join_dict['general'])
 
 def setup(bot):
     bot.add_cog(Misc(bot))

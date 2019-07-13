@@ -434,5 +434,30 @@ class AdminCommands(commands.Cog):
             else:
                 return await ctx.channel.send("I'm not sure what went wrong, but configuration is cancelled!")
 
+    @commands.command(aliases=["aj"], hidden=True)
+    @checks.allowjoin()
+    async def addjoin(self, ctx, link, region='general'):
+        await ctx.message.delete()
+        if self.can_manage(ctx.message.author):
+            guild = ctx.message.guild
+            join_dict = self.bot.guild_dict[guild.id]['configure_dict'].setdefault('join')
+            if join_dict.get('enabled', False):
+                join_dict['enabled'] = True
+                join_dict['general'] = "No general invite link has been set."
+            join_dict[region] = link
+            if region == 'general':
+                await ctx.channel.send("General invite link set.")
+            else:
+                await ctx.channel.send(f"Invite link set for the **{region}** region")
+
+    def can_manage(self, user):
+        if checks.is_user_dev_or_owner(self.bot.config, user.id):
+            return True
+        for role in user.roles:
+            if role.permissions.manage_messages:
+                return True
+        return False
+
+
 def setup(bot):
     bot.add_cog(AdminCommands(bot))
