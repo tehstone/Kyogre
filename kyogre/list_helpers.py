@@ -85,7 +85,7 @@ async def _get_raid_listing_messages(Kyogre, channel, guild_dict, region=None):
             if not guild.get_member(trainer):
                 continue
             for stat in trainer_dict[trainer]['status']:
-                if trainer_dict[trainer]['status'][stat] > 0:
+                if trainer_dict[trainer]['status'][stat] > 0 and stat != 'lobby':
                     for team in trainer_dict[trainer]['party']:
                         trainer_count[team] += trainer_dict[trainer]['party'][team]
         if rc_d[r]['manual_timer'] == False:
@@ -368,44 +368,30 @@ async def _maybe(ctx, Kyogre, guild_dict, raid_info, count, party, entered_inter
     channel = ctx.channel
     author = ctx.author
     trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
-    allblue = 0
-    allred = 0
-    allyellow = 0
-    allunknown = 0
     if (not party):
-        for role in author.roles:
-            if role.name.lower() == 'mystic':
-                allblue = count
-                break
-            elif role.name.lower() == 'valor':
-                allred = count
-                break
-            elif role.name.lower() == 'instinct':
-                allyellow = count
-                break
-        else:
-            allunknown = count
-        party = {'mystic':allblue, 'valor':allred, 'instinct':allyellow, 'unknown':allunknown}
-    if count == 1:
-        team_emoji = max(party, key=lambda key: party[key])
-        if team_emoji == "unknown":
-            team_emoji = "❔"
-        else:
-            team_emoji = utils.parse_emoji(channel.guild, Kyogre.config['team_dict'][team_emoji])
-        await channel.send('**{member}** is interested! {emoji}: 1'.format(member=author.display_name, emoji=team_emoji))
-    else:
-        msg = '**{member}** is interested with a total of {trainer_count} trainers!'.format(member=author.display_name, trainer_count=count)
-        await channel.send('{msg} {blue_emoji}: {mystic} | {red_emoji}: {valor} | {yellow_emoji}: {instinct} | ❔: {unknown}'.format(msg=msg, blue_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['mystic']), mystic=party['mystic'], red_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['valor']), valor=party['valor'], instinct=party['instinct'], yellow_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['instinct']), unknown=party['unknown']))
+        party = determine_simple_party(author) 
+    message = f"**{author.display_name}** is interested!"   
     await ctx.message.delete()
-    if author.id not in guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']:
+    last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
+    if last_status is not None:
+        try:
+            last = await channel.fetch_message(last_status)
+            await last.delete()
+        except:
+            pass
+    if author.id not in trainer_dict:
         trainer_dict[author.id] = {}
-    trainer_dict[author.id]['status'] = {'maybe':count, 'coming':0, 'here':0, 'lobby':0}
     if entered_interest:
         trainer_dict[author.id]['interest'] = list(entered_interest)
+    trainer_dict[author.id]['status'] = {'maybe':count, 'coming':0, 'here':0, 'lobby':0}
     trainer_dict[author.id]['count'] = count
     trainer_dict[author.id]['party'] = party
     await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
+    trainer_count = determine_trainer_count(trainer_dict)
+    embed = build_status_embed(ctx, Kyogre, trainer_count)
+    new_status = await channel.send(content=message, embed=embed)
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
+    guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
         await update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
@@ -449,47 +435,31 @@ async def _otw(ctx, Kyogre, guild_dict, tag=False, team=False):
 async def _coming(ctx, Kyogre, guild_dict, raid_info, count, party, entered_interest=None):
     channel = ctx.channel
     author = ctx.author
-    allblue = 0
-    allred = 0
-    allyellow = 0
-    allunknown = 0
     trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
     if (not party):
-        for role in author.roles:
-            if role.name.lower() == 'mystic':
-                allblue = count
-                break
-            elif role.name.lower() == 'valor':
-                allred = count
-                break
-            elif role.name.lower() == 'instinct':
-                allyellow = count
-                break
-        else:
-            allunknown = count
-        party = {'mystic':allblue, 'valor':allred, 'instinct':allyellow, 'unknown':allunknown}
-    if count == 1:
-        team_emoji = max(party, key=lambda key: party[key])
-        if team_emoji == "unknown":
-            team_emoji = "❔"
-        else:
-            team_emoji = utils.parse_emoji(channel.guild, Kyogre.config['team_dict'][team_emoji])
-        await channel.send('**{member}** is on the way! {emoji}: 1'.format(member=author.display_name, emoji=team_emoji))
-    else:
-        msg = '**{member}** is on the way with a total of {trainer_count} trainers!'.format(member=author.display_name, trainer_count=count)
-        await channel.send('{msg} {blue_emoji}: {mystic} | {red_emoji}: {valor} | {yellow_emoji}: {instinct} | ❔: {unknown}'.format(msg=msg, blue_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['mystic']), mystic=party['mystic'], red_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['valor']), valor=party['valor'], instinct=party['instinct'], yellow_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['instinct']), unknown=party['unknown']))
+        party = determine_simple_party(author)
+    message = f"**{author.display_name}** is on their way!"
     await ctx.message.delete()
+    last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
+    if last_status is not None:
+        try:
+            last = await channel.fetch_message(last_status)
+            await last.delete()
+        except:
+            pass
     if author.id not in trainer_dict:
-        trainer_dict[author.id] = {
-
-        }
+        trainer_dict[author.id] = {}
     trainer_dict[author.id]['status'] = {'maybe':0, 'coming':count, 'here':0, 'lobby':0}
     trainer_dict[author.id]['count'] = count
     trainer_dict[author.id]['party'] = party
     if entered_interest:
         trainer_dict[author.id]['interest'] = entered_interest
     await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
+    trainer_count = determine_trainer_count(trainer_dict)
+    embed = build_status_embed(ctx, Kyogre, trainer_count)
+    new_status = await channel.send(content=message, embed=embed)
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
+    guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
         await update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
@@ -532,15 +502,62 @@ async def _waiting(ctx, Kyogre, guild_dict, tag=False, team=False):
     listmsg = ' {trainer_count} waiting at the {raidtype}{including_string}!'.format(trainer_count=str(ctx_herecount), raidtype=raidtype, including_string=here_exstr)
     return listmsg
 
+def determine_simple_party(member):
+    allblue = 0
+    allred = 0
+    allyellow = 0
+    allunknown = 0
+    for role in member.roles:
+        if role.name.lower() == 'mystic':
+            allblue = count
+            break
+        elif role.name.lower() == 'valor':
+            allred = count
+            break
+        elif role.name.lower() == 'instinct':
+            allyellow = count
+            break
+    else:
+        allunknown = count
+    return {'mystic':allblue, 'valor':allred, 'instinct':allyellow, 'unknown':allunknown}
+
+def determine_trainer_count(trainer_dict):
+    trainer_count = {'maybe': {'mystic': 0, 'valor': 0, 'instinct': 0, 'unknown': 0},
+                     'coming': {'mystic': 0, 'valor': 0, 'instinct': 0, 'unknown': 0},
+                     'here': {'mystic': 0, 'valor': 0, 'instinct': 0, 'unknown': 0},
+                     'lobby': {'mystic': 0, 'valor': 0, 'instinct': 0, 'unknown': 0}}
+
+    for trainer in trainer_dict:
+        for stat in trainer_dict[trainer]['status']:
+            if trainer_dict[trainer]['status'][stat] > 0:
+                for team in trainer_dict[trainer]['party']:
+                    trainer_count[stat][team] += trainer_dict[trainer]['party'][team]
+    return trainer_count
+
+def build_status_embed(ctx, Kyogre, trainer_count):
+    blue_emoji=utils.parse_emoji(ctx.channel.guild, Kyogre.config['team_dict']['mystic'])
+    red_emoji=utils.parse_emoji(ctx.channel.guild, Kyogre.config['team_dict']['valor'])
+    yellow_emoji=utils.parse_emoji(ctx.channel.guild, Kyogre.config['team_dict']['instinct'])
+    team_emojis = { 'instinct': yellow_emoji, 'mystic': blue_emoji, 'valor': red_emoji, 'unknown': "❔" }
+
+    embed = discord.Embed(colour=discord.Colour.purple(), title="Current Trainer Counts")
+    for stat in trainer_count:
+        status = stat.capitalize()
+        count = 0
+        count_str = ''
+        for team in trainer_count[stat]:
+            team_count = trainer_count[stat][team]
+            count += team_count
+            count_str += (team_emojis[team] * team_count)
+        if count > 0:
+            embed.add_field(name=status, value=count_str)
+    embed.set_footer(text="For full raid details, scroll to the top of this channel")
+    return embed
 
 async def _here(ctx, Kyogre, guild_dict, raid_info, count, party, entered_interest=None):
     channel = ctx.channel
     author = ctx.author
     lobbymsg = ''
-    allblue = 0
-    allred = 0
-    allyellow = 0
-    allunknown = 0
     trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
     raidtype = "event" if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('meetup',False) else "raid"
     try:
@@ -549,49 +566,29 @@ async def _here(ctx, Kyogre, guild_dict, raid_info, count, party, entered_intere
     except KeyError:
         pass
     if (not party):
-        for role in author.roles:
-            if role.name.lower() == 'mystic':
-                allblue = count
-                break
-            elif role.name.lower() == 'valor':
-                allred = count
-                break
-            elif role.name.lower() == 'instinct':
-                allyellow = count
-                break
-        else:
-            allunknown = count
-        party = {'mystic':allblue, 'valor':allred, 'instinct':allyellow, 'unknown':allunknown}
-    if count == 1:
-        team_emoji = max(party, key=lambda key: party[key])
-        if team_emoji == "unknown":
-            team_emoji = "❔"
-        else:
-            team_emoji = utils.parse_emoji(channel.guild, Kyogre.config['team_dict'][team_emoji])
-        msg = '**{member}** is at the {raidtype}! {emoji}: 1'.format(member=author.display_name, emoji=team_emoji, raidtype=raidtype)
-        await channel.send(msg + lobbymsg)
-    else:
-        msg = '**{member}** is at the {raidtype} with a total of {trainer_count} trainers!'.format(member=author.display_name, trainer_count=count, raidtype=raidtype)
-        msg += ' {blue_emoji}: {mystic} | {red_emoji}: {valor} | {yellow_emoji}: {instinct} | ❔: {unknown}'\
-            .format(blue_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['mystic']),
-                    mystic=party['mystic'], red_emoji=utils.parse_emoji(channel.guild,
-                    Kyogre.config['team_dict']['valor']), valor=party['valor'],
-                    instinct=party['instinct'],
-                    yellow_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['instinct']),
-                    unknown=party['unknown'])
-        await channel.send(msg + lobbymsg)
+        party = determine_simple_party(author)
+    message = f"**{author.display_name}** is at the raid!"
     await ctx.message.delete()
+    last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
+    if last_status is not None:
+        try:
+            last = await channel.fetch_message(last_status)
+            await last.delete()
+        except:
+            pass
     if author.id not in trainer_dict:
-        trainer_dict[author.id] = {
-
-        }
+        trainer_dict[author.id] = {}
     trainer_dict[author.id]['status'] = {'maybe':0, 'coming':0, 'here':count, 'lobby':0}
     trainer_dict[author.id]['count'] = count
     trainer_dict[author.id]['party'] = party
     if entered_interest:
         trainer_dict[author.id]['interest'] = entered_interest
     await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
+    trainer_count = determine_trainer_count(trainer_dict)
+    embed = build_status_embed(ctx, Kyogre, trainer_count)
+    new_status = await channel.send(content=message, embed=embed)
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
+    guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
         await update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
@@ -604,35 +601,47 @@ async def _cancel(ctx, Kyogre, guild_dict, raid_info):
     raidtype = "event" if guild_dict[guild.id]['raidchannel_dict'][channel.id].get('meetup',False) else "raid"
     await ctx.message.delete()
     try:
-        t_dict = guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'][author.id]
+        trainer_dict = guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'][author.id]
     except KeyError:
         await channel.send('{member} has no status to cancel!'.format(member=author.name))
         return
-    if t_dict['status']['maybe']:
-        if t_dict['count'] == 1:
-            await channel.send('**{member}** is no longer interested!'.format(member=author.display_name))
+    message = ''
+    if trainer_dict['status']['maybe']:
+        if trainer_dict['count'] == 1:
+            message = '**{member}** is no longer interested!'.format(member=author.display_name)
         else:
-            await channel.send('**{member}** and their total of {trainer_count} trainers are no longer interested!'.format(member=author.display_name, trainer_count=t_dict['count']))
-    if t_dict['status']['here']:
-        if t_dict['count'] == 1:
-            await channel.send('**{member}** has left the {raidtype}!'.format(member=author.display_name, raidtype=raidtype))
+            message = '**{member}** and their total of {trainer_count} trainers are no longer interested!'.format(member=author.display_name, trainer_count=trainer_dict['count'])
+    if trainer_dict['status']['here']:
+        if trainer_dict['count'] == 1:
+            message = '**{member}** has left the {raidtype}!'.format(member=author.display_name, raidtype=raidtype)
         else:
-            await channel.send('**{member}** and their total of {trainer_count} trainers have left the {raidtype}!'.format(member=author.display_name, trainer_count=t_dict['count'], raidtype=raidtype))
-    if t_dict['status']['coming']:
-        if t_dict['count'] == 1:
-            await channel.send('**{member}** is no longer on their way!'.format(member=author.display_name))
+            message = '**{member}** and their total of {trainer_count} trainers have left the {raidtype}!'.format(member=author.display_name, trainer_count=trainer_dict['count'], raidtype=raidtype)
+    if trainer_dict['status']['coming']:
+        if trainer_dict['count'] == 1:
+            message = '**{member}** is no longer on their way!'.format(member=author.display_name)
         else:
-            await channel.send('**{member}** and their total of {trainer_count} trainers are no longer on their way!'.format(member=author.display_name, trainer_count=t_dict['count']))
-    if t_dict['status']['lobby']:
-        if t_dict['count'] == 1:
-            await channel.send('**{member}** has backed out of the lobby!'.format(member=author.display_name))
+            message = '**{member}** and their total of {trainer_count} trainers are no longer on their way!'.format(member=author.display_name, trainer_count=trainer_dict['count'])
+    if trainer_dict['status']['lobby']:
+        if trainer_dict['count'] == 1:
+            message = '**{member}** has backed out of the lobby!'.format(member=author.display_name)
         else:
-            await channel.send('**{member}** and their total of {trainer_count} trainers have backed out of the lobby!'.format(member=author.display_name, trainer_count=t_dict['count']))
-    t_dict['status'] = {'maybe':0, 'coming':0, 'here':0, 'lobby':0}
-    t_dict['party'] = {'mystic':0, 'valor':0, 'instinct':0, 'unknown':0}
-    t_dict['interest'] = []
-    t_dict['count'] = 1
+            message = '**{member}** and their total of {trainer_count} trainers have backed out of the lobby!'.format(member=author.display_name, trainer_count=trainer_dict['count'])
+    last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
+    if last_status is not None:
+        try:
+            last = await channel.fetch_message(last_status)
+            await last.delete()
+        except:
+            pass
+    trainer_dict['status'] = {'maybe':0, 'coming':0, 'here':0, 'lobby':0}
+    trainer_dict['party'] = {'mystic':0, 'valor':0, 'instinct':0, 'unknown':0}
+    trainer_dict['interest'] = []
+    trainer_dict['count'] = 1
     await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
+    trainer_count = determine_trainer_count(guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
+    embed = build_status_embed(ctx, Kyogre, trainer_count)
+    new_status = await channel.send(content=message, embed=embed)
+    guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
         await update_listing_channels(Kyogre, guild_dict, guild, 'raid', edit=True, regions=regions)

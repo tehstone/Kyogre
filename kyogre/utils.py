@@ -13,6 +13,8 @@ def get_match(word_list: list, word: str, score_cutoff: int = 60, isPartial: boo
 
     Returns a tuple of (MATCH, SCORE)
     """
+    if not word:
+        return (None, None)
     result = None
     scorer = fuzz.ratio
     if isPartial:

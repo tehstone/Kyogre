@@ -30,7 +30,7 @@ config = Kyogre.config
 defense_chart = Kyogre.defense_chart
 type_list = Kyogre.type_list
 raid_info = Kyogre.raid_info
-raid_path = Kyogre.raid_path_source
+raid_path = Kyogre.raid_json_path
 
 active_raids = Kyogre.active_raids
 active_wilds = Kyogre.active_wilds
@@ -2004,8 +2004,14 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
         if enabled:
             if str(raid_pokemon).lower() in boss_cp_chart:
                 cp_range = boss_cp_chart[str(raid_pokemon).lower()]
-            raid_embed.add_field(name='**Details:**', value='**{pokemon}** ({pokemonnumber}) {type}{cprange}'.format(pokemon=str(raid_pokemon), pokemonnumber=str(raid_pokemon.id), type=utils.types_to_str(guild, raid_pokemon.types, Kyogre.config), cprange='\n'+cp_range, inline=True))
-            raid_embed.add_field(name='**Weaknesses:**', value='{weakness_list}'.format(weakness_list=utils.types_to_str(guild, raid_pokemon.weak_against.keys(), Kyogre.config), inline=True))
+            weak_str = utils.types_to_str(guild, raid_pokemon.weak_against.keys(), Kyogre.config)
+            raid_embed.add_field(name='**Details:**', value='**{pokemon}** ({pokemonnumber}) {type}{cprange}'
+                .format(pokemon=str(raid_pokemon), 
+                        pokemonnumber=str(raid_pokemon.id), 
+                        type=utils.types_to_str(guild, raid_pokemon.types, Kyogre.config), 
+                        cprange='\n'+cp_range, 
+                        inline=True))
+            raid_embed.add_field(name='**Weaknesses:**', value='{weakness_list}'.format(weakness_list=weak_str, inline=True))
             raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**', inline=True)
             raid_embed.add_field(name='**Expires:**', value='Set with **!timerset**', inline=True)
         raid_img_url = raid_pokemon.img_url
@@ -3863,6 +3869,9 @@ async def _lobby(message, count):
     trainer_dict[trainer.id]['status'] = {'maybe': 0, 'coming': 0, 'here': 0, 'lobby': count}
     trainer_dict[trainer.id]['count'] = count
     guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
+    regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
+    if regions:
+        await list_helpers.update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
 
 
 @Kyogre.command(aliases=['x'])

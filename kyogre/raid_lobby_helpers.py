@@ -141,6 +141,9 @@ async def _starting(ctx, Kyogre, guild_dict, raid_info, team):
             pass
     await channel.send(starting_str)
     ctx.bot.loop.create_task(lobby_countdown(ctx, Kyogre, team, guild_dict, raid_info))
+    regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
+    if regions:
+        await list_helpers.update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
 
 
 async def lobby_countdown(ctx, Kyogre, team, guild_dict, raid_info):

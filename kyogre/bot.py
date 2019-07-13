@@ -61,7 +61,7 @@ class KyogreBot(commands.AutoShardedBot):
         custom_error_handling(self, self.logger)
         self.guild_dict = {}
         self._load_data()
-        self.raid_path_source = self._load_config()
+        self.raid_json_path = self._load_config()
         self.active_raids = []
         self.active_wilds = []
         self.active_pvp = []
