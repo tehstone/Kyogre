@@ -117,11 +117,13 @@ class KyogreBot(commands.AutoShardedBot):
         return raid_path_source
 
     async def on_message(self, message):
-        if (not message.author.bot):
+        if message.type == discord.MessageType.pins_add and message.author == self.user:
+            return await message.delete()
+        if not message.author.bot:
             await self.process_commands(message)
 
     async def process_commands(self, message):
-        """Processes commands that are registed with the bot and it's groups.
+        """Processes commands that are registered with the bot and it's groups.
 
         Without this being run in the main `on_message` event, commands will
         not be processed.
@@ -151,7 +153,9 @@ class KyogreBot(commands.AutoShardedBot):
     async def on_member_join(self, member):
         """Welcome message to the server and some basic instructions."""
         guild = member.guild
-        if self.guild_dict[guild.id]['configure_dict']['invite_tracking']['enabled']:
+        invite_tracking = self.guild_dict[guild.id]['configure_dict']\
+            .get('invite_tracking', {'enabled': False, 'destination': None, 'invite_counts': {}})
+        if invite_tracking['enabled']:
             await self._calculate_invite_used(member)
         team_msg = ' or '.join(['**!team {0}**'.format(team)
                                for team in self.config['team_dict'].keys()])

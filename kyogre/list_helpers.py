@@ -369,7 +369,7 @@ async def _maybe(ctx, Kyogre, guild_dict, raid_info, count, party, entered_inter
     author = ctx.author
     trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
     if (not party):
-        party = determine_simple_party(author) 
+        party = determine_simple_party(author, count)
     message = f"**{author.display_name}** is interested!"   
     await ctx.message.delete()
     last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
@@ -388,7 +388,7 @@ async def _maybe(ctx, Kyogre, guild_dict, raid_info, count, party, entered_inter
     trainer_dict[author.id]['party'] = party
     await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
     trainer_count = determine_trainer_count(trainer_dict)
-    embed = build_status_embed(ctx, Kyogre, trainer_count)
+    embed = build_status_embed(channel.guild, Kyogre, trainer_count)
     new_status = await channel.send(content=message, embed=embed)
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
@@ -437,7 +437,7 @@ async def _coming(ctx, Kyogre, guild_dict, raid_info, count, party, entered_inte
     author = ctx.author
     trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
     if (not party):
-        party = determine_simple_party(author)
+        party = determine_simple_party(author, count)
     message = f"**{author.display_name}** is on their way!"
     await ctx.message.delete()
     last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
@@ -449,14 +449,14 @@ async def _coming(ctx, Kyogre, guild_dict, raid_info, count, party, entered_inte
             pass
     if author.id not in trainer_dict:
         trainer_dict[author.id] = {}
-    trainer_dict[author.id]['status'] = {'maybe':0, 'coming':count, 'here':0, 'lobby':0}
+    trainer_dict[author.id]['status'] = {'maybe': 0, 'coming': count, 'here': 0, 'lobby': 0}
     trainer_dict[author.id]['count'] = count
     trainer_dict[author.id]['party'] = party
     if entered_interest:
         trainer_dict[author.id]['interest'] = entered_interest
     await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
     trainer_count = determine_trainer_count(trainer_dict)
-    embed = build_status_embed(ctx, Kyogre, trainer_count)
+    embed = build_status_embed(channel.guild, Kyogre, trainer_count)
     new_status = await channel.send(content=message, embed=embed)
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
@@ -502,7 +502,7 @@ async def _waiting(ctx, Kyogre, guild_dict, tag=False, team=False):
     listmsg = ' {trainer_count} waiting at the {raidtype}{including_string}!'.format(trainer_count=str(ctx_herecount), raidtype=raidtype, including_string=here_exstr)
     return listmsg
 
-def determine_simple_party(member):
+def determine_simple_party(member, count):
     allblue = 0
     allred = 0
     allyellow = 0
@@ -521,6 +521,7 @@ def determine_simple_party(member):
         allunknown = count
     return {'mystic':allblue, 'valor':allred, 'instinct':allyellow, 'unknown':allunknown}
 
+
 def determine_trainer_count(trainer_dict):
     trainer_count = {'maybe': {'mystic': 0, 'valor': 0, 'instinct': 0, 'unknown': 0},
                      'coming': {'mystic': 0, 'valor': 0, 'instinct': 0, 'unknown': 0},
@@ -534,12 +535,13 @@ def determine_trainer_count(trainer_dict):
                     trainer_count[stat][team] += trainer_dict[trainer]['party'][team]
     return trainer_count
 
-def build_status_embed(ctx, Kyogre, trainer_count):
-    blue_emoji=utils.parse_emoji(ctx.channel.guild, Kyogre.config['team_dict']['mystic'])
-    red_emoji=utils.parse_emoji(ctx.channel.guild, Kyogre.config['team_dict']['valor'])
-    yellow_emoji=utils.parse_emoji(ctx.channel.guild, Kyogre.config['team_dict']['instinct'])
-    team_emojis = { 'instinct': yellow_emoji, 'mystic': blue_emoji, 'valor': red_emoji, 'unknown': "❔" }
 
+def build_status_embed(guild, Kyogre, trainer_count):
+    blue_emoji = utils.parse_emoji(guild, Kyogre.config['team_dict']['mystic'])
+    red_emoji = utils.parse_emoji(guild, Kyogre.config['team_dict']['valor'])
+    yellow_emoji = utils.parse_emoji(guild, Kyogre.config['team_dict']['instinct'])
+    team_emojis = {'instinct': yellow_emoji, 'mystic': blue_emoji, 'valor': red_emoji, 'unknown': "❔"}
+    all_count = 0
     embed = discord.Embed(colour=discord.Colour.purple(), title="Current Trainer Counts")
     for stat in trainer_count:
         status = stat.capitalize()
@@ -551,7 +553,10 @@ def build_status_embed(ctx, Kyogre, trainer_count):
             count_str += (team_emojis[team] * team_count)
         if count > 0:
             embed.add_field(name=status, value=count_str)
+        all_count += count
     embed.set_footer(text="For full raid details, scroll to the top of this channel")
+    if all_count == 0:
+        return None
     return embed
 
 async def _here(ctx, Kyogre, guild_dict, raid_info, count, party, entered_interest=None):
@@ -566,7 +571,7 @@ async def _here(ctx, Kyogre, guild_dict, raid_info, count, party, entered_intere
     except KeyError:
         pass
     if (not party):
-        party = determine_simple_party(author)
+        party = determine_simple_party(author, count)
     message = f"**{author.display_name}** is at the raid!"
     await ctx.message.delete()
     last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
@@ -585,7 +590,7 @@ async def _here(ctx, Kyogre, guild_dict, raid_info, count, party, entered_intere
         trainer_dict[author.id]['interest'] = entered_interest
     await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
     trainer_count = determine_trainer_count(trainer_dict)
-    embed = build_status_embed(ctx, Kyogre, trainer_count)
+    embed = build_status_embed(channel.guild, Kyogre, trainer_count)
     new_status = await channel.send(content=message, embed=embed)
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
@@ -639,7 +644,7 @@ async def _cancel(ctx, Kyogre, guild_dict, raid_info):
     trainer_dict['count'] = 1
     await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
     trainer_count = determine_trainer_count(guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
-    embed = build_status_embed(ctx, Kyogre, trainer_count)
+    embed = build_status_embed(channel.guild, Kyogre, trainer_count)
     new_status = await channel.send(content=message, embed=embed)
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
@@ -657,35 +662,35 @@ async def _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author=None):
             p = Pokemon.get_pokemon(Kyogre, entry)
             boss_list.append(p)
             boss_dict[p.name] = {"type": utils.types_to_str(channel.guild, p.types, Kyogre.config), "total": 0}
-    channel_dict = {"mystic":0, "valor":0, "instinct":0, "unknown":0,
-                    "maybe":0, "coming":0, "here":0, "total":0, "boss":0}
     team_list = ["mystic", "valor", "instinct", "unknown"]
     status_list = ["maybe", "coming", "here"]
     trainer_dict = copy.deepcopy(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
+    status_dict = {'maybe': {'total': 0, 'trainers': {}}, 'coming': {'total': 0, 'trainers': {}},
+                   'here': {'total': 0, 'trainers': {}}, 'lobby': {'total': 0, 'trainers': {}}}
     for trainer in trainer_dict:
-        for team in team_list:
-            channel_dict[team] += int(trainer_dict[trainer]['party'][team])
         for status in status_list:
             if trainer_dict[trainer]['status'][status]:
-                channel_dict[status] += int(trainer_dict[trainer]['count'])
+                status_dict[status]['trainers'][trainer] = {'mystic': 0, 'valor': 0, 'instinct': 0, 'unknown': 0}
+                for team in team_list:
+                    if trainer_dict[trainer]['party'][team] > 0:
+                        status_dict[status]['trainers'][trainer][team] = trainer_dict[trainer]['party'][team]
+                        status_dict[status]['total'] += trainer_dict[trainer]['party'][team]
         if egglevel != "0":
             for boss in boss_list:
-                if boss.name.lower() in trainer_dict[trainer].get('interest',[]):
+                if boss.name.lower() in trainer_dict[trainer].get('interest', []):
                     boss_dict[boss.name]['total'] += int(trainer_dict[trainer]['count'])
-                    channel_dict["boss"] += int(trainer_dict[trainer]['count'])
     if egglevel != "0":
         for boss in boss_list:
             if boss_dict[boss.name]['total'] > 0:
-                bossstr = "{name} ({number}) {types} : **{count}**"\
-                    .format(name=boss.name,number=boss.id,
+                bossstr = "{name} ({number}) {types} : **{count}**" \
+                    .format(name=boss.name, number=boss.id,
                             types=boss_dict[boss.name]['type'],
                             count=boss_dict[boss.name]['total'])
                 display_list.append(bossstr)
             elif boss_dict[boss.name]['total'] == 0:
-                bossstr = "{name} ({number}) {types}"\
+                bossstr = "{name} ({number}) {types}" \
                     .format(name=boss.name, number=boss.id, types=boss_dict[boss.name]['type'])
                 display_list.append(bossstr)
-    channel_dict["total"] = channel_dict["maybe"] + channel_dict["coming"] + channel_dict["here"]
     reportchannel = Kyogre.get_channel(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['reportchannel'])
     try:
         reportmsg = await reportchannel.fetch_message(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['raidreport'])
@@ -704,27 +709,46 @@ async def _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author=None):
     reportembed = raidmsg.embeds[0]
     newembed = discord.Embed(title=reportembed.title, url=reportembed.url, colour=channel.guild.me.colour)
     index = 0
-    t = 'team'
-    s = 'status'
+    m = 'maybe'
+    c = 'coming'
+    h = 'here'
+    t = 'tips'
     embed_indices = await embed_utils.get_embed_field_indices(reportembed)
     for field in reportembed.fields:
-        if (t not in field.name.lower()) and (s not in field.name.lower()):
+        if (m not in field.name.lower()) and (c not in field.name.lower())\
+                and (h not in field.name.lower()) and (t not in field.name.lower()):
             newembed.add_field(name=field.name, value=field.value, inline=field.inline)
     if egglevel != "0" and not guild_dict[channel.guild.id].get('raidchannel_dict',{}).get(channel.id,{}).get('meetup',{}):
         index = max(i for i in [embed_indices["possible"],embed_indices["interest"],embed_indices["details"]] if i is not None)
-        if channel_dict["boss"] > 0:
-            name = "**Boss Interest:**"
-        else:
-            name = "**Possible Bosses:**"
+        name = "**Possible Bosses:**"
         if len(boss_list) > 1:
             newembed.set_field_at(index, name=name, value='{bosslist1}'.format(bosslist1='\n'.join(display_list[::2])), inline=True)
             newembed.set_field_at(index+1, name='\u200b', value='{bosslist2}'.format(bosslist2='\n'.join(display_list[1::2])), inline=True)
         else:
             newembed.set_field_at(index, name=name, value='{bosslist}'.format(bosslist=''.join(display_list)), inline=True)
-            newembed.set_field_at(index+1, name='\u200b', value='\u200b', inline=True)
-    if channel_dict["total"] > 0:
-        newembed.add_field(name='**Status List**', value='Maybe: **{channelmaybe}** | Coming: **{channelcoming}** | Here: **{channelhere}**'.format(channelmaybe=channel_dict["maybe"], channelcoming=channel_dict["coming"], channelhere=channel_dict["here"]), inline=True)
-        newembed.add_field(name='**Team List**', value='{blue_emoji}: **{channelblue}** | {red_emoji}: **{channelred}** | {yellow_emoji}: **{channelyellow}** | ❔: **{channelunknown}**'.format(blue_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['mystic']), channelblue=channel_dict["mystic"], red_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['valor']), channelred=channel_dict["valor"], yellow_emoji=utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['instinct']), channelyellow=channel_dict["instinct"], channelunknown=channel_dict["unknown"]), inline=True)
+            if newembed.fields[index+1].name == '\u200b':
+                newembed.set_field_at(index+1, name='\u200b', value='\u200b', inline=True)
+    red_emoji = utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['valor'])
+    yellow_emoji = utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['instinct'])
+    blue_emoji = utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['mystic'])
+    team_emojis = {'instinct': yellow_emoji, 'mystic': blue_emoji, 'valor': red_emoji, 'unknown': "❔"}
+
+    for status in status_list:
+        embed_value = None
+        if status_dict[status]['total'] > 0:
+            embed_value = u"\u200B"
+            for trainer in status_dict[status]['trainers']:
+                member = channel.guild.get_member(trainer)
+                if member is not None:
+                    embed_value += f"{member.display_name} "
+                    for team in status_dict[status]['trainers'][trainer]:
+                        embed_value += team_emojis[team] * status_dict[status]['trainers'][trainer][team]
+                    embed_value += "\n"
+        if embed_value is not None:
+            newembed.add_field(name=f'**{status.capitalize()}**', value=embed_value, inline=True)
+    tips = reportembed.fields[embed_indices["tips"]]
+    if tips is not None:
+        newembed.add_field(name=tips.name, value=tips.value)
     newembed.set_footer(text=reportembed.footer.text, icon_url=reportembed.footer.icon_url)
     newembed.set_thumbnail(url=reportembed.thumbnail.url)
     try:

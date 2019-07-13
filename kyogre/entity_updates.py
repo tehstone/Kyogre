@@ -97,15 +97,15 @@ def build_raid_report_message(gym, type, pkmn, level, raidexp, channel, guild_di
     guild = channel.guild
     enabled = raid_helpers.raid_channels_enabled(guild, channel, guild_dict)
     if type == "raid":
-        msg = '{boss} @ {location}{ex}'.format(ex=" (EX) " if gym.ex_eligible else "", boss=pkmn, location=gym.name)
+        msg = '{boss} @ {location}{ex}'.format(ex=" (EX)" if gym.ex_eligible else "", boss=pkmn, location=gym.name)
         end_str = "Expires: "
     elif type == "egg":
-        msg = 'T{level} egg @ {location}{ex}'.format(ex=" (EX) " if gym.ex_eligible else "", level=level, location=gym.name)
+        msg = 'T{level} egg @ {location}{ex}'.format(ex=" (EX)" if gym.ex_eligible else "", level=level, location=gym.name)
         end_str = "Hatches: "
     if raidexp is not False:
         now = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
         end = now + datetime.timedelta(minutes=raidexp)
         msg += ' {type}{end}.'.format(end=end.strftime('%I:%M %p'), type=end_str)
     if enabled:
-        msg += " Coordinate in {channel}".format(channel=channel.mention)
+        msg += "\nCoordinate in the raid channel: {channel}".format(channel=channel.mention)
     return msg
