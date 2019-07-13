@@ -24,7 +24,6 @@
             "egg_img": "3.png",
             "pokemon": [
                 "machamp",
-                "starmie"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -35,8 +34,6 @@
             "pokemon": [
                 "tyranitar",
                 "absol",
-                "shiftry",
-                "houndoom"
             ],
             "hatchtime": 60,
             "raidtime": 45
