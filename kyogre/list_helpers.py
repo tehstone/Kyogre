@@ -885,31 +885,31 @@ async def update_listing_channels(Kyogre, guild_dict, guild, type, edit=False, r
     valid_types = ['raid', 'research', 'wild', 'nest', 'lure']
     if type not in valid_types:
         return
-    if type == 'lure':
-        expiremax = datetime.datetime.utcnow() + datetime.timedelta(
-            hours=guild_dict[guild.id]['configure_dict']['settings']['offset'],
-            minutes=30)
-        lures = (LureTable
-        #created, location_name, lure_type, latitude, longitude
-                 .select(TrainerReportRelation.created,
-                         LocationTable.name.alias("location_name"),
-                         LureTypeTable.name.alias("lure_type"),
-                         LocationTable.latitude,
-                         LocationTable.longitude)
-                 .join(TrainerReportRelation)
-                 .join(TrainerTable, on=(TrainerReportRelation.trainer == TrainerTable.snowflake))
-                 .join(LureTypeRelation, on=(LureTypeRelation.lure_id == LureTable.id))
-                 .join(LureTypeTable, on=(LureTypeRelation.type_id == LureTypeTable.id))
-                 .join(LocationTable, on=(TrainerReportRelation.location_id == LocationTable.id))
-                 .where((TrainerTable.guild == guild.id) &
-                        (TrainerReportRelation.created + 30 < expiremax)))
-        lures = lures.objects(LureInstance)
-        print([o for o in lures])
+    # if type == 'lure':
+    #     expiremax = datetime.datetime.utcnow() + datetime.timedelta(
+    #         hours=guild_dict[guild.id]['configure_dict']['settings']['offset'],
+    #         minutes=30)
+    #     lures = (LureTable
+    #     #created, location_name, lure_type, latitude, longitude
+    #              .select(TrainerReportRelation.created,
+    #                      LocationTable.name.alias("location_name"),
+    #                      LureTypeTable.name.alias("lure_type"),
+    #                      LocationTable.latitude,
+    #                      LocationTable.longitude)
+    #              .join(TrainerReportRelation)
+    #              .join(TrainerTable, on=(TrainerReportRelation.trainer == TrainerTable.snowflake))
+    #              .join(LureTypeRelation, on=(LureTypeRelation.lure_id == LureTable.id))
+    #              .join(LureTypeTable, on=(LureTypeRelation.type_id == LureTypeTable.id))
+    #              .join(LocationTable, on=(TrainerReportRelation.location_id == LocationTable.id))
+    #              .where((TrainerTable.guild == guild.id) &
+    #                     (TrainerReportRelation.created + 30 < expiremax)))
+    #     lures = lures.objects(LureInstance)
+    #     print([o for o in lures])
 
-    else:
-        listing_dict = guild_dict[guild.id]['configure_dict'].get(type, {}).get('listings', None)
-        if not listing_dict or not listing_dict['enabled']:
-            return
+    # else:
+    listing_dict = guild_dict[guild.id]['configure_dict'].get(type, {}).get('listings', None)
+    if not listing_dict or not listing_dict['enabled']:
+        return
     if 'channel' in listing_dict:
         channel = Kyogre.get_channel(listing_dict['channel']['id'])
         return await _update_listing_channel(Kyogre, guild_dict, channel, type, edit)

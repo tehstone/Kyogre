@@ -256,8 +256,8 @@ async def ask(bot, message, user_list=None, timeout=60, *, react_list=['âœ…', 'â
         reactions = []
         while True:
             done, pending = await asyncio.wait([
-                    bot.wait_for('reaction_add', check=check, timeout=timeout),
-                    bot.wait_for('reaction_remove', check=check, timeout=timeout)
+                    bot.wait_for('reaction_add', check=check),
+                    bot.wait_for('reaction_remove', check=check)
                 ], timeout=timeout,
                 return_when=asyncio.FIRST_COMPLETED)
             for future in pending:

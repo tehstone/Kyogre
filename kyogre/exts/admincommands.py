@@ -23,6 +23,8 @@ from kyogre.exts.pokemon import Pokemon
 class AdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.failed_react = '❎'
+        self.success_react = '✅'
 
     @commands.command(hidden=True, name='mention_toggle', aliases=['mt'])
     @commands.has_permissions(manage_roles=True)
@@ -37,7 +39,7 @@ class AdminCommands(commands.Cog):
             confirmation = await ctx.channel.send(f"{rolename} mention turned {outcome}")
             return await utils.sleep_and_cleanup([ctx.message, confirmation], 5)
         else:
-            await ctx.message.add_reaction('❎')
+            await ctx.message.add_reaction(self.failed_react)
 
     @commands.command(hidden=True, name="eval")
     @checks.is_dev_or_owner()
@@ -268,7 +270,7 @@ class AdminCommands(commands.Cog):
             else:
                 embeddraft.set_author(name=title)
         draft = await channel.send(embed=embeddraft)
-        reaction_list = ['❔', '✅', '❎']
+        reaction_list = ['❔', self.success_react, self.failed_react]
         owner_msg_add = ''
         if checks.is_owner_check(ctx):
             owner_msg_add = '🌎 '
@@ -283,9 +285,9 @@ class AdminCommands(commands.Cog):
         msg = "That's what you sent, does it look good? React with "
         msg += "{}❔ "
         msg += "to send to another channel, "
-        msg += "✅ "
+        msg += f"{self.success_react} "
         msg += "to send it to this channel, or "
-        msg += "❎ "
+        msg += f"{self.failed_react} "
         msg += "to cancel"
         rusure = await channel.send(msg.format(owner_msg_add))
         try:
@@ -295,10 +297,10 @@ class AdminCommands(commands.Cog):
             timeout = True
         if not timeout:
             await rusure.delete()
-            if res.emoji == '❎':
+            if res.emoji == self.failed_react:
                 confirmation = await channel.send('Announcement Cancelled.')
                 await draft.delete()
-            elif res.emoji == '✅':
+            elif res.emoji == self.success_react:
                 confirmation = await channel.send('Announcement Sent.')
             elif res.emoji == '❔':
                 channelwait = await channel.send('What channel would you like me to send it to?')
@@ -370,7 +372,7 @@ class AdminCommands(commands.Cog):
         Usage: !reload_json
         Useful to avoid a full restart if boss list changed"""
         self.bot._load_config()
-        await ctx.message.add_reaction('☑')
+        await ctx.message.add_reaction(self.success_react)
 
     @commands.command()
     @checks.is_dev_or_owner()
@@ -419,9 +421,9 @@ class AdminCommands(commands.Cog):
                 res, reactuser = await utils.simple_ask(self, question, ctx.channel, ctx.author.id)
             except TypeError:
                 timeout = True
-            if timeout or res.emoji == '❎':
+            if timeout or res.emoji == self.failed_react:
                 return await ctx.channel.send("Configuration cancelled!")
-            elif res.emoji == '✅':
+            elif res.emoji == self.success_react:
                 with open(os.path.join('data', 'raid_info.json'), 'r') as fd:
                     data = json.load(fd)
                 data['raid_eggs'][level]['pokemon'] = monlist
@@ -429,7 +431,7 @@ class AdminCommands(commands.Cog):
                     json.dump(data, fd, indent=2, separators=(', ', ': '))
                 self.bot._load_config()
                 await question.clear_reactions()
-                await question.add_reaction('☑')
+                await question.add_reaction(self.success_react)
                 return await ctx.channel.send("Configuration successful!")
             else:
                 return await ctx.channel.send("I'm not sure what went wrong, but configuration is cancelled!")
@@ -457,6 +459,21 @@ class AdminCommands(commands.Cog):
             if role.permissions.manage_messages:
                 return True
         return False
+
+    @commands.command(aliases=["smc"], hidden=True)
+    async def set_modqueue_channel(self, ctx, item):
+        utilities_cog = self.bot.cogs.get('Utilities')
+        if not utilities_cog:
+            await ctx.channel.send('Utilities module not found, command failed.', delete_after=10)
+            return await ctx.message.add_reaction(self.failed_react)
+        mq_channel = await utilities_cog.get_channel_by_name_or_id(ctx, item)
+        if mq_channel is None:
+            await ctx.channel.send('No channel found by that name or id, please try again.', delete_after=10)
+            return await ctx.message.add_reaction(self.failed_react)
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['modqueue'] = mq_channel.id
+        await ctx.channel.send(f'Mod queue channel set to {mq_channel.mention}.', delete_after=10)
+        return await ctx.message.add_reaction(self.success_react)
+            
 
 
 def setup(bot):
