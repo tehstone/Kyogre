@@ -2411,7 +2411,8 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
         'weather': weather,
         'moveset': 0,
         'gym': gym,
-        'reporter': reporter
+        'reporter': reporter,
+        'last_status': new_status.id if new_status is not None else None
     }
     guild_dict[raid_channel.guild.id]['raidchannel_dict'][raid_channel.id]['starttime'] = starttime
     guild_dict[raid_channel.guild.id]['raidchannel_dict'][raid_channel.id]['duplicate'] = duplicate
