@@ -2082,7 +2082,7 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
         raid_dict['ctrs_dict'] = ctrs_dict
     guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = raid_dict
     if raidexp is not False:
-        await _timerset(raid_channel, raidexp)
+        await _timerset(raid_channel, raidexp, False)
     else:
         await raid_channel.send(content='Hey {member}, if you can, set the time left on the raid using **!timerset <minutes>** so others can check it with **!timer**.'.format(member=author.mention))
     await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, 'raid', edit=False, regions=gym_regions)
@@ -3176,7 +3176,7 @@ async def timerset(ctx, *, timer):
                         await channel.send("Your timer wasn't formatted correctly. Change your **!timerset** to match this format: **MM/DD HH:MM AM/PM** (You can also omit AM/PM and use 24-hour time!)")
                         return
             if checks.check_meetupchannel(ctx):
-                starttime = guild_dict[guild.id]['raidchannel_dict'][channel.id]['meetup'].get('start',False)
+                starttime = guild_dict[guild.id]['raidchannel_dict'][channel.id]['meetup'].get('start', False)
                 if starttime and start < starttime:
                     await channel.send('Please enter a time after your start time.')
                     return
@@ -3194,7 +3194,7 @@ def _timercheck(time, maxtime):
     return time > maxtime
 
 
-async def _timerset(raidchannel, exptime):
+async def _timerset(raidchannel, exptime, print=True):
     guild = raidchannel.guild
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
     end = now + datetime.timedelta(minutes=exptime)
@@ -3219,6 +3219,9 @@ async def _timerset(raidchannel, exptime):
     else:
         topicstr += 'Ends at {end}'.format(end=end.strftime('%I:%M %p (%H:%M)'))
         endtime = end.strftime('%I:%M %p (%H:%M)')
+    if print:
+        timerstr = await print_raid_timer(raidchannel)
+        await raidchannel.send(timerstr)
     await raidchannel.edit(topic=topicstr)
     report_channel = Kyogre.get_channel(raid_dict['reportchannel'])
     raidmsg = await raidchannel.fetch_message(raid_dict['raidmessage'])

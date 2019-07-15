@@ -19,13 +19,14 @@ class Subscriptions(commands.Cog):
         self.bot = bot
 
     subscription_types = {"Raid Boss": "raid",
-                          "Raid Tier": "raid",
                           "Gym": "gym",
                           "EX-Eligible": "raid",
-                          "Research Reward": "research",
+                          "Research Reward Pokemon": "research",
+                          "Research Reward Items": 'item',
                           "Wild Spawn": "wild",
                           "Pokemon - All types (includes raid, research, and wild)": "pokemon",
-                          "Perfect (100 IV spawns)": "wild"
+                          "Perfect (100 IV spawns)": "wild",
+                          "Lures": 'lure'
                           }
 
     def _get_subscription_command_error(self, content, subscription_types):
@@ -155,67 +156,107 @@ class Subscriptions(commands.Cog):
             # raise commands.BadArgument()
             await self._guided_subscription(ctx)
 
-    async def _guided_subscription(self, ctx):
+    async def _guided_subscription(self, ctx, choice=None):
         message = ctx.message
         channel = message.channel
         author = message.author
-        guild = message.guild
         await message.delete()
-        prompt = "I'll help you manage your subscriptions!\n\n" \
-        + "Would you like to add a new subscription, remove a subscription, or see your current subscriptions?"
         choices_list = ['Add', 'Remove', 'View Existing']
-
-        match = await utils.ask_list(self.bot, prompt, channel, choices_list, user_list=author.id)
-        if match == choices_list[0]:
+        if choice is None:
+            prompt = "I'll help you manage your subscriptions!\n\n" \
+            + "Would you like to add a new subscription, remove a subscription, or see your current subscriptions?"
+            choice = await utils.ask_list(self.bot, prompt, channel, choices_list, user_list=author.id)
+        if choice == choices_list[0]:
             prompt = "What type of subscription would you like to add?"
             choices_list = list(self.subscription_types.keys())
-            match = await utils.ask_list(self.bot, prompt, channel, choices_list, user_list=author.id)
-            return await self._guided_add(ctx, match)
-        elif match == choices_list[1]:
-            pass
-        elif match == choices_list[2]:
-            pass
+            choice = await utils.ask_list(self.bot, prompt, channel, choices_list, user_list=author.id)
+            return await self._guided_add(ctx, choice)
+        elif choice == choices_list[1]:
+            prompt = "What type of subscription would you like to remove?"
+            choices_list = ['All'] + list(self.subscription_types.keys())
+            choice = await utils.ask_list(self.bot, prompt, channel, choices_list, user_list=author.id)
+            return await self._guided_rem(ctx, choice)
+        elif choice == choices_list[2]:
+            return await ctx.invoke(self.bot.get_command('sub list'))
         else:
             return
 
-    async def _guided_add(self, ctx, type):
-        if type == "Raid Boss" or type == "Research Reward" \
-                or type == "Wild Spawn" or type == "Pokemon - All types (includes raid, research, and wild)":
+    async def _guided_add(self, ctx, sub_type):
+        if sub_type == "Raid Boss" or sub_type == "Research Reward Pokemon" \
+                or sub_type == "Wild Spawn" or sub_type == "Pokemon - All types (includes raid, research, and wild)":
             prompt = await ctx.channel.send(
-                f"Please tell me which Pokemon you'd like to receive **{type}** notifications "
+                f"Please tell me which Pokemon you'd like to receive **{sub_type}** notifications "
                 + "for with a comma between each name")
-            result = await self._prompt_selections(ctx)
+            result = await self._prompt_selections(ctx, "add")
             await prompt.delete()
             if result[0] is None:
                 return await ctx.send(result[1])
-            msg_content = self.subscription_types[type] + ' ' + result[0].clean_content
+            msg_content = self.subscription_types[sub_type] + ' ' + result[0].clean_content
             return await ctx.invoke(self.bot.get_command('sub add'), content=msg_content)
-        elif type == "Raid Tier":
-            prompt = await ctx.channel.send(
-                f"Please tell me which **Raid Tiers** you'd like to receive notifications "
-                + "for with a comma between each number")
-            result = await self._prompt_selections(ctx)
-            await prompt.delete()
-            if result[0] is None:
-                return await ctx.send(result[1])
-            msg_content = self.subscription_types[type] + ' ' + result[0].clean_content
-            return await ctx.invoke(self.bot.get_command('sub add'), content=msg_content)
-        elif type == "Gym":
+        elif sub_type == "Gym":
             prompt = await ctx.channel.send(
                 f"Please tell me which Gyms you'd like to receive raid notifications "
                 + "for with a comma between each Gym Name")
-            result = await self._prompt_selections(ctx)
+            result = await self._prompt_selections(ctx, "add")
             await prompt.delete()
             if result[0] is None:
                 return await ctx.send(result[1])
-            msg_content = self.subscription_types[type] + ' ' + result[0].clean_content
+            msg_content = self.subscription_types[sub_type] + ' ' + result[0].clean_content
             return await ctx.invoke(self.bot.get_command('sub add'), content=msg_content)
-        elif type == "EX-Eligible":
+        elif sub_type == "EX-Eligible":
             return await ctx.invoke(self.bot.get_command('sub add'), content="raid ex")
-        elif type == "Perfect (100 IV spawns)":
+        elif sub_type == "Perfect (100 IV spawns)":
             return await ctx.invoke(self.bot.get_command('sub add'), content="wild 100")
+        elif sub_type == "Research Reward Items":
+            prompt = await ctx.channel.send(
+                f"Please tell me which **Research Reward Items** you'd like to receive notifications "
+                + "for with a comma between each item name.")
+            result = await self._prompt_selections(ctx, "add")
+            await prompt.delete()
+            if result[0] is None:
+                return await ctx.send(result[1])
+            msg_content = self.subscription_types[sub_type] + ' ' + result[0].clean_content
+            return await ctx.invoke(self.bot.get_command('sub add'), content=msg_content)
+        elif sub_type == "Lures":
+            prompt = await ctx.channel.send(
+                f"Please tell me which **Lure Types** you'd like to receive notifications "
+                + "for with a comma between each type.\n\n"
+                + "Valid types are: Normal, Glacial, Mossy, Magnetic")
+            result = await self._prompt_selections(ctx, "add")
+            await prompt.delete()
+            if result[0] is None:
+                return await ctx.send(result[1])
+            msg_content = self.subscription_types[sub_type] + ' ' + result[0].clean_content
+            return await ctx.invoke(self.bot.get_command('sub add'), content=msg_content)
 
-    async def _prompt_selections(self, ctx):
+    async def _guided_rem(self, ctx, type_str):
+        message = ctx.message
+        channel = message.channel
+        sub_type = self.subscription_types[type_str]
+        sub_list = self._generate_sub_list_message(ctx, [sub_type])
+        if len(sub_list) < 1:
+            return await channel.send("You don't have any subscriptions of type **{sub_type}** to remove.")
+        if type_str == "All":
+            return await ctx.invoke(self.bot.get_command('sub rem'), content="all all")
+        if type_str == "EX-Eligible":
+            return await ctx.invoke(self.bot.get_command('sub rem'), content="raid ex")
+        elif type_str == "Perfect (100 IV spawns)":
+            return await ctx.invoke(self.bot.get_command('sub rem'), content="wild 100")
+        else:
+            prompt = await channel.send(f"Please tell me which {type_str} subscriptions you would" +
+                                         "like to remove from the list below, separated by commas. Or reply " +
+                                        f"with 'all' to remove all subscriptions of this type.\n\n{sub_list[0]}")
+            result = await self._prompt_selections(ctx, "remove")
+            await prompt.delete()
+            if result[0] is None:
+                return await ctx.send(result[1])
+            if result[0].clean_content.lower() == 'all':
+                msg_content = f" {sub_type} all"
+            else:
+                msg_content = f" {sub_type} {result[0].clean_content}"
+            return await ctx.invoke(self.bot.get_command('sub rem'), content=msg_content)
+
+    async def _prompt_selections(self, ctx, action):
         try:
             prompt_msg = await self.bot.wait_for('message', timeout=60,
                                                  check=(lambda reply: reply.author == ctx.message.author))
@@ -228,11 +269,11 @@ class Subscriptions(commands.Cog):
         elif prompt_msg.clean_content.lower() == "cancel":
             error = "you cancelled the report"
         if error:
-            return None, f"Failed to add subscriptions because {error}"
+            return None, f"Failed to {action} subscriptions because {error}"
         return prompt_msg, None
 
     @_sub.command(name="add")
-    async def _sub_add(self, ctx, *, content):
+    async def _sub_add(self, ctx, *, content=None):
         """Create a subscription
 
         Usage: !sub add <type> <target>
@@ -248,6 +289,8 @@ class Subscriptions(commands.Cog):
         trainer = message.author.id
         error_list = []
 
+        if content is None:
+            return await self._guided_subscription(ctx, 'Add')
         content = content.strip().lower()
         if content == 'shiny':
             candidate_list = [('shiny', 'shiny', 'shiny')]
@@ -315,8 +358,8 @@ class Subscriptions(commands.Cog):
 
         await channel.send(content=confirmation_msg)
 
-    @_sub.command(name="remove", aliases=["rm", "rem"])
-    async def _sub_remove(self, ctx,*,content):
+    @_sub.command(name="remove", aliases=["rm", "rem", "delete", "del"])
+    async def _sub_remove(self, ctx, *, content=None):
         """Remove a subscription
 
         Usage: !sub remove <type> <target>
@@ -333,6 +376,8 @@ class Subscriptions(commands.Cog):
         guild = message.guild
         trainer = message.author.id
 
+        if content is None:
+            return await self._guided_subscription(ctx, 'Remove')
         content = content.strip().lower()
         if content == 'shiny':
             sub_type, target = ['shiny','shiny']
@@ -452,7 +497,6 @@ class Subscriptions(commands.Cog):
                 .format(error_count=error_count, error_list=', '.join(error_list))
         await channel.send(content=confirmation_msg)
 
-
     @_sub.command(name="list", aliases=["ls"])
     async def _sub_list(self, ctx, *, content=None):
         """List the subscriptions for the user
@@ -464,17 +508,10 @@ class Subscriptions(commands.Cog):
         message = ctx.message
         channel = message.channel
         author = message.author
-        guild = message.guild
-        subscription_types = ['pokemon','raid','research','wild','nest','gym','item']
+        subscription_types = ['pokemon', 'raid', 'research', 'wild', 'nest', 'gym', 'item']
         response_msg = ''
         invalid_types = []
         valid_types = []
-        results = (SubscriptionTable
-                    .select(SubscriptionTable.type, SubscriptionTable.target, SubscriptionTable.specific)
-                    .join(TrainerTable, on=(SubscriptionTable.trainer == TrainerTable.snowflake))
-                    .where(SubscriptionTable.trainer == ctx.author.id)
-                    .where(TrainerTable.guild == ctx.guild.id))
-
         if content:
             sub_types = [re.sub('[^A-Za-z]+', '', s.lower()) for s in content.split(',')]
             for s in sub_types:
@@ -482,20 +519,46 @@ class Subscriptions(commands.Cog):
                     valid_types.append(s)
                 else:
                     invalid_types.append(s)
-
-            if valid_types:
-                results = results.where(SubscriptionTable.type << valid_types)
-            else:
-                response_msg = "No valid subscription types found! Valid types are: {types}".format(types=', '.join(subscription_types))
+            if not valid_types:
+                response_msg = "No valid subscription types found! Valid types are: {types}".format(
+                    types=', '.join(subscription_types))
                 response = await channel.send(response_msg)
-                return await utils.sleep_and_cleanup([message,response], 10)
-            
+                return await utils.sleep_and_cleanup([message, response], 10)
             if invalid_types:
                 response_msg = "\nUnable to find these subscription types: {inv}".format(inv=', '.join(invalid_types))
-        
-        results = results.execute()
-            
+        listmsg_list = self._generate_sub_list_message(ctx, valid_types)
         response_msg = f"{author.mention}, check your inbox! I've sent your subscriptions to you directly!" + response_msg
+        if len(listmsg_list) > 0:
+            if valid_types:
+                await author.send(f"Your current {', '.join(valid_types)} subscriptions are:")
+                for message in listmsg_list:
+                    await author.send(message)
+            else:
+                await author.send('Your current subscriptions are:')
+                for message in listmsg_list:
+                    await author.send(message)
+        else:
+            if valid_types:
+                await author.send("You don\'t have any subscriptions for {types}! use the **!subscription add**\
+                 command to add some.".format(types=', '.join(valid_types)))
+            else:
+                await author.send("You don't have any subscriptions!\
+                 use the **!subscription add** command to add some.")
+        response = await channel.send(response_msg)
+        await utils.sleep_and_cleanup([message,response], 10)
+
+    def _generate_sub_list_message(self, ctx, types):
+        message = ctx.message
+        guild = message.guild
+        results = (SubscriptionTable
+                   .select(SubscriptionTable.type, SubscriptionTable.target, SubscriptionTable.specific)
+                   .join(TrainerTable, on=(SubscriptionTable.trainer == TrainerTable.snowflake))
+                   .where(SubscriptionTable.trainer == ctx.author.id)
+                   .where(TrainerTable.guild == ctx.guild.id))
+        if len(types) > 0:
+            results = results.where(SubscriptionTable.type << types)
+        results = results.execute()
+
         types = set([s.type for s in results])
         for r in results:
             if r.specific:
@@ -505,14 +568,14 @@ class Subscriptions(commands.Cog):
                 for s in split_id_string:
                     try:
                         split_ids.append(int(s))
-                    except ValueError: 
+                    except ValueError:
                         pass
-                
+
                 gyms = (GymTable
                         .select(LocationTable.id,
-                                LocationTable.name, 
-                                LocationTable.latitude, 
-                                LocationTable.longitude, 
+                                LocationTable.name,
+                                LocationTable.latitude,
+                                LocationTable.longitude,
                                 RegionTable.name.alias('region'),
                                 GymTable.ex_eligible,
                                 LocationNoteTable.note)
@@ -547,30 +610,14 @@ class Subscriptions(commands.Cog):
         for sub in subscriptions.keys():
             if not isinstance(subscriptions[sub], list):
                 subscriptions[sub] = [subscriptions[sub]]
-            new_msg = '**{category}**:\n\t{subs}\n\n'.format(category=sub.title(),subs='\n\t'.join(subscriptions[sub]))
+            new_msg = '**{category}**:\n\t{subs}\n\n'.format(category=sub.title(), subs='\n\t'.join(subscriptions[sub]))
             if len(subscription_msg) + len(new_msg) < constants.MAX_MESSAGE_LENGTH:
                 subscription_msg += new_msg
             else:
                 listmsg_list.append(subscription_msg)
                 subscription_msg = new_msg
         listmsg_list.append(subscription_msg)
-        if len(listmsg_list) > 0:
-            if valid_types:
-                await author.send(f"Your current {', '.join(valid_types)} subscriptions are:")
-                for message in listmsg_list:
-                    await author.send(message)
-            else:
-                await author.send('Your current subscriptions are:')
-                for message in listmsg_list:
-                    await author.send(message)
-        else:
-            if valid_types:
-                await author.send("You don\'t have any subscriptions for {types}! use the **!subscription add** command to add some.".format(types=', '.join(valid_types)))
-            else:
-                await author.send("You don\'t have any subscriptions! use the **!subscription add** command to add some.")
-        response = await channel.send(response_msg)
-        await utils.sleep_and_cleanup([message,response], 10)
-
+        return listmsg_list
 
     @_sub.command(name="adminlist", aliases=["alist"])
     @commands.has_permissions(manage_guild=True)

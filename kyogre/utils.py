@@ -1,9 +1,8 @@
 import datetime
-from dateutil import tz
-from dateutil.relativedelta import relativedelta
 import dateparser
 import re
 
+from dateutil.relativedelta import relativedelta
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
