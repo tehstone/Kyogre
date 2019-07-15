@@ -121,7 +121,7 @@ async def _get_raid_listing_messages(Kyogre, channel, guild_dict, region=None):
             t_emoji = str(boss.raid_level) + '\u20e3'
         gym = rc_d[r].get('gym', None)
         if gym:
-            ex_eligibility = ' *EX-Eligible*' if gym.ex_eligible else ''
+            ex_eligibility = ' *EX-Eligible* ' if gym.ex_eligible else ''
         enabled = raid_helpers.raid_channels_enabled(guild, rchan, guild_dict)
         if enabled:
             blue_emoji = utils.parse_emoji(rchan.guild, Kyogre.config['team_dict']['mystic'])
@@ -138,14 +138,14 @@ async def _get_raid_listing_messages(Kyogre, channel, guild_dict, region=None):
                 .format(tier=t_emoji, chan=rchan.mention, ex=ex_eligibility, expiry_text=expirytext,
                         total_count=total_count, starttime=start_str)
         else:
-            channel_name = rchan.name.replace('_',': ').replace('-', ' ').title()
+            channel_name = rchan.name.replace('_', ': ').replace('-', ' ').title()
             map_url = ''
             map_url = rc_d[r]['gym'].maps_url
             try:
                 map_url = rc_d[r]['gym'].maps_url
             except:
                 pass
-            output += '\t{tier} **{raidchannel}**{ex_eligibility}{expiry_text} \n[Click for directions]({map_url})\n'\
+            output += '\t{tier} **{raidchannel}** {ex_eligibility}\n{expiry_text}\n[Click for directions]({map_url})\n'\
                 .format(tier=t_emoji, raidchannel=channel_name, ex_eligibility=ex_eligibility,
                         expiry_text=expirytext, map_url=map_url)
         return output
@@ -885,9 +885,31 @@ async def update_listing_channels(Kyogre, guild_dict, guild, type, edit=False, r
     valid_types = ['raid', 'research', 'wild', 'nest', 'lure']
     if type not in valid_types:
         return
-    listing_dict = guild_dict[guild.id]['configure_dict'].get(type, {}).get('listings', None)
-    if not listing_dict or not listing_dict['enabled']:
-        return
+    if type == 'lure':
+        expiremax = datetime.datetime.utcnow() + datetime.timedelta(
+            hours=guild_dict[guild.id]['configure_dict']['settings']['offset'],
+            minutes=30)
+        lures = (LureTable
+        #created, location_name, lure_type, latitude, longitude
+                 .select(TrainerReportRelation.created,
+                         LocationTable.name.alias("location_name"),
+                         LureTypeTable.name.alias("lure_type"),
+                         LocationTable.latitude,
+                         LocationTable.longitude)
+                 .join(TrainerReportRelation)
+                 .join(TrainerTable, on=(TrainerReportRelation.trainer == TrainerTable.snowflake))
+                 .join(LureTypeRelation, on=(LureTypeRelation.lure_id == LureTable.id))
+                 .join(LureTypeTable, on=(LureTypeRelation.type_id == LureTypeTable.id))
+                 .join(LocationTable, on=(TrainerReportRelation.location_id == LocationTable.id))
+                 .where((TrainerTable.guild == guild.id) &
+                        (TrainerReportRelation.created + 30 < expiremax)))
+        lures = lures.objects(LureInstance)
+        print([o for o in lures])
+
+    else:
+        listing_dict = guild_dict[guild.id]['configure_dict'].get(type, {}).get('listings', None)
+        if not listing_dict or not listing_dict['enabled']:
+            return
     if 'channel' in listing_dict:
         channel = Kyogre.get_channel(listing_dict['channel']['id'])
         return await _update_listing_channel(Kyogre, guild_dict, channel, type, edit)
@@ -913,6 +935,14 @@ async def _update_listing_channel(Kyogre, guild_dict, channel, type, edit, regio
         previous_messages = await _get_previous_listing_messages(Kyogre, guild_dict, type, channel, region)
         matches = itertools.zip_longest(new_messages, previous_messages)
         new_ids = []
+
+        def should_delete(m):
+            check = True
+            if m.embeds is not None:
+                check = (type in m.embeds[0].description.lower())
+            return m.author == Kyogre.user and check
+        if not edit:
+            await channel.purge(check=should_delete)
         for pair in matches:
             new_message = pair[0]
             old_message = pair[1]
@@ -928,12 +958,8 @@ async def _update_listing_channel(Kyogre, guild_dict, channel, type, edit, regio
                         await old_message.edit(embed=new_embed)
                         new_ids.append(old_message.id)
                         continue
-                    else:
-                        await old_message.delete()
                 new_message_obj = await channel.send(embed=new_embed)
                 new_ids.append(new_message_obj.id)
-            else: # old_message must be something if new_message is nothing
-                await old_message.delete()
         if 'channel' in listing_dict:
             listing_dict['channel']['messages'] = new_ids
         elif 'channels' in listing_dict:

@@ -224,7 +224,7 @@ async def lure_expiry_check(message, lure_id):
     global active_lures
     message = await message.channel.fetch_message(message.id)
     offset = guild_dict[channel.guild.id]['configure_dict']['settings']['offset']
-    expire_time = datetime.datetime.utcnow() + datetime.timedelta(hours=offset) + datetime.timedelta(minutes=30)
+    expire_time = datetime.datetime.utcnow() + datetime.timedelta(hours=offset) + datetime.timedelta(minutes=1)
     if message not in active_lures:
         active_lures.append(message)
         logger.info(
@@ -238,13 +238,15 @@ async def lure_expiry_check(message, lure_id):
             continue
 
 async def expire_lure(message):
+    print(active_lures)
     channel = message.channel
     guild = channel.guild
     try:
         await message.edit(content="", embed=discord.Embed(description="This lure has expired"))
-        await message.clear_reactions();
     except discord.errors.NotFound:
         pass
+    await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, 'lure', edit=True,
+                                               regions=raid_helpers.get_channel_regions(channel, 'lure', guild_dict))
 
 async def wild_expiry_check(message):
     logger.info('Expiry_Check - ' + message.channel.name)
@@ -1543,7 +1545,7 @@ async def _lure_internal(message, content):
     timestamp = (message.created_at +
                  datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset']))\
         .strftime('%Y-%m-%d %H:%M:%S')
-    luretype = content.split()[0]
+    luretype = content.split()[0].strip(',')
     pokestop = ' '.join(content.split()[1:])
     query = LureTypeTable.select()
     if id is not None:
@@ -2329,6 +2331,7 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
     raid_details = {'pokemon': pkmn, 'tier': pkmn.raid_level,
                     'ex-eligible': False if eggdetails['gym'] is None else eggdetails['gym'].ex_eligible,
                     'location': eggdetails['address'], 'regions': eggdetails['regions']}
+    new_status = None
     if enabled:
         last_status = guild_dict[raid_channel.guild.id]['raidchannel_dict'][raid_channel.id].get('last_status', None)
         if last_status is not None:
@@ -2723,10 +2726,10 @@ async def research(ctx, *, details = None):
             if stops:
                 stop = await location_match_prompt(channel, author.id, location, stops)
                 if not stop:
-                    swap_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"\
-                        I couldn't find a pokestop named '**{location}**'. \
-                        Perhaps you have reversed the order of your report?\n\n\
-                        Looking up stop with name '**{quest_name.strip()}**'"))
+                    swap_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=
+                                        f"I couldn't find a pokestop named '**{location}**'."
+                                        + "Perhaps you have reversed the order of your report?\n\n"
+                                        + f"Looking up stop with name '**{quest_name.strip()}**'"))
                     quest_name, location = research_split
                     stop = await location_match_prompt(channel, author.id, location.strip(), stops)
                     if not stop:
