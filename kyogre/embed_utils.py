@@ -12,6 +12,9 @@ async def get_embed_field_indices(embed):
                     "team": None,
                     "details": None,
                     "weak": None,
+                    "maybe": None,
+                    "coming": None,
+                    "here": None,
                     "tips": None
                     }
     for field in embed.fields:
@@ -37,6 +40,12 @@ async def get_embed_field_indices(embed):
             embed_indices["weak"] = index
         if "tips" in field.name.lower():
             embed_indices["tips"] = index
+        if "maybe" in field.name.lower():
+            embed_indices["maybe"] = index
+        if "coming" in field.name.lower():
+            embed_indices["coming"] = index
+        if "here" in field.name.lower():
+            embed_indices["here"] = index
         # if "" in field.name.lower():
         #     embed_indices[""] = index
         index += 1

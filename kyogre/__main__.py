@@ -2344,22 +2344,23 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
     else:
         await _send_notifications_async('raid', raid_details, reportchannel, [author] if author else [])
     if embed_indices["gym"] is not None:
-        raid_embed.add_field(name=(oldembed.fields[embed_indices["gym"]].name),
+        raid_embed.add_field(name=oldembed.fields[embed_indices["gym"]].name,
                              value=oldembed.fields[embed_indices["gym"]].value, inline=True)
     if embed_indices["next"] is not None:
-        raid_embed.add_field(name=(oldembed.fields[embed_indices["next"]].name),
+        raid_embed.add_field(name=oldembed.fields[embed_indices["next"]].name,
                              value=oldembed.fields[embed_indices["next"]].value, inline=True)
     if meetup:
         raid_embed.add_field(name=oldembed.fields[3].name, value=end.strftime('%I:%M %p (%H:%M)'), inline=True)
     else:
         raid_embed.add_field(name='**Expires:**', value=end.strftime(' %I:%M %p (%H:%M)'), inline=True)
     if embed_indices["tips"] is not None:
-        raid_embed.add_field(name=(oldembed.fields[embed_indices["tips"]].name),
+        raid_embed.add_field(name=oldembed.fields[embed_indices["tips"]].name,
                              value=oldembed.fields[embed_indices["tips"]].value, inline=True)
     for field in oldembed.fields:
-        t = 'team'
-        s = 'status'
-        if (t in field.name.lower()) or (s in field.name.lower()):
+        m = 'maybe'
+        c = 'coming'
+        h = 'here'
+        if (m in field.name.lower()) or (c in field.name.lower()) or (h in field.name.lower()):
             raid_embed.add_field(name=field.name, value=field.value, inline=field.inline)
     try:
         await raid_message.edit(new_content=raidmsg, embed=raid_embed, content=raidmsg)

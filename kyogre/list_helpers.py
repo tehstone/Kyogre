@@ -732,7 +732,9 @@ async def _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author=None):
     yellow_emoji = utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['instinct'])
     blue_emoji = utils.parse_emoji(channel.guild, Kyogre.config['team_dict']['mystic'])
     team_emojis = {'instinct': yellow_emoji, 'mystic': blue_emoji, 'valor': red_emoji, 'unknown': "❔"}
-
+    tips = reportembed.fields[embed_indices["tips"]]
+    if tips is not None:
+        newembed.add_field(name=tips.name, value=tips.value)
     for status in status_list:
         embed_value = None
         if status_dict[status]['total'] > 0:
@@ -746,9 +748,6 @@ async def _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author=None):
                     embed_value += "\n"
         if embed_value is not None:
             newembed.add_field(name=f'**{status.capitalize()}**', value=embed_value, inline=True)
-    tips = reportembed.fields[embed_indices["tips"]]
-    if tips is not None:
-        newembed.add_field(name=tips.name, value=tips.value)
     newembed.set_footer(text=reportembed.footer.text, icon_url=reportembed.footer.icon_url)
     newembed.set_thumbnail(url=reportembed.thumbnail.url)
     try:
