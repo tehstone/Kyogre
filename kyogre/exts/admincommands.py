@@ -23,7 +23,7 @@ from kyogre.exts.pokemon import Pokemon
 class AdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.failed_react = '❎'
+        self.failed_react = '❌'
         self.success_react = '✅'
 
     @commands.command(hidden=True, name='mention_toggle', aliases=['mt'])
@@ -189,7 +189,7 @@ class AdminCommands(commands.Cog):
             else:
                 await ctx.send('**Extension {ext} Loaded.**\n'.format(ext=ext))
 
-    @commands.command(name='reload')
+    @commands.command(name='reload', aliases=['rl'])
     @checks.is_owner()
     async def _reload(self, ctx, *extensions):
         for ext in extensions:

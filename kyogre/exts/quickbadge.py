@@ -10,7 +10,7 @@ class QuickBadge(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.success_react = '✅'
-        self.failed_react = '❎'
+        self.failed_react = '❌'
         self.quick_badge_dict_default = {'listen_channels': [], 'pokenav_channel': 0, 'badges': {}}
 
     @commands.command(hidden=True, aliases=['aqb'])
