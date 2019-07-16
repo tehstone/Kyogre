@@ -846,7 +846,8 @@ async def on_raw_reaction_add(payload):
         quest_dict = questreport_dict.get(message.id, None)        
         if quest_dict and (quest_dict['reportauthor'] == payload.user_id or can_manage(user)):
             if str(payload.emoji) == '\u270f':
-                await modify_research_report(payload)
+                researchcommands_cog = Kyogre.cogs.get('ResearchCommands')
+                await researchcommands_cog.modify_research_report(payload)
             elif str(payload.emoji) == '🚫':
                 try:
                     await message.edit(embed=discord.Embed(description="Research report cancelled", colour=message.embeds[0].colour.value))
@@ -946,111 +947,6 @@ def can_manage(user):
         if role.permissions.manage_messages:
             return True
     return False
-
-async def modify_research_report(payload):
-    channel = Kyogre.get_channel(payload.channel_id)
-    try:
-        message = await channel.fetch_message(payload.message_id)
-    except (discord.errors.NotFound, AttributeError):
-        return
-    guild = message.guild
-    try:
-        user = guild.get_member(payload.user_id)
-    except AttributeError:
-        return
-    questreport_dict = guild_dict[guild.id].setdefault('questreport_dict', {})
-    research_embed = discord.Embed(colour=message.guild.me.colour).set_thumbnail(url='https://raw.githubusercontent.com/klords/Kyogre/master/images/misc/field-research.png?cache=0')
-    research_embed.set_footer(text='Reported by {user}'.format(user=user.display_name), icon_url=user.avatar_url_as(format=None, static_format='jpg', size=32))
-    config_dict = guild_dict[guild.id]['configure_dict']
-    regions = raid_helpers.get_channel_regions(channel, 'research', guild_dict)
-    stops = None
-    stops = get_stops(guild.id, regions)
-    stop = questreport_dict[message.id]['location']
-    prompt = f'Modifying details for **research task** at **{stop}**\nWhich item would you like to modify ***{user.display_name}***?'
-    choices_list = ['Pokestop','Task', 'Reward']
-    match = await utils.ask_list(Kyogre, prompt, channel, choices_list, user_list=user.id)
-    err_msg = None
-    confirmed = None
-    questrewardmanagement_cog = Kyogre.cogs.get('QuestRewardManagement')
-    if not questrewardmanagement_cog:
-        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description="Quest data is not loaded for this server."))
-    if match in choices_list:
-        if match == choices_list[0]:
-            query_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(), description="What is the correct Pokestop?"))
-            try:
-                pokestopmsg = await Kyogre.wait_for('message', timeout=30, check=(lambda reply: reply.author == user))
-            except asyncio.TimeoutError:
-                pokestopmsg = None
-                await pokestopmsg.delete()
-            if not pokestopmsg:
-                error = "took too long to respond"
-            elif pokestopmsg.clean_content.lower() == "cancel":
-                error = "cancelled the report"
-                await pokestopmsg.delete()
-            elif pokestopmsg:
-                if stops:
-                    stop = await location_match_prompt(channel, user.id, pokestopmsg.clean_content, stops)
-                    if not stop:
-                        err_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"I couldn't find a pokestop named '{pokestopmsg.clean_content}'. Try again using the exact pokestop name!"))
-                    else:
-                        if get_existing_research(guild, stop):
-                            err_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"A quest has already been reported for {stop.name}"))
-                        else:
-                            location = stop.name
-                            loc_url = stop.maps_url
-                            questreport_dict[message.id]['location'] = location
-                            questreport_dict[message.id]['url'] = loc_url
-                            await _refresh_listing_channels_internal(guild, "research")
-                            confirmed = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description="Research listing updated"))
-                            await pokestopmsg.delete()
-                            await query_msg.delete()
-        elif match == choices_list[1]:
-            questwait = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(), description="What is the correct research task?"))
-            try:
-                questmsg = await Kyogre.wait_for('message', timeout=30, check=(lambda reply: reply.author == user))
-            except asyncio.TimeoutError:
-                questmsg = None
-            await questwait.delete()
-            if not questmsg:
-                error = "took too long to respond"
-            elif questmsg.clean_content.lower() == "cancel":
-                error = "cancelled the report"
-                await questmsg.delete()
-            elif questmsg:
-                quest = await questrewardmanagement_cog.get_quest_v(channel, user.id, questmsg.clean_content)
-                reward = await questrewardmanagement_cog.prompt_reward_v(channel, user.id, quest)
-                if not reward:
-                    error = "didn't identify the reward"
-            if not quest:
-                error = "didn't identify the quest"
-            questreport_dict[message.id]['quest'] = quest.name
-            questreport_dict[message.id]['reward'] = reward
-            await _refresh_listing_channels_internal(guild, "research")
-            confirmed = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description="Research listing updated"))
-            await questmsg.delete()
-        elif match == choices_list[2]:
-            rewardwait = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(), description="What is the correct reward?"))
-            quest = guild_dict[guild.id]['questreport_dict'].get(message.id, None)
-            reward = await questrewardmanagement_cog.prompt_reward_v(channel, user.id, quest)
-            if not reward:
-                error = "didn't identify the reward"
-            questreport_dict[message.id]['reward'] = reward
-            await _refresh_listing_channels_internal(guild, "research")
-            confirmed = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description="Research listing updated"))
-            await rewardwait.delete()
-        embed = message.embeds[0]
-        embed.clear_fields()
-        location = questreport_dict[message.id]['location']
-        name = questreport_dict[message.id]['quest']
-        reward = questreport_dict[message.id]['reward']
-        embed.add_field(name="**Pokestop:**",value='\n'.join(textwrap.wrap(location.title(), width=30)),inline=True)
-        embed.add_field(name="**Quest:**",value='\n'.join(textwrap.wrap(name.title(), width=30)),inline=True)
-        embed.add_field(name="**Reward:**",value='\n'.join(textwrap.wrap(reward.title(), width=30)),inline=True)
-        embed.url = questreport_dict[message.id]['url']
-        new_msg = f'{name} Field Research task, reward: {reward} reported at {location}'
-        await message.edit(content=new_msg,embed=embed)
-    else:
-        return
 
 async def modify_raid_report(payload, raid_report):
     channel = Kyogre.get_channel(payload.channel_id)
@@ -1515,14 +1411,6 @@ def get_existing_raid(guild, location, only_ex = False):
     return [channel_id for channel_id, report in report_dict.items() if matches_existing(report)]
 
 
-def get_existing_research(guild, location):
-    """returns a list of confirmation message ids for research reported at the location provided"""
-    report_dict = guild_dict[guild.id]['questreport_dict']
-    def matches_existing(report):
-        return report['location'].lower() == location.name.lower()
-    return [confirmation_id for confirmation_id, report in report_dict.items() if matches_existing(report)]
-
-
 @Kyogre.command(name='lure', aliases=['lu'])
 async def _lure(ctx, type, *, location):
     """Report that you're luring a pokestop.
@@ -1579,7 +1467,8 @@ async def _lure_internal(message, content):
     lurereportmsg = await channel.send(f'**{luretype.name.capitalize()}** lure reported by {author.display_name} at {stop.name}', embed=lure_embed)
     await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, 'lure', edit=False, regions=lure_regions)
     details = {'regions': lure_regions, 'type': 'lure', 'lure_type': luretype.name, 'location': stop.name}
-    await _send_notifications_async('lure', details, message.channel, [message.author.id])
+    subscriptions_cog = Kyogre.cogs.get('Subscriptions')
+    await subscriptions_cog.send_notifications_async('lure', details, message.channel, [message.author.id])
     event_loop.create_task(lure_expiry_check(lurereportmsg, report.id))
 
         
@@ -1636,7 +1525,8 @@ async def _wild_internal(message, content):
             wild_details = location.name
     if not wild_gmaps_link:
         if 'http' in wild_details or '/maps' in wild_details:
-            wild_gmaps_link = create_gmaps_query(wild_details, channel, type="wild")
+            utilities_cog = Kyogre.cogs.get('Utilities')
+            wild_gmaps_link = utilities_cog.create_gmaps_query(wild_details, channel, type="wild")
             wild_details = 'Custom Map Pin'
         else:
             return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description="Please use the name of an existing pokestop or gym, or include a valid Google Maps link."))
@@ -1671,7 +1561,8 @@ async def _wild_internal(message, content):
     wild_details = {'pokemon': pkmn, 'perfect': is_perfect, 'location': wild_details, 'regions': channel_regions}
     event_loop.create_task(wild_expiry_check(wildreportmsg))
     await list_helpers.update_listing_channels(Kyogre, guild_dict, message.guild, 'wild', edit=False, regions=channel_regions)
-    await _send_notifications_async('wild', wild_details, message.channel, [message.author.id])
+    subscriptions_cog = Kyogre.cogs.get('Subscriptions')
+    await subscriptions_cog.send_notifications_async('wild', wild_details, message.channel, [message.author.id])
 
 
 @Kyogre.group(name="raid", aliases=['r', 're', 'egg', 'regg', 'raidegg', '1', '2', '3', '4', '5'])
@@ -1959,7 +1850,8 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
         raid_gmaps_link = gym.maps_url
         gym_regions = [gym.region]
     else:
-        raid_gmaps_link = create_gmaps_query(raid_details, channel, type="raid")
+        utilities_cog = Kyogre.cogs.get('Utilities')
+        raid_gmaps_link = utilities_cog.create_gmaps_query(raid_details, channel, type="raid")
     if other_region:
         report_channels = await list_helpers.get_region_reporting_channels(guild, gym_regions[0], guild_dict)
         report_channel = Kyogre.get_channel(report_channels[0])
@@ -2088,10 +1980,11 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
     else:
         await raid_channel.send(content='Hey {member}, if you can, set the time left on the raid using **!timerset <minutes>** so others can check it with **!timer**.'.format(member=author.mention))
     await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, 'raid', edit=False, regions=gym_regions)
+    subscriptions_cog = Kyogre.cogs.get('Subscriptions')
     if enabled:
-        await _send_notifications_async('raid', raid_details, raid_channel, [author.id])
+        await subscriptions_cog.send_notifications_async('raid', raid_details, raid_channel, [author.id])
     else:
-        await _send_notifications_async('raid', raid_details, channel, [author.id])
+        await subscriptions_cog.send_notifications_async('raid', raid_details, channel, [author.id])
     await raidreport.add_reaction('\u270f')
     await asyncio.sleep(0.25)
     await raidreport.add_reaction('🚫')
@@ -2332,6 +2225,7 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
                     'ex-eligible': False if eggdetails['gym'] is None else eggdetails['gym'].ex_eligible,
                     'location': eggdetails['address'], 'regions': eggdetails['regions']}
     new_status = None
+    subscriptions_cog = Kyogre.cogs.get('Subscriptions')
     if enabled:
         last_status = guild_dict[raid_channel.guild.id]['raidchannel_dict'][raid_channel.id].get('last_status', None)
         if last_status is not None:
@@ -2343,9 +2237,9 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
         if status_embed is not None:
             new_status = await raid_channel.send(embed=status_embed)
             guild_dict[raid_channel.guild.id]['raidchannel_dict'][raid_channel.id]['last_status'] = new_status.id
-        await _send_notifications_async('raid', raid_details, raid_channel, [author] if author else [])
+        await subscriptions_cog.send_notifications_async('raid', raid_details, raid_channel, [author] if author else [])
     else:
-        await _send_notifications_async('raid', raid_details, reportchannel, [author] if author else [])
+        await subscriptions_cog.send_notifications_async('raid', raid_details, reportchannel, [author] if author else [])
     if embed_indices["gym"] is not None:
         raid_embed.add_field(name=oldembed.fields[embed_indices["gym"]].name,
                              value=oldembed.fields[embed_indices["gym"]].value, inline=True)
@@ -2557,7 +2451,8 @@ async def _exraid(ctx, location):
         raid_gmaps_link = gym.maps_url
         regions = [gym.region]
     else:
-        raid_gmaps_link = create_gmaps_query(raid_details, message.channel, type="exraid")
+        utilities_cog = Kyogre.cogs.get('Utilities')
+        raid_gmaps_link = utilities_cog.create_gmaps_query(raid_details, message.channel, type="exraid")
     egg_info = raid_info['raid_eggs']['EX']
     egg_img = egg_info['egg_img']
     boss_list = []
@@ -2681,182 +2576,6 @@ async def _exinvite(ctx):
     return await utils.sleep_and_cleanup([ctx.message,reply,exraidmsg], 30)
 
 
-@Kyogre.command(aliases=['res'])
-@checks.allowresearchreport()
-async def research(ctx, *, details = None):
-    """Report Field research
-    Start a guided report method with just !research. 
-
-    If you want to do a quick report, provide the pokestop name followed by the task text with a comma in between.
-    Do not include any other commas.
-
-    If you reverse the order, Kyogre will attempt to determine the pokestop.
-
-    Usage: !research [pokestop name, quest]"""
-    message = ctx.message
-    channel = message.channel
-    author = message.author
-    guild = message.guild
-    timestamp = (message.created_at + datetime.timedelta(
-        hours=guild_dict[message.channel.guild.id]['configure_dict']['settings']['offset']))
-    to_midnight = 24*60*60 - (timestamp-timestamp.replace(hour=0, minute=0, second=0, microsecond=0)).seconds
-    error = False
-    loc_url = create_gmaps_query("", message.channel, type="research")
-    research_embed = discord.Embed(
-        colour=message.guild.me.colour)\
-        .set_thumbnail(
-        url='https://raw.githubusercontent.com/klords/Kyogre/master/images/misc/field-research.png?cache=0')
-    research_embed.set_footer(text='Reported by {author} - {timestamp}'
-                              .format(author=author.display_name,
-                                      timestamp=timestamp.strftime('%I:%M %p (%H:%M)')),
-                              icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
-    config_dict = guild_dict[guild.id]['configure_dict']
-    regions = raid_helpers.get_channel_regions(channel, 'research', guild_dict)
-    stops = get_stops(guild.id, regions)
-    questrewardmanagement_cog = Kyogre.cogs.get('QuestRewardManagement')
-    if not questrewardmanagement_cog:
-        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description="Quest data is not loaded for this server."))
-    while True:
-        if details:
-            research_split = details.rsplit(",", 1)
-            if len(research_split) != 2:
-                error = "entered an incorrect amount of arguments.\n\nUsage: **!research** or **!research <pokestop>, <quest>**"
-                break
-            location, quest_name = research_split
-            if stops:
-                stop = await location_match_prompt(channel, author.id, location, stops)
-                if not stop:
-                    swap_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=
-                                        f"I couldn't find a pokestop named '**{location}**'."
-                                        + "Perhaps you have reversed the order of your report?\n\n"
-                                        + f"Looking up stop with name '**{quest_name.strip()}**'"))
-                    quest_name, location = research_split
-                    stop = await location_match_prompt(channel, author.id, location.strip(), stops)
-                    if not stop:
-                        await swap_msg.delete()
-                        err_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No pokestop found with name '**{location.strip()}**' either. Try reporting again using the exact pokestop name!"))
-                        return await utils.sleep_and_cleanup([err_msg], 15)
-                    await swap_msg.delete()
-                if get_existing_research(guild, stop):
-                    return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"A quest has already been reported for {stop.name}"))
-                location = stop.name
-                loc_url = stop.maps_url
-                regions = [stop.region]
-            else:
-                loc_url = create_gmaps_query(location, channel, type="research")
-            location = location.replace(loc_url,"").strip()
-            quest = await questrewardmanagement_cog.get_quest(ctx, quest_name.strip())
-            if not quest:
-                return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"I couldn't find a quest named '{quest_name}'"))
-            reward = await questrewardmanagement_cog.prompt_reward(ctx, quest)
-            if not reward:
-                return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"I couldn't find a reward for '{quest_name}'"))
-            research_embed.add_field(name="**Pokestop:**",value='\n'.join(textwrap.wrap(location.title(), width=30)),inline=True)
-            research_embed.add_field(name="**Quest:**",value='\n'.join(textwrap.wrap(quest.name.title(), width=30)),inline=True)
-            research_embed.add_field(name="**Reward:**",value='\n'.join(textwrap.wrap(reward.title(), width=30)),inline=True)
-            break
-        else:
-            research_embed.add_field(name='**New Research Report**', value="I'll help you report a research quest!\n\nFirst, I'll need to know what **pokestop** you received the quest from. Reply with the name of the **pokestop**. You can reply with **cancel** to stop anytime.", inline=False)
-            pokestopwait = await channel.send(embed=research_embed)
-            try:
-                pokestopmsg = await Kyogre.wait_for('message', timeout=60, check=(lambda reply: reply.author == message.author))
-            except asyncio.TimeoutError:
-                pokestopmsg = None
-            await pokestopwait.delete()
-            if not pokestopmsg:
-                error = "took too long to respond"
-                break
-            elif pokestopmsg.clean_content.lower() == "cancel":
-                error = "cancelled the report"
-                await pokestopmsg.delete()
-                break
-            elif pokestopmsg:
-                location = pokestopmsg.clean_content
-                if stops:
-                    stop = await location_match_prompt(channel, author.id, location, stops)
-                    if not stop:
-                        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"I couldn't find a pokestop named '{location}'. Try again using the exact pokestop name!"))
-                    if get_existing_research(guild, stop):
-                        return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"A quest has already been reported for {stop.name}"))
-                    location = stop.name
-                    loc_url = stop.maps_url
-                    regions = [stop.region]
-                else:
-                    loc_url = create_gmaps_query(location, channel, type="research")
-                location = location.replace(loc_url,"").strip()
-            await pokestopmsg.delete()
-            research_embed.add_field(name="**Pokestop:**",value='\n'.join(textwrap.wrap(location.title(), width=30)),inline=True)
-            research_embed.set_field_at(0, name=research_embed.fields[0].name, value="Great! Now, reply with the **quest** that you received from **{location}**. You can reply with **cancel** to stop anytime.\n\nHere's what I have so far:".format(location=location), inline=False)
-            questwait = await channel.send(embed=research_embed)
-            try:
-                questmsg = await Kyogre.wait_for('message', timeout=60, check=(lambda reply: reply.author == message.author))
-            except asyncio.TimeoutError:
-                questmsg = None
-            await questwait.delete()
-            if not questmsg:
-                error = "took too long to respond"
-                break
-            elif questmsg.clean_content.lower() == "cancel":
-                error = "cancelled the report"
-                await questmsg.delete()
-                break
-            elif questmsg:
-                quest = await questrewardmanagement_cog.get_quest(ctx, questmsg.clean_content.strip())
-            await questmsg.delete()
-            if not quest:
-                error = "didn't identify the quest"
-                break
-            research_embed.add_field(name="**Quest:**",value='\n'.join(textwrap.wrap(quest.name.title(), width=30)),inline=True)
-            reward = await questrewardmanagement_cog.prompt_reward(ctx, quest.name.title())
-            if not reward:
-                error = "didn't identify the reward"
-                break
-            research_embed.add_field(name="**Reward:**",value='\n'.join(textwrap.wrap(reward.title(), width=30)),inline=True)
-            research_embed.remove_field(0)
-            break
-    if not error:
-        research_msg = f'{quest.name} Field Research task, reward: {reward} reported at {location}'
-        research_embed.title = 'Click here for my directions to the research!'
-        research_embed.description = "Ask {author} if my directions aren't perfect!".format(author=author.name)
-        research_embed.url = loc_url
-        confirmation = await channel.send(research_msg,embed=research_embed)
-        await asyncio.sleep(0.25)
-        await confirmation.add_reaction('\u270f')
-        await asyncio.sleep(0.25)
-        await confirmation.add_reaction('🚫')
-        await asyncio.sleep(0.25)
-        research_dict = copy.deepcopy(guild_dict[guild.id].get('questreport_dict',{}))
-        research_dict[confirmation.id] = {
-            'regions': regions,
-            'exp':time.time() + to_midnight,
-            'expedit':"delete",
-            'reportmessage':message.id,
-            'reportchannel':channel.id,
-            'reportauthor':author.id,
-            'location':location,
-            'url':loc_url,
-            'quest':quest.name,
-            'reward':reward
-        }
-        guild_dict[guild.id]['questreport_dict'] = research_dict
-        research_reports = guild_dict[ctx.guild.id].setdefault('trainers',{}).setdefault(regions[0], {}).setdefault(author.id,{}).setdefault('research_reports',0) + 1
-        guild_dict[ctx.guild.id]['trainers'][regions[0]][author.id]['research_reports'] = research_reports
-        await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, 'research', edit=False, regions=regions)
-        if 'encounter' in reward.lower():
-            pokemon = reward.rsplit(maxsplit=1)[0]
-            research_details = {'pokemon': [Pokemon.get_pokemon(Kyogre, p) for p in re.split(r'\s*,\s*', pokemon)], 'location': location, 'regions': regions}
-            await _send_notifications_async('research', research_details, channel, [message.author.id])
-        elif reward.split(' ')[0].isdigit() and 'stardust' not in reward.lower():
-            item = ' '.join(reward.split(' ')[1:])
-            research_details = {'item': item, 'location': location, 'regions': regions}
-            await _send_notifications_async('item', research_details, channel, [message.author.id])
-    else:
-        research_embed.clear_fields()
-        research_embed.add_field(name='**Research Report Cancelled**', value="Your report has been cancelled because you {error}! Retry when you're ready.".format(error=error), inline=False)
-        confirmation = await channel.send(embed=research_embed)
-        return await utils.sleep_and_cleanup([message,confirmation], 10)
-
-
 @Kyogre.command(aliases=['event'])
 @checks.allowmeetupreport()
 async def meetup(ctx, *, location:commands.clean_content(fix_channel_mentions=True)=""):
@@ -2879,7 +2598,8 @@ async def _meetup(ctx, location):
         return
     raid_details = ' '.join(event_split)
     raid_details = raid_details.strip()
-    raid_gmaps_link = create_gmaps_query(raid_details, message.channel, type="meetup")
+    utilities_cog = Kyogre.cogs.get('Utilities')
+    raid_gmaps_link = utilities_cog.create_gmaps_query(raid_details, message.channel, type="meetup")
     raid_channel_name = 'meetup-'
     raid_channel_name += utils.sanitize_name(raid_details)[:32]
     raid_channel_category = get_category(message.channel,"EX", category_type="meetup")
@@ -2921,131 +2641,6 @@ async def _meetup(ctx, location):
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[raid_channel.guild.id]['configure_dict']['settings']['offset'])
     await raid_channel.send(content='Hey {member}, if you can, set the time that the event starts with **!starttime <date and time>** and also set the time that the event ends using **!timerset <date and time>**.'.format(member=message.author.mention))
     event_loop.create_task(expiry_check(raid_channel))
-
-
-async def _send_notifications_async(type, details, new_channel, exclusions=[]):
-    valid_types = ['raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure']
-    if type not in valid_types:
-        return
-    guild = new_channel.guild
-    # get trainers
-    try:
-        results = (SubscriptionTable
-                        .select(SubscriptionTable.trainer, SubscriptionTable.target, SubscriptionTable.specific)
-                        .join(TrainerTable, on=(SubscriptionTable.trainer == TrainerTable.snowflake))
-                        .where((SubscriptionTable.type == type) | 
-                            (SubscriptionTable.type == 'pokemon') | 
-                            (SubscriptionTable.type == 'gym') )
-                        .where(TrainerTable.guild == guild.id)).execute()
-    except:
-        return
-    # group targets by trainer
-    trainers = set([s.trainer for s in results])
-    target_dict = {t: {s.target: s.specific for s in results if s.trainer == t} for t in trainers}
-    regions = set(details.get('regions', []))
-    ex_eligible = details.get('ex-eligible', None)
-    tier = details.get('tier', None)
-    perfect = details.get('perfect', None)
-    pokemon_list = details.get('pokemon', [])
-    gym = details.get('location', None)
-    item = details.get('item', None)
-    lure_type = details.get('lure_type', None)
-    if not isinstance(pokemon_list, list):
-        pokemon_list = [pokemon_list]
-    location = details.get('location', None)
-    region_dict = guild_dict[guild.id]['configure_dict'].get('regions', None)
-    outbound_dict = {}
-    # build final dict
-    for trainer in target_dict:
-        user = guild.get_member(trainer)
-        if trainer in exclusions or not user:
-            continue
-        if region_dict and region_dict.get('enabled', False):
-            matched_regions = [n for n, o in region_dict.get('info', {}).items() if o['role'] in [r.name for r in user.roles]]
-            if regions and regions.isdisjoint(matched_regions):
-                continue
-        targets = target_dict[trainer]
-        descriptors = []
-        target_matched = False
-        if 'ex-eligible' in targets and ex_eligible:
-            target_matched = True
-            descriptors.append('ex-eligible')
-        if tier and str(tier) in targets:
-            tier = str(tier)
-            if targets[tier]:
-                try:
-                    current_gym_ids = targets[tier].strip('[').strip(']')
-                    split_id_string = current_gym_ids.split(', ')
-                    split_ids = []
-                    for s in split_id_string:
-                        try:
-                            split_ids.append(int(s))
-                        except ValueError: 
-                            pass
-                    target_gyms = (GymTable
-                        .select(LocationTable.id,
-                                LocationTable.name, 
-                                LocationTable.latitude, 
-                                LocationTable.longitude, 
-                                RegionTable.name.alias('region'),
-                                GymTable.ex_eligible,
-                                LocationNoteTable.note)
-                        .join(LocationTable)
-                        .join(LocationRegionRelation)
-                        .join(RegionTable)
-                        .join(LocationNoteTable, JOIN.LEFT_OUTER, on=(LocationNoteTable.location_id == LocationTable.id))
-                        .where((LocationTable.guild == guild.id) &
-                               (LocationTable.guild == RegionTable.guild) &
-                               (LocationTable.id << split_ids)))
-                    target_gyms = target_gyms.objects(Gym)
-                    found_gym_names = [r.name for r in target_gyms]
-                    if gym in found_gym_names:
-                        target_matched = True
-                except:
-                    pass
-            else:
-                target_matched = True
-            descriptors.append('level {level}'.format(level=details['tier']))
-        pkmn_adj = ''
-        if perfect and 'perfect' in targets:
-            target_matched = True
-            pkmn_adj = 'perfect '
-        for pokemon in pokemon_list:
-            if pokemon.name in targets:
-                target_matched = True
-            full_name = pkmn_adj + pokemon.name
-            descriptors.append(full_name)
-        if gym in targets:
-            target_matched = True
-        if item and item.lower() in targets:
-            target_matched = True
-        if 'shiny' in targets:
-            target_matched = True
-        if lure_type and lure_type in targets:
-            target_matched = True
-        if not target_matched:
-            continue
-        description = ', '.join(descriptors)
-        start = 'An' if re.match(r'^[aeiou]', description, re.I) else 'A'
-        if type == 'item':
-            start = 'An' if re.match(r'^[aeiou]', item, re.I) else 'A'
-            message = f'{start} **{item}** task has been reported at {location}! For more details, go to the {new_channel.mention} channel.'
-        elif type == 'lure':
-            message = f'A **{lure_type.capitalize()}** lure has been dropped at {location}!'
-        else:
-            message = f'**New {type.title()}**! {start} {description} {type} at {location} has been reported! For more details, go to the {new_channel.mention} channel!'
-        outbound_dict[trainer] = {'discord_obj': user, 'message': message}
-    pokemon_names = ' '.join([p.name for p in pokemon_list])
-    if type == 'item':
-        role_name = utils.sanitize_name(f"{item} {location}".title())
-    elif type == 'lure':
-        role_name = utils.sanitize_name(f'{lure_type} {location}'.title())
-    else:
-        role_name = utils.sanitize_name(f"{type} {pokemon_names} {location}".title())
-    subscriptions_cog = Kyogre.cogs.get('Subscriptions')
-    if not subscriptions_cog:
-        return None
-    return await subscriptions_cog.generate_role_notification_async(role_name, new_channel, outbound_dict)
 
 
 """
@@ -3437,7 +3032,8 @@ async def new(ctx, *, content):
             newloc = gym.maps_url
             regions = [gym.region]
         else:
-            newloc = create_gmaps_query(details, report_channel, type="raid")
+            utilities_cog = Kyogre.cogs.get('Utilities')
+            newloc = utilities_cog.create_gmaps_query(details, report_channel, type="raid")
         await entity_updates.update_raid_location(Kyogre, guild_dict, message, report_channel, channel, gym)
         return
 
@@ -4113,34 +3709,6 @@ def print_emoji_name(guild, emoji_string):
     if emoji != emoji_string:
         ret = ((emoji + ' (`') + emoji_string) + '`)'
     return ret
-
-
-def create_gmaps_query(details, channel, type="raid"):
-    """Given an arbitrary string, create a Google Maps
-    query using the configured hints"""
-    if type == "raid" or type == "egg":
-        report = "raid"
-    else:
-        report = type
-    if "/maps" in details and "http" in details:
-        mapsindex = details.find('/maps')
-        newlocindex = details.rfind('http', 0, mapsindex)
-        if newlocindex == -1:
-            return
-        newlocend = details.find(' ', newlocindex)
-        if newlocend == -1:
-            newloc = details[newlocindex:]
-            return newloc
-        else:
-            newloc = details[newlocindex:newlocend + 1]
-            return newloc
-    details_list = details.split()
-    # look for lat/long coordinates in the location details. If provided,
-    # then channel location hints are not needed in the  maps query
-    if re.match (r'^\s*-?\d{1,2}\.?\d*,\s*-?\d{1,3}\.?\d*\s*$', details): #regex looks for lat/long in the format similar to 42.434546, -83.985195.
-        return "https://www.google.com/maps/search/?api=1&query={0}".format('+'.join(details_list))
-    loc_list = guild_dict[channel.guild.id]['configure_dict'][report]['report_channels'][channel.id].split()
-    return 'https://www.google.com/maps/search/?api=1&query={0}+{1}'.format('+'.join(details_list), '+'.join(loc_list))  
 
 
 try:

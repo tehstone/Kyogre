@@ -42,5 +42,34 @@ class Utilities(commands.Cog):
             return None
         return channel
 
+    def create_gmaps_query(self, details, channel, type="raid"):
+        """Given an arbitrary string, create a Google Maps
+        query using the configured hints"""
+        if type == "raid" or type == "egg":
+            report = "raid"
+        else:
+            report = type
+        if "/maps" in details and "http" in details:
+            mapsindex = details.find('/maps')
+            newlocindex = details.rfind('http', 0, mapsindex)
+            if newlocindex == -1:
+                return
+            newlocend = details.find(' ', newlocindex)
+            if newlocend == -1:
+                newloc = details[newlocindex:]
+                return newloc
+            else:
+                newloc = details[newlocindex:newlocend + 1]
+                return newloc
+        details_list = details.split()
+        # look for lat/long coordinates in the location details. If provided,
+        # then channel location hints are not needed in the  maps query
+        if re.match(r'^\s*-?\d{1,2}\.?\d*,\s*-?\d{1,3}\.?\d*\s*$',
+                    details):  # regex looks for lat/long in the format similar to 42.434546, -83.985195.
+            return "https://www.google.com/maps/search/?api=1&query={0}".format('+'.join(details_list))
+        loc_list = self.bot.guild_dict[channel.guild.id]['configure_dict'][report]['report_channels'][channel.id].split()
+        return 'https://www.google.com/maps/search/?api=1&query={0}+{1}'.format('+'.join(details_list),
+                                                                                '+'.join(loc_list))
+
 def setup(bot):
     bot.add_cog(Utilities(bot))

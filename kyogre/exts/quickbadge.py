@@ -2,8 +2,7 @@ import discord
 from discord import PartialEmoji
 from discord.ext import commands
 
-from kyogre import utils, checks
-from kyogre.exts.pokemon import Pokemon
+from kyogre import utils
 
 
 class QuickBadge(commands.Cog):
@@ -17,7 +16,8 @@ class QuickBadge(commands.Cog):
     @commands.command(hidden=True, aliases=['aqb'])
     @commands.has_permissions(manage_roles=True)
     async def add_quick_badge(self, ctx, badge: PartialEmoji, badge_id: int):
-        quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict'].get('quick_badge', self.quick_badge_dict_default)
+        quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
+            .get('quick_badge', self.quick_badge_dict_default)
         if len(quick_badge_dict['listen_channels']) < 1:
             await ctx.channel.send('No Quick-Badge listen channels set.', delete_after=10)
             return await ctx.message.add_reaction(self.failed_react)
@@ -32,7 +32,8 @@ class QuickBadge(commands.Cog):
         qbl_channel =  await self.qblc_channel_helper(ctx, item)
         if qbl_channel is None:
             return
-        quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict'].get('quick_badge', self.quick_badge_dict_default)
+        quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
+            .get('quick_badge', self.quick_badge_dict_default)
         quick_badge_dict['listen_channels'].append(qbl_channel.id)
         self.bot.guild_dict[ctx.guild.id]['configure_dict']['quick_badge'] = quick_badge_dict
         await ctx.channel.send(f'{qbl_channel.mention} added to Quick-Badge Listen channels list.', delete_after=10)
@@ -44,7 +45,8 @@ class QuickBadge(commands.Cog):
         qbl_channel =  await self.qblc_channel_helper(ctx, item)
         if qbl_channel is None:
             return
-        quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict'].get('quick_badge', self.quick_badge_dict_default)
+        quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
+            .get('quick_badge', self.quick_badge_dict_default)
         if qbl_channel.id in quick_badge_dict['listen_channels']:
             quick_badge_dict['listen_channels'].remove(qbl_channel.id)
             self.bot.guild_dict[ctx.guild.id]['configure_dict']['quick_badge'] = quick_badge_dict
@@ -61,7 +63,8 @@ class QuickBadge(commands.Cog):
             return
         if 'quick_badge' in self.bot.guild_dict[ctx.guild.id]['configure_dict']:
             print(self.bot.guild_dict[ctx.guild.id]['configure_dict']['quick_badge'])
-        quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict'].get('quick_badge', self.quick_badge_dict_default)
+        quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
+            .get('quick_badge', self.quick_badge_dict_default)
         quick_badge_dict['pokenav_channel'] = qbl_channel.id
         self.bot.guild_dict[ctx.guild.id]['configure_dict']['quick_badge'] = quick_badge_dict
         await ctx.channel.send(f"{qbl_channel.mention} set as your guild's Pokenav channel.", delete_after=10)
@@ -88,7 +91,8 @@ class QuickBadge(commands.Cog):
             return
         guild = message.guild
 
-        quick_badge_dict = self.bot.guild_dict[guild.id]['configure_dict'].get('quick_badge', self.quick_badge_dict_default)
+        quick_badge_dict = self.bot.guild_dict[guild.id]['configure_dict']\
+            .get('quick_badge', self.quick_badge_dict_default)
         if quick_badge_dict['pokenav_channel'] == 0 or payload.channel_id not in quick_badge_dict['listen_channels']:
             return
         
@@ -98,18 +102,18 @@ class QuickBadge(commands.Cog):
             except AttributeError:
                 return
         badge_id = quick_badge_dict['badges'][payload.emoji.id]
-        modqueue_id = self.bot.guild_dict[guild.id]['configure_dict'].get('modqueue', None)
-        if modqueue_id is not None:
-            modqueue_channel = self.bot.get_channel(modqueue_id)
-            try:
-                mod = guild.get_member(payload.user_id)
-            except AttributeError:
-                return
-            check_msg = await modqueue_channel.send(f"{mod.mention} Do you want to grant badge **{badge_id}** to user: **{user.display_name}** ?")
-            reaction, __ = await utils.ask(self.bot, check_msg, [payload.user_id])
-            if reaction.emoji != self.success_react:
-                await check_msg.add_reaction('🚫')
-                return await modqueue_channel.send("No badge will be granted.")
+        # modqueue_id = self.bot.guild_dict[guild.id]['configure_dict'].get('modqueue', None)
+        # if modqueue_id is not None:
+        #     modqueue_channel = self.bot.get_channel(modqueue_id)
+        #     try:
+        #         mod = guild.get_member(payload.user_id)
+        #     except AttributeError:
+        #         return
+        #     check_msg = await modqueue_channel.send(f"{mod.mention} Do you want to grant badge **{badge_id}** to user: **{user.display_name}** ?")
+        #     reaction, __ = await utils.ask(self.bot, check_msg, [payload.user_id])
+        #     if reaction.emoji != self.success_react:
+        #         await check_msg.add_reaction('🚫')
+        #         return await modqueue_channel.send("No badge will be granted.")
 
         send_channel = self.bot.get_channel(quick_badge_dict['pokenav_channel'])
         await send_channel.send(f"$gb {badge_id} {user.mention}")

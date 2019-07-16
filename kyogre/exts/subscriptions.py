@@ -677,6 +677,129 @@ class Subscriptions(commands.Cog):
         gyms = location_matching_cog.get_gyms(guild_id, regions)
         return gyms
 
+    async def send_notifications_async(self, type, details, new_channel, exclusions=[]):
+        valid_types = ['raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure']
+        if type not in valid_types:
+            return
+        guild = new_channel.guild
+        # get trainers
+        try:
+            results = (SubscriptionTable
+                       .select(SubscriptionTable.trainer, SubscriptionTable.target, SubscriptionTable.specific)
+                       .join(TrainerTable, on=(SubscriptionTable.trainer == TrainerTable.snowflake))
+                       .where((SubscriptionTable.type == type) |
+                              (SubscriptionTable.type == 'pokemon') |
+                              (SubscriptionTable.type == 'gym'))
+                       .where(TrainerTable.guild == guild.id)).execute()
+        except:
+            return
+        # group targets by trainer
+        trainers = set([s.trainer for s in results])
+        target_dict = {t: {s.target: s.specific for s in results if s.trainer == t} for t in trainers}
+        regions = set(details.get('regions', []))
+        ex_eligible = details.get('ex-eligible', None)
+        tier = details.get('tier', None)
+        perfect = details.get('perfect', None)
+        pokemon_list = details.get('pokemon', [])
+        gym = details.get('location', None)
+        item = details.get('item', None)
+        lure_type = details.get('lure_type', None)
+        if not isinstance(pokemon_list, list):
+            pokemon_list = [pokemon_list]
+        location = details.get('location', None)
+        region_dict = self.bot.guild_dict[guild.id]['configure_dict'].get('regions', None)
+        outbound_dict = {}
+        # build final dict
+        for trainer in target_dict:
+            user = guild.get_member(trainer)
+            if trainer in exclusions or not user:
+                continue
+            if region_dict and region_dict.get('enabled', False):
+                matched_regions = [n for n, o in region_dict.get('info', {}).items() if
+                                   o['role'] in [r.name for r in user.roles]]
+                if regions and regions.isdisjoint(matched_regions):
+                    continue
+            targets = target_dict[trainer]
+            descriptors = []
+            target_matched = False
+            if 'ex-eligible' in targets and ex_eligible:
+                target_matched = True
+                descriptors.append('ex-eligible')
+            if tier and str(tier) in targets:
+                tier = str(tier)
+                if targets[tier]:
+                    try:
+                        current_gym_ids = targets[tier].strip('[').strip(']')
+                        split_id_string = current_gym_ids.split(', ')
+                        split_ids = []
+                        for s in split_id_string:
+                            try:
+                                split_ids.append(int(s))
+                            except ValueError:
+                                pass
+                        target_gyms = (GymTable
+                                       .select(LocationTable.id,
+                                               LocationTable.name,
+                                               LocationTable.latitude,
+                                               LocationTable.longitude,
+                                               RegionTable.name.alias('region'),
+                                               GymTable.ex_eligible,
+                                               LocationNoteTable.note)
+                                       .join(LocationTable)
+                                       .join(LocationRegionRelation)
+                                       .join(RegionTable)
+                                       .join(LocationNoteTable, JOIN.LEFT_OUTER,
+                                             on=(LocationNoteTable.location_id == LocationTable.id))
+                                       .where((LocationTable.guild == guild.id) &
+                                              (LocationTable.guild == RegionTable.guild) &
+                                              (LocationTable.id << split_ids)))
+                        target_gyms = target_gyms.objects(Gym)
+                        found_gym_names = [r.name for r in target_gyms]
+                        if gym in found_gym_names:
+                            target_matched = True
+                    except:
+                        pass
+                else:
+                    target_matched = True
+                descriptors.append('level {level}'.format(level=details['tier']))
+            pkmn_adj = ''
+            if perfect and 'perfect' in targets:
+                target_matched = True
+                pkmn_adj = 'perfect '
+            for pokemon in pokemon_list:
+                if pokemon.name in targets:
+                    target_matched = True
+                full_name = pkmn_adj + pokemon.name
+                descriptors.append(full_name)
+            if gym in targets:
+                target_matched = True
+            if item and item.lower() in targets:
+                target_matched = True
+            if 'shiny' in targets:
+                target_matched = True
+            if lure_type and lure_type in targets:
+                target_matched = True
+            if not target_matched:
+                continue
+            description = ', '.join(descriptors)
+            start = 'An' if re.match(r'^[aeiou]', description, re.I) else 'A'
+            if type == 'item':
+                start = 'An' if re.match(r'^[aeiou]', item, re.I) else 'A'
+                message = f'{start} **{item}** task has been reported at {location}! For more details, go to the {new_channel.mention} channel.'
+            elif type == 'lure':
+                message = f'A **{lure_type.capitalize()}** lure has been dropped at {location}!'
+            else:
+                message = f'**New {type.title()}**! {start} {description} {type} at {location} has been reported! For more details, go to the {new_channel.mention} channel!'
+            outbound_dict[trainer] = {'discord_obj': user, 'message': message}
+        pokemon_names = ' '.join([p.name for p in pokemon_list])
+        if type == 'item':
+            role_name = utils.sanitize_name(f"{item} {location}".title())
+        elif type == 'lure':
+            role_name = utils.sanitize_name(f'{lure_type} {location}'.title())
+        else:
+            role_name = utils.sanitize_name(f"{type} {pokemon_names} {location}".title())
+        return await self.generate_role_notification_async(role_name, new_channel, outbound_dict)
+
     async def generate_role_notification_async(self, role_name, channel, outbound_dict):
         """Generates and handles a temporary role notification in the new raid channel"""
         if len(outbound_dict) == 0:
