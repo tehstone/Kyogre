@@ -26,7 +26,10 @@ class InviteRoleCog(commands.Cog):
     @inviterole.command(name='add', aliases=['create'])
     @commands.has_permissions(manage_roles=True)
     async def _add(self, ctx, *, info):
-        info = re.split(r'\s*,*\s*', info)
+        info = re.split(r',*\s+', info)
+        if len(info) < 2:
+            await ctx.message.add_reaction(self.failed_react)
+            return await ctx.send("Please provide both an invite code and a role name.", delete_after=10)
         invite_code = info[0]
         role_id = info[1]
         invite = await self._validate_invite_code(ctx, invite_code)
@@ -79,7 +82,10 @@ class InviteRoleCog(commands.Cog):
     @inviterole.command(name='update', aliases=['up', 'ud', 'change', 'ch'])
     @commands.has_permissions(manage_roles=True)
     async def _update(self, ctx, *, info):
-        info = re.split(r'\s*,*\s*', info)
+        info = re.split(r',*\s+', info)
+        if len(info) < 2:
+            await ctx.message.add_reaction(self.failed_react)
+            return await ctx.send("Please provide both an invite code and a role name.", delete_after=10)
         invite_code = info[0]
         role_id = info[1]
         invite = await self._validate_invite_code(ctx, invite_code)
