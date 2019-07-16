@@ -443,9 +443,10 @@ class AdminCommands(commands.Cog):
         if self.can_manage(ctx.message.author):
             guild = ctx.message.guild
             join_dict = self.bot.guild_dict[guild.id]['configure_dict'].setdefault('join')
-            if join_dict.get('enabled', False):
+            if not join_dict.get('enabled', False):
                 join_dict['enabled'] = True
-                join_dict['general'] = "No general invite link has been set."
+                if 'general' not in join_dict:
+                    join_dict['general'] = "No general invite link has been set."
             join_dict[region] = link
             if region == 'general':
                 await ctx.channel.send("General invite link set.")
