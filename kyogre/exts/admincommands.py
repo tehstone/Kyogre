@@ -26,6 +26,15 @@ class AdminCommands(commands.Cog):
         self.failed_react = '❌'
         self.success_react = '✅'
 
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, (commands.BadArgument, commands.MissingRequiredArgument)):
+            ctx.resolved = True
+            return await ctx.send_help(ctx.command)
+            # if ctx.command.qualified_name == 'tag':
+            #     await ctx.send_help(ctx.command)
+            # else:
+            #     await ctx.send(error)
+
     @commands.command(hidden=True, name='mention_toggle', aliases=['mt'])
     @commands.has_permissions(manage_roles=True)
     async def mention_toggle(self, ctx, rolename):
@@ -462,6 +471,7 @@ class AdminCommands(commands.Cog):
         return False
 
     @commands.command(aliases=["smc"], hidden=True)
+    @commands.has_permissions(administrator=True)
     async def set_modqueue_channel(self, ctx, item):
         utilities_cog = self.bot.cogs.get('Utilities')
         if not utilities_cog:
@@ -474,7 +484,59 @@ class AdminCommands(commands.Cog):
         self.bot.guild_dict[ctx.guild.id]['configure_dict']['modqueue'] = mq_channel.id
         await ctx.channel.send(f'Mod queue channel set to {mq_channel.mention}.', delete_after=10)
         return await ctx.message.add_reaction(self.success_react)
-            
+    
+    @commands.command(name="grantroles", aliases=["gr"], hidden=True)
+    @commands.has_permissions(administrator=True)
+    async def _grantroles(self, ctx, member: discord.Member, roles: commands.Greedy[discord.Role]):
+        if len(roles) < 1:
+            await ctx.message.add_reaction(self.failed_react)
+            return await ctx.send("No roles provided, must include at least 1 role with only a space between role names")
+        await ctx.trigger_typing()
+        try:
+            await member.add_roles(*roles)
+            await asyncio.sleep(0.5)
+            failed = []
+            rolenames = []
+            for role in roles:
+                rolenames.append(role.name)
+                if role not in member.roles:
+                    await ctx.message.add_reaction(self.failed_react)
+                    failed.append(role.name)
+            if len(failed) > 0:
+                return await ctx.send(f"Failed to add the roles: {', '.join(failed)} to {member.display_name}.", delete_after=10)
+            else:
+                await ctx.message.add_reaction(self.success_react)
+                return await ctx.send(f"Granted {', '.join(rolenames)} to {member.display_name}", delete_after=10)
+            success = role in member.roles
+        except discord.Forbidden:
+            await ctx.message.add_reaction(self.failed_react)
+            return await ctx.send(f"Failed to grant {', '.join(rolenames)} to {member.display_name} because you do not have permission", delete_after=10)
+
+    @commands.command(name="ungrantroles", aliases=["ug"], hidden=True)
+    @commands.has_permissions(administrator=True)
+    async def _ungrantroles(self, ctx, member: discord.Member, roles: commands.Greedy[discord.Role]):
+        if len(roles) < 1:
+            await ctx.message.add_reaction(self.failed_react)
+            return await ctx.send("No roles provided, must include at least 1 role with only a space between role names")
+        await ctx.trigger_typing()
+        try:
+            await member.remove_roles(*roles)
+            await asyncio.sleep(0.5)
+            failed = []
+            rolenames = []
+            for role in roles:
+                rolenames.append(role.name)
+                if role in member.roles:
+                    await ctx.message.add_reaction(self.failed_react)
+                    failed.append(role.name)
+            if len(failed) > 0:
+                return await ctx.send(f"Failed to remove the roles: {', '.join(failed)} from {member.display_name}.", delete_after=10)
+            else:
+                await ctx.message.add_reaction(self.success_react)
+                return await ctx.send(f"Removed {', '.join(rolenames)} from {member.display_name}", delete_after=10)
+        except discord.Forbidden:
+            await ctx.message.add_reaction(self.failed_react)
+            return await ctx.send(f"Failed to remove {', '.join(rolenames)} from {member.display_name} because you do not have permission", delete_after=10)
 
 
 def setup(bot):

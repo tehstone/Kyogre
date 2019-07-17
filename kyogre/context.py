@@ -19,6 +19,7 @@ class Context(commands.Context):
                 return
         guild_data = self.bot.guild_dict[self.guild.id]
         self.data = settings.GuildData(self, guild_data)
+        self.resolved = False
 
     async def codeblock(self, contents, syntax="py", send=True, title=None):
         paginator = commands.Paginator(prefix=f'```{syntax}', max_size=1900)

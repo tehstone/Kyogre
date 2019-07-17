@@ -186,6 +186,8 @@ def custom_error_handling(bot, logger):
 
     @bot.event
     async def on_command_error(ctx, error):
+        if ctx.resolved:
+            return
         channel = ctx.channel
         prefix = ctx.prefix.replace(ctx.bot.user.mention, '@' + ctx.bot.user.name)
         if isinstance(error, commands.MissingRequiredArgument):

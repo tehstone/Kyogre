@@ -101,7 +101,9 @@ class QuickBadge(commands.Cog):
                 user = guild.get_member(message.author.id)
             except AttributeError:
                 return
-        badge_id = quick_badge_dict['badges'][payload.emoji.id]
+            badge_id = quick_badge_dict['badges'][payload.emoji.id]
+            send_channel = self.bot.get_channel(quick_badge_dict['pokenav_channel'])
+            await send_channel.send(f"$gb {badge_id} {user.mention}")
         # modqueue_id = self.bot.guild_dict[guild.id]['configure_dict'].get('modqueue', None)
         # if modqueue_id is not None:
         #     modqueue_channel = self.bot.get_channel(modqueue_id)
@@ -114,9 +116,6 @@ class QuickBadge(commands.Cog):
         #     if reaction.emoji != self.success_react:
         #         await check_msg.add_reaction('🚫')
         #         return await modqueue_channel.send("No badge will be granted.")
-
-        send_channel = self.bot.get_channel(quick_badge_dict['pokenav_channel'])
-        await send_channel.send(f"$gb {badge_id} {user.mention}")
 
 
 def setup(bot):
