@@ -1,4 +1,4 @@
-requests==2.18.4
+requests==2.20.0
 hastebin.py==0.2
 python-dateutil==2.6.1
 fuzzywuzzy==0.15.1
