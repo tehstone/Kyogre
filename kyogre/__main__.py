@@ -1339,17 +1339,13 @@ def get_existing_raid(guild, location, only_ex = False):
     return [channel_id for channel_id, report in report_dict.items() if matches_existing(report)]
 
 
-@Kyogre.group(name="raid", aliases=['r', 're', 'egg', 'regg', 'raidegg', '1', '2', '3', '4', '5'])
+@Kyogre.group(name="raid", aliases=['r', 're', 'egg', 'regg', 'raidegg', '1', '2', '3', '4', '5'],
+    brief="Report an ongoing raid or a raid egg.")
 @checks.allowraidreport()
 async def _raid(ctx, pokemon, *, location:commands.clean_content(fix_channel_mentions=True) = "",
                 weather = None, timer = None):
-    """Report an ongoing raid or a raid egg.
-
-    Usage: !raid <species/level> <gym name> [minutes]
-    Kyogre will attempt to find a gym with the name you provide
-    Kyogre's message will also include the type weaknesses of the boss.
-
-    Finally, Kyogre will create a separate channel for the raid report, for the purposes of organizing the raid."""
+    """**Usage**: `!raid <raid tier/pokemon> <gym name> [time]`
+    Kyogre will attempt to find a gym with the name you provide and create a separate channel for the raid report, for the purposes of organizing the raid."""
     if ctx.invoked_with.isdigit():
         content = f"{ctx.invoked_with} {pokemon} {location} {weather if weather is not None else ''} " \
             f"{timer if timer is not None else ''}"
@@ -2229,7 +2225,7 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
     event_loop.create_task(expiry_check(raid_channel))
 
 
-@Kyogre.group(name="raidnotice", aliases=['rn'], case_insensitive=True)
+@Kyogre.group(name="raidnotice", case_insensitive=True)
 @checks.allowraidreport()
 async def _raidnotice(ctx):
     """Handles raid notification related commands"""
@@ -3340,7 +3336,7 @@ async def shout(ctx, *, shout_message):
     await message.delete()
 
 
-@Kyogre.command(aliases=['i', 'maybe'])
+@Kyogre.command(name='interested', aliases=['i', 'maybe'])
 @checks.activechannel()
 async def interested(ctx, *, teamcounts: str = None):
     """Indicate you are interested in the raid.

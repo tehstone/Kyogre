@@ -12,7 +12,7 @@ class WildSpawnCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command.command(name='lure', aliases=['lu'])
+    @commands.command(name='lure', aliases=['lu'])
     async def _lure(self, ctx, type, *, location):
         """Report that you're luring a pokestop.
 

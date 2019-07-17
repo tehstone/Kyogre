@@ -307,6 +307,15 @@ def check_adminchannel(ctx):
     channel_list = [x for x in ctx.bot.guild_dict[guild.id]['configure_dict'].get('admin',{}).get('command_channels',[])]
     return channel.id in channel_list
 
+def check_report(ctx):
+    if check_raidreport(ctx):
+        return True
+    elif check_wildreport(ctx):
+        return True
+    elif check_researchreport(ctx):
+        return True
+    return False
+
 #Decorators
 def allowreports():
     def predicate(ctx):

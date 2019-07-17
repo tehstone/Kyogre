@@ -15,13 +15,11 @@ class WildSpawnCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="wild", aliases=['w'])
+    @commands.command(name="wild", aliases=['w'], brief="Report a wild Pokemon spawn location.")
     @checks.allowwildreport()
     async def _wild(self, ctx, pokemon, *, location):
-        """Report a wild Pokemon spawn location.
-
-        Usage: !wild <species> <location>
-        Location should be the name of a Pokestop or Gym. Or a google maps link."""
+        """**Usage**: `!wild <pokemon> <location>`
+        Location can be a pokestop name, gym name, Google or Apple Maps link."""
         content = f"{pokemon} {location}"
         message = ctx.message
         guild = message.guild

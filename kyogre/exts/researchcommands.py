@@ -16,18 +16,12 @@ class ResearchCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['res'])
+    @commands.command(aliases=['res'], brief="Report a Field Research task")
     @checks.allowresearchreport()
     async def research(self, ctx, *, details=None):
-        """Report Field research
-        Start a guided report method with just !research.
-
-        If you want to do a quick report, provide the pokestop name followed by the task text with a comma in between.
-        Do not include any other commas.
-
-        If you reverse the order, Kyogre will attempt to determine the pokestop.
-
-        Usage: !research [pokestop name, quest]"""
+        """**Usage**: `!research [pokestop name, quest]`
+        Use just the command to start a guided session.
+        Or provide Pokestop name and quest info to complete the report."""
         message = ctx.message
         channel = message.channel
         author = message.author
