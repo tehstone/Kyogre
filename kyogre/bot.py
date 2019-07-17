@@ -20,6 +20,7 @@ default_exts = ['admincommands',
                 'inviterole',
                 'locationmanagement',
                 'locationmatching',
+                'lurecommands',
                 'misc',
                 'pokemon',
                 'pvp',
@@ -34,7 +35,8 @@ default_exts = ['admincommands',
                 'subscriptions',
                 'trade',
                 'tutorial',
-                'utilities']
+                'utilities',
+                'wildspawncommands']
 
 def _prefix_callable(bot, msg):
     user_id = bot.user.id

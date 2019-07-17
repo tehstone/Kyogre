@@ -1,3 +1,4 @@
+import asyncio
 import re
 
 import discord
@@ -70,6 +71,12 @@ class Utilities(commands.Cog):
         loc_list = self.bot.guild_dict[channel.guild.id]['configure_dict'][report]['report_channels'][channel.id].split()
         return 'https://www.google.com/maps/search/?api=1&query={0}+{1}'.format('+'.join(details_list),
                                                                                 '+'.join(loc_list))
+
+    @staticmethod
+    async def reaction_delay(message, reacts, delay=0.25):
+        for r in reacts:
+            await asyncio.sleep(delay)
+            await message.add_reaction(r)
 
 def setup(bot):
     bot.add_cog(Utilities(bot))
