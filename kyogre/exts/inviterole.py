@@ -26,6 +26,10 @@ class InviteRoleCog(commands.Cog):
     @inviterole.command(name='add', aliases=['create'])
     @commands.has_permissions(manage_roles=True)
     async def _add(self, ctx, *, info):
+        """**Usage**: `!inviterole/ir add <code> <role>`
+        Sets a role to be assigned to users joining with the provided code
+        Code must be the last part of a discord invite link
+        role must be a role set up on the server."""
         info = re.split(r',*\s+', info)
         if len(info) < 2:
             await ctx.message.add_reaction(self.failed_react)
@@ -61,6 +65,9 @@ class InviteRoleCog(commands.Cog):
     @inviterole.command(name='remove', aliases=['rm', 'rem', 'del', 'delete'])
     @commands.has_permissions(manage_roles=True)
     async def _remove(self, ctx, invite_code):
+        """**Usage**: `!inviterole/ir remove <code>`
+        Deletes the role assignment for the code provided.
+        Code must be the last part of a discord invite link."""
         invites = await ctx.guild.invites()
         invite = await self._validate_invite_code(ctx, invite_code)
         if not invite:
@@ -82,6 +89,10 @@ class InviteRoleCog(commands.Cog):
     @inviterole.command(name='update', aliases=['up', 'ud', 'change', 'ch'])
     @commands.has_permissions(manage_roles=True)
     async def _update(self, ctx, *, info):
+        """**Usage**: `!inviterole/ir update/up <code> <role>`
+        Updates the role assignment for the code provided
+        Code must be the last part of a discord invite link.
+        Role must be a role set up on the server."""
         info = re.split(r',*\s+', info)
         if len(info) < 2:
             await ctx.message.add_reaction(self.failed_react)
@@ -113,6 +124,8 @@ class InviteRoleCog(commands.Cog):
     @inviterole.command(name='list', aliases=['l', 'li'])
     @commands.has_permissions(manage_roles=True)
     async def _list(self, ctx):
+        """**Usage**: `!inviterole/ir list`
+        Lists all invite role assignments created."""
         invite_roles = (InviteRoleTable
                         .select(InviteRoleTable.invite,
                                 InviteRoleTable.role)

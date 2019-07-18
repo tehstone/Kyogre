@@ -38,6 +38,9 @@ class AdminCommands(commands.Cog):
     @commands.command(hidden=True, name='mention_toggle', aliases=['mt'])
     @commands.has_permissions(manage_roles=True)
     async def mention_toggle(self, ctx, rolename):
+        """**Usage**: `!mention_toggle/mt <role>`
+        Enables or disables the "role can be tagged" setting for the role provided.
+        """
         role = discord.utils.get(ctx.guild.roles, name=rolename)
         if role:
             await role.edit(mentionable=not role.mentionable)
@@ -107,10 +110,8 @@ class AdminCommands(commands.Cog):
     @commands.command(name='save')
     @checks.is_owner()
     async def save_command(self, ctx):
-        """Save persistent state to file.
-
-        Usage: !save
-        File path is relative to current directory."""
+        """**Usage**: `!save`
+        Save persistent state to file, path is relative to current directory."""
         try:
             await self.save(ctx.guild.id)
             self.bot.logger.info('CONFIG SAVED')
@@ -156,9 +157,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @checks.is_owner()
     async def restart(self, ctx):
-        """Restart after saving.
-
-        Usage: !restart.
+        """**Usage**: `!restart`
         Calls the save function and restarts Kyogre."""
         try:
             await self.save(ctx.guild.id)
@@ -172,10 +171,9 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @checks.is_owner()
     async def exit(self, ctx):
-        """Exit after saving.
-
-        Usage: !exit.
-        Calls the save function and quits the script."""
+        """**Usage**: `!exit`
+        Calls the save function and shuts down the bot.
+        **Note**: If running bot through docker, Kyogre will likely restart."""
         try:
             await self.save(ctx.guild.id)
         except Exception as err:
@@ -223,9 +221,8 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_guild=True)
     async def welcome(self, ctx, user: discord.Member=None):
-        """Test welcome on yourself or mentioned member.
-
-        Usage: !welcome [@member]"""
+        """**Usage**: `!welcome [@member]`
+        Test welcome on yourself or mentioned member"""
         if (not user):
             user = ctx.author
         await self.bot.on_member_join(user)
@@ -233,9 +230,7 @@ class AdminCommands(commands.Cog):
     @commands.command(hidden=True,aliases=['opl'])
     @commands.has_permissions(manage_guild=True)
     async def outputlog(self, ctx):
-        """Get current Kyogre log.
-
-        Usage: !outputlog
+        """**Usage**: `!outputlog`
         Replies with a file download of the current log file."""
         with open(os.path.join('logs', 'kyogre.log'), 'rb') as logfile:
             await ctx.send(file=discord.File(logfile, filename=f'log{int(time.time())}.txt'))
@@ -244,10 +239,10 @@ class AdminCommands(commands.Cog):
     @commands.command(aliases=['say'])
     @commands.has_permissions(manage_guild=True)
     async def announce(self, ctx, *, announce=None):
-        """Repeats your message in an embed from Kyogre.
-
-        Usage: !announce [announcement]
-        If the announcement isn't added at the same time as the command, Kyogre will wait 3 minutes for a followup message containing the announcement."""
+        """**Usage**: `!announce/say [message]`
+        Prompts to provide a title, if no message provided will prompt for message,
+        prompts for destination channel.
+        """
         message = ctx.message
         channel = message.channel
         guild = message.guild
@@ -448,6 +443,11 @@ class AdminCommands(commands.Cog):
     @commands.command(aliases=["aj"], hidden=True)
     @checks.allowjoin()
     async def addjoin(self, ctx, link, region='general'):
+        """**Usage**: `!addjoin/aj <discord invite link> [region]`
+        Adds a join link for the region provided so it can be access with
+        `!join <region>`. If no region is provided, will set the default
+        invite link. Be careful not to change the default link unintentionally!
+        """
         await ctx.message.delete()
         if self.can_manage(ctx.message.author):
             guild = ctx.message.guild
@@ -488,6 +488,9 @@ class AdminCommands(commands.Cog):
     @commands.command(name="grantroles", aliases=["gr"], hidden=True)
     @commands.has_permissions(administrator=True)
     async def _grantroles(self, ctx, member: discord.Member, roles: commands.Greedy[discord.Role]):
+        """**Usage**: `!grantroles/gr <member> <role(s)>`
+        Provide a username followed by 1 or a list of role names
+        and those roles will be assigned to that user."""
         if len(roles) < 1:
             await ctx.message.add_reaction(self.failed_react)
             return await ctx.send("No roles provided, must include at least 1 role with only a space between role names")
@@ -515,6 +518,9 @@ class AdminCommands(commands.Cog):
     @commands.command(name="ungrantroles", aliases=["ug"], hidden=True)
     @commands.has_permissions(administrator=True)
     async def _ungrantroles(self, ctx, member: discord.Member, roles: commands.Greedy[discord.Role]):
+        """**Usage**: `!ungrantroles/ug <member> <role(s)>`
+        Provide a username followed by 1 or a list of role names
+        and those roles will be removed from that user."""
         if len(roles) < 1:
             await ctx.message.add_reaction(self.failed_react)
             return await ctx.send("No roles provided, must include at least 1 role with only a space between role names")

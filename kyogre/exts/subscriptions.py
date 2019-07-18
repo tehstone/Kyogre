@@ -276,12 +276,12 @@ class Subscriptions(commands.Cog):
     async def _sub_add(self, ctx, *, content=None):
         """Create a subscription
 
-        Usage: !sub add <type> <target>
+        **Usage**: `!sub add <type> <target>`
         Kyogre will send you a notification if an event is generated
         matching the details of your subscription.
         
-        Valid types are: pokemon, raid, research, wild, and gym
-        Note: 'Pokemon' includes raid, research, and wild reports"""
+        **Valid types**: `pokemon, raid, research, wild, gym, item, lure`
+        **Note**: 'pokemon' includes raid, research, and wild reports"""
         subscription_types = ['pokemon','raid','research','wild','nest','gym','shiny','item','lure']
         message = ctx.message
         channel = message.channel
@@ -362,14 +362,17 @@ class Subscriptions(commands.Cog):
     async def _sub_remove(self, ctx, *, content=None):
         """Remove a subscription
 
-        Usage: !sub remove <type> <target>
+        **Usage**: `!sub remove <type> <target>`
         You will no longer be notified of the specified target for the given event type.
 
         You can remove all subscriptions of a type:
-        !sub remove <type> all
+        `!sub remove <type> all`
 
         Or remove all subscriptions:
-        !sub remove all all"""
+        `!sub remove all all`
+
+        **Valid types**: `pokemon, raid, research, wild, gym, item, lure`
+        **Note**: 'pokemon' includes raid, research, and wild reports"""
         subscription_types = ['all','pokemon','raid','research','wild','nest','gym','shiny','item','lure']
         message = ctx.message
         channel = message.channel
@@ -499,12 +502,14 @@ class Subscriptions(commands.Cog):
 
     @_sub.command(name="list", aliases=["ls"])
     async def _sub_list(self, ctx, *, content=None):
-        """List the subscriptions for the user
+        """Receive a list of all your current subscriptions
 
-        Usage: !sub list <type> 
-        Leave type empty to receive complete list of all subscriptions.
-        Or include a type to receive a specific list
-        Valid types are: pokemon, raid, research, wild, and gym"""
+        **Usage**: `!sub list [type]`
+        
+        Include a type to receive a specific list
+        **Valid types are**: `pokemon, raid, research, wild, gym, item, lure`
+
+        Or leave type empty to receive complete list of all subscriptions."""
         message = ctx.message
         channel = message.channel
         author = message.author

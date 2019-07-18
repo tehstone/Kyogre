@@ -11,8 +11,14 @@ class MyHelpCommand(commands.DefaultHelpCommand):
                                 "time": ["starttime", "timerset"],
                                 "other": ["list", "lobby", "starting", "backout", "shout", "weather", "counters"]
                                 },
-                "mod": [],
-                "admin": []
+                "pvp": ["pvp available", "pvp add", "pvp remove"],
+                "subscriptions": ["subscription list", "subscription add", "subscription remove"],
+                "helper": [],
+                "mod": ["mention_toggle", "addjoin", "inviterole add", "inviterole update", 
+                "inviterole remove", "inviterole list"],
+                "server_admin": ["announce", "grantroles", "ungrantroles"],
+                "bot_admin": ["configure", "save", "exit", "restart", "welcome", "outputlog"],
+                "debug": ["outputlog"]
                 }
 
     def __init__(self, guild_dict):
@@ -35,9 +41,10 @@ class MyHelpCommand(commands.DefaultHelpCommand):
     async def send_bot_help(self, mapping):
         mapping_all = self._build_all_mapping(mapping)
         dest = self.get_destination()
+        help_embeds = []
         if checks.check_report(self.context):
             commands = self.mappings["reportchannel"]
-            help_embed = discord.Embed(colour=discord.Colour.orange(), description="**Help for Reporting Channels**")
+            help_embed = self._basic_embed_setup("Help for Reporting Channels")
             for com in commands:
                 try:
                     command = mapping_all[com]
@@ -47,12 +54,8 @@ class MyHelpCommand(commands.DefaultHelpCommand):
                     print(com)
             help_embed.set_footer(text=self.get_closing_note())
             return await dest.send(embed=help_embed)
-        elif self.is_raid_channel(self.context.guild.id, self.context.channel.id):
-            help_embed = discord.Embed(colour=discord.Colour.orange())
-            if self.avatar is not None:
-                help_embed.set_author(name="Help for Raid Channels", icon_url=self.avatar)
-            else:
-                help_embed.set_author(name="Help for Raid Channels")
+        elif checks.check_raidchannel(self.context):
+            help_embed = self._basic_embed_setup("Help for Raid Channels")
             status_val = "`!interested/coming/here/i/c/h`\nCan optionally include total party size and team counts:\n" \
                          "`!i 2` or `!i 3 1m 1v 1i`"
             help_embed.add_field(name="RSVP Commands", value=status_val)
@@ -72,27 +75,41 @@ class MyHelpCommand(commands.DefaultHelpCommand):
             return await dest.send(embed=self._generate_subscription_help(mapping_all))
         elif checks.check_pvpchannel(self.context):
             return await dest.send(embed=self._generate_pvp_help(mapping_all))
-        elif checks.has_role(self.context, "Admin"):
-            print("Is admin")
-            return await super().send_bot_help(mapping)
+        for role in self.context.author.roles:
+            if role.name == "Dev":
+                help_embeds.append(self._create_mapping_embed(mapping_all, "bot_admin"))
+            if role.name == "Admin":
+                help_embeds.append(self._create_mapping_embed(mapping_all, "server_admin"))
+            if role.name == "OfficerJenny" or role.name == "Admin":
+                help_embeds.append(self._create_mapping_embed(mapping_all, "mod"))
+            if role.name == "helper" or role.name == "OfficerJenny" or role.name == "Admin":
+                pass
+        if len(help_embeds) > 0:
+            for embed in help_embeds:
+                await dest.send(embed=embed)
+            return
         else:
             return await super().send_bot_help(mapping)
 
     async def send_command_help(self, command):
         dest = self.get_destination()
+        help_embed = None
         for com_set in self.mappings["raidchannel"]:
             if command.name in self.mappings["raidchannel"][com_set]:
-                help_embed = discord.Embed(colour=discord.Colour.orange())
-                if self.avatar is not None:
-                    help_embed.set_author(name=f"Help for {command.name}", icon_url=self.avatar)
-                else:
-                    help_embed.set_author(name=f"Help for {command.name}")
-                help_embed.description = command.help
-                help_embed.set_footer(text=self.get_closing_note(short=True))
+                help_embed = self._generate_command_help(command)
                 return await dest.send(embed=help_embed)
-        else:
-            return await super().send_command_help(command)
-        return
+        if command.qualified_name in self.mappings["pvp"] or command.qualified_name in self.mappings["subscriptions"]:
+            help_embed = self._generate_command_help(command)
+            return await dest.send(embed=help_embed)
+
+        return await super().send_command_help(command)
+
+    def _generate_command_help(self, command):
+        help_embed = self._basic_embed_setup(f"Help for {command.qualified_name}")
+        help_embed = discord.Embed(colour=discord.Colour.orange())
+        help_embed.description = command.help
+        help_embed.set_footer(text=self.get_closing_note(short=True))
+        return help_embed
 
     def _generate_subscription_help(self, mapping):
         description = "To start a guided subscription management session,\nsimply use `!sub`\n\n"
@@ -105,19 +122,12 @@ class MyHelpCommand(commands.DefaultHelpCommand):
         description += "**Remove all subscriptions**: `!sub rem all all`\n\n"
         description += "**Available types are**:\n"
         description += "pokemon, raid, research, wild, gym, item, lure"
-        help_embed = discord.Embed(colour=discord.Colour.orange(), description=description)
-        if self.avatar is not None:
-            help_embed.set_author(name="Help for Subscriptions", icon_url=self.avatar)
-        else:
-            help_embed.set_author(name="Help for Subscriptions")
+        help_embed = self._basic_embed_setup("Help for Subscriptions")
+        help_embed.description = description
         return help_embed
 
     def _generate_pvp_help(self, mapping):
-        help_embed = discord.Embed(colour=discord.Colour.orange())
-        if self.avatar is not None:
-            help_embed.set_author(name="Help for PVP", icon_url=self.avatar)
-        else:
-            help_embed.set_author(name="Help for PVP")
+        help_embed = self._basic_embed_setup(f"Help for PvP")
         for com in mapping:
             if com.startswith("pvp "):
                 try:
@@ -130,6 +140,24 @@ class MyHelpCommand(commands.DefaultHelpCommand):
                     print(com)
         return help_embed
 
+    def _create_mapping_embed(self, mapping, item):
+        help_embed = self._basic_embed_setup(f"Help for {item}s")
+        for com in self.mappings[item]:
+            try:
+                command = mapping[com]
+                help_embed.add_field(name=f"**{command.qualified_name}**", value=command.help, inline=False)
+            except KeyError:
+                print(com)
+        return help_embed
+
+    def _basic_embed_setup(self, title):
+        help_embed = discord.Embed(colour=discord.Colour.orange())
+        if self.avatar is not None:
+            help_embed.set_author(name=f"{title}", icon_url=self.avatar)
+        else:
+            help_embed.set_author(name=f"{title}")
+        return help_embed
+
     def get_closing_note(self, short=False):
         note = "Ping a @helper, @OfficerJenny, or @Admin if you need more assistance"
         if not short:
@@ -137,11 +165,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
         return note
 
     def get_command_signature(self, command):
-        return '{0.clean_prefix}{1.qualified_name} {1.signature}'.format(self, command)        
-
-    def is_raid_channel(self, guild_id, channel_id):
-        raid_channels = self.guild_dict[guild_id].get('raidchannel_dict',{}).keys()
-        return channel_id in raid_channels
+        return '{0.clean_prefix}{1.qualified_name} {1.signature}'.format(self, command)
 
 
 class HelpCommand(commands.Cog):
