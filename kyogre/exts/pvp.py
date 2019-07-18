@@ -121,7 +121,6 @@ class PvP(commands.Cog):
         """**Usage**: `!pvp add <friend>`
         **Usage**: `!pvp add AshKetchum#1234, ProfessorOak#5309`
         Provide any number of friends using their discord name including the "#0000" discriminator.
-
         Whenever one of your friends announces they are available to battle, Kyogre will notify you.
         """
         message = ctx.message

@@ -79,6 +79,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
             return
         else:
             help_embed = self._create_mapping_embed(mapping_all, "user")
+            help_embed.set_footer(text="More commands are available in specific channels so !help output may be more relevent there. Visit #ask_for_help channel if you need more help")
             return await dest.send(embed=help_embed)
 
     async def send_command_help(self, command):

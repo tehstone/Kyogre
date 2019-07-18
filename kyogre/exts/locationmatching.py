@@ -263,8 +263,7 @@ class LocationMatching(commands.Cog):
     async def _gym(self, ctx, *, name):
         """**Usage**: `!gym <gym name>`
         Look up locations to a gym by providing its name.
-        Gym name provided should be as close as possible to
-        the name displayed in game."""
+        Gym name provided should be as close as possible to the name displayed in game."""
         message = ctx.message
         channel = ctx.channel
         guild = ctx.guild
