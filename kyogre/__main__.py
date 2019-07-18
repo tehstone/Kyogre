@@ -722,6 +722,8 @@ async def on_ready():
                 'trainers':{}
             }
         owners.append(guild.owner)
+    help_cog = Kyogre.cogs.get('HelpCommand')
+    help_cog.set_avatar(Kyogre.user.avatar_url)
     await _print(Kyogre.owner, "{server_count} servers connected.\n{member_count} members found.".format(server_count=guilds, member_count=users))
     await maint_start()
 

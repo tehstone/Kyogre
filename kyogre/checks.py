@@ -62,6 +62,13 @@ def role_or_permissions(ctx, check, **perms):
     role = discord.utils.find(check, author.roles)
     return role is not None
 
+def has_role(ctx, role):
+    role = discord.utils.get(ctx.guild.roles, name=role)
+    if role is None:
+        return False
+    author = ctx.author
+    return role in author.roles
+
 def serverowner_or_permissions(**perms):
     def predicate(ctx):
         owner = ctx.guild.owner
