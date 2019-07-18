@@ -104,6 +104,10 @@ class LocationMatching(commands.Cog):
     @commands.command(hidden=True, aliases=["lmt"])
     @commands.has_permissions(manage_guild=True)
     async def location_match_test(self, ctx, *, content=None):
+        """**Usage**: `!lmt <type (stop/gym)>, <name>, [region]`
+        Looks up all locations with a name matching the one provided of the type provided.
+        Can optionally be filtered to a particular region.
+        """
         add_prefix = False
         if ',' not in content:
             return await ctx.send('Comma-separated type and name are required')
@@ -257,7 +261,8 @@ class LocationMatching(commands.Cog):
 
     @commands.command(name='gym')
     async def _gym(self, ctx, *, name):
-        """Lookup locations to a gym by providing it's name.
+        """**Usage**: `!gym <gym name>`
+        Look up locations to a gym by providing its name.
         Gym name provided should be as close as possible to
         the name displayed in game."""
         message = ctx.message

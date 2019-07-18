@@ -11,9 +11,8 @@ class Social(commands.Cog):
 
     @commands.command(hidden=True)
     async def profile(self, ctx, user: discord.Member = None):
-        """Displays a user's social and reporting profile.
-
-        Usage:!profile [user]"""
+        """**Usage**: `!profile [user]`
+        Displays a user's social and reporting profile. Don't include a name to view your own."""
         if not user:
             user = ctx.message.author
         silph = self.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {}).setdefault(user.id,{}).get('silphid',None)
@@ -45,9 +44,7 @@ class Social(commands.Cog):
 
     @commands.command()
     async def leaderboard(self, ctx, type="total", region=None):
-        """Displays the top ten reporters of a server.
-
-        Usage: !leaderboard [type] [region]
+        """**Usage**: `!leaderboard [type] [region]`
         Accepted types: raids, eggs, wilds, research, joined
         Region must be any configured region"""
         guild = ctx.guild

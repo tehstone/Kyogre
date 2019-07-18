@@ -1341,7 +1341,7 @@ def get_existing_raid(guild, location, only_ex = False):
     return [channel_id for channel_id, report in report_dict.items() if matches_existing(report)]
 
 
-@Kyogre.group(name="raid", aliases=['r', 're', 'egg', 'regg', 'raidegg', '1', '2', '3', '4', '5'],
+@Kyogre.command(name="raid", aliases=['r', 're', 'egg', 'regg', 'raidegg', '1', '2', '3', '4', '5'],
     brief="Report an ongoing raid or a raid egg.")
 @checks.allowraidreport()
 async def _raid(ctx, pokemon, *, location:commands.clean_content(fix_channel_mentions=True) = "",
@@ -2227,26 +2227,11 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
     event_loop.create_task(expiry_check(raid_channel))
 
 
-@Kyogre.group(name="raidnotice", case_insensitive=True)
-@checks.allowraidreport()
-async def _raidnotice(ctx):
-    """Handles raid notification related commands"""
-
-    if ctx.invoked_subcommand is None:
-        raise commands.BadArgument()
-
-
-@_raidnotice.command(name="available", aliases=["av"])
+@Kyogre.command(name="raidavailable", aliases=["rav"], brief="Report that you're actively looking for raids")
 async def _raid_available(ctx, exptime=None):
-    """Announces that you're available for raids
-    Usage: `!pvp available [time]`
-    Kyogre will post a message stating that you're available for PvP
-    for the next 30 minutes by default, or optionally for the amount 
-    of time you provide.
-
-    Kyogre will also notify any other users who have added you as 
-    a friend that you are now available.
-    """
+    """**Usage**: `!raidavailable/rav [time]`
+    Assigns a tag-able role (such as @renton-raids) to you so that others looking for raids can ask for help.
+    Tag will remain for 60 minutes by default or for the amount of time you provide. Provide '0' minutes to keep it in effect indefinitely."""
     message = ctx.message
     channel = message.channel
     guild = message.guild
@@ -2273,19 +2258,18 @@ async def _raid_available(ctx, exptime=None):
             except:
                 pass
             return
-    time_msg = None
     expiration_minutes = False
     time_err = "Unable to determine the time you provided, you will be notified for raids for the next 60 minutes"
     if exptime:
         if exptime.isdigit():
             if int(exptime) == 0:
-                expiration_minutes = 262800
+                expiration_minutes = 2628000
             else:
                 expiration_minutes = await utils.time_to_minute_count(guild_dict, channel, exptime, time_err)
     else:
         time_err = "No expiration time provided, you will be notified for raids for the next 60 minutes"
     if expiration_minutes is False:
-        time_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.orange(), description=time_err))
+        time_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.orange(), description=time_err), delete_after=10)
         expiration_minutes = 60
 
     now = datetime.datetime.utcnow() + datetime.timedelta(
@@ -2320,9 +2304,6 @@ async def _raid_available(ctx, exptime=None):
     event_loop.create_task(raid_notice_expiry_check(raid_notice_msg))
     
     await trainer.add_roles(*[role_to_assign], reason="User announced raid availability.")
-    if time_msg is not None:
-        await asyncio.sleep(10)
-        await time_msg.delete()
     await message.delete()
 
 

@@ -99,7 +99,8 @@ class SetCommands(commands.Cog):
 
     @_set.command()
     async def silph(self, ctx, silph_user: str = None):
-        """Links a server member to a Silph Road Travelers Card."""
+        """**Usage**: `!set silph <silph username>`
+        Links your Silph Trainer Card to your `!profile`"""
         if not silph_user:
             await ctx.send('Silph Road Travelers Card cleared!')
             try:
@@ -143,7 +144,8 @@ class SetCommands(commands.Cog):
 
     @_set.command()
     async def pokebattler(self, ctx, pbid: int = 0):
-        """Links a server member to a PokeBattler ID."""
+        """**Usage**: `!set silph <pokebattler id>`
+        Links your PokeBattler ID to your `!profile`"""
         if not pbid:
             await ctx.send('Pokebattler ID cleared!')
             try:

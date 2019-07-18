@@ -19,10 +19,9 @@ class LocationManagement(commands.Cog):
     @_loc.command(name="add")
     @commands.has_permissions(manage_guild=True)
     async def _loc_add(self, ctx, *, info):
-        """Adds a new location to the database
-
-        Requires type (gym/stop), name, latitude, longitude, region name in that order.
-        Optionally a true/false for ex eligibility can be provided as well."""
+        """**Usage**: `!loc add <type (gym/stop)>, <name>, <latitude>, <longitude>, <region>, [ex_eligible]`
+        Adds a new location to the database. ex_eligible is optional, all other are required.
+        *Order of information must be completely correct*."""
         channel = ctx.channel
         message = ctx.message
         ex_eligible = None
@@ -68,9 +67,8 @@ class LocationManagement(commands.Cog):
     @_loc.command(name="convert", aliases=["c"])
     @commands.has_permissions(manage_guild=True)
     async def _loc_convert(self, ctx, *, info):
-        """Changes a pokestop into a gym
-
-        Requires the name of a Pokestop."""
+        """**Usage**: `!loc convert/c <pokestop>`
+        Changes a pokestop into a gym."""
         channel = ctx.channel
         author = ctx.message.author
         stops = self._get_stops(ctx.guild.id, None)
@@ -92,10 +90,8 @@ class LocationManagement(commands.Cog):
     @_loc.command(name="extoggle", aliases=["ext"])
     @commands.has_permissions(manage_guild=True)
     async def _loc_extoggle(self, ctx, *, info):
-        """Toggles gym ex status
-
-        Requires the name of a gym. Ex status can't be set directly,
-        only swapped from its current state."""
+        """**Usage**: `!loc extoggle/ext <gym>`
+        Toggles the ex status of the provided gym."""
         channel = ctx.channel
         author = ctx.message.author
         gyms = self._get_gyms(ctx.guild.id, None)
@@ -117,10 +113,8 @@ class LocationManagement(commands.Cog):
     @_loc.command(name="changeregion", aliases=["cr"])
     @commands.has_permissions(manage_guild=True)
     async def _loc_change_region(self, ctx, *, info):
-        """Changes the region associated with a Location.
-
-        Requires type (stop/gym), the name of the location,
-        and the name of the new region it should be assigned to."""
+        """**Usage**: `!loc changeregion/cr <type (stop/gym)>, <name>, <region>
+        Changes the region of the provided location to the one provided."""
         channel = ctx.channel
         message = ctx.message
         author = message.author
@@ -157,10 +151,9 @@ class LocationManagement(commands.Cog):
     @_loc.command(name="deletelocation", aliases=["del"])
     @commands.has_permissions(manage_guild=True)
     async def _loc_deletelocation(self, ctx, *, info):
-        """Removes a location from the database
-
-        Requires type (stop/gym) and the name of the location.
-        Requires no confirmation, will delete as soon as the
+        """**Usage**: `!loc del <type (stop/gym), <name>`
+        Delete the location provided if found.
+        Does not prompt for confirmation, will delete as soon as the
         correct stop or gym is identified."""
         channel = ctx.channel
         message = ctx.message

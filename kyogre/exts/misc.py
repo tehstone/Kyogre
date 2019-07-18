@@ -76,6 +76,9 @@ class Misc(commands.Cog):
     @commands.command(aliases=["invite"])
     @checks.allowjoin()
     async def join(self, ctx, region='general'):
+        """**Usage**: `!join/invite [region]`
+        Returns the set invite link.
+        Provide a region name to get the invite link for that region."""
         channel = ctx.message.channel
         guild = ctx.message.guild
         join_dict = self.bot.guild_dict[guild.id]['configure_dict'].setdefault('join')

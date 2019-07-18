@@ -627,6 +627,8 @@ class Subscriptions(commands.Cog):
     @_sub.command(name="adminlist", aliases=["alist"])
     @commands.has_permissions(manage_guild=True)
     async def _sub_adminlist(self, ctx, *, trainer=None):
+        """**Usage**: `!sub adminlist/alist <member>`
+        Receive a list of all current subscriptions the provided member has"""
         message = ctx.message
         channel = message.channel
         author = message.author

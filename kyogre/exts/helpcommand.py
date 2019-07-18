@@ -6,17 +6,20 @@ from kyogre import checks
 
 class MyHelpCommand(commands.DefaultHelpCommand):
 
-    mappings = {"reportchannel": ["raid", "wild", "research", "lure"],
+    mappings = {"reportchannel": ["raid", "wild", "research", "lure", "raidavailable"],
                 "raidchannel": {"status": ["interested", "coming", "here", "cancel"],
                                 "time": ["starttime", "timerset"],
                                 "other": ["list", "lobby", "starting", "backout", "shout", "weather", "counters"]
                                 },
                 "pvp": ["pvp available", "pvp add", "pvp remove"],
                 "subscriptions": ["subscription list", "subscription add", "subscription remove"],
+                "user": ["join", "gym", "profile", "leaderboard", "set silph", "set pokebattler"],
                 "helper": [],
-                "mod": ["mention_toggle", "addjoin", "inviterole add", "inviterole update", 
+                "mod": ["mentiontoggle", "addjoin", "inviterole add", "inviterole update", 
                 "inviterole remove", "inviterole list"],
-                "server_admin": ["announce", "grantroles", "ungrantroles"],
+                "server_admin": ["announce", "grantroles", "ungrantroles", "subscription adminlist", 
+                                 "loc add", "loc convert", "loc extoggle", "loc changeregion",
+                                 "location_match_test"],
                 "bot_admin": ["configure", "save", "exit", "restart", "welcome", "outputlog"],
                 "debug": ["outputlog"]
                 }
@@ -55,21 +58,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
             help_embed.set_footer(text=self.get_closing_note())
             return await dest.send(embed=help_embed)
         elif checks.check_raidchannel(self.context):
-            help_embed = self._basic_embed_setup("Help for Raid Channels")
-            status_val = "`!interested/coming/here/i/c/h`\nCan optionally include total party size and team counts:\n" \
-                         "`!i 2` or `!i 3 1m 1v 1i`"
-            help_embed.add_field(name="RSVP Commands", value=status_val)
-            time_val = "`!timerset/ts <minutes>` to set the hatch/expire time\n" \
-                       "`!starttime/st <minutes>` to set the time your group will start"
-            help_embed.add_field(name="Time Commands", value=time_val)
-            lobby_val = "`!list` to view all RSVPs\n`!starting/s` to start a lobby\n`!lobby` to join a lobby" \
-                        "once it's started."
-            help_embed.add_field(name="Raid Lobby Commands", value=lobby_val)
-            other_val = "`!counters` to view information about the best counters for the raid boss\n" \
-                        "`!weather <weathertype>` to set the current weather. Must be one of:\n" \
-                        "`clear, sunny, rainy, partlycloudy, cloudy, windy, snow, fog`\n"
-            help_embed.add_field(name="Other Commands", value=other_val)
-            help_embed.set_footer(text=self.get_closing_note())
+            help_embed = self._generate_raidchannel_help()
             return await dest.send(embed=help_embed)
         elif checks.check_subscriptionchannel(self.context):
             return await dest.send(embed=self._generate_subscription_help(mapping_all))
@@ -89,7 +78,8 @@ class MyHelpCommand(commands.DefaultHelpCommand):
                 await dest.send(embed=embed)
             return
         else:
-            return await super().send_bot_help(mapping)
+            help_embed = self._create_mapping_embed(mapping_all, "user")
+            return await dest.send(embed=help_embed)
 
     async def send_command_help(self, command):
         dest = self.get_destination()
@@ -98,9 +88,10 @@ class MyHelpCommand(commands.DefaultHelpCommand):
             if command.name in self.mappings["raidchannel"][com_set]:
                 help_embed = self._generate_command_help(command)
                 return await dest.send(embed=help_embed)
-        if command.qualified_name in self.mappings["pvp"] or command.qualified_name in self.mappings["subscriptions"]:
-            help_embed = self._generate_command_help(command)
-            return await dest.send(embed=help_embed)
+        for com_set in self.mappings:
+            if command.qualified_name in self.mappings[com_set]:
+                help_embed = self._generate_command_help(command)
+                return await dest.send(embed=help_embed)
 
         return await super().send_command_help(command)
 
@@ -109,6 +100,24 @@ class MyHelpCommand(commands.DefaultHelpCommand):
         help_embed = discord.Embed(colour=discord.Colour.orange())
         help_embed.description = command.help
         help_embed.set_footer(text=self.get_closing_note(short=True))
+        return help_embed
+
+    def _generate_raidchannel_help(self):
+        help_embed = self._basic_embed_setup("Help for Raid Channels")
+        status_val = "`!interested/coming/here/i/c/h`\nCan optionally include total party size and team counts:\n" \
+                     "`!i 2` or `!i 3 1m 1v 1i`"
+        help_embed.add_field(name="RSVP Commands", value=status_val)
+        time_val = "`!timerset/ts <minutes>` to set the hatch/expire time\n" \
+                   "`!starttime/st <minutes>` to set the time your group will start"
+        help_embed.add_field(name="Time Commands", value=time_val)
+        lobby_val = "`!list` to view all RSVPs\n`!starting/s` to start a lobby\n`!lobby` to join a lobby" \
+                    "once it's started."
+        help_embed.add_field(name="Raid Lobby Commands", value=lobby_val)
+        other_val = "`!counters` to view information about the best counters for the raid boss\n" \
+                    "`!weather <weathertype>` to set the current weather. Must be one of:\n" \
+                    "`clear, sunny, rainy, partlycloudy, cloudy, windy, snow, fog`\n"
+        help_embed.add_field(name="Other Commands", value=other_val)
+        help_embed.set_footer(text=self.get_closing_note())
         return help_embed
 
     def _generate_subscription_help(self, mapping):
@@ -159,7 +168,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
         return help_embed
 
     def get_closing_note(self, short=False):
-        note = "Ping a @helper, @OfficerJenny, or @Admin if you need more assistance"
+        note = "Visit ask_for_help or ping a @helper, @OfficerJenny, or @Admin if you need more assistance"
         if not short:
             note = f'Use "{self.clean_prefix}help [command]" for more info on a command. ' + note
         return note

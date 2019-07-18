@@ -35,7 +35,7 @@ class AdminCommands(commands.Cog):
             # else:
             #     await ctx.send(error)
 
-    @commands.command(hidden=True, name='mention_toggle', aliases=['mt'])
+    @commands.command(hidden=True, name='mentiontoggle', aliases=['mt'])
     @commands.has_permissions(manage_roles=True)
     async def mention_toggle(self, ctx, rolename):
         """**Usage**: `!mention_toggle/mt <role>`
