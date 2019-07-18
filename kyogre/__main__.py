@@ -2714,10 +2714,11 @@ async def print_raid_timer(channel):
 @checks.raidchannel()
 async def timerset(ctx, *, timer):
     """Set the remaining duration on a raid.
-
-    Usage: !timerset <minutes>
-    Works only in raid channels, can be set or overridden by anyone.
-    Kyogre displays the end time in HH:MM local time."""
+    
+    **Usage**: `!timerset/ts [HH:MM] or [minutes]`
+    If using the HH:MM format, provide the time the egg hatches or raid expires
+    Otherwise, provide the number of minutes until the egg hatches or raid expires.
+    **Examples**: `!timerset 10:32`  `!ts 20`"""
     message = ctx.message
     channel = message.channel
     guild = message.guild
@@ -2864,8 +2865,8 @@ async def _timerset(raidchannel, exptime, print=True):
 async def timer(ctx):
     """Have Kyogre resend the expire time message for a raid.
 
-    Usage: !timer
-    The expiry time should have been previously set with !timerset."""
+    **Usage**: `!timer`
+    The expiry time should have been previously set with `!timerset`."""
     timerstr = await print_raid_timer(ctx.channel)
     await ctx.channel.send(timerstr)
 
@@ -2874,11 +2875,13 @@ async def timer(ctx):
 async def starttime(ctx, *, start_time=""):
     """Set a time for a group to start a raid
 
-    Usage: !starttime [HH:MM AM/PM]
-    (You can also omit AM/PM and use 24-hour time!)
-    Works only in raid channels. Sends a message and sets a group start time that
-    can be seen using !starttime (without a time). One start time is allowed at
-    a time and is visible in !list output. Cleared with !starting."""
+    **Usage**: `!starttime/st [HH:MM] or [minutes]`
+    If using the HH:MM format, provide the time the group will start
+    Otherwise, provide the number of minutes until the group will start
+    **Examples**: `!starttime 10:32`  `!st 20`
+
+    Only one start time is allowed at a time and is visible in `!list` output. 
+    Cleared with `!starting.`"""
     message = ctx.message
     guild = message.guild
     channel = message.channel
@@ -3045,8 +3048,8 @@ async def new(ctx, *, content):
 async def duplicate(ctx):
     """A command to report a raid channel as a duplicate.
 
-    Usage: !duplicate
-    Works only in raid channels. When three users report a channel as a duplicate,
+    **Usage**: `!duplicate`
+    When three users report a channel as a duplicate,
     Kyogre deactivates the channel and marks it for deletion."""
     channel = ctx.channel
     author = ctx.author
@@ -3139,8 +3142,8 @@ async def duplicate(ctx):
 async def counters(ctx, *, args=''):
     """Simulate a Raid battle with Pokebattler.
 
-    Usage: !counters [pokemon] [weather] [user]
-    See !help weather for acceptable values for weather.
+    **Usage**: `!counters [pokemon] [weather] [user]`
+    See `!help` weather for acceptable values for weather.
     If [user] is a valid Pokebattler user id, Kyogre will simulate the Raid with that user's Pokebox.
     Uses current boss and weather by default if available.
     """
@@ -3222,8 +3225,9 @@ async def counters(ctx, *, args=''):
 @checks.activechannel()
 async def weather(ctx, *, weather):
     """Sets the weather for the raid.
-    Usage: !weather <weather>
-    Only usable in raid channels.
+
+    **Usage**: !weather <weather>
+    
     Acceptable options: none, extreme, clear, rainy, partlycloudy, cloudy, windy, snow, fog"""
     weather_list = ['none', 'extreme', 'clear', 'sunny', 'rainy',
                     'partlycloudy', 'cloudy', 'windy', 'snow', 'fog']
@@ -3307,7 +3311,14 @@ async def _process_status_command(ctx, teamcounts):
 
 @Kyogre.command()
 @checks.activechannel()
-async def shout(ctx, *, shout_message):
+async def shout(ctx, *, shout_message="\u200b"):
+    """Notifies all trainers who have RSVPd for the raid of your message
+    
+    **Usage**: `!shout <message>`
+    Kyogre will notify all trainers who have expressed interest and include your message.
+    This command has a 2 minute cooldown. 
+    If it is used again within those 2 minutes the other trainers will not be notified.
+    """
     message = ctx.message
     author = message.author
     guild = message.guild
@@ -3343,12 +3354,13 @@ async def shout(ctx, *, shout_message):
 async def interested(ctx, *, teamcounts: str = None):
     """Indicate you are interested in the raid.
 
-    Usage: !interested [count] [party] [bosses]
-    Works only in raid channels. If count is omitted, assumes you are a group of 1.
-    Otherwise, this command expects at least one word in your message to be a number,
-    and will assume you are a group with that many people.
+    **Usage**: `!interested/i [count] [party]`
 
-    Party is also optional. Format is #m #v #i #u to tell your party's teams."""
+    Count must be a number. If count is omitted, assumes you are a group of 1.
+    **Example**: `!i 2`
+
+    Party must be a number plus a team.
+    **Example**: `!i 3 1i 1m 1v`"""
     try:
         result, entered_interest = await _process_status_command(ctx, teamcounts)
     except ValueError as e:
@@ -3364,14 +3376,13 @@ async def interested(ctx, *, teamcounts: str = None):
 async def coming(ctx, *, teamcounts: str=None):
     """Indicate you are on the way to a raid.
 
-    Usage: !coming [count] [party]
-    Works only in raid channels. If count is omitted, checks for previous !maybe
-    command and takes the count from that. If it finds none, assumes you are a group
-    of 1.
-    Otherwise, this command expects at least one word in your message to be a number,
-    and will assume you are a group with that many people.
+    **Usage**: `!coming/c [count] [party]`
 
-    Party is also optional. Format is #m #v #i #u to tell your party's teams."""
+    Count must be a number. If count is omitted, assumes you are a group of 1.
+    **Example**: `!c 2`
+
+    Party must be a number plus a team.
+    **Example**: `!c 3 1i 1m 1v`"""
     try:
         result, entered_interest = await _process_status_command(ctx, teamcounts)
     except ValueError as e:
@@ -3387,14 +3398,12 @@ async def coming(ctx, *, teamcounts: str=None):
 async def here(ctx, *, teamcounts: str=None):
     """Indicate you have arrived at the raid.
 
-    Usage: !here [count] [party]
-    Works only in raid channels. If message is omitted, and
-    you have previously issued !coming, then preserves the count
-    from that command. Otherwise, assumes you are a group of 1.
-    Otherwise, this command expects at least one word in your message to be a number,
-    and will assume you are a group with that many people.
+    **Usage**: `!here/h [count] [party]`
+    Count must be a number. If count is omitted, assumes you are a group of 1.
 
-    Party is also optional. Format is #m #v #i #u to tell your party's teams."""
+    **Example**: `!h 2`
+    Party must be a number plus a team.
+    **Example**: `!h 3 1i 1m 1v`"""
     try:
         result, entered_interest = await _process_status_command(ctx, teamcounts)
     except ValueError as e:
@@ -3494,14 +3503,10 @@ async def _party_status(ctx, total, teamcounts):
 @Kyogre.command(aliases=['l'])
 @checks.activeraidchannel()
 async def lobby(ctx, *, count: str = None):
-    """Indicate you are entering the raid lobby.
+    """Used to join an in-progress lobby started with `!starting`
 
-    Usage: !lobby [message]
-    Works only in raid channels. If message is omitted, and
-    you have previously issued !coming, then preserves the count
-    from that command. Otherwise, assumes you are a group of 1.
-    Otherwise, this command expects at least one word in your message to be a number,
-    and will assume you are a group with that many people."""
+    **Usage**: `!lobby [count]`
+    Count must be a number. If count is omitted, assumes you are a group of 1."""
     try:
         if guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['type'] == 'egg':
             if guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['pokemon'] == '':
@@ -3559,11 +3564,11 @@ async def _lobby(message, count):
 @Kyogre.command(aliases=['x'])
 @checks.raidchannel()
 async def cancel(ctx):
-    """Indicate you are no longer interested in a raid.
+    """Indicate you are no longer interested in a raid or that you are backing out of a lobby.
 
-    Usage: !cancel
-    Works only in raid channels. Removes you and your party
-    from the list of trainers who are "otw" or "here"."""
+    **Usage**: `!cancel/x`
+    Removes you and your party from the list of trainers who are "coming" or "here".
+    Or removes you and your party from the active lobby."""
     await list_helpers._cancel(ctx, Kyogre, guild_dict, raid_info)
 
 
@@ -3572,9 +3577,10 @@ async def cancel(ctx):
 async def starting(ctx, team: str = ''):
     """Signal that a raid is starting.
 
-    Usage: !starting [team]
-    Works only in raid channels. Sends a message and clears the waiting list. Users who are waiting
-    for a second group must reannounce with the :here: emoji or !here."""
+    **Usage**: `!starting/s [team]`
+    Sends a message notifying all trainers who are at the raid and clears the waiting list.
+    Starts a 2 minute lobby countdown during which time trainers can join this lobby using `!lobby`.
+    Users who are waiting for a second group must reannounce with `!here`."""
     await raid_lobby_helpers._starting(ctx, Kyogre, guild_dict, raid_info, team)
 
 
@@ -3583,8 +3589,9 @@ async def starting(ctx, team: str = ''):
 async def backout(ctx):
     """Request players in lobby to backout
 
-    Usage: !backout
-    Will alert all trainers in the lobby that a backout is requested."""
+    **Usage**: `!backout`
+    Will alert all trainers in the lobby that a backout is requested.
+    Those trainers can exit the lobby with `!cancel`."""
     await raid_lobby_helpers._backout(ctx, Kyogre, guild_dict)
      
 

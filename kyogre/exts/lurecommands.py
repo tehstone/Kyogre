@@ -8,15 +8,13 @@ from kyogre import list_helpers, raid_helpers
 from kyogre.exts.db.kyogredb import LureTable, LureTypeTable, LureTypeRelation, TrainerReportRelation
 
 
-class WildSpawnCommands(commands.Cog):
+class LureCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='lure', aliases=['lu'])
+    @commands.command(name='lure', aliases=['lu'], brief="Report that you're luring a Pokestop.")
     async def _lure(self, ctx, type, *, location):
-        """Report that you're luring a pokestop.
-
-        Usage: !lure <type> <location>
+        """**Usage**: `!lure <type> <location>`
         Location should be the name of a Pokestop.
         Valid lure types are: normal, glacial, mossy, magnetic"""
         content = f"{type} {location}"
@@ -105,4 +103,4 @@ class WildSpawnCommands(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(WildSpawnCommands(bot))
+    bot.add_cog(LureCommands(bot))

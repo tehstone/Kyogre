@@ -23,16 +23,11 @@ class PvP(commands.Cog):
         if ctx.invoked_subcommand == None:
             raise commands.BadArgument()
 
-    @_pvp.command(name="available", aliases=["av"])
+    @_pvp.command(name="available", aliases=["av"], brief="Announce that you're available for pvp")
     async def _pvp_available(self, ctx, exptime=None):
-        """Announces that you're available for pvp
-        Usage: `!pvp available [time]`
-        Kyogre will post a message stating that you're available for PvP
-        for the next 30 minutes by default, or optionally for the amount 
-        of time you provide.
-
-        Kyogre will also notify any other users who have added you as 
-        a friend that you are now available.
+        """**Usage**: `!pvp available [time]`
+        Kyogre will post a message notifying your friends that you're available for PvP
+        for the next 30 minutes by default, or optionally for the amount of time you provide.
         """
         message = ctx.message
         channel = message.channel
@@ -121,18 +116,13 @@ class PvP(commands.Cog):
             return None
         return await subscriptions_cog.generate_role_notification_async(role_name, channel, outbound_dict)
 
-    @_pvp.command(name="add")
+    @_pvp.command(name="add", brief="Add a user to your friends list")
     async def _pvp_add_friend(self, ctx, *, friends):
-        """Adds another user as a friend to your friends list
-        Usage: `!pvp add <friend>`
-        Usage: `!pvp add AshKetchum#1234, ProfessorOak#5309`
+        """**Usage**: `!pvp add <friend>`
+        **Usage**: `!pvp add AshKetchum#1234, ProfessorOak#5309`
+        Provide any number of friends using their discord name including the "#0000" discriminator.
 
-        Kyogre will add the friends you list to your friends list.
-        Whenever one of your friends announces they are available to
-        battle, Kyogre will notify you.
-
-        Provide any number of friends using their discord name including
-        the "#0000" discriminator with a comma between each name
+        Whenever one of your friends announces they are available to battle, Kyogre will notify you.
         """
         message = ctx.message
         channel = message.channel
@@ -140,7 +130,7 @@ class PvP(commands.Cog):
         trainer = message.author
         trainer_dict = copy.deepcopy(self.guild_dict[guild.id]['trainers'])
         trainer_info_dict = trainer_dict.setdefault('info', {})
-        friend_list = set([r for r in re.split(r'\s*,\s*', friends.strip()) if r])
+        friend_list = set([r for r in re.split(r',*\s+', friends.strip()) if r])
         if len(friend_list) < 1:
             err_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description='Please provide the name of at least one other trainer.\n\
                 Name should be the `@mention` of another Discord user.'))
@@ -182,17 +172,11 @@ class PvP(commands.Cog):
         return await utils.sleep_and_cleanup([failed_msg, exist_msg, success_msg], 10)
 
 
-    @_pvp.command(name="remove", aliases=["rem"])
+    @_pvp.command(name="remove", aliases=["rem"], brief="Remove a user from your friends list")
     async def _pvp_remove_friend(self, ctx, *, friends: str = ''):
-        """Remove a user from your friends list
-
-        Usage: `!pvp [remove|rem] <friend>`
-        Usage: `!pvp add AshKetchum#1234, ProfessorOak#5309`
-
-        Kyogre will remove the friends you list from your friends list.
-
-        Provide any number of friends using their discord name including
-        the "#0000" discriminator with a comma between each name
+        """**Usage**: `!pvp [remove|rem] <friend>`
+        **Usage**: `!pvp rem AshKetchum#1234, ProfessorOak#5309`
+        Provide any number of friends using their discord name including the "#0000" discriminator.
         """
         message = ctx.message
         channel = message.channel
@@ -200,7 +184,7 @@ class PvP(commands.Cog):
         trainer = message.author
         trainer_dict = copy.deepcopy(self.guild_dict[guild.id]['trainers'])
         trainer_info_dict = trainer_dict.setdefault('info', {})
-        friend_list = set([r for r in re.split(r'\s*,\s*', friends.strip()) if r])
+        friend_list = set([r for r in re.split(r',*\s+', friends.strip()) if r])
         if len(friend_list) < 1:
             err_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description='Please provide the name of at least one other trainer.\n\
                 Name should be the `@mention` of another Discord user.'))
