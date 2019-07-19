@@ -257,19 +257,18 @@ class Subscriptions(commands.Cog):
             return await ctx.invoke(self.bot.get_command('sub rem'), content=msg_content)
 
     async def _prompt_selections(self, ctx, action):
+        prompt_msg = None
         try:
             prompt_msg = await self.bot.wait_for('message', timeout=60,
                                                  check=(lambda reply: reply.author == ctx.message.author))
         except asyncio.TimeoutError:
             pass
         error = None
+        if prompt_msg is None:
+            return None, f"Failed to {action} subscriptions because you took too long to respond."
         await prompt_msg.delete()
-        if not prompt_msg:
-            error = "you took too long to respond"
-        elif prompt_msg.clean_content.lower() == "cancel":
-            error = "you cancelled the report"
-        if error:
-            return None, f"Failed to {action} subscriptions because {error}"
+        if prompt_msg.clean_content.lower() == "cancel":
+            return None, f"Failed to {action} subscriptions because you cancelled the report."
         return prompt_msg, None
 
     @_sub.command(name="add")

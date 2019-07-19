@@ -2503,7 +2503,7 @@ async def _exinvite(ctx):
     return await utils.sleep_and_cleanup([ctx.message, reply, exraidmsg], 30)
 
 
-@Kyogre.command(aliases=['event'])
+@Kyogre.command()
 @checks.allowmeetupreport()
 async def meetup(ctx, *, location:commands.clean_content(fix_channel_mentions=True) = ""):
     """Report an upcoming event.

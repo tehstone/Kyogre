@@ -26,7 +26,7 @@ class KyogreDB:
             RaidTable, SubscriptionTable, TradeTable,
             LocationNoteTable, RewardTable, LureTable,
             LureTypeTable, LureTypeRelation,
-            InviteRoleTable
+            InviteRoleTable, EventTable
         ])
         cls.init()
         cls._migrator = SqliteMigrator(cls._db)
@@ -343,3 +343,12 @@ class InviteRoleTable(BaseModel):
 
     class Meta:
         constraints = [SQL('UNIQUE(guild_id, invite)')]
+
+class EventTable(BaseModel):
+    guild = ForeignKeyField(GuildTable, field=GuildTable.snowflake, backref='events', index=True)
+    eventname = TextField(index=True)
+    active = BooleanField()
+    role = BigIntegerField(index=True)
+
+    class Meta:
+        constraints = [SQL('UNIQUE(guild_id, eventname)')]

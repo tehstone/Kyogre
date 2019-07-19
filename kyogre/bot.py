@@ -1,7 +1,6 @@
 import asyncio
 import copy
 import json
-import jsonpickle
 import os
 import pickle
 import sys
@@ -17,6 +16,7 @@ from kyogre.exts.db.kyogredb import InviteRoleTable
 
 default_exts = ['admincommands',
                 'configuration',
+                'eventcommands',
                 'getcommands',
                 'helpcommand',
                 'inviterole',

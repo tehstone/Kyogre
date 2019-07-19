@@ -59,8 +59,7 @@ class InviteRoleCog(commands.Cog):
             colour = discord.Colour.red()
             reaction = self.failed_react
         await ctx.message.add_reaction(reaction)
-        response = await ctx.channel.send(embed=discord.Embed(colour=colour, description=message))
-        return await utils.sleep_and_cleanup([response], 12)
+        response = await ctx.channel.send(embed=discord.Embed(colour=colour, description=message), delete_after=12)
 
     @inviterole.command(name='remove', aliases=['rm', 'rem', 'del', 'delete'])
     @commands.has_permissions(manage_roles=True)
