@@ -122,21 +122,6 @@ class AdminCommands(commands.Cog):
             await self._print(self.bot.owner, err)
 
     async def save(self, guildid):
-        with tempfile.NamedTemporaryFile('w', dir=os.path.dirname(os.path.join('data', 'serverdictjson')),
-                                         delete=False) as f:
-            p = jsonpickle.encode(self.bot.guild_dict, keys=True)
-            f.write(p)
-            tempnamej = f.name
-        try:
-            os.remove(os.path.join('data', 'serverdictjson_backup'))
-        except OSError:
-            pass
-        try:
-            os.rename(os.path.join('data', 'serverdictjson'), os.path.join('data', 'serverdictjson_backup'))
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise
-        os.rename(tempnamej, os.path.join('data', 'serverdictjson'))
         try:
             with tempfile.NamedTemporaryFile('wb', dir=os.path.dirname(os.path.join('data', 'serverdict')),
                                              delete=False) as tf:
@@ -145,7 +130,7 @@ class AdminCommands(commands.Cog):
             try:
                 os.remove(os.path.join('data', 'serverdict_backup'))
             except OSError:
-                pass
+                os.remove(os.path.join('data', tempname))
             try:
                 os.rename(os.path.join('data', 'serverdict'), os.path.join('data', 'serverdict_backup'))
             except OSError as e:

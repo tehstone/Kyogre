@@ -101,16 +101,10 @@ class KyogreBot(commands.AutoShardedBot):
                 self.logger.info('Serverdict Backup Loaded Successfully')
             except OSError:
                 self.logger.info('Serverdict Backup Not Found - Creating New Serverdict')
-                # self.guild_dict = {}
-                # with open(os.path.join('data', 'serverdict'), 'wb') as fd:
-                #     pickle.dump(self.guild_dict, fd, -1)
-                # self.logger.info('Serverdict Created')
-        try:
-            with open(os.path.join('data', 'serverdictjson'), 'r') as fd:
-                self.guild_dict = jsonpickle.decode(fd.read())
-            self.logger.info('Serverdict json Loaded Successfully')
-        except:
-            self.logger.error('Failed to load Serverdict json.')
+                self.guild_dict = {}
+                with open(os.path.join('data', 'serverdict'), 'wb') as fd:
+                    pickle.dump(self.guild_dict, fd, -1)
+                self.logger.info('Serverdict Created')
 
 
     def _load_config(self):
