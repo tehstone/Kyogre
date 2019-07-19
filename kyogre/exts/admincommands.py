@@ -2,6 +2,7 @@ import asyncio
 import errno
 import io
 import json
+import jsonpickle
 import os
 import pickle
 import re
@@ -121,21 +122,38 @@ class AdminCommands(commands.Cog):
             await self._print(self.bot.owner, err)
 
     async def save(self, guildid):
-        with tempfile.NamedTemporaryFile('wb', dir=os.path.dirname(os.path.join('data', 'serverdict')),
-                                         delete=False) as tf:
-            pickle.dump(self.bot.guild_dict, tf, -1)
-            tempname = tf.name
+        with tempfile.NamedTemporaryFile('w', dir=os.path.dirname(os.path.join('data', 'serverdictjson')),
+                                         delete=False) as f:
+            p = jsonpickle.encode(self.bot.guild_dict, keys=True)
+            f.write(p)
+            tempnamej = f.name
         try:
-            os.remove(os.path.join('data', 'serverdict_backup'))
-        except OSError as e:
+            os.remove(os.path.join('data', 'serverdictjson_backup'))
+        except OSError:
             pass
         try:
-            os.rename(os.path.join('data', 'serverdict'), os.path.join('data', 'serverdict_backup'))
+            os.rename(os.path.join('data', 'serverdictjson'), os.path.join('data', 'serverdictjson_backup'))
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-        os.rename(tempname, os.path.join('data', 'serverdict'))
-
+        os.rename(tempnamej, os.path.join('data', 'serverdictjson'))
+        try:
+            with tempfile.NamedTemporaryFile('wb', dir=os.path.dirname(os.path.join('data', 'serverdict')),
+                                             delete=False) as tf:
+                pickle.dump(self.bot.guild_dict, tf, -1)
+                tempname = tf.name
+            try:
+                os.remove(os.path.join('data', 'serverdict_backup'))
+            except OSError:
+                pass
+            try:
+                os.rename(os.path.join('data', 'serverdict'), os.path.join('data', 'serverdict_backup'))
+            except OSError as e:
+                if e.errno != errno.ENOENT:
+                    raise
+            os.rename(tempname, os.path.join('data', 'serverdict'))
+        except:
+            self.bot.logger.error("Failed to save serverdict")
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         if not location_matching_cog:
             await self._print(self.bot.owner, 'Pokestop and Gym data not saved!')

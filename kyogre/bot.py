@@ -1,6 +1,7 @@
 import asyncio
 import copy
 import json
+import jsonpickle
 import os
 import pickle
 import sys
@@ -73,14 +74,13 @@ class KyogreBot(commands.AutoShardedBot):
         self.active_lures = []
 
         for ext in default_exts:
-            self.load_extension(f"kyogre.exts.{ext}")
-            # try:
-            #     self.load_extension(f"kyogre.exts.{ext}")
-            # except Exception as e:
-            #     print(f'**Error when loading extension {ext}:**\n{type(e).__name__}: {e}')
-            # else:
-            #     if 'debug' in sys.argv[1:]:
-            #         print(f'Loaded {ext} extension.')
+            try:
+                self.load_extension(f"kyogre.exts.{ext}")
+            except Exception as e:
+                print(f'**Error when loading extension {ext}:**\n{type(e).__name__}: {e}')
+            else:
+                if 'debug' in sys.argv[1:]:
+                    print(f'Loaded {ext} extension.')
 
     class RenameUnpickler(pickle.Unpickler):
         def find_class(self, module, name):
@@ -101,10 +101,17 @@ class KyogreBot(commands.AutoShardedBot):
                 self.logger.info('Serverdict Backup Loaded Successfully')
             except OSError:
                 self.logger.info('Serverdict Backup Not Found - Creating New Serverdict')
-                self.guild_dict = {}
-                with open(os.path.join('data', 'serverdict'), 'wb') as fd:
-                    pickle.dump(self.guild_dict, fd, -1)
-                self.logger.info('Serverdict Created')
+                # self.guild_dict = {}
+                # with open(os.path.join('data', 'serverdict'), 'wb') as fd:
+                #     pickle.dump(self.guild_dict, fd, -1)
+                # self.logger.info('Serverdict Created')
+        try:
+            with open(os.path.join('data', 'serverdictjson'), 'r') as fd:
+                self.guild_dict = jsonpickle.decode(fd.read())
+            self.logger.info('Serverdict json Loaded Successfully')
+        except:
+            self.logger.error('Failed to load Serverdict json.')
+
 
     def _load_config(self):
         # Load configuration
