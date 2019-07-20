@@ -32,12 +32,16 @@ class Social(commands.Cog):
         code_msg = trainer_code if trainer_code is not None else 'not set'
         team = trainer_info.get('team', None)
         if team is None:
-            colour=user.colour
+            colour = user.colour
         else:
             colour = self.bot.team_color_map[team]
         raids, eggs, wilds, research, joined = await self._get_profile_counts(ctx, user)
-        badges = self.get_badges(user.id)
-        await ctx.send(badges)
+        badge_cog = self.bot.cogs.get('Badges')
+        badges = badge_cog.get_badge_emojis(user.id)
+        badge_str = ''
+        for b in badges:
+            badge_str += f" {b}"
+        await ctx.send(badge_str)
         embed = discord.Embed(title="{user}\'s Trainer Profile".format(user=user.display_name), colour=colour)
         embed.set_thumbnail(url=user.avatar_url)
         embed.add_field(name="XP", value=f"{xp_msg}", inline=True)
@@ -49,14 +53,8 @@ class Social(commands.Cog):
         embed.add_field(name="Wild Reports", value=f"{wilds}", inline=True)
         embed.add_field(name="Research Reports", value=f"{research}", inline=True)
         embed.add_field(name="Raids Joined", value=f"{joined}", inline=True)
+        embed.add_field(name="Badges earned", value=f"{badge_str}", inline=True)
         await ctx.send(embed=embed)
-
-    def get_badges(self, user):
-        result = (BadgeTable
-                    .select(BadgeTable.emoji)
-                    .join(BadgeAssignmentTable, on=(BadgeTable.id == BadgeAssignmentTable.badge_id))
-                    .where(BadgeAssignmentTable.trainer == user))
-        return [self.bot.get_emoji(r) for r in result]
 
     async def _get_profile_counts(self, ctx, user):
         regions = self.guild_dict[ctx.guild.id]['configure_dict']['regions']['info'].keys()
