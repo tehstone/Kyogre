@@ -26,7 +26,8 @@ class KyogreDB:
             RaidTable, SubscriptionTable, TradeTable,
             LocationNoteTable, RewardTable, LureTable,
             LureTypeTable, LureTypeRelation,
-            InviteRoleTable, EventTable
+            InviteRoleTable, EventTable, BadgeTable,
+            BadgeAssignmentTable
         ])
         cls.init()
         cls._migrator = SqliteMigrator(cls._db)
@@ -352,3 +353,19 @@ class EventTable(BaseModel):
 
     class Meta:
         constraints = [SQL('UNIQUE(guild_id, eventname)')]
+
+class BadgeTable(BaseModel):
+    name = TextField(index=True)
+    description = TextField()
+    emoji = BigIntegerField(index=True)
+    active = BooleanField()
+
+    class Meta:
+        constraints = [SQL('UNIQUE(name, description, emoji)')]
+
+class BadgeAssignmentTable(BaseModel):
+    trainer = BigIntegerField(index=True)
+    badge = ForeignKeyField(BadgeTable, field=BadgeTable.id, backref='badgeassignment', index=True)
+
+    class Meta:
+        constraints = [SQL('UNIQUE(trainer, badge_id)')]

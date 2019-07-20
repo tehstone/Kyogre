@@ -144,7 +144,7 @@ class SetCommands(commands.Cog):
 
     @_set.command()
     async def pokebattler(self, ctx, pbid: int = 0):
-        """**Usage**: `!set silph <pokebattler id>`
+        """**Usage**: `!set pokebattler <pokebattler id>`
         Links your PokeBattler ID to your `!profile`"""
         if not pbid:
             await ctx.send('Pokebattler ID cleared!')
@@ -159,6 +159,26 @@ class SetCommands(commands.Cog):
         trainers.setdefault('info', {})[ctx.author.id] = author
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
         await ctx.send('Pokebattler ID set to {pbid}!'.format(pbid=pbid))
+
+    @_set.command()
+    async def xp(self, ctx, xp: int = 0):
+        """**Usage**: `!set xp <current xp>`
+        Adds your current xp to your `!profile`"""
+        trainers = self.bot.guild_dict[ctx.guild.id].get('trainers',{})
+        author = trainers.setdefault('info', {}).get(ctx.author.id,{})
+        author['xp'] = xp
+        self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
+        return await ctx.message.add_reaction('✅')
+
+    @_set.command(name='friendcode', aliases=['friend_code', 'fc', 'code'])
+    async def friend_code(self, ctx, *, code: str=None):
+        """**Usage**: `!set friendcode <friend code>`
+        Adds your friend code to your `!profile`"""
+        trainers = self.bot.guild_dict[ctx.guild.id].get('trainers',{})
+        author = trainers.setdefault('info', {}).get(ctx.author.id,{})
+        author['code'] = code
+        self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
+        return await ctx.message.add_reaction('✅')
 
 
 def setup(bot):

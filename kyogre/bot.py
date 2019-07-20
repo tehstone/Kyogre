@@ -15,6 +15,7 @@ from kyogre.exts.db.kyogredb import InviteRoleTable
 
 
 default_exts = ['admincommands',
+                'badgecommands',
                 'configuration',
                 'eventcommands',
                 'getcommands',
@@ -72,6 +73,11 @@ class KyogreBot(commands.AutoShardedBot):
         self.active_wilds = []
         self.active_pvp = []
         self.active_lures = []
+        self.success_react = '✅'
+        self.failed_react = '❌'
+        self.team_color_map = {'Mystic': discord.Colour.blue(),
+                               'Valor': discord.Colour.red(),
+                               'Instinct': discord.Colour.from_rgb(255, 255, 0)}
 
         for ext in default_exts:
             try:
@@ -264,15 +270,27 @@ class KyogreBot(commands.AutoShardedBot):
             pass
 
     async def on_member_update(self, before, after):
+        if before.bot:
+            return
+        teams = ["instinct", "mystic", "valor"]
         guild = after.guild
         region_dict = self.guild_dict[guild.id]['configure_dict'].get('regions',None)
+        trainers_info_dict = self.guild_dict[guild.id]['trainers'].setdefault('info', {}).setdefault(after.id,{})
+        prev_roles = set([r.name for r in before.roles])
+        post_roles = set([r.name for r in after.roles])
+        added_roles = post_roles - prev_roles
+        removed_roles = prev_roles - post_roles
+        for role in added_roles:
+            if role.lower() in teams:
+                trainers_info_dict["team"] = role.capitalize()
+                return
+        for role in removed_roles:
+            if role.lower() in teams:
+                trainers_info_dict["team"] = None
+                return
         if region_dict:
             notify_channel = region_dict.get('notify_channel',None)
-            if (not before.bot) and notify_channel is not None:
-                prev_roles = set([r.name for r in before.roles])
-                post_roles = set([r.name for r in after.roles])
-                added_roles = post_roles-prev_roles
-                removed_roles = prev_roles-post_roles
+            if notify_channel is not None:
                 regioninfo_dict = region_dict.get('info',None)
                 if regioninfo_dict:
                     notify = None
@@ -280,12 +298,12 @@ class KyogreBot(commands.AutoShardedBot):
                         # a single member update event should only ever have 1 role change
                         role = list(added_roles)[0]
                         if role in regioninfo_dict.keys():
-                            notify = await self.get_channel(notify_channel).send(f"{after.mention} you have joined the {role.capitalize()} region.", delete_after=8)
+                            return await self.get_channel(notify_channel).send(f"{after.mention} you have joined the {role.capitalize()} region.", delete_after=8)
                     if len(removed_roles) > 0:
                         # a single member update event should only ever have 1 role change
                         role = list(removed_roles)[0]
                         if role in regioninfo_dict.keys():
-                            notify = await self.get_channel(notify_channel).send(f"{after.mention} you have left the {role.capitalize()} region.", delete_after=8)
+                            return await self.get_channel(notify_channel).send(f"{after.mention} you have left the {role.capitalize()} region.", delete_after=8)
 
     async def on_message_delete(self, message):
         guild = message.guild

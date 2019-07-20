@@ -17,6 +17,7 @@ from kyogre.exts.db.kyogredb import Lure, Reward, JOIN, IntegrityError
 class Subscriptions(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.success_react = '✅'
 
     subscription_types = {"Raid Boss": "raid",
                           "Gym": "gym",
@@ -548,8 +549,8 @@ class Subscriptions(commands.Cog):
             else:
                 await author.send("You don't have any subscriptions!\
                  use the **!subscription add** command to add some.")
-        response = await channel.send(response_msg)
-        await utils.sleep_and_cleanup([message,response], 10)
+        await message.add_reaction(self.success_react)
+        return await channel.send(response_msg, delete_after=10)
 
     def _generate_sub_list_message(self, ctx, types):
         message = ctx.message
@@ -665,11 +666,11 @@ class Subscriptions(commands.Cog):
             if len(subscription_msg) > 0:
                 listmsg = "Listing subscriptions for user:  {id}\n".format(id=trainer)
                 listmsg += 'Current subscriptions are:\n\n{subscriptions}'.format(subscriptions=subscription_msg)
-                await message.add_reaction('✅')
+                await message.add_reaction(self.success_react)
                 await author.send(listmsg)
             else:
                 none_msg = await channel.send(f"No subscriptions found for user: {trainer}")
-                await message.add_reaction('✅')
+                await message.add_reaction(self.success_react)
                 return await utils.sleep_and_cleanup([none_msg], 10)
         except:
             response_msg = f"Encountered an error while looking up subscriptions for trainer with name: {trainer}"

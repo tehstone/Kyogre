@@ -3,6 +3,8 @@ import copy
 import discord
 from discord.ext import commands
 
+from kyogre.exts.db.kyogredb import *
+
 
 class Social(commands.Cog):
     def __init__(self, bot):
@@ -15,21 +17,46 @@ class Social(commands.Cog):
         Displays a user's social and reporting profile. Don't include a name to view your own."""
         if not user:
             user = ctx.message.author
-        silph = self.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {}).setdefault(user.id,{}).get('silphid',None)
+        trainer_info = self.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {}).setdefault(user.id,{})
+        silph = trainer_info.get('silphid', None)
         if silph:
             card = "Traveler Card"
             silph = f"[{card}](https://sil.ph/{silph.lower()})"
+        else:
+            silph = "not set"
+        pokebattlerid = trainer_info.get('pokebattlerid',None)
+        pkb = str(pokebattlerid) if pokebattlerid else 'not set'
+        xp = trainer_info.get('xp', 0)
+        xp_msg = f'{xp:,d}' if xp > 0 else 'not set'
+        trainer_code = trainer_info.get('code', None)
+        code_msg = trainer_code if trainer_code is not None else 'not set'
+        team = trainer_info.get('team', None)
+        if team is None:
+            colour=user.colour
+        else:
+            colour = self.bot.team_color_map[team]
         raids, eggs, wilds, research, joined = await self._get_profile_counts(ctx, user)
-        embed = discord.Embed(title="{user}\'s Trainer Profile".format(user=user.display_name), colour=user.colour)
+        badges = self.get_badges(user.id)
+        await ctx.send(badges)
+        embed = discord.Embed(title="{user}\'s Trainer Profile".format(user=user.display_name), colour=colour)
         embed.set_thumbnail(url=user.avatar_url)
+        embed.add_field(name="XP", value=f"{xp_msg}", inline=True)
+        embed.add_field(name="Friend Code", value=f"{code_msg}", inline=True)
         embed.add_field(name="Silph Road", value=f"{silph}", inline=True)
-        embed.add_field(name="Pokebattler", value=f"{self.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {}).get('pokebattlerid',None)}", inline=True)
+        embed.add_field(name="Pokebattler", value=f"{pkb}", inline=True)
         embed.add_field(name="Raid Reports", value=f"{raids}", inline=True)
         embed.add_field(name="Egg Reports", value=f"{eggs}", inline=True)
         embed.add_field(name="Wild Reports", value=f"{wilds}", inline=True)
         embed.add_field(name="Research Reports", value=f"{research}", inline=True)
         embed.add_field(name="Raids Joined", value=f"{joined}", inline=True)
         await ctx.send(embed=embed)
+
+    def get_badges(self, user):
+        result = (BadgeTable
+                    .select(BadgeTable.emoji)
+                    .join(BadgeAssignmentTable, on=(BadgeTable.id == BadgeAssignmentTable.badge_id))
+                    .where(BadgeAssignmentTable.trainer == user))
+        return [self.bot.get_emoji(r) for r in result]
 
     async def _get_profile_counts(self, ctx, user):
         regions = self.guild_dict[ctx.guild.id]['configure_dict']['regions']['info'].keys()

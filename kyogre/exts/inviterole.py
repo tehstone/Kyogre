@@ -23,7 +23,7 @@ class InviteRoleCog(commands.Cog):
         if ctx.invoked_subcommand == None:
             raise commands.BadArgument()
     
-    @inviterole.command(name='add', aliases=['create'])
+    @inviterole.command(name='add', aliases=['create', 'cr', 'new'])
     @commands.has_permissions(manage_roles=True)
     async def _add(self, ctx, *, info):
         """**Usage**: `!inviterole/ir add <code> <role>`
