@@ -15,7 +15,7 @@ class Badge:
         self.active = active
     
 
-class BadgeCommands(commands.Cog):
+class Badges(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -147,4 +147,4 @@ class BadgeCommands(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(BadgeCommands(bot))
+    bot.add_cog(Badges(bot))

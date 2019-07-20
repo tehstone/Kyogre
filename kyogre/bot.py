@@ -75,6 +75,7 @@ class KyogreBot(commands.AutoShardedBot):
         self.active_lures = []
         self.success_react = '✅'
         self.failed_react = '❌'
+        self.empty_str = '\u200b'
         self.team_color_map = {'Mystic': discord.Colour.blue(),
                                'Valor': discord.Colour.red(),
                                'Instinct': discord.Colour.from_rgb(255, 255, 0)}

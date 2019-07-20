@@ -38,10 +38,9 @@ class Social(commands.Cog):
         raids, eggs, wilds, research, joined = await self._get_profile_counts(ctx, user)
         badge_cog = self.bot.cogs.get('Badges')
         badges = badge_cog.get_badge_emojis(user.id)
-        badge_str = ''
+        badge_str = self.bot.empty_str
         for b in badges:
             badge_str += f" {b}"
-        await ctx.send(badge_str)
         embed = discord.Embed(title="{user}\'s Trainer Profile".format(user=user.display_name), colour=colour)
         embed.set_thumbnail(url=user.avatar_url)
         embed.add_field(name="XP", value=f"{xp_msg}", inline=True)
