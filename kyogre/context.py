@@ -350,7 +350,7 @@ class GetTools:
         if isinstance(search_term, int):
             return bot.get_guild(search_term)
         if isinstance(search_term, str):
-            return bot.find_guild(name=search_term)
+            return bot.fetch_guild(search_term)
 
     def emoji(self, search_term):
         """Get an emoji by ID or name.

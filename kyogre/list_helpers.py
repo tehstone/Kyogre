@@ -261,7 +261,7 @@ async def _get_research_listing_messages(Kyogre, channel, guild_dict, region=Non
                     listmsg_list.append(listmsg)
                     if current_category not in newmsg:
                         newmsg = f"**({current_category} continued)**"
-                    listmsg = newmsg
+                    listmsg = "research " + newmsg
                 questctr += 1
             except discord.errors.NotFound:
                 continue    

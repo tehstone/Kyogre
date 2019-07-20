@@ -66,7 +66,12 @@ class BadgeCommands(commands.Cog):
 
     @_badge.command(name='grant', aliases=['give', 'gr'])
     @commands.has_permissions(manage_roles=True)
-    async def _grant(self, ctx, badge_id: int = 0, member: discord.Member=None):
+    async def _grant(self, ctx, badge_id: int = 0, *, member):
+        converter = commands.MemberConverter()
+        try:
+            member = await converter.convert(ctx, member)
+        except:
+            member = None
         if badge_id == 0 or member is None:
             await ctx.message.add_reaction(self.bot.failed_react)
             return await ctx.send("Must provide a badge id and Trainer name.", delete_after=10)
