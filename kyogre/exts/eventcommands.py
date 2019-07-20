@@ -88,7 +88,7 @@ class EventCommands(commands.Cog):
             return await ctx.send("Please provide both the current event name and a new event name.", delete_after=10)
         oldname = info[0]
         newname = info[1]
-        updated = EventTable.update(eventname=newname).where(EventTable.eventname==oldname).execute()
+        updated = EventTable.update(eventname=newname).where(EventTable.eventname == oldname).execute()
         if updated == 0:
             message = "No event found by that name."
             colour = discord.Colour.red()

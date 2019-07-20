@@ -62,7 +62,48 @@ class Badges(commands.Cog):
             colour = discord.Colour.red()
             reaction = self.bot.failed_react
         await ctx.message.add_reaction(reaction)
-        await ctx.channel.send(embed=discord.Embed(colour=colour, description=message), delete_after=12)
+        await ctx.channel.send(embed=discord.Embed(colour=colour, description=message))
+
+    @_badge.command(name='toggle_available', aliases=['tg'])
+    @commands.has_permissions(manage_roles=True)
+    async def _toggle_available(self, ctx, badge_id: int = 0):
+        updated = BadgeTable.update(active=~BadgeTable.active).where(BadgeTable.id == badge_id).execute()
+        result = BadgeTable.select(BadgeTable.name, BadgeTable.active).where(BadgeTable.id == badge_id)
+        if updated == 0:
+            message = "No badge found by that id."
+            colour = discord.Colour.red()
+            reaction = self.bot.failed_react
+        elif updated == 1:
+            av = "available" if result[0].active else "unavailable"
+            message = f"**{result[0].name}** is now *{av}*."
+            colour = discord.Colour.green()
+            reaction = self.bot.success_react
+        else:
+            message = "Something went wrong."
+            colour = discord.Colour.red()
+            reaction = self.bot.failed_react
+        await ctx.message.add_reaction(reaction)
+        await ctx.send(embed=discord.Embed(colour=colour, description=message))
+
+    @_badge.command(name='info')
+    async def _info(self, ctx, badge_id: int = 0):
+        # TODO Pull the number of trainers who have earned this badge and add to embed
+        result = (BadgeTable.select(BadgeTable.id,
+                                    BadgeTable.name,
+                                    BadgeTable.description,
+                                    BadgeTable.emoji,
+                                    BadgeTable.active).where(BadgeTable.id == badge_id))
+        badge = result[0]
+        send_emoji = self.bot.get_emoji(badge.emoji)
+        title = f"${badge.id} {badge.name}"
+        message = f"{send_emoji} {badge.description}"
+        if badge.active:
+            footer = "This badge is currently available."
+        else:
+            footer = "This badge is not currently available."
+        embed = discord.Embed(colour=self.bot.user.colour, title=title, description=message)
+        embed.set_footer(text=footer)
+        await ctx.send(embed=embed)
 
     @commands.command(name='grant_badge', aliases=['give', 'gb'])
     @commands.has_permissions(manage_roles=True)
@@ -97,7 +138,7 @@ class Badges(commands.Cog):
         else:
             message = "Could not find a badge with that name."
         await ctx.message.add_reaction(reaction)
-        await ctx.channel.send(embed=discord.Embed(colour=colour, description=message), delete_after=12)
+        await ctx.channel.send(embed=discord.Embed(colour=colour, description=message))
 
     @commands.command(name='grant_to_role', aliases=['givetr', 'gbtr'])
     @commands.has_permissions(manage_roles=True)
@@ -141,7 +182,7 @@ class Badges(commands.Cog):
             colour = discord.Colour.green()
             message = "Successfully granted badge."
             await ctx.message.add_reaction(self.bot.success_react)
-            return await ctx.channel.send(embed=discord.Embed(colour=colour, description=message), delete_after=12)
+            return await ctx.channel.send(embed=discord.Embed(colour=colour, description=message))
 
     @commands.command(name="available_badges", aliases=['avb'])
     async def _available(self, ctx):
