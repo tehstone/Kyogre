@@ -65,7 +65,7 @@ class LocationManagement(commands.Cog):
 
 
     @_loc.command(name="convert", aliases=["c"])
-    @commands.has_permissions(manage_guild=True)
+    @commands.has_permissions(manage_roles=True)
     async def _loc_convert(self, ctx, *, info):
         """**Usage**: `!loc convert/c <pokestop>`
         Changes a pokestop into a gym."""
@@ -88,7 +88,7 @@ class LocationManagement(commands.Cog):
 
 
     @_loc.command(name="extoggle", aliases=["ext"])
-    @commands.has_permissions(manage_guild=True)
+    @commands.has_permissions(manage_roles=True)
     async def _loc_extoggle(self, ctx, *, info):
         """**Usage**: `!loc extoggle/ext <gym>`
         Toggles the ex status of the provided gym."""
@@ -111,7 +111,7 @@ class LocationManagement(commands.Cog):
 
 
     @_loc.command(name="changeregion", aliases=["cr"])
-    @commands.has_permissions(manage_guild=True)
+    @commands.has_permissions(manage_nicknames=True)
     async def _loc_change_region(self, ctx, *, info):
         """**Usage**: `!loc changeregion/cr <type (stop/gym)>, <name>, <region>
         Changes the region of the provided location to the one provided."""

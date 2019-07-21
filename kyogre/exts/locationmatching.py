@@ -102,7 +102,7 @@ class LocationMatching(commands.Cog):
         return [(l, score) for l in locations for match_name, score in match if l.name == match_name]
     
     @commands.command(hidden=True, aliases=["lmt"])
-    @commands.has_permissions(manage_guild=True)
+    @commands.has_permissions(manage_nicknames=True)
     async def location_match_test(self, ctx, *, content=None):
         """**Usage**: `!lmt <type (stop/gym)>, <name>, [region]`
         Looks up all locations with a name matching the one provided of the type provided.

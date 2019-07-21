@@ -14,12 +14,11 @@ class MyHelpCommand(commands.DefaultHelpCommand):
                 "pvp": ["pvp available", "pvp add", "pvp remove"],
                 "subscriptions": ["subscription list", "subscription add", "subscription remove"],
                 "user": ["join", "gym", "profile", "leaderboard", "set silph", "set pokebattler"],
-                "helper": [],
+                "helper": ["loc changeregion", "location_match_test", "checkin"],
                 "mod": ["mentiontoggle", "addjoin", "inviterole add", "inviterole update", 
-                "inviterole remove", "inviterole list"],
-                "server_admin": ["announce", "grantroles", "ungrantroles", "subscription adminlist", 
-                                 "loc add", "loc convert", "loc extoggle", "loc changeregion",
-                                 "location_match_test"],
+                "inviterole remove", "inviterole list", "event list", "loc convert", "loc extoggle"],
+                "server_admin": ["announce", "grantroles", "ungrantroles", "subscription adminlist",
+                                 "loc add", "event create"],
                 "bot_admin": ["configure", "save", "exit", "restart", "welcome", "outputlog"],
                 "debug": ["outputlog"]
                 }
@@ -72,7 +71,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
             if role.name == "OfficerJenny" or role.name == "Admin":
                 help_embeds.append(self._create_mapping_embed(mapping_all, "mod"))
             if role.name == "helper" or role.name == "OfficerJenny" or role.name == "Admin":
-                pass
+                help_embeds.append(self._create_mapping_embed(mapping_all, "helper"))
         if len(help_embeds) > 0:
             for embed in help_embeds:
                 await dest.send(embed=embed)
