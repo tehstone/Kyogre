@@ -166,21 +166,23 @@ class Badges(commands.Cog):
                     except:
                         errored.append(trainer.id)
                 with KyogreDB._db.atomic():
-                    BadgeAssignmentTable.insert_many(trainer_ids,
-                                                     fields=[BadgeAssignmentTable.badge_id,
-                                                             BadgeAssignmentTable.trainer]).execute()
+                    count = BadgeAssignmentTable.insert_many(trainer_ids,
+                                                             fields=[BadgeAssignmentTable.badge_id,
+                                                                     BadgeAssignmentTable.trainer])\
+                            .on_conflict_ignore().execute()
                 message = f"Could not assign the badge to: {', '.join(errored)}"
-            except:
+            except Exception as e:
+                self.bot.logger.error(e)
                 await ctx.message.add_reaction(self.bot.failed_react)
                 return await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(),
-                                                           description="Completely failed"), delete_after=12)
+                                                                  description="Completely failed"), delete_after=12)
             if len(errored) > 0:
                 colour = discord.Colour.from_rgb(255, 255, 0)
                 await ctx.message.add_reaction(self.bot.failed_react)
                 await ctx.message.add_reaction(self.bot.success_react)
                 return await ctx.channel.send(embed=discord.Embed(colour=colour, description=message), delete_after=12)
             colour = discord.Colour.green()
-            message = "Successfully granted badge."
+            message = f"Successfully granted badge to {count} trainers."
             await ctx.message.add_reaction(self.bot.success_react)
             return await ctx.channel.send(embed=discord.Embed(colour=colour, description=message))
 
