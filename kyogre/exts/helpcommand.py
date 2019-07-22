@@ -13,15 +13,17 @@ class MyHelpCommand(commands.DefaultHelpCommand):
                                 },
                 "pvp": ["pvp available", "pvp add", "pvp remove"],
                 "subscriptions": ["subscription list", "subscription add", "subscription remove"],
-                "user": ["join", "gym", "profile", "leaderboard", "set silph", "set pokebattler"],
-                "helper": ["loc changeregion", "location_match_test", "checkin"],
-                "mod": ["mentiontoggle", "addjoin", "inviterole add", "inviterole update", 
-                "inviterole remove", "inviterole list", "event list", "loc convert", "loc extoggle"],
-                "server_admin": ["announce", "grantroles", "ungrantroles", "subscription adminlist",
-                                 "loc add", "event create"],
-                "bot_admin": ["configure", "save", "exit", "restart", "welcome", "outputlog"],
+                "user": { "commands": ["join", "gym", "profile", "leaderboard", "set silph", "set pokebattler",
+                                       "set xp", "set trainername", "set friendcode"]},
+                "helper": { "commands": ["loc changeregion", "location_match_test", "checkin"]},
+                "mod": {"commands": ["mentiontoggle", "addjoin", "inviterole add", "inviterole update", 
+                "inviterole remove", "inviterole list", "event list", "loc convert", "loc extoggle"]},
+                "server_admin": {"commands": ["announce", "grantroles", "ungrantroles", "subscription adminlist",
+                                 "loc add", "event create"]},
+                "bot_admin": {"commands": ["configure", "save", "exit", "restart", "welcome", "outputlog"]},
                 "debug": ["outputlog"]
                 }
+
 
     def __init__(self, guild_dict):
         super().__init__()
@@ -78,7 +80,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
             return
         else:
             help_embed = self._create_mapping_embed(mapping_all, "user")
-            help_embed.set_footer(text="More commands are available in specific channels so !help output may be more relevent there. Visit #ask_for_help channel if you need more help")
+            help_embed.set_footer(text="Visit #ask_for_help channel or contact a @helper or @OfficerJenny if you need more help. Additional commands are available in certain channels.")
             return await dest.send(embed=help_embed)
 
     async def send_command_help(self, command):
@@ -163,12 +165,17 @@ class MyHelpCommand(commands.DefaultHelpCommand):
 
     def _create_mapping_embed(self, mapping, item):
         help_embed = self._basic_embed_setup(f"Help for {item}s")
-        for com in self.mappings[item]:
+        description = f'Use `{self.clean_prefix}help [command]` for more info about that command.\n'
+        for com in self.mappings[item]["commands"]:
             try:
                 command = mapping[com]
-                help_embed.add_field(name=f"**{command.qualified_name}**", value=command.help, inline=False)
+                if len(command.aliases) > 0:
+                    description += f"\n**!{command.qualified_name}** -- *Aliases*: `{', '.join(command.aliases)}`"
+                else:
+                    description += f"\n**!{command.qualified_name}**"
             except KeyError:
                 print(com)
+        help_embed.description = description
         return help_embed
 
     def _basic_embed_setup(self, title):

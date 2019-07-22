@@ -31,31 +31,35 @@ class Social(commands.Cog):
         trainer_name = trainer_info.get('trainername', None)
         trainer_code = trainer_info.get('code', None)
         code_msg = trainer_code if trainer_code is not None else 'not set'
+        name_msg = trainer_name if trainer_name is not None else 'not set'
         team = trainer_info.get('team', None)
         if team is None:
             colour = user.colour
+            team_url = None
         else:
             colour = self.bot.team_color_map[team]
+            team_url = f"https://github.com/tehstone/Kyogre/blob/master/images/teams/{team.lower()}.png?raw=true"
         raids, eggs, wilds, research, joined = await self._get_profile_counts(ctx, user)
         badge_cog = self.bot.cogs.get('Badges')
         badges = badge_cog.get_badge_emojis(user.id)
         badge_str = self.bot.empty_str
         for b in badges:
             badge_str += f" {b}"
-        embed = discord.Embed(title="{user}\'s Trainer Profile".format(user=user.display_name), colour=colour)
-        embed.set_thumbnail(url=user.avatar_url)
+        embed = discord.Embed(colour=colour)
+        embed.set_author(name=user.display_name, icon_url=user.avatar_url)
+        if team_url:
+            embed.set_thumbnail(url=team_url)
         embed.add_field(name="XP", value=f"{xp_msg}", inline=True)
-        embed.add_field(name="Friend Code", value=f"{code_msg}", inline=True)
-        if trainer_name is not None:
-            embed.add_field(name="Trainer Name", value=trainer_name, inline=True)
-        embed.add_field(name="Silph Road", value=f"{silph}", inline=True)
-        embed.add_field(name="Pokebattler", value=f"{pkb}", inline=True)
-        embed.add_field(name="Raid Reports", value=f"{raids}", inline=True)
-        embed.add_field(name="Egg Reports", value=f"{eggs}", inline=True)
-        embed.add_field(name="Wild Reports", value=f"{wilds}", inline=True)
-        embed.add_field(name="Research Reports", value=f"{research}", inline=True)
-        embed.add_field(name="Raids Joined", value=f"{joined}", inline=True)
-        embed.add_field(name="Badges earned", value=f"{badge_str}", inline=True)
+        embed.add_field(name="Friend Code", value=f"{code_msg}")
+        embed.add_field(name="Trainer Name", value=f"{name_msg}")
+        embed.add_field(name="Silph Road", value=f"{silph}")
+        embed.add_field(name="Pokebattler", value=f"{pkb}")
+        embed.add_field(name="Raid Reports", value=f"{raids}")
+        embed.add_field(name="Egg Reports", value=f"{eggs}")
+        embed.add_field(name="Wild Reports", value=f"{wilds}")
+        embed.add_field(name="Research Reports", value=f"{research}")
+        embed.add_field(name="Raids Joined", value=f"{joined}")
+        embed.add_field(name="Badges earned", value=f"{badge_str}", inline=False)
         embed.set_footer(text='Do "!help set" to see how to set up your profile.')
         await ctx.send(embed=embed)
 

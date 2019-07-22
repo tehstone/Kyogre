@@ -81,13 +81,14 @@ class KyogreBot(commands.AutoShardedBot):
                                'Instinct': discord.Colour.from_rgb(255, 255, 0)}
 
         for ext in default_exts:
-            try:
-                self.load_extension(f"kyogre.exts.{ext}")
-            except Exception as e:
-                print(f'**Error when loading extension {ext}:**\n{type(e).__name__}: {e}')
-            else:
-                if 'debug' in sys.argv[1:]:
-                    print(f'Loaded {ext} extension.')
+            self.load_extension(f"kyogre.exts.{ext}")
+            # try:
+            #     self.load_extension(f"kyogre.exts.{ext}")
+            # except Exception as e:
+            #     print(f'**Error when loading extension {ext}:**\n{type(e).__name__}: {e}')
+            # else:
+            #     if 'debug' in sys.argv[1:]:
+            #         print(f'Loaded {ext} extension.')
 
     class RenameUnpickler(pickle.Unpickler):
         def find_class(self, module, name):

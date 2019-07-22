@@ -142,7 +142,7 @@ class SetCommands(commands.Cog):
             'This Travelers Card has been successfully linked to you!',
             embed=card.embed(offset))
 
-    @_set.command()
+    @_set.command(aliases=['pkb'])
     async def pokebattler(self, ctx, pbid: int = 0):
         """**Usage**: `!set pokebattler <pokebattler id>`
         Links your PokeBattler ID to your `!profile`"""

@@ -90,7 +90,8 @@ class QuickBadge(commands.Cog):
         except (discord.errors.NotFound, AttributeError):
             return
         guild = message.guild
-
+        if not guild:
+            return
         quick_badge_dict = self.bot.guild_dict[guild.id]['configure_dict']\
             .get('quick_badge', self.quick_badge_dict_default)
         if quick_badge_dict['pokenav_channel'] == 0 or payload.channel_id not in quick_badge_dict['listen_channels']:
