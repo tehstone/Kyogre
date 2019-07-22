@@ -77,15 +77,15 @@ async def _counters(ctx, Kyogre, pkmn, user = None, weather = None, movesetstr =
             ctr_cp = ctr['cp']
             moveset = ctr['byMove'][-1]
             moves = "{move1} | {move2}".format(move1=clean(moveset['move1'])[:-5], move2=clean(moveset['move2']))
-            name = "#{index} - {ctr_name}"/format(index=index, ctr_name=(ctr_nick or ctr_name))
+            name = "#{index} - {ctr_name}".format(index=index, ctr_name=(ctr_nick or ctr_name))
             cpstr = "CP"
             ctrs_embed.add_field(name=name,value=f"{cpstr}: {ctr_cp}\n{moves}")
             index += 1
         ctrs_embed.add_field(name="Results with {userstr} attackers".format(userstr=userstr), value="[See your personalized results!](https://www.pokebattler.com/raids/{pkmn})".format(pkmn=pokebattler_name))
         if user:
             ctrs_embed.add_field(name="Pokebattler Estimator:", value="Difficulty rating: {est}".format(est=est))
-            await ctx.author.send(embed=ctrs_embed)
-            return
+            await ctx.channel.send(f"Check your inbox {ctx.author.mention}, I've sent your personalized results to you directly!")
+            return await ctx.author.send(embed=ctrs_embed)
         await ctx.channel.send(embed=ctrs_embed)
 
 

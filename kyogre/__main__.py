@@ -3131,7 +3131,8 @@ async def counters(ctx, *, args=''):
     rgx = '[^a-zA-Z0-9 ]'
     channel = ctx.channel
     guild = channel.guild
-    user = guild_dict[ctx.guild.id].get('trainers',{}).get(ctx.author.id,{}).get('pokebattlerid', None)
+    user = guild_dict[ctx.guild.id].get('trainers',{}).setdefault('info', {})\
+                                   .get(ctx.author.id,{}).get('pokebattlerid', None)
     if checks.check_raidchannel(ctx) and not checks.check_meetupchannel(ctx):
         if args:
             args_split = args.split()
@@ -3158,8 +3159,9 @@ async def counters(ctx, *, args=''):
                 except (discord.errors.NotFound, discord.errors.Forbidden, discord.errors.HTTPException):
                     pass
             moveset = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('moveset', 0)
-            movesetstr = guild_dict[guild.id]['raidchannel_dict'][channel.id]['ctrs_dict']\
-                .get(moveset, {}).get('moveset', "Unknown Moveset")
+            movesetstr = guild_dict[guild.id]['raidchannel_dict'][channel.id]\
+            .get('ctrs_dict', {'enabled': False, 'auto_levels': []})\
+            .get(moveset, {}).get('moveset', "Unknown Moveset")
             weather = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('weather', None)
         else:
             pkmn = next((str(p) for p in Pokemon.get_raidlist() if not str(p).isdigit()
