@@ -28,6 +28,7 @@ class Social(commands.Cog):
         pkb = str(pokebattlerid) if pokebattlerid else 'not set'
         xp = trainer_info.get('xp', 0)
         xp_msg = f'{xp:,d}' if xp > 0 else 'not set'
+        trainer_name = trainer_info.get('trainername', None)
         trainer_code = trainer_info.get('code', None)
         code_msg = trainer_code if trainer_code is not None else 'not set'
         team = trainer_info.get('team', None)
@@ -45,6 +46,8 @@ class Social(commands.Cog):
         embed.set_thumbnail(url=user.avatar_url)
         embed.add_field(name="XP", value=f"{xp_msg}", inline=True)
         embed.add_field(name="Friend Code", value=f"{code_msg}", inline=True)
+        if trainer_name is not None:
+            embed.add_field(name="Trainer Name", value=trainer_name, inline=True)
         embed.add_field(name="Silph Road", value=f"{silph}", inline=True)
         embed.add_field(name="Pokebattler", value=f"{pkb}", inline=True)
         embed.add_field(name="Raid Reports", value=f"{raids}", inline=True)
@@ -53,6 +56,7 @@ class Social(commands.Cog):
         embed.add_field(name="Research Reports", value=f"{research}", inline=True)
         embed.add_field(name="Raids Joined", value=f"{joined}", inline=True)
         embed.add_field(name="Badges earned", value=f"{badge_str}", inline=True)
+        embed.set_footer(text='Do "!help set" to see how to set up your profile.')
         await ctx.send(embed=embed)
 
     async def _get_profile_counts(self, ctx, user):

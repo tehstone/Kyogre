@@ -95,6 +95,18 @@ class MyHelpCommand(commands.DefaultHelpCommand):
 
         return await super().send_command_help(command)
 
+    async def send_group_help(self, group):
+        help_embed = discord.Embed(colour=discord.Colour.orange())
+        help_embed.description = "Help for the `!set` commands"
+        for command in group.commands:
+            try:
+                allowed = await command.can_run(self.context)
+                help_embed.add_field(name=f"!{command.qualified_name}", value=command.help, inline=False)
+            except:
+                pass
+        return await self.get_destination().send(embed=help_embed)
+        return await super().send_group_help(group)
+
     def _generate_command_help(self, command):
         help_embed = self._basic_embed_setup(f"Help for {command.qualified_name}")
         help_embed = discord.Embed(colour=discord.Colour.orange())

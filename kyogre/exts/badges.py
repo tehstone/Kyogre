@@ -88,21 +88,36 @@ class Badges(commands.Cog):
     @_badge.command(name='info')
     async def _info(self, ctx, badge_id: int = 0):
         # TODO Pull the number of trainers who have earned this badge and add to embed
+        try:
+            count = (BadgeAssignmentTable.select()
+                .where(BadgeAssignmentTable.badge_id == badge_id)
+                .count())
+        except:
+            self.bot.logger.error(f"Failed to pull badge assignment count for badge: {badge_id}")
+            count = 0
         result = (BadgeTable.select(BadgeTable.id,
                                     BadgeTable.name,
                                     BadgeTable.description,
                                     BadgeTable.emoji,
                                     BadgeTable.active).where(BadgeTable.id == badge_id))
+        if count == 1:
+            count_str = f"{count} trainer has earned this badge."
+        elif count > 1:
+            count_str = f"{count} trainers have earned this badge."
+        else:
+            count_str = "No one has earned this badge yet!"
         badge = result[0]
         send_emoji = self.bot.get_emoji(badge.emoji)
         title = f"${badge.id} {badge.name}"
-        message = f"{send_emoji} {badge.description}"
+        message = f"{badge.description}"
         if badge.active:
             footer = "This badge is currently available."
         else:
             footer = "This badge is not currently available."
         embed = discord.Embed(colour=self.bot.user.colour, title=title, description=message)
+        embed.add_field(name=self.bot.empty_str, value=count_str)
         embed.set_footer(text=footer)
+        embed.set_thumbnail(url=send_emoji.url)
         await ctx.send(embed=embed)
 
     @commands.command(name='grant_badge', aliases=['give', 'gb'])

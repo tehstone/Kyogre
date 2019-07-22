@@ -180,6 +180,17 @@ class SetCommands(commands.Cog):
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
         return await ctx.message.add_reaction('✅')
 
+    @_set.command(name='trainername', aliases=['name', 'tn'])
+    async def _trainername(self, ctx, *, name: str):
+        """**Usage**: `!set _trainername <trainer name>`
+        Set this if your trainer name is different than your discord name.
+        Adds your trainer name to your `!profile`"""
+        trainers = self.bot.guild_dict[ctx.guild.id].get('trainers',{})
+        author = trainers.setdefault('info', {}).get(ctx.author.id,{})
+        author['trainername'] = name
+        self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
+        return await ctx.message.add_reaction('✅')
+
 
 def setup(bot):
     bot.add_cog(SetCommands(bot))
