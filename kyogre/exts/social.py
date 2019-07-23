@@ -24,10 +24,13 @@ class Social(commands.Cog):
             silph = f"[{card}](https://sil.ph/{silph.lower()})"
         else:
             silph = "not set"
-        pokebattlerid = trainer_info.get('pokebattlerid',None)
+        pokebattlerid = trainer_info.get('pokebattlerid', None)
         pkb = str(pokebattlerid) if pokebattlerid else 'not set'
         xp = trainer_info.get('xp', 0)
-        xp_msg = f'{xp:,d}' if xp > 0 else 'not set'
+        if xp.isdigit():
+            xp_msg = f'{int(xp):,d}' if int(xp) > 0 else 'not set'
+        else:
+            xp_msg = 'not set'
         trainer_name = trainer_info.get('trainername', None)
         trainer_code = trainer_info.get('code', None)
         code_msg = trainer_code if trainer_code is not None else 'not set'
@@ -60,7 +63,7 @@ class Social(commands.Cog):
         embed.add_field(name="Research Reports", value=f"{research}")
         embed.add_field(name="Raids Joined", value=f"{joined}")
         embed.add_field(name="Badges earned", value=f"{badge_str}", inline=False)
-        embed.set_footer(text='Do "!help set" to see how to set up your profile.')
+        embed.set_footer(text='Do "!set profile" to get your profile set up!')
         await ctx.send(embed=embed)
 
     async def _get_profile_counts(self, ctx, user):

@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import datetime
 
@@ -15,7 +16,7 @@ class SetCommands(commands.Cog):
     @commands.group(name='set', case_insensitive=True)
     async def _set(self, ctx):
         """Changes a setting."""
-        if ctx.invoked_subcommand == None:
+        if ctx.invoked_subcommand is None:
             raise commands.BadArgument()
 
     @_set.command()
@@ -23,7 +24,7 @@ class SetCommands(commands.Cog):
     async def regional(self, ctx, regional):
         """Changes server regional pokemon."""
         regional = regional.lower()
-        if regional == "reset" and checks.is_dev_or_owner(ctx):
+        if regional == "reset" and checks.is_dev_or_owner():
             msg = "Are you sure you want to clear all regionals?"
             question = await ctx.channel.send(msg)
             try:
@@ -67,7 +68,7 @@ class SetCommands(commands.Cog):
         except ValueError:
             await ctx.channel.send("I couldn't convert your answer to an appropriate timezone! Please double check what you sent me and resend a number from **-12** to **12**.")
             return
-        if (not ((- 12) <= timezone <= 14)):
+        if not ((- 12) <= timezone <= 14):
             await ctx.channel.send("I couldn't convert your answer to an appropriate timezone! Please double check what you sent me and resend a number from **-12** to **12**.")
             return
         self._set_timezone(ctx.guild, timezone)
@@ -75,7 +76,6 @@ class SetCommands(commands.Cog):
             hours=self.bot.guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
         await ctx.channel.send("Timezone has been set to: `UTC{offset}`\nThe current time is **{now}**".format(
             offset=timezone, now=now.strftime("%H:%M")))
-
 
     def _set_timezone(self, guild, timezone):
         self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'] = timezone
@@ -89,7 +89,7 @@ class SetCommands(commands.Cog):
             prefix = None
         prefix = prefix.strip()
         self._set_prefix(ctx.guild, prefix)
-        if prefix != None:
+        if prefix is not None:
             await ctx.channel.send('Prefix has been set to: `{}`'.format(prefix))
         else:
             default_prefix = self.bot.config['default_prefix']
@@ -108,7 +108,6 @@ class SetCommands(commands.Cog):
                 del self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {})[ctx.author.id]['silphid']
             except:
                 pass
-            return
             card = await self._silph(ctx, silph_user)
 
             if not card:
@@ -156,8 +155,8 @@ class SetCommands(commands.Cog):
             except:
                 pass
             return
-        trainers = self.bot.guild_dict[ctx.guild.id].get('trainers',{})
-        author = trainers.setdefault('info', {}).get(ctx.author.id,{})
+        trainers = self.bot.guild_dict[ctx.guild.id].get('trainers', {})
+        author = trainers.setdefault('info', {}).get(ctx.author.id, {})
         author['pokebattlerid'] = pbid
         trainers.setdefault('info', {})[ctx.author.id] = author
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
@@ -167,18 +166,18 @@ class SetCommands(commands.Cog):
     async def xp(self, ctx, xp: int = 0):
         """**Usage**: `!set xp <current xp>`
         Adds your current xp to your `!profile`"""
-        trainers = self.bot.guild_dict[ctx.guild.id].get('trainers',{})
-        author = trainers.setdefault('info', {}).get(ctx.author.id,{})
+        trainers = self.bot.guild_dict[ctx.guild.id].get('trainers', {})
+        author = trainers.setdefault('info', {}).get(ctx.author.id, {})
         author['xp'] = xp
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
         return await ctx.message.add_reaction('✅')
 
     @_set.command(name='friendcode', aliases=['friend_code', 'fc', 'code'])
-    async def friend_code(self, ctx, *, code: str=None):
+    async def friend_code(self, ctx, *, code: str = None):
         """**Usage**: `!set friendcode <friend code>`
         Adds your friend code to your `!profile`"""
-        trainers = self.bot.guild_dict[ctx.guild.id].get('trainers',{})
-        author = trainers.setdefault('info', {}).get(ctx.author.id,{})
+        trainers = self.bot.guild_dict[ctx.guild.id].get('trainers', {})
+        author = trainers.setdefault('info', {}).get(ctx.author.id, {})
         author['code'] = code
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
         return await ctx.message.add_reaction('✅')
@@ -188,8 +187,8 @@ class SetCommands(commands.Cog):
         """**Usage**: `!set _trainername <trainer name>`
         Set this if your trainer name is different than your discord name.
         Adds your trainer name to your `!profile`"""
-        trainers = self.bot.guild_dict[ctx.guild.id].get('trainers',{})
-        author = trainers.setdefault('info', {}).get(ctx.author.id,{})
+        trainers = self.bot.guild_dict[ctx.guild.id].get('trainers', {})
+        author = trainers.setdefault('info', {}).get(ctx.author.id, {})
         author['trainername'] = name
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
         return await ctx.message.add_reaction('✅')
@@ -205,7 +204,8 @@ class SetCommands(commands.Cog):
         if not ctx.guild:
             return await ctx.send("Please use this command within a server.")
         await ctx.send("I will message you directly to help you get your profile set up.")
-        trainer_dict_copy = copy.deepcopy(self.bot.guild_dict[ctx.guild.id].setdefault('trainers',{}).setdefault('info', {}).setdefault(ctx.author.id,{}))
+        trainer_dict_copy = copy.deepcopy(self.bot.guild_dict[ctx.guild.id].setdefault('trainers', {})
+                                          .setdefault('info', {}).setdefault(ctx.author.id, {}))
         for step in self.profile_steps:
             response = await self._profile_step(ctx, step)
             if response is None:
@@ -218,7 +218,7 @@ class SetCommands(commands.Cog):
                 if step['td_key'] == 'silphid':
                     card = await self._silph(ctx, response)
                     if not card:
-                        await ctx.author.send('Silph Card for {silph_user} not found.'.format(silph_user=silph_user))
+                        await ctx.author.send('Silph Card for {silph_user} not found.'.format(silph_user=response))
                         continue
                     if not card.discord_name:
                         await ctx.author.send('No Discord account found linked to this Travelers Card!')
@@ -227,17 +227,19 @@ class SetCommands(commands.Cog):
                         await ctx.author.send('This Travelers Card is linked to another Discord account!')
                         continue
                 trainer_dict_copy[step['td_key']] = response
+        await ctx.author.send("Great, your profile is all set!")
         self.bot.guild_dict[ctx.guild.id]['trainers']['info'][ctx.author.id] = trainer_dict_copy
+        return await ctx.invoke(self.bot.get_command('profile'), user=ctx.author)
     
     async def _profile_step(self, ctx, step):
         embed = discord.Embed(colour = self.bot.user.colour)
         description = step["prompt"]
-        description += '\nReply with "clear" to the value currently set. Reply with "skip" to continue to the next item.'
+        description += '\n\nReply with "clear" to remove this item from your profile. Reply with "skip" to continue to the next item.'
         embed.description = description
-        prompt = await ctx.author.send(embed=embed)
+        await ctx.author.send(embed=embed)
         try:
             response = await self.bot.wait_for('message', timeout=60,
-                                                 check=(lambda reply: reply.author == ctx.message.author))
+                                               check=(lambda reply: reply.author == ctx.message.author))
         except asyncio.TimeoutError:
             pass
         if response is None:
