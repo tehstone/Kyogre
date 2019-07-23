@@ -958,7 +958,12 @@ async def _update_listing_channel(Kyogre, guild_dict, channel, type, edit, regio
                         await old_message.edit(embed=new_embed)
                         new_ids.append(old_message.id)
                         continue
-                new_message_obj = await channel.send(embed=new_embed)
+                new_message_obj = None
+                while new_message_obj is None:
+                    try:
+                        new_message_obj = await channel.send(embed=new_embed)
+                    except ClientOSError:
+                        pass
                 new_ids.append(new_message_obj.id)
         if 'channel' in listing_dict:
             listing_dict['channel']['messages'] = new_ids
