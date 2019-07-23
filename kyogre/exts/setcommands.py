@@ -1,6 +1,7 @@
 import copy
 import datetime
 
+import discord
 from discord.ext import commands
 
 from kyogre import utils, checks
@@ -108,25 +109,18 @@ class SetCommands(commands.Cog):
             except:
                 pass
             return
+            card = await self._silph(ctx, silph_user)
 
-        silph_cog = self.bot.cogs.get('Silph')
-        if not silph_cog:
-            return await ctx.send(
-                "The Silph Extension isn't accessible at the moment, sorry!")
-
-        async with ctx.typing():
-            card = await silph_cog.get_silph_card(silph_user)
             if not card:
                 return await ctx.send('Silph Card for {silph_user} not found.'.format(silph_user=silph_user))
 
-        if not card.discord_name:
-            return await ctx.send(
-                'No Discord account found linked to this Travelers Card!')
+            if not card.discord_name:
+                return await ctx.send(
+                    'No Discord account found linked to this Travelers Card!')
 
-        if card.discord_name != str(ctx.author):
-            return await ctx.send(
-                'This Travelers Card is linked to another Discord account!')
-
+            if card.discord_name != str(ctx.author):
+                return await ctx.send(
+                    'This Travelers Card is linked to another Discord account!')
         try:
             offset = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset']
         except KeyError:
@@ -141,6 +135,15 @@ class SetCommands(commands.Cog):
         await ctx.send(
             'This Travelers Card has been successfully linked to you!',
             embed=card.embed(offset))
+
+    async def _silph(self, ctx, silph_user):
+        silph_cog = self.bot.cogs.get('Silph')
+        if not silph_cog:
+            return await ctx.send(
+                "The Silph Extension isn't accessible at the moment, sorry!")
+
+        async with ctx.typing():
+            return await silph_cog.get_silph_card(silph_user)
 
     @_set.command(aliases=['pkb'])
     async def pokebattler(self, ctx, pbid: int = 0):
@@ -190,6 +193,56 @@ class SetCommands(commands.Cog):
         author['trainername'] = name
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
         return await ctx.message.add_reaction('✅')
+
+    profile_steps = [{'prompt': "What is your current xp?", 'td_key': 'xp'},
+                     {'prompt': "What is your friend code?", 'td_key': 'code'},
+                     {'prompt': "What is your Trainer Name?", 'td_key': 'trainername'},
+                     {'prompt': "What is the name on your Silph Road Traveler's Card?", 'td_key': 'silphid'},
+                     {'prompt': "What is your PokeBattler ID?", 'td_key': 'pokebattlerid'}]
+
+    @_set.command(name='profile')
+    async def profile(self, ctx):
+        if not ctx.guild:
+            return await ctx.send("Please use this command within a server.")
+        await ctx.send("I will message you directly to help you get your profile set up.")
+        trainer_dict_copy = copy.deepcopy(self.bot.guild_dict[ctx.guild.id].setdefault('trainers',{}).setdefault('info', {}).setdefault(ctx.author.id,{}))
+        for step in self.profile_steps:
+            response = await self._profile_step(ctx, step)
+            if response is None:
+                return await ctx.author.send("You took too long to reply, profile setup cancelled.")
+            if response.lower() == 'clear':
+                trainer_dict_copy[step['td_key']] = None
+            elif response.lower() == 'skip':
+                continue
+            else:
+                if step['td_key'] == 'silphid':
+                    card = await self._silph(ctx, response)
+                    if not card:
+                        await ctx.author.send('Silph Card for {silph_user} not found.'.format(silph_user=silph_user))
+                        continue
+                    if not card.discord_name:
+                        await ctx.author.send('No Discord account found linked to this Travelers Card!')
+                        continue
+                    if card.discord_name != str(ctx.author):
+                        await ctx.author.send('This Travelers Card is linked to another Discord account!')
+                        continue
+                trainer_dict_copy[step['td_key']] = response
+        self.bot.guild_dict[ctx.guild.id]['trainers']['info'][ctx.author.id] = trainer_dict_copy
+    
+    async def _profile_step(self, ctx, step):
+        embed = discord.Embed(colour = self.bot.user.colour)
+        description = step["prompt"]
+        description += '\nReply with "clear" to the value currently set. Reply with "skip" to continue to the next item.'
+        embed.description = description
+        prompt = await ctx.author.send(embed=embed)
+        try:
+            response = await self.bot.wait_for('message', timeout=60,
+                                                 check=(lambda reply: reply.author == ctx.message.author))
+        except asyncio.TimeoutError:
+            pass
+        if response is None:
+            return None
+        return response.clean_content
 
 
 def setup(bot):
