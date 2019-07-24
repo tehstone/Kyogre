@@ -819,7 +819,6 @@ async def on_raw_reaction_add(payload):
                 except:
                     pass
                 await _refresh_listing_channels_internal(guild, "raid")
-            
     pvp_dict = guild_dict[guild.id].setdefault('pvp_dict', {})
     if message.id in pvp_dict and user.id != Kyogre.user.id:
         trainer = pvp_dict[message.id]['reportauthor']
@@ -866,6 +865,16 @@ async def on_raw_reaction_add(payload):
                     embed.add_field(name='**Expires:**', value='{end}'.format(end=expire_str), inline=True)
                 await message.edit(embed=embed)
                 await message.remove_reaction(payload.emoji, user)
+    if user.id != Kyogre.user.id:
+        for i,d in Kyogre.active_invasions.items():
+            if d["message"].id == message.id:
+                if d["author"] == payload.user_id or can_manage(user):
+                    invasions_cog = Kyogre.cogs.get('Invasions')
+                    if str(payload.emoji) == '💨':
+                        await invasions_cog.expire_invasion(i)
+                        break
+                    elif str(payload.emoji) in ['<:ballfirst:603712743996129283>', '\u270f']:
+                        await invasions_cog.modify_report(payload)
 
 
 def get_raid_report(guild, message_id):

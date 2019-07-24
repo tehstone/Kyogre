@@ -136,8 +136,9 @@ class WildSpawnCommands(commands.Cog):
                 try:
                     if self.bot.guild_dict[guild.id]['wildreport_dict'][message.id]['exp'] <= time.time():
                         await self.expire_wild(message)
+                        break
                 except KeyError:
-                    pass
+                    break
                 await asyncio.sleep(30)
                 continue
 
@@ -145,6 +146,10 @@ class WildSpawnCommands(commands.Cog):
         channel = message.channel
         guild = channel.guild
         wild_dict = self.bot.guild_dict[guild.id]['wildreport_dict']
+        try:
+            self.bot.active_wilds.remove(message)
+        except ValueError:
+            pass
         try:
             await message.edit(embed=discord.Embed(description=wild_dict[message.id]['expedit']['embedcontent'],
                                                    colour=message.embeds[0].colour.value))

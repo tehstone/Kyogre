@@ -238,8 +238,9 @@ class PvP(commands.Cog):
                 try:
                     if self.guild_dict[guild.id]['pvp_dict'][message.id]['exp'] <= time.time():
                         await self.expire_pvp(message)
+                        break
                 except KeyError:
-                    pass
+                    break
                 await asyncio.sleep(30)
                 continue
 
@@ -247,6 +248,10 @@ class PvP(commands.Cog):
     async def expire_pvp(self, message):
         channel = message.channel
         guild = channel.guild
+        try:
+            self.bot.active_pvp.remove(message)
+        except ValueError:
+            pass
         pvp_dict = self.guild_dict[guild.id]['pvp_dict']
         try:
             await message.edit(content=pvp_dict[message.id]['expedit']['content'],
