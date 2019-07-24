@@ -22,6 +22,8 @@ async def _get_listing_messages(Kyogre, guild_dict, type, channel, region=None):
         return await _get_research_listing_messages(Kyogre, channel, guild_dict, region)
     elif type == 'lure':
         return await _get_lure_listing_messages(Kyogre, channel, guild_dict, region)
+    elif type == 'takeover':
+        return await _get_invasion_listing_messages(Kyogre, channel, guild_dict, region)
     else:
         return None
 
@@ -270,6 +272,59 @@ async def _get_research_listing_messages(Kyogre, channel, guild_dict, region=Non
     listmsg_list.append(listmsg)
     return listmsg_list
 
+async def _get_invasion_listing_messages(Kyogre, channel, guild_dict, region=None):
+    guild = channel.guild
+    if region:
+        loc = region
+    else:
+        loc = channel.name
+    invctr = 0
+    listmsg_list = []
+    listmsg = f"**Here are the active Team Rocket Takeovers in {loc.capitalize()}**\n"
+    current_category = ""
+    current = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[channel.guild.id]['configure_dict']['settings']['offset'])
+    expiration_seconds = guild_dict[channel.guild.id]['configure_dict']['settings']['invasion_minutes'] * 60
+    current = round(current.timestamp())
+    result = (TrainerReportRelation.select(
+                    TrainerReportRelation.created,
+                    LocationTable.name.alias('location_name'),
+                    PokemonTable.name.alias('pokemon'),
+                    LocationTable.latitude,
+                    LocationTable.longitude)
+            .join(LocationTable, on=(TrainerReportRelation.location_id == LocationTable.id))
+            .join(LocationRegionRelation, on=(LocationTable.id==LocationRegionRelation.location_id))
+            .join(RegionTable, on=(RegionTable.id==LocationRegionRelation.region_id))
+            .join(InvasionTable, on=(TrainerReportRelation.id == InvasionTable.trainer_report_id))
+            .join(PokemonTable, JOIN.LEFT_OUTER, on=(InvasionTable.pokemon_number_id == PokemonTable.id))
+            .where((RegionTable.name == region) &
+                   (TrainerReportRelation.created + expiration_seconds > current))
+            .order_by(TrainerReportRelation.created))
+
+    result = result.objects(InvasionInstance)
+    for inv in result:
+        exp = inv.created + expiration_seconds
+        exp = datetime.datetime.fromtimestamp(exp)
+        newmsg = ""
+        try:
+            newmsg += ('\n\t🔹')
+            stop_url = utils.simple_gmaps_query(inv.latitude, inv.longitude)
+            newmsg += f"**Pokestop**: [{inv.location_name}]({stop_url}) - Ends: {exp.strftime('%I:%M')} (or sooner)."
+            if inv.pokemon is not None:
+                newmsg += f"\n\t🔴**Pokemon**: {inv.pokemon}"
+            if len(listmsg) + len(newmsg) < constants.MAX_MESSAGE_LENGTH:
+                listmsg += newmsg
+            else:
+                listmsg_list.append(listmsg)
+                if current_category not in newmsg:
+                    newmsg = f"**({current_category} continued)**"
+                listmsg = "takeover " + newmsg
+            invctr += 1
+        except discord.errors.NotFound:
+            continue
+    if invctr == 0:
+        listmsg = "There are no active Team Rocket Takeovers. Report one with **!rocket**"
+    listmsg_list.append(listmsg)
+    return listmsg_list
 
 async def _get_lure_listing_messages(Kyogre, channel, guild_dict, region=None):
     guild = channel.guild
@@ -282,6 +337,8 @@ async def _get_lure_listing_messages(Kyogre, channel, guild_dict, region=None):
     listmsg = f"**Here are the active lures in {loc.capitalize()}**\n"
     current_category = ""
     current = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[channel.guild.id]['configure_dict']['settings']['offset'])
+    expiration_seconds = guild_dict[channel.guild.id]['configure_dict']['settings']['lure_minutes'] * 60
+    current = round(current.timestamp())
     result = (TrainerReportRelation.select(
                     TrainerReportRelation.created,
                     LocationTable.name.alias('location_name'),
@@ -295,15 +352,13 @@ async def _get_lure_listing_messages(Kyogre, channel, guild_dict, region=None):
             .join(LureTypeRelation, on=(LureTable.id == LureTypeRelation.lure_id))
             .join(LureTypeTable, on=(LureTypeTable.id == LureTypeRelation.type_id))
             .where((RegionTable.name == region) &
-                   (TrainerReportRelation.created.day == current.day)))
+                   (TrainerReportRelation.created + expiration_seconds > current))
+            .order_by(TrainerReportRelation.created))
 
     result = result.objects(LureInstance)
-    results = [o for o in result]
-    for lure in results:
-        lure_create = datetime.datetime.strptime(lure.created, '%Y-%m-%d %H:%M:%S')
-        exp = lure_create+datetime.timedelta(minutes=30)
-        if exp < current:
-            continue
+    for lure in result:
+        exp = lure.created + expiration_seconds
+        exp = datetime.datetime.fromtimestamp(exp)
         newmsg = ""
         try:
             type = lure.lure_type
@@ -312,17 +367,17 @@ async def _get_lure_listing_messages(Kyogre, channel, guild_dict, region=None):
                 newmsg += f"\n\n**{current_category.capitalize()}**"
             newmsg += ('\n\t🔹')
             stop_url = utils.simple_gmaps_query(lure.latitude, lure.longitude)
-            newmsg += f"**Pokestop**: [{lure.location_name}]({stop_url}) - Expires: {exp.strftime('%I:%M:%S')} (approx.)."
+            newmsg += f"**Pokestop**: [{lure.location_name}]({stop_url}) - Expires: {exp.strftime('%I:%M')} (approx.)."
             if len(listmsg) + len(newmsg) < constants.MAX_MESSAGE_LENGTH:
                 listmsg += newmsg
             else:
                 listmsg_list.append(listmsg)
                 if current_category not in newmsg:
                     newmsg = f"**({current_category} continued)**"
-                listmsg = newmsg
+                listmsg = "lure " + newmsg
             lurectr += 1
         except discord.errors.NotFound:
-            continue    
+            continue
     if lurectr == 0:
         listmsg = "There are no active lures. Report one with **!lure**"
     listmsg_list.append(listmsg)
@@ -882,31 +937,9 @@ async def get_region_reporting_channels(guild, region, guild_dict):
 
 
 async def update_listing_channels(Kyogre, guild_dict, guild, type, edit=False, regions=None):
-    valid_types = ['raid', 'research', 'wild', 'nest', 'lure']
+    valid_types = ['raid', 'research', 'wild', 'nest', 'lure', 'takeover']
     if type not in valid_types:
         return
-    # if type == 'lure':
-    #     expiremax = datetime.datetime.utcnow() + datetime.timedelta(
-    #         hours=guild_dict[guild.id]['configure_dict']['settings']['offset'],
-    #         minutes=30)
-    #     lures = (LureTable
-    #     #created, location_name, lure_type, latitude, longitude
-    #              .select(TrainerReportRelation.created,
-    #                      LocationTable.name.alias("location_name"),
-    #                      LureTypeTable.name.alias("lure_type"),
-    #                      LocationTable.latitude,
-    #                      LocationTable.longitude)
-    #              .join(TrainerReportRelation)
-    #              .join(TrainerTable, on=(TrainerReportRelation.trainer == TrainerTable.snowflake))
-    #              .join(LureTypeRelation, on=(LureTypeRelation.lure_id == LureTable.id))
-    #              .join(LureTypeTable, on=(LureTypeRelation.type_id == LureTypeTable.id))
-    #              .join(LocationTable, on=(TrainerReportRelation.location_id == LocationTable.id))
-    #              .where((TrainerTable.guild == guild.id) &
-    #                     (TrainerReportRelation.created + 30 < expiremax)))
-    #     lures = lures.objects(LureInstance)
-    #     print([o for o in lures])
-
-    # else:
     listing_dict = guild_dict[guild.id]['configure_dict'].get(type, {}).get('listings', None)
     if not listing_dict or not listing_dict['enabled']:
         return
@@ -933,9 +966,10 @@ async def _update_listing_channel(Kyogre, guild_dict, channel, type, edit, regio
             return
         new_messages = await _get_listing_messages(Kyogre, guild_dict, type, channel, region)
         previous_messages = await _get_previous_listing_messages(Kyogre, guild_dict, type, channel, region)
+        new_messages = [] if new_messages is None else new_messages
+        previous_messages = [] if previous_messages is None else previous_messages
         matches = itertools.zip_longest(new_messages, previous_messages)
         new_ids = []
-
         def should_delete(m):
             check = True
             if m.embeds is not None:

@@ -28,9 +28,9 @@ class LureCommands(commands.Cog):
             return await channel.send(
                 embed=discord.Embed(colour=discord.Colour.red(),
                                     description='Give more details when reporting! Usage: **!lure <type> <location>**'))
-        timestamp = (message.created_at +
-                     datetime.timedelta(hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])) \
-            .strftime('%Y-%m-%d %H:%M:%S')
+        report_time = message.created_at + datetime.timedelta(hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+        report_time_int = round(report_time.timestamp())
+        timestamp = report_time.strftime('%Y-%m-%d %H:%M:%S')
         luretype = content.split()[0].strip(',')
         pokestop = ' '.join(content.split()[1:])
         query = LureTypeTable.select()
@@ -52,7 +52,7 @@ class LureCommands(commands.Cog):
                     embed=discord.Embed(colour=discord.Colour.red(),
                                         description="Unable to find that Pokestop. "
                                                     "Please check the name and try again!"))
-        report = TrainerReportRelation.create(created=timestamp, trainer=author.id, location=stop.id)
+        report = TrainerReportRelation.create(created=report_time_int, trainer=author.id, location=stop.id)
         lure = LureTable.create(trainer_report=report)
         LureTypeRelation.create(lure=lure, type=luretype)
         lure_embed = discord.Embed(
@@ -67,7 +67,7 @@ class LureCommands(commands.Cog):
                                            f'{author.display_name} at {stop.name}', embed=lure_embed)
         await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
                                                    'lure', edit=False, regions=lure_regions)
-        details = {'regions': lure_regions, 'type': 'lure', 'lure_type': luretype.name, 'location': stop.name}
+        details = {'regions': lure_regions, 'type': 'lure', 'lure_type': luretype.name, 'location': stop}
         await subscriptions_cog.send_notifications_async('lure', details, message.channel, [message.author.id])
         self.bot.event_loop.create_task(self.lure_expiry_check(lurereportmsg, report.id))
 
@@ -76,7 +76,8 @@ class LureCommands(commands.Cog):
         channel = message.channel
         message = await message.channel.fetch_message(message.id)
         offset = self.bot.guild_dict[channel.guild.id]['configure_dict']['settings']['offset']
-        expire_time = datetime.datetime.utcnow() + datetime.timedelta(hours=offset) + datetime.timedelta(minutes=1)
+        expiration_minutes = self.bot.guild_dict[channel.guild.id]['configure_dict']['settings']['lure_minutes']
+        expire_time = datetime.datetime.utcnow() + datetime.timedelta(hours=offset) + datetime.timedelta(minutes=expiration_minutes)
         if message not in self.bot.active_lures:
             self.bot.active_lures.append(message)
             self.bot.logger.info(

@@ -27,7 +27,7 @@ class KyogreDB:
             LocationNoteTable, RewardTable, LureTable,
             LureTypeTable, LureTypeRelation,
             InviteRoleTable, EventTable, BadgeTable,
-            BadgeAssignmentTable
+            BadgeAssignmentTable, InvasionTable
         ])
         cls.init()
         cls._migrator = SqliteMigrator(cls._db)
@@ -226,7 +226,7 @@ class GymTable(BaseModel):
 
 class TrainerReportRelation(BaseModel):
     id = AutoField()
-    created = DateTimeField(index=True,formats=["%Y-%m-%d %H:%M:%s"])
+    created = BigIntegerField(index=True)
     trainer = BigIntegerField(index=True)
     location = ForeignKeyField(LocationTable, index=True)
 
@@ -285,6 +285,18 @@ class LureTable(BaseModel):
 class LureTypeRelation(BaseModel):
     lure = ForeignKeyField(LureTable, backref='lure')
     type = ForeignKeyField(LureTypeTable, backref='lure')
+
+class InvasionInstance():
+    def __init__(self, created, location_name, pokemon, latitude, longitude):
+        self.created=created
+        self.location_name=location_name
+        self.pokemon=pokemon
+        self.latitude=latitude
+        self.longitude=longitude
+
+class InvasionTable(BaseModel):
+    trainer_report = ForeignKeyField(TrainerReportRelation, backref='invasion')
+    pokemon_number = ForeignKeyField(PokemonTable, null=True, backref='invasion')
 
 def parseRewardPool(pool):
     for key,val in pool["items"].items():

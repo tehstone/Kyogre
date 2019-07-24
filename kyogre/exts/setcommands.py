@@ -1,6 +1,7 @@
 import asyncio
 import copy
 import datetime
+import re
 
 import discord
 from discord.ext import commands
@@ -71,14 +72,27 @@ class SetCommands(commands.Cog):
         if not ((- 12) <= timezone <= 14):
             await ctx.channel.send("I couldn't convert your answer to an appropriate timezone! Please double check what you sent me and resend a number from **-12** to **12**.")
             return
-        self._set_timezone(ctx.guild, timezone)
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset'] = timezone
         now = datetime.datetime.utcnow() + datetime.timedelta(
-            hours=self.bot.guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
+            hours=self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset'])
         await ctx.channel.send("Timezone has been set to: `UTC{offset}`\nThe current time is **{now}**".format(
-            offset=timezone, now=now.strftime("%H:%M")))
+            offset=timezone, now=now.strftime("%H:%M")))        
 
-    def _set_timezone(self, guild, timezone):
-        self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'] = timezone
+    @_set.command()
+    @commands.has_permissions(manage_guild=True)
+    async def lureminutes(self, ctx, *, minutes: int):
+        """Changes lure expiration minutes."""
+        
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['lure_minutes'] = minutes
+        await ctx.channel.send(f"Lure expiration time changed to {minutes}.")
+
+    @_set.command()
+    @commands.has_permissions(manage_guild=True)
+    async def invasionminutes(self, ctx, *, minutes: int):
+        """Changes Team Rocket Takeover expiration minutes."""
+        
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['invasion_minutes'] = minutes
+        await ctx.channel.send(f"Team Rocket Takeover expiration time changed to {minutes}.")
 
 
     @_set.command()
@@ -246,6 +260,13 @@ class SetCommands(commands.Cog):
             return None
         return response.clean_content
 
+    @_set.command(name='currentlocation', aliases=['cl', 'mylocation'])
+    async def _location(self, ctx, *, info):
+        info = re.split(r',*\s+', info)
+        if len(info) < 2:
+            return await ctx.send("Please provide both latitude and longitude.")
+        
+        pass
 
 def setup(bot):
     bot.add_cog(SetCommands(bot))

@@ -20,6 +20,7 @@ default_exts = ['admincommands',
                 'events',
                 'getcommands',
                 'helpcommand',
+                'invasions',
                 'inviterole',
                 'locationmanagement',
                 'locationmatching',
@@ -73,6 +74,7 @@ class KyogreBot(commands.AutoShardedBot):
         self.active_wilds = []
         self.active_pvp = []
         self.active_lures = []
+        self.active_invasions = []
         self.success_react = '✅'
         self.failed_react = '❌'
         self.empty_str = '\u200b'

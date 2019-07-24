@@ -45,6 +45,10 @@ class ResearchSetCheckFail(CommandError):
     'Exception raised checks.researchset fails'
     pass
 
+class InvasionSetCheckFail(CommandError):
+    'Exception raised checks.invasionset fails'
+    pass
+
 class MeetupSetCheckFail(CommandError):
     'Exception raised checks.meetupset fails'
     pass
@@ -117,16 +121,20 @@ class ResearchReportChannelCheckFail(CommandError):
     'Exception raised checks.researchreport fails'
     pass
 
+class InvasionReportChannelCheckFail(CommandError):
+    'Exception raised checks.invasionreport fails'
+    pass
+
 class MeetupReportChannelCheckFail(CommandError):
-    'Exception raised checks.researchreport fails'
+    'Exception raised checks.meetupreport fails'
     pass
 
 class WildReportChannelCheckFail(CommandError):
-    'Exception raised checks.researchreport fails'
+    'Exception raised checks.wildreport fails'
     pass
 
 class LureReportChannelCheckFail(CommandError):
-    'Exception raised checks.researchreport fails'
+    'Exception raised checks.lurereport fails'
     pass
 
 class TradeChannelCheckFail(CommandError):
@@ -230,6 +238,10 @@ def custom_error_handling(bot, logger):
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, ResearchSetCheckFail):
             msg = 'Research Reporting is not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
+            error = await ctx.channel.send(msg)
+            await delete_error(ctx.message, error, 10)
+        elif isinstance(error, InvasionSetCheckFail):
+            msg = 'Team Rocket Takeover Reporting is not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
             error = await ctx.channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, MeetupSetCheckFail):

@@ -298,12 +298,26 @@ def check_researchset(ctx):
     guild = ctx.guild
     return ctx.bot.guild_dict[guild.id]['configure_dict']['research'].get('enabled',False)
 
+def check_invasionset(ctx):
+    if ctx.guild is None:
+        return False
+    guild = ctx.guild
+    return ctx.bot.guild_dict[guild.id]['configure_dict']['invasion'].get('enabled',False)
+
 def check_researchreport(ctx):
     if ctx.guild is None:
         return False
     channel = ctx.channel
     guild = ctx.guild
     channel_list = [x for x in ctx.bot.guild_dict[guild.id]['configure_dict']['research'].get('report_channels',{}).keys()]
+    return channel.id in channel_list
+
+def check_invasionreport(ctx):
+    if ctx.guild is None:
+        return False
+    channel = ctx.channel
+    guild = ctx.guild
+    channel_list = [x for x in ctx.bot.guild_dict[guild.id]['configure_dict']['invasion'].get('report_channels',{}).keys()]
     return channel.id in channel_list
 
 def check_adminchannel(ctx):
@@ -392,6 +406,17 @@ def allowresearchreport():
                 raise errors.ResearchReportChannelCheckFail()
         else:
             raise errors.ResearchSetCheckFail()
+    return commands.check(predicate)
+
+def allowinvasionreport():
+    def predicate(ctx):
+        if check_invasionset(ctx):
+            if check_invasionreport(ctx) or check_adminchannel(ctx):
+                return True
+            else:
+                raise errors.InvasionReportChannelCheckFail()
+        else:
+            raise errors.InvasionSetCheckFail()
     return commands.check(predicate)
 
 def allowmeetupreport():

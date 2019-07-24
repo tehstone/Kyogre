@@ -1,4 +1,5 @@
 import asyncio
+import math
 import re
 
 from discord.ext import commands
@@ -684,8 +685,25 @@ class Subscriptions(commands.Cog):
         gyms = location_matching_cog.get_gyms(guild_id, regions)
         return gyms
 
+    def close_enough(self, coord1, coord2, distance):
+        #haversine
+        R = 6372800  # Earth radius in meters
+        conv = 1609.34 # meters in a mile
+        lat1, lon1 = coord1
+        lat2, lon2 = coord2
+        
+        phi1, phi2 = math.radians(lat1), math.radians(lat2) 
+        dphi       = math.radians(lat2 - lat1)
+        dlambda    = math.radians(lon2 - lon1)
+        
+        a = math.sin(dphi/2)**2 + \
+            math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
+        
+        return 2*R*math.atan2(math.sqrt(a), math.sqrt(1 - a)) / conv < distance
+
     async def send_notifications_async(self, type, details, new_channel, exclusions=[]):
-        valid_types = ['raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure']
+        valid_types = ['raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure', 'takeover']
+        type = details['type']
         if type not in valid_types:
             return
         guild = new_channel.guild
@@ -784,8 +802,18 @@ class Subscriptions(commands.Cog):
                 target_matched = True
             if 'shiny' in targets:
                 target_matched = True
-            if lure_type and lure_type in targets:
-                target_matched = True
+            if 'takeover' in targets or (lure_type and lure_type in targets):
+                trainer_info = self.bot.guild_dict[guild.id]['trainers'].setdefault('info', {}).setdefault(trainer,{})
+                t_location = trainer_info.setdefault('location', None)
+                distance = trainer_info.setdefault('distance', None)
+                stop = details['location']
+                if t_location is not None and distance is not None:
+                    if self.close_enough((float(stop.latitude), float(stop.longitude)), (t_location[0], t_location[1]), distance):
+                        target_matched = True
+                    else:
+                        target_matched = False
+                else:
+                    target_matched = True
             if not target_matched:
                 continue
             description = ', '.join(descriptors)
@@ -794,7 +822,9 @@ class Subscriptions(commands.Cog):
                 start = 'An' if re.match(r'^[aeiou]', item, re.I) else 'A'
                 message = f'{start} **{item}** task has been reported at {location}! For more details, go to the {new_channel.mention} channel.'
             elif type == 'lure':
-                message = f'A **{lure_type.capitalize()}** lure has been dropped at {location}!'
+                message = f'A **{lure_type.capitalize()}** lure has been dropped at {location.name}!'
+            elif type == 'takeover':
+                message = f'A **Team Rocket Takeover** has been spotted at {location.name}!'
             else:
                 message = f'**New {type.title()}**! {start} {description} {type} at {location} has been reported! For more details, go to the {new_channel.mention} channel!'
             outbound_dict[trainer] = {'discord_obj': user, 'message': message}
@@ -802,7 +832,9 @@ class Subscriptions(commands.Cog):
         if type == 'item':
             role_name = utils.sanitize_name(f"{item} {location}".title())
         elif type == 'lure':
-            role_name = utils.sanitize_name(f'{lure_type} {location}'.title())
+            role_name = utils.sanitize_name(f'{lure_type} {location.name}'.title())
+        elif type == 'takeover':
+            role_name = utils.sanitize_name(f'Rocket Takeover {location.name}'.title())
         else:
             role_name = utils.sanitize_name(f"{type} {pokemon_names} {location}".title())
         return await self.generate_role_notification_async(role_name, new_channel, outbound_dict)
