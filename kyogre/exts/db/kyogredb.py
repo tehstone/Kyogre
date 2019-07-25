@@ -229,6 +229,7 @@ class TrainerReportRelation(BaseModel):
     created = BigIntegerField(index=True)
     trainer = BigIntegerField(index=True)
     location = ForeignKeyField(LocationTable, index=True)
+    message = BigIntegerField(index=True, null=True)
 
 class QuestTable(BaseModel):
     name = TextField(unique=True)

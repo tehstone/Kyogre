@@ -24,7 +24,7 @@ class Invasions(commands.Cog):
         author = message.author
         guild = message.guild
         img_url = author.avatar_url_as(format=None, static_format='jpg', size=32)
-        info = re.split(r',*', info)
+        info = re.split(r',+\s+', info)
         stopname = info[0]
         report_time = message.created_at + datetime.timedelta(hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
         report_time_int = round(report_time.timestamp())
@@ -79,15 +79,15 @@ class Invasions(commands.Cog):
         else:
             inv_embed.set_thumbnail(url="https://github.com/tehstone/Kyogre/blob/master/images/misc/Team_Rocket_Grunt_M.png?raw=true")            
         invasionreportmsg = await channel.send(f'**Team Rocket Takeover** reported at *{stop.name}*', embed=inv_embed)
-        await utilities_cog.reaction_delay(invasionreportmsg, ['<:ballfirst:603712743996129283>', '💨', '\u270f'])
+        await utilities_cog.reaction_delay(invasionreportmsg, ['🇵', '💨'])#, '\u270f'])
         await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
                                                    'takeover', edit=False, regions=regions)
         details = {'regions': regions, 'type': 'takeover', 'location': stop}
+        TrainerReportRelation.update(message=invasionreportmsg.id).where(TrainerReportRelation.id == report.id).execute()
         await subscriptions_cog.send_notifications_async('takeover', details, message.channel, [message.author.id])
         self.bot.event_loop.create_task(self.invasion_expiry_check(invasionreportmsg, report.id, author))
 
     async def invasion_expiry_check(self, message, invasion_id, author):
-        print(invasion_id)
         self.bot.logger.info('Expiry_Check - ' + message.channel.name)
         channel = message.channel
         message = await message.channel.fetch_message(message.id)
@@ -109,8 +109,10 @@ class Invasions(commands.Cog):
                 continue
 
     async def expire_invasion(self, invasion_id):
-        print(invasion_id)
-        message = self.bot.active_invasions[invasion_id]["message"]
+        try:
+            message = self.bot.active_invasions[invasion_id]["message"]
+        except KeyError:
+            return
         channel = message.channel
         guild = channel.guild
         try:
@@ -153,11 +155,12 @@ class Invasions(commands.Cog):
             user = guild.get_member(payload.user_id)
         except AttributeError:
             return
-        if str(payload.emoji) == '<:ballfirst:603712743996129283>':
+        regions = raid_helpers.get_channel_regions(channel, 'invasion', self.bot.guild_dict)
+        if str(payload.emoji) == '🇵':
             query_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(),
                                                                description="What is the Pokemon awarded from this encounter?"))
             try:
-                pkmnmsg = await Kyogre.wait_for('message', timeout=30, check=(lambda reply: reply.author == user))
+                pkmnmsg = await self.bot.wait_for('message', timeout=30, check=(lambda reply: reply.author == user))
             except asyncio.TimeoutError:
                 await query_msg.delete()
                 pkmnmsg = None
@@ -174,16 +177,25 @@ class Invasions(commands.Cog):
                     await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
                                                            description="Could not find a Pokemon by that name, please try again."),
                                        delete_after=15)
-                #todo update listing (has to get to db. maybe report table needs message id)
-
+                result = (TrainerReportRelation.select(TrainerReportRelation.id)
+                             .where(TrainerReportRelation.message == message.id))
+                if result is not None:
+                    InvasionTable.update(pokemon_number_id=pkmn.id).where(InvasionTable.trainer_report_id == result[0].id).execute()
+                await self._update_report(channel, message.id, pkmn)
+                await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
+                                                   'takeover', edit=False, regions=regions)
+                await query_msg.delete()
+                await pkmnmsg.delete()
+                await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
+                                                           description="Team Rocket Takeover listing updated."),
+                                       delete_after=15)
         elif str(payload.emoji) == '\u270f':
             location_matching_cog = self.bot.cogs.get('LocationMatching')
-            regions = raid_helpers.get_channel_regions(channel, 'invasion', self.bot.guild_dict)
             stops = location_matching_cog.get_stops(guild.id, regions)
             query_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(),
                                                                description="What is the correct Location?"))
             try:
-                stopmsg = await Kyogre.wait_for('message', timeout=30, check=(lambda reply: reply.author == user))
+                stopmsg = await self.bot.wait_for('message', timeout=30, check=(lambda reply: reply.author == user))
             except asyncio.TimeoutError:
                 await query_msg.delete()
                 stopmsg = None
@@ -207,7 +219,25 @@ class Invasions(commands.Cog):
                 location = stop.name
                 loc_url = stop.maps_url
                 regions = [stop.region]
-        pass
+        await message.remove_reaction(payload.emoji, user)
+
+    async def _update_report(self, channel, message_id, pokemon):
+        report_message = await channel.fetch_message(message_id)
+        if report_message is None:
+            return
+        embed = report_message.embeds[0]
+        embed.description = re.sub(r'\*\*Pokemon\*\*: [A-Za-z]+', f'**Pokemon**: {pokemon.name}', embed.description)
+        try:
+            img_url = pokemon.img_url
+            img_url = img_url.replace('007_', '007normal_')
+            img_url = img_url.replace('025_', '025normal_')
+            footer = embed.footer
+            embed.set_footer(text=footer.text, icon_url=img_url)
+
+        except:
+            pass
+        await report_message.edit(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Invasions(bot))

@@ -873,7 +873,7 @@ async def on_raw_reaction_add(payload):
                     if str(payload.emoji) == '💨':
                         await invasions_cog.expire_invasion(i)
                         break
-                    elif str(payload.emoji) in ['<:ballfirst:603712743996129283>', '\u270f']:
+                    elif str(payload.emoji) in ['🇵', '\u270f']:
                         await invasions_cog.modify_report(payload)
 
 
