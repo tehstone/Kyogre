@@ -19,6 +19,8 @@ class Invasions(commands.Cog):
     @commands.command(name='invasion', aliases=['takeover', 'rocket', 'rock', 'roc'], brief="Report a Team Rocket Takeover!")
     @checks.allowinvasionreport()
     async def _invasion(self, ctx, *, info=None):
+        """**Usage**: `!rocket <pokestop name> [,pokemon]`
+        Pokemon name is optional and can be updated later."""
         message = ctx.message
         channel = message.channel
         author = message.author
@@ -80,12 +82,13 @@ class Invasions(commands.Cog):
             inv_embed.set_thumbnail(url="https://github.com/tehstone/Kyogre/blob/master/images/misc/Team_Rocket_Grunt_M.png?raw=true")            
         invasionreportmsg = await channel.send(f'**Team Rocket Takeover** reported at *{stop.name}*', embed=inv_embed)
         await utilities_cog.reaction_delay(invasionreportmsg, ['🇵', '💨'])#, '\u270f'])
-        await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
-                                                   'takeover', edit=False, regions=regions)
         details = {'regions': regions, 'type': 'takeover', 'location': stop}
         TrainerReportRelation.update(message=invasionreportmsg.id).where(TrainerReportRelation.id == report.id).execute()
         await subscriptions_cog.send_notifications_async('takeover', details, message.channel, [message.author.id])
         self.bot.event_loop.create_task(self.invasion_expiry_check(invasionreportmsg, report.id, author))
+        await asyncio.sleep(1) # without this the listing update will miss the most recent report
+        await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
+                                                   'takeover', edit=False, regions=regions)
 
     async def invasion_expiry_check(self, message, invasion_id, author):
         self.bot.logger.info('Expiry_Check - ' + message.channel.name)

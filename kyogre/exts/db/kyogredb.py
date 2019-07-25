@@ -288,7 +288,8 @@ class LureTypeRelation(BaseModel):
     type = ForeignKeyField(LureTypeTable, backref='lure')
 
 class InvasionInstance():
-    def __init__(self, created, location_name, pokemon, latitude, longitude):
+    def __init__(self, id, created, location_name, pokemon, latitude, longitude):
+        self.id=id
         self.created=created
         self.location_name=location_name
         self.pokemon=pokemon

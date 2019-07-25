@@ -260,13 +260,32 @@ class SetCommands(commands.Cog):
             return None
         return response.clean_content
 
-    @_set.command(name='currentlocation', aliases=['cl', 'mylocation'])
+    @_set.command(name='currentlocation', aliases=['loc', 'location'])
     async def _location(self, ctx, *, info):
         info = re.split(r',*\s+', info)
         if len(info) < 2:
-            return await ctx.send("Please provide both latitude and longitude.")
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return await ctx.send("Please provide both latitude and longitude.", delete_after=15)
+        try:
+            lat = float(info[0])
+            lon = float(info[1])
+        except ValueError:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return await ctx.send("Latitude and Longitude must be provided in the following form: `47.23456, -122.65432`", delete_after=15)
+        self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {}).setdefault(ctx.author.id, {})['location'] = (lat, lon)
+        await ctx.message.add_reaction(self.bot.success_react)
+    
+    @_set.command(name='distance', aliases=['dis'])
+    async def _distance(self, ctx, *, info):
+        try:
+            distance = float(info)
+        except ValueError:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return await ctx.send("Please provide a number of miles.", delete_after=15)
+        self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {}).setdefault(ctx.author.id, {})['distance'] = distance
+        await ctx.message.add_reaction(self.bot.success_react)
         
-        pass
+
 
 def setup(bot):
     bot.add_cog(SetCommands(bot))

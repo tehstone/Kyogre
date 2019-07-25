@@ -286,6 +286,7 @@ async def _get_invasion_listing_messages(Kyogre, channel, guild_dict, region=Non
     expiration_seconds = guild_dict[channel.guild.id]['configure_dict']['settings']['invasion_minutes'] * 60
     current = round(current.timestamp())
     result = (TrainerReportRelation.select(
+                    TrainerReportRelation.id,
                     TrainerReportRelation.created,
                     LocationTable.name.alias('location_name'),
                     PokemonTable.name.alias('pokemon'),
@@ -302,6 +303,8 @@ async def _get_invasion_listing_messages(Kyogre, channel, guild_dict, region=Non
 
     result = result.objects(InvasionInstance)
     for inv in result:
+        if inv.id not in Kyogre.active_invasions:
+            continue
         exp = inv.created + expiration_seconds
         exp = datetime.datetime.fromtimestamp(exp)
         newmsg = ""
