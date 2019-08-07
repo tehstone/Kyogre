@@ -231,6 +231,7 @@ class TrainerReportRelation(BaseModel):
     created = BigIntegerField(index=True)
     trainer = BigIntegerField(index=True)
     location = ForeignKeyField(LocationTable, index=True)
+    message = BigIntegerField(index=True, null=True)
 
 class QuestTable(BaseModel):
     name = TextField(unique=True)
@@ -289,7 +290,8 @@ class LureTypeRelation(BaseModel):
     type = ForeignKeyField(LureTypeTable, backref='lure')
 
 class InvasionInstance():
-    def __init__(self, created, location_name, pokemon, latitude, longitude):
+    def __init__(self, id, created, location_name, pokemon, latitude, longitude):
+        self.id=id
         self.created=created
         self.location_name=location_name
         self.pokemon=pokemon

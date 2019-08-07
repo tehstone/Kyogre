@@ -302,14 +302,14 @@ def check_invasionset(ctx):
     if ctx.guild is None:
         return False
     guild = ctx.guild
-    return ctx.bot.guild_dict[guild.id]['configure_dict']['takeover'].get('enabled', False)
+    return ctx.bot.guild_dict[guild.id]['configure_dict']['takeover'].get('enabled',False)
 
 def check_researchreport(ctx):
     if ctx.guild is None:
         return False
     channel = ctx.channel
     guild = ctx.guild
-    channel_list = [x for x in ctx.bot.guild_dict[guild.id]['configure_dict']['research'].get('report_channels', {}).keys()]
+    channel_list = [x for x in ctx.bot.guild_dict[guild.id]['configure_dict']['research'].get('report_channels',{}).keys()]
     return channel.id in channel_list
 
 def check_invasionreport(ctx):
@@ -317,7 +317,7 @@ def check_invasionreport(ctx):
         return False
     channel = ctx.channel
     guild = ctx.guild
-    channel_list = [x for x in ctx.bot.guild_dict[guild.id]['configure_dict']['takeover'].get('report_channels', {}).keys()]
+    channel_list = [x for x in ctx.bot.guild_dict[guild.id]['configure_dict']['takeover'].get('report_channels',{}).keys()]
     return channel.id in channel_list
 
 def check_adminchannel(ctx):
@@ -325,7 +325,7 @@ def check_adminchannel(ctx):
         return False
     channel = ctx.channel
     guild = ctx.guild
-    channel_list = [x for x in ctx.bot.guild_dict[guild.id]['configure_dict'].get('admin', {}).get('command_channels', [])]
+    channel_list = [x for x in ctx.bot.guild_dict[guild.id]['configure_dict'].get('admin',{}).get('command_channels',[])]
     return channel.id in channel_list
 
 def check_report(ctx):

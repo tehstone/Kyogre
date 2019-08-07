@@ -260,13 +260,63 @@ class SetCommands(commands.Cog):
             return None
         return response.clean_content
 
-    @_set.command(name='currentlocation', aliases=['cl', 'mylocation'])
+    @_set.command(name='currentlocation', aliases=['loc', 'location'])
     async def _location(self, ctx, *, info):
         info = re.split(r',*\s+', info)
         if len(info) < 2:
-            return await ctx.send("Please provide both latitude and longitude.")
-        
-        pass
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return await ctx.send("Please provide both latitude and longitude.", delete_after=15)
+        try:
+            lat = float(info[0])
+            lon = float(info[1])
+        except ValueError:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return await ctx.send("Latitude and Longitude must be provided in the following form: `47.23456, -122.65432`", delete_after=15)
+        self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {}).setdefault(ctx.author.id, {})['location'] = (lat, lon)
+        await ctx.message.add_reaction(self.bot.success_react)
+    
+    @_set.command(name='distance', aliases=['dis'])
+    async def _distance(self, ctx, *, info):
+        try:
+            distance = float(info)
+        except ValueError:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return await ctx.send("Please provide a number of miles.", delete_after=15)
+        self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {}).setdefault(ctx.author.id, {})['distance'] = distance
+        await ctx.message.add_reaction(self.bot.success_react)
+
+    @_set.command(name='short_output', aliases=['so'])
+    async def _short_output(self, ctx, *, info):
+        guild = ctx.guild
+        info = re.split(r',*\s*', info)
+        if len(info) < 2:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return await ctx.send("Please provide both a region name and a channel name or id.", delete_after=15)
+        region = info[0].lower()
+        channel_info = ' '.join(info[1:]).lower()
+        region_names = self.bot.guild_dict[guild.id]['configure_dict'].get('regions', {}).get('info', None)
+        if not region_names:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return await ctx.send("No regions have been configured for this server.", delete_after=15)
+        if region not in region_names.keys():
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return await ctx.send(f"No region with name: **{region}** found in this server's configuration.", delete_after=15)
+        channel = None
+        name = utils.sanitize_name(channel_info)
+        # If a channel mention is passed, it won't be recognized as an int but this for get will succeed
+        try:
+            channel = discord.utils.get(guild.text_channels, id=int(name))
+        except ValueError:
+            pass
+        if not channel:
+            channel = discord.utils.get(guild.text_channels, name=name)
+        if not channel:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return await ctx.send(f"No channel with name or id: **{channel_info}** found in this server's channel list.", delete_after=15)
+        self.bot.guild_dict[guild.id]['configure_dict']['raid'].setdefault('short_output', {})[region] = channel.id
+        await ctx.message.add_reaction(self.bot.success_react)
+        return await ctx.send(f"Short output channel for **{region}** set to **{channel.mention}**", delete_after=15)
+
 
 def setup(bot):
     bot.add_cog(SetCommands(bot))

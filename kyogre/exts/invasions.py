@@ -10,6 +10,7 @@ from kyogre import checks, list_helpers, raid_helpers
 from kyogre.exts.db.kyogredb import *
 
 from kyogre.exts.pokemon import Pokemon
+from kyogre.exts.locationmatching import Pokestop
 
 class Invasions(commands.Cog):
     def __init__(self, bot):
@@ -18,12 +19,14 @@ class Invasions(commands.Cog):
     @commands.command(name='invasion', aliases=['takeover', 'rocket', 'rock', 'roc'], brief="Report a Team Rocket Takeover!")
     @checks.allowinvasionreport()
     async def _invasion(self, ctx, *, info=None):
+        """**Usage**: `!rocket <pokestop name> [,pokemon]`
+        Pokemon name is optional and can be updated later."""
         message = ctx.message
         channel = message.channel
         author = message.author
         guild = message.guild
         img_url = author.avatar_url_as(format=None, static_format='jpg', size=32)
-        info = re.split(r',\s*', info)
+        info = re.split(r',+\s+', info)
         stopname = info[0]
         report_time = message.created_at + datetime.timedelta(hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
         report_time_int = round(report_time.timestamp())
@@ -40,8 +43,8 @@ class Invasions(commands.Cog):
                     embed=discord.Embed(colour=discord.Colour.red(),
                                         description=f"No pokestop found with name '**{stopname}**' "
                                         f"either. Try reporting again using the exact pokestop name!"),
-                    delete_after=15)
-            if await self._check_existing(guild, stop):
+                    delete_after = 15)
+            if await self._check_existing(ctx, stop):
                 return await channel.send(
                     embed=discord.Embed(colour=discord.Colour.red(),
                                         description=f"A Team Rocket Takeover has already been reported for '**{stop.name}**'!"))
@@ -78,15 +81,17 @@ class Invasions(commands.Cog):
         else:
             inv_embed.set_thumbnail(url="https://github.com/tehstone/Kyogre/blob/master/images/misc/Team_Rocket_Grunt_M.png?raw=true")            
         invasionreportmsg = await channel.send(f'**Team Rocket Takeover** reported at *{stop.name}*', embed=inv_embed)
-        pokeball = self.bot.get_emoji(603712743996129283)
-        await utilities_cog.reaction_delay(invasionreportmsg, [pokeball, '💨', '\u270f'])
-        await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
-                                                   'takeover', edit=False, regions=regions)
+        await utilities_cog.reaction_delay(invasionreportmsg, ['🇵', '💨'])#, '\u270f'])
         details = {'regions': regions, 'type': 'takeover', 'location': stop}
+        TrainerReportRelation.update(message=invasionreportmsg.id).where(TrainerReportRelation.id == report.id).execute()
         await subscriptions_cog.send_notifications_async('takeover', details, message.channel, [message.author.id])
         self.bot.event_loop.create_task(self.invasion_expiry_check(invasionreportmsg, report.id, author))
+        await asyncio.sleep(1) # without this the listing update will miss the most recent report
+        await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
+                                                   'takeover', edit=False, regions=regions)
 
     async def invasion_expiry_check(self, message, invasion_id, author):
+        print(invasion_id)
         self.bot.logger.info('Expiry_Check - ' + message.channel.name)
         channel = message.channel
         message = await message.channel.fetch_message(message.id)
@@ -127,10 +132,10 @@ class Invasions(commands.Cog):
                                                    regions=raid_helpers.get_channel_regions(channel, 'takeover',                                                    
                                                                                             self.bot.guild_dict))
                                                     
-    async def _check_existing(self, guild, stop):
-        current = datetime.datetime.utcnow() + datetime.timedelta(hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+    async def _check_existing(self, ctx, stop):
+        current = datetime.datetime.utcnow() + datetime.timedelta(hours=self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset'])
         current = round(current.timestamp())
-        expiration_seconds = self.bot.guild_dict[guild.id]['configure_dict']['settings']['invasion_minutes'] * 60
+        expiration_seconds = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['invasion_minutes'] * 60
         result = (TrainerReportRelation.select(
                     TrainerReportRelation.created)
             .join(LocationTable, on=(TrainerReportRelation.location_id == LocationTable.id))
@@ -154,7 +159,8 @@ class Invasions(commands.Cog):
             user = guild.get_member(payload.user_id)
         except AttributeError:
             return
-        if str(payload.emoji) == '<:ballfirst:603712743996129283>':
+        regions = raid_helpers.get_channel_regions(channel, 'invasion', self.bot.guild_dict)
+        if str(payload.emoji) == '🇵':
             query_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(),
                                                                description="What is the Pokemon awarded from this encounter?"))
             try:
@@ -175,8 +181,18 @@ class Invasions(commands.Cog):
                     await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
                                                            description="Could not find a Pokemon by that name, please try again."),
                                        delete_after=15)
-                #todo update listing (has to get to db. maybe report table needs message id)
-
+                result = (TrainerReportRelation.select(TrainerReportRelation.id)
+                             .where(TrainerReportRelation.message == message.id))
+                if result is not None:
+                    InvasionTable.update(pokemon_number_id=pkmn.id).where(InvasionTable.trainer_report_id == result[0].id).execute()
+                await self._update_report(channel, message.id, pkmn)
+                await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
+                                                   'takeover', edit=False, regions=regions)
+                await query_msg.delete()
+                await pkmnmsg.delete()
+                await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
+                                                           description="Team Rocket Takeover listing updated."),
+                                       delete_after=15)
         elif str(payload.emoji) == '\u270f':
             location_matching_cog = self.bot.cogs.get('LocationMatching')
             regions = raid_helpers.get_channel_regions(channel, 'invasion', self.bot.guild_dict)
@@ -194,21 +210,39 @@ class Invasions(commands.Cog):
                 error = "cancelled the report"
                 await stopmsg.delete()
             elif stopmsg:
-                stop = await location_matching_cog.match_prompt(channel, payload.user_id, stopmsg.clean_content, stops)
+                stop = await location_matching_cog.match_prompt(channel, author.id, stopmsg.clean_content, stops)
                 if not stop:
                     return await channel.send(
                         embed=discord.Embed(colour=discord.Colour.red(),
-                                            description=f"No pokestop found with name '**{stopmsg.clean_content}**' "
+                                            description=f"No pokestop found with name '**{stopname}**' "
                                             f"either. Try reporting again using the exact pokestop name!"),
-                        delete_after=15)
-                if await self._check_existing(payload.guild, stop):
+                        delete_after = 15)
+                if await self._check_existing(ctx, stop):
                     return await channel.send(
                         embed=discord.Embed(colour=discord.Colour.red(),
                                             description=f"A Team Rocket Takeover has already been reported for '**{stop.name}**'!"))
                 location = stop.name
                 loc_url = stop.maps_url
                 regions = [stop.region]
-        pass
+        await message.remove_reaction(payload.emoji, user)
+
+    async def _update_report(self, channel, message_id, pokemon):
+        report_message = await channel.fetch_message(message_id)
+        if report_message is None:
+            return
+        embed = report_message.embeds[0]
+        embed.description = re.sub(r'\*\*Pokemon\*\*: [A-Za-z]+', f'**Pokemon**: {pokemon.name}', embed.description)
+        try:
+            img_url = pokemon.img_url
+            img_url = img_url.replace('007_', '007normal_')
+            img_url = img_url.replace('025_', '025normal_')
+            footer = embed.footer
+            embed.set_footer(text=footer.text, icon_url=img_url)
+
+        except:
+            pass
+        await report_message.edit(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Invasions(bot))

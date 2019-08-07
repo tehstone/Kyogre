@@ -873,7 +873,7 @@ async def on_raw_reaction_add(payload):
                     if str(payload.emoji) == '💨':
                         await invasions_cog.expire_invasion(i)
                         break
-                    elif str(payload.emoji) in ['<:ballfirst:603712743996129283>', '\u270f']:
+                    elif str(payload.emoji) in ['🇵', '\u270f']:
                         await invasions_cog.modify_report(payload)
 
 
@@ -1764,6 +1764,10 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
     embed_indices = await embed_utils.get_embed_field_indices(report_embed)
     report_embed = await embed_utils.filter_fields_for_report_embed(report_embed, embed_indices)
     raidreport = await channel.send(content=msg, embed=report_embed)
+    short_output_channel_id = guild_dict[guild.id]['configure_dict']['raid'].setdefault('short_output', {}).get(gym.region, None)
+    if short_output_channel_id:
+        short_output_channel = Kyogre.get_channel(short_output_channel_id)
+        await short_output_channel.send(f"Raid Reported: {raid_channel.mention}")
     await asyncio.sleep(1)
     raid_embed.add_field(name='**Tips:**', value='`!i` if interested\n`!c` if on the way\n`!h` '
                                                  'when you arrive\n`!list` to view all interested\n'

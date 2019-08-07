@@ -703,7 +703,6 @@ class Subscriptions(commands.Cog):
 
     async def send_notifications_async(self, type, details, new_channel, exclusions=[]):
         valid_types = ['raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure', 'takeover']
-        type = details['type']
         if type not in valid_types:
             return
         guild = new_channel.guild
