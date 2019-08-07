@@ -27,10 +27,11 @@ class Social(commands.Cog):
         pokebattlerid = trainer_info.get('pokebattlerid', None)
         pkb = str(pokebattlerid) if pokebattlerid else 'not set'
         xp = trainer_info.get('xp', 0)
-        if xp.isdigit():
-            xp_msg = f'{int(xp):,d}' if int(xp) > 0 else 'not set'
-        else:
-            xp_msg = 'not set'
+        try:
+            xp = int(xp)
+        except ValueError:
+            xp = 0
+        xp_msg = f'{xp:,d}' if xp > 0 else 'not set'
         trainer_name = trainer_info.get('trainername', None)
         trainer_code = trainer_info.get('code', None)
         code_msg = trainer_code if trainer_code is not None else 'not set'

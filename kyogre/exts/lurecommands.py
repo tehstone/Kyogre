@@ -76,7 +76,7 @@ class LureCommands(commands.Cog):
         channel = message.channel
         message = await message.channel.fetch_message(message.id)
         offset = self.bot.guild_dict[channel.guild.id]['configure_dict']['settings']['offset']
-        expiration_minutes = self.bot.guild_dict[channel.guild.id]['configure_dict']['settings']['lure_minutes']
+        expiration_minutes = self.bot.guild_dict[channel.guild.id]['configure_dict']['settings'].setdefault('lure_minutes',30)
         expire_time = datetime.datetime.utcnow() + datetime.timedelta(hours=offset) + datetime.timedelta(minutes=expiration_minutes)
         if message not in self.bot.active_lures:
             self.bot.active_lures.append(message)

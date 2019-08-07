@@ -166,6 +166,9 @@ class LocationTable(BaseModel):
     longitude = TextField()
     guild = ForeignKeyField(GuildTable, field=GuildTable.snowflake, backref='locations', index=True)
 
+    class Meta:
+        constraints = [SQL('UNIQUE(name, latitude, longitude, guild_id)')]
+
     @classmethod
     def create_location(ctx, name, data):
         try:
@@ -189,7 +192,6 @@ class LocationTable(BaseModel):
                         else:
                             PokestopTable.create(location=location)
         except Exception as e:
-            import pdb; pdb.set_trace()
             print(e)
 
     @classmethod
