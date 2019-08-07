@@ -57,7 +57,7 @@ class WildSpawnCommands(commands.Cog):
             entered_wild, entered_wild, wild_details = content.split(' ', 2)
         else:
             wild_details = re.sub(pkmn.name.lower(), '', content, flags=re.I)
-        wild_gmaps_link = ''
+        wild_gmaps_link = None
         locations = location_matching_cog.get_all(guild.id, channel_regions)
         if locations and not ('http' in wild_details or '/maps' in wild_details):
             location = await location_matching_cog.match_prompt(channel, author.id, location, locations)

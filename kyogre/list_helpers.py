@@ -975,8 +975,12 @@ async def _update_listing_channel(Kyogre, guild_dict, channel, type, edit, regio
         new_ids = []
         def should_delete(m):
             check = True
-            if m.embeds is not None:
+            if m.embeds and len(m.embeds) > 0:
                 check = (type in m.embeds[0].description.lower())
+            else:
+                date1 = m.created_at
+                date2 = datetime.datetime.utcnow()
+                check = (abs(date2-date1).seconds) > 180
             return m.author == Kyogre.user and check
         if not edit:
             await channel.purge(check=should_delete)

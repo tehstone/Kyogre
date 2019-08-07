@@ -827,13 +827,19 @@ class Subscriptions(commands.Cog):
             start = 'An' if re.match(r'^[aeiou]', description, re.I) else 'A'
             if type == 'item':
                 start = 'An' if re.match(r'^[aeiou]', item, re.I) else 'A'
-                message = f'{start} **{item}** task has been reported at {location}!'
+                message = f'{start} **{item} research task** has been reported at **{location}**!'
             elif type == 'lure':
                 message = f'A **{lure_type.capitalize()}** lure has been dropped at {location.name}!'
             elif type == 'takeover':
                 message = f'A **Team Rocket Takeover** has been spotted at {location.name}!'
+            elif type == 'wild':
+                message = f'A **wild {description} spawn** has been reported at **{location}**!'
+            elif type == 'research':
+                message = f'{start} **{description} research task** has been reported at **{location}**!'
+            elif 'hatching' in details and details['hatching']:
+                message = f"The egg at **{location}** has hatched into {start.lower()} **{description}** raid!"
             else:
-                message = f'**New {type.title()}**! {start} {description} {type} at {location} has been reported!'
+                message = f'{start} {description} {type} at {location} has been reported!'
             outbound_dict[trainer] = {'discord_obj': user, 'message': message}
         pokemon_names = ' '.join([p.name for p in pokemon_list])
         if type == 'item':
@@ -861,9 +867,12 @@ class Subscriptions(commands.Cog):
         msg_obj = await channel.send(f'{temp_role.mention} {message}')
 
         async def cleanup():
-            await asyncio.sleep(180)
+            await asyncio.sleep(60)
             await temp_role.delete()
-            await msg_obj.delete()
+            try:
+                await msg_obj.delete()
+            except:
+                pass
         asyncio.ensure_future(cleanup())
 
 
