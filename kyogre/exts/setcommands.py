@@ -288,7 +288,7 @@ class SetCommands(commands.Cog):
     @_set.command(name='short_output', aliases=['so'])
     async def _short_output(self, ctx, *, info):
         guild = ctx.guild
-        info = re.split(r',*\s*', info)
+        info = re.split(r',*\s+', info)
         if len(info) < 2:
             await ctx.message.add_reaction(self.bot.failed_react)
             return await ctx.send("Please provide both a region name and a channel name or id.", delete_after=15)
