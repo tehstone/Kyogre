@@ -212,16 +212,19 @@ class ResearchCommands(commands.Cog):
             await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild, 'research',
                                                        edit=False, regions=regions)
             subscriptions_cog = self.bot.cogs.get('Subscriptions')
+            send_channel = subscriptions_cog.get_region_list_channel(guild, regions[0], 'research')
+            if send_channel is None:
+                send_channel = channel
             if 'encounter' in reward.lower():
                 pkmn = reward.rsplit(maxsplit=1)[0]
                 research_details = {'pokemon': [Pokemon.get_pokemon(self.bot, p) for p in re.split(r'\s*,\s*', pkmn)],
                                     'location': location, 'regions': regions}
                 await subscriptions_cog.send_notifications_async('research', research_details,
-                                                                 channel, [message.author.id])
+                                                                 send_channel, [message.author.id])
             elif reward.split(' ')[0].isdigit() and 'stardust' not in reward.lower():
                 item = ' '.join(reward.split(' ')[1:])
                 research_details = {'item': item, 'location': location, 'regions': regions}
-                await subscriptions_cog.send_notifications_async('item', research_details, channel, [message.author.id])
+                await subscriptions_cog.send_notifications_async('item', research_details, send_channel, [message.author.id])
         else:
             research_embed.clear_fields()
             research_embed.add_field(name='**Research Report Cancelled**',

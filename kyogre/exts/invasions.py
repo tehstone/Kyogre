@@ -84,7 +84,10 @@ class Invasions(commands.Cog):
         await utilities_cog.reaction_delay(invasionreportmsg, ['🇵', '💨'])#, '\u270f'])
         details = {'regions': regions, 'type': 'takeover', 'location': stop}
         TrainerReportRelation.update(message=invasionreportmsg.id).where(TrainerReportRelation.id == report.id).execute()
-        await subscriptions_cog.send_notifications_async('takeover', details, message.channel, [message.author.id])
+        send_channel = subscriptions_cog.get_region_list_channel(guild, stop.region, 'invasion')
+        if send_channel is None:
+            send_channel = message.channel
+        await subscriptions_cog.send_notifications_async('takeover', details, send_channel, [message.author.id])
         self.bot.event_loop.create_task(self.invasion_expiry_check(invasionreportmsg, report.id, author))
         await asyncio.sleep(1) # without this the listing update will miss the most recent report
         await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,

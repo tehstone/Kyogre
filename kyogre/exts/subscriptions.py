@@ -30,6 +30,7 @@ class Subscriptions(commands.Cog):
                           "Perfect (100 IV spawns)": "wild",
                           "Lures": 'lure'
                           }
+    valid_types = ['all', 'pokemon', 'raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure']
 
     @staticmethod
     def _get_subscription_command_error(content, subscription_types):
@@ -284,7 +285,6 @@ class Subscriptions(commands.Cog):
         
         **Valid types**: `pokemon, raid, research, wild, gym, item, lure`
         **Note**: 'pokemon' includes raid, research, and wild reports"""
-        subscription_types = ['pokemon', 'raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure']
         message = ctx.message
         channel = message.channel
         guild = message.guild
@@ -297,7 +297,7 @@ class Subscriptions(commands.Cog):
         if content == 'shiny':
             candidate_list = [('shiny', 'shiny', 'shiny')]
         else:
-            error_message = self._get_subscription_command_error(content, subscription_types)
+            error_message = self._get_subscription_command_error(content, self.valid_types)
             if error_message:
                 response = await message.channel.send(error_message)
                 return await utils.sleep_and_cleanup([message, response], 10)
@@ -379,7 +379,6 @@ class Subscriptions(commands.Cog):
 
         **Valid types**: `pokemon, raid, research, wild, gym, item, lure`
         **Note**: 'pokemon' includes raid, research, and wild reports"""
-        subscription_types = ['all', 'pokemon', 'raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure']
         message = ctx.message
         channel = message.channel
         guild = message.guild
@@ -391,7 +390,7 @@ class Subscriptions(commands.Cog):
         if content == 'shiny':
             sub_type, target = ['shiny', 'shiny']
         else:
-            error_message = self._get_subscription_command_error(content, subscription_types)
+            error_message = self._get_subscription_command_error(content, self.valid_types)
             if error_message:
                 response = await message.channel.send(error_message)
                 return await utils.sleep_and_cleanup([message, response], 10)
@@ -520,20 +519,19 @@ class Subscriptions(commands.Cog):
         message = ctx.message
         channel = message.channel
         author = message.author
-        subscription_types = ['pokemon', 'raid', 'research', 'wild', 'nest', 'gym', 'item']
         response_msg = ''
         invalid_types = []
         valid_types = []
         if content:
             sub_types = [re.sub('[^A-Za-z]+', '', s.lower()) for s in content.split(',')]
             for s in sub_types:
-                if s in subscription_types:
+                if s in self.valid_types:
                     valid_types.append(s)
                 else:
                     invalid_types.append(s)
             if not valid_types:
                 response_msg = "No valid subscription types found! Valid types are: {types}".format(
-                    types=', '.join(subscription_types))
+                    types=', '.join(self.valid_types))
                 response = await channel.send(response_msg)
                 return await utils.sleep_and_cleanup([message, response], 10)
             if invalid_types:
@@ -543,12 +541,14 @@ class Subscriptions(commands.Cog):
         if len(listmsg_list) > 0:
             if valid_types:
                 await author.send(f"Your current {', '.join(valid_types)} subscriptions are:")
-                for message in listmsg_list:
-                    await author.send(message)
+                for m in listmsg_list:
+                    if len(m) > 0:
+                        await author.send(m)
             else:
                 await author.send('Your current subscriptions are:')
-                for message in listmsg_list:
-                    await author.send(message)
+                for m in listmsg_list:
+                    if len(m) > 0:
+                        await author.send(m)
         else:
             if valid_types:
                 await author.send("You don\'t have any subscriptions for {types}! use the **!subscription add**\
@@ -874,6 +874,18 @@ class Subscriptions(commands.Cog):
             except:
                 pass
         asyncio.ensure_future(cleanup())
+
+    def get_region_list_channel(self, guild, region, event_type):
+        send_channel = None
+        listing_dict = self.bot.guild_dict[guild.id]['configure_dict'].get(event_type, {}).get('listings', None)
+        if listing_dict and listing_dict['enabled']:
+            if 'channel' in listing_dict:
+                send_channel = self.bot.get_channel(listing_dict['channel']['id'])
+            if 'channels' in listing_dict:
+                channel_map = listing_dict['channels'].get(region, None)
+                if channel_map:
+                    send_channel = self.bot.get_channel(channel_map['id'])
+        return send_channel
 
 
 def setup(bot):

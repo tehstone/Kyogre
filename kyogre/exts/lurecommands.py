@@ -68,7 +68,10 @@ class LureCommands(commands.Cog):
         await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
                                                    'lure', edit=False, regions=lure_regions)
         details = {'regions': lure_regions, 'type': 'lure', 'lure_type': luretype.name, 'location': stop}
-        await subscriptions_cog.send_notifications_async('lure', details, message.channel, [message.author.id])
+        send_channel = subscriptions_cog.get_region_list_channel(guild, stop.region, 'lure')
+        if send_channel is None:
+            send_channel = message.channel
+        await subscriptions_cog.send_notifications_async('lure', details, send_channel, [message.author.id])
         self.bot.event_loop.create_task(self.lure_expiry_check(lurereportmsg, report.id))
 
     async def lure_expiry_check(self, message, lure_id):

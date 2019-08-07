@@ -1864,20 +1864,11 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
                                 .format(member=author.mention))
     await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, 'raid', edit=False, regions=gym_regions)
     subscriptions_cog = Kyogre.cogs.get('Subscriptions')
-    # send notifications to list channel
-    listing_dict = guild_dict[guild.id]['configure_dict'].get('raid', {}).get('listings', None)
-    send_channel = None
-    if listing_dict and listing_dict['enabled']:
-        if 'channel' in listing_dict:
-            send_channel = Kyogre.get_channel(listing_dict['channel']['id'])
-        if 'channels' in listing_dict:
-            channel_map = listing_dict['channels'].get(gym.region, None)
-            if channel_map:
-                send_channel = Kyogre.get_channel(channel_map['id'])
-    if send_channel is None:
-        if enabled:
-            send_channel = raid_channel
-        else:
+    if enabled:
+        send_channel = raid_channel
+    else:
+        send_channel = subscriptions_cog.get_region_list_channel(guild, gym.region, 'raid')
+        if send_channel is None:
             send_channel = channel
     await subscriptions_cog.send_notifications_async('raid', raid_details, send_channel, [author.id])
     await raidreport.add_reaction('\u270f')
@@ -2185,20 +2176,11 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
         if status_embed is not None:
             new_status = await raid_channel.send(embed=status_embed)
             guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['last_status'] = new_status.id
-    # send notifications to list channel
-    listing_dict = guild_dict[guild.id]['configure_dict'].get('raid', {}).get('listings', None)
-    send_channel = None
-    if listing_dict and listing_dict['enabled']:
-        if 'channel' in listing_dict:
-            send_channel = Kyogre.get_channel(listing_dict['channel']['id'])
-        if 'channels' in listing_dict:
-            channel_map = listing_dict['channels'].get(gym.region, None)
-            if channel_map:
-                send_channel = Kyogre.get_channel(channel_map['id'])
-    if send_channel is None:
-        if enabled:
-            send_channel = raid_channel
-        else:
+    if enabled:
+        send_channel = raid_channel
+    else:
+        send_channel = subscriptions_cog.get_region_list_channel(guild, gym.region, 'raid')
+        if send_channel is None:
             send_channel = channel
     await subscriptions_cog.send_notifications_async('raid', raid_details, send_channel,
                                                      [author] if author else [])

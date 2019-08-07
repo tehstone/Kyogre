@@ -120,7 +120,10 @@ class WildSpawnCommands(commands.Cog):
         await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, message.guild, 'wild',
                                                    edit=False, regions=channel_regions)
         subscriptions_cog = self.bot.cogs.get('Subscriptions')
-        await subscriptions_cog.send_notifications_async('wild', wild_details, message.channel, [message.author.id])
+        send_channel = subscriptions_cog.get_region_list_channel(guild, channel_regions[0], 'wild')
+        if send_channel is None:
+            send_channel = message.channel
+        await subscriptions_cog.send_notifications_async('wild', wild_details, send_channel, [message.author.id])
 
     async def wild_expiry_check(self, message):
         self.bot.logger.info('Expiry_Check - ' + message.channel.name)
