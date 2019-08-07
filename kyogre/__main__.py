@@ -3624,40 +3624,40 @@ async def _list(ctx):
                 region = raid_dict.get('category_dict', {}).get(channel.id, None)
             listmsg = await list_helpers._get_listing_messages(Kyogre, guild_dict, 'raid', channel, region)
         elif checks.check_raidactive(ctx):
-            team_list = ["mystic","valor","instinct","unknown"]
-            tag = False
-            team = False
-            starttime = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('starttime',None)
-            meetup = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('meetup',{})
-            rc_d = guild_dict[guild.id]['raidchannel_dict'][channel.id]
-            list_split = ctx.message.clean_content.lower().split()
-            if "tags" in list_split or "tag" in list_split:
-                tag = True
-            for word in list_split:
-                if word in team_list:
-                    team = word.lower()
-                    break
-            if team == "mystic" or team == "valor" or team == "instinct":
-                bulletpoint = utils.parse_emoji(ctx.guild, config['team_dict'][team])
-            elif team == "unknown":
-                bulletpoint = '❔'
-            else:
-                bulletpoint = '🔹'
-            if " 0 interested!" not in await list_helpers._interest(ctx, Kyogre, guild_dict, tag, team):
-                listmsg += ('\n' + bulletpoint) + (await list_helpers._interest(ctx, Kyogre, guild_dict, tag, team))
-            if " 0 on the way!" not in await list_helpers._otw(ctx, Kyogre, guild_dict, tag, team):
-                listmsg += ('\n' + bulletpoint) + (await list_helpers._otw(ctx, Kyogre, guild_dict, tag, team))
-            if " 0 waiting at the raid!" not in await list_helpers._waiting(ctx, Kyogre, guild_dict, tag, team):
-                listmsg += ('\n' + bulletpoint) + (await list_helpers._waiting(ctx, Kyogre, guild_dict, tag, team))
-            if " 0 in the lobby!" not in await list_helpers._lobbylist(ctx, Kyogre, guild_dict, tag, team):
-                listmsg += ('\n' + bulletpoint) + (await list_helpers._lobbylist(ctx, Kyogre, guild_dict, tag, team))
-            if len(listmsg.splitlines()) <= 1:
-                listmsg +=  ('\n' + bulletpoint) + " Nobody has updated their status yet!"
-            listmsg += ('\n' + bulletpoint) + (await print_raid_timer(channel))
-            if starttime and (starttime > now) and not meetup:
-                listmsg += '\nThe next group will be starting at **{}**'.format(starttime.strftime('%I:%M %p (%H:%M)'))
-            await channel.send(listmsg)
-            return
+            newembed = discord.Embed(colour=discord.Colour.purple(), title="Trainer Status List")
+            blue_emoji = utils.parse_emoji(guild, Kyogre.config['team_dict']['mystic'])
+            red_emoji = utils.parse_emoji(guild, Kyogre.config['team_dict']['valor'])
+            yellow_emoji = utils.parse_emoji(guild, Kyogre.config['team_dict']['instinct'])
+            team_emojis = {'instinct': yellow_emoji, 'mystic': blue_emoji, 'valor': red_emoji, 'unknown': "❔"}
+            team_list = ["mystic", "valor", "instinct", "unknown"]
+            status_list = ["maybe", "coming", "here"]
+            trainer_dict = copy.deepcopy(guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
+            status_dict = {'maybe': {'total': 0, 'trainers': {}}, 'coming': {'total': 0, 'trainers': {}},
+                           'here': {'total': 0, 'trainers': {}}, 'lobby': {'total': 0, 'trainers': {}}}
+            for trainer in trainer_dict:
+                for status in status_list:
+                    if trainer_dict[trainer]['status'][status]:
+                        status_dict[status]['trainers'][trainer] = {'mystic': 0, 'valor': 0, 'instinct': 0, 'unknown': 0}
+                        for team in team_list:
+                            if trainer_dict[trainer]['party'][team] > 0:
+                                status_dict[status]['trainers'][trainer][team] = trainer_dict[trainer]['party'][team]
+                                status_dict[status]['total'] += trainer_dict[trainer]['party'][team]
+            for status in status_list:
+                embed_value = None
+                if status_dict[status]['total'] > 0:
+                    embed_value = u"\u200B"
+                    for trainer in status_dict[status]['trainers']:
+                        member = channel.guild.get_member(trainer)
+                        if member is not None:
+                            embed_value += f"{member.display_name} "
+                            for team in status_dict[status]['trainers'][trainer]:
+                                embed_value += team_emojis[team] * status_dict[status]['trainers'][trainer][team]
+                            embed_value += "\n"
+                if embed_value is not None:
+                    newembed.add_field(name=f'**{status.capitalize()}**', value=embed_value, inline=True)
+            if len(newembed.fields) < 1:
+                newembed.description = "No one has RSVPd for this raid yet."
+            await channel.send(embed=newembed)
         else:
             raise checks.errors.CityRaidChannelCheckFail()
 
