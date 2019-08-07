@@ -2051,7 +2051,7 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
         hatchtype = 'raid'
         raidreportcontent = 'The egg has hatched into a {pokemon} raid at {location_details} gym.'\
             .format(pokemon=entered_raid.capitalize(), location_details=egg_address)
-        enabled =raid_helpers.raid_channels_enabled(raid_channel.guild, raid_channel, guild_dict)
+        enabled = raid_helpers.raid_channels_enabled(raid_channel.guild, raid_channel, guild_dict)
         if enabled:
             raidreportcontent += 'Coordinate in the raid channel: {raid_channel}'\
                 .format(raid_channel=raid_channel.mention)

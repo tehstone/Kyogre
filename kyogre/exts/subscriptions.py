@@ -31,11 +31,13 @@ class Subscriptions(commands.Cog):
                           "Lures": 'lure'
                           }
 
-    def _get_subscription_command_error(self, content, subscription_types):
+    @staticmethod
+    def _get_subscription_command_error(content, subscription_types):
         error_message = None
 
         if ' ' not in content:
-            return "Both a subscription type and target must be provided! Type `!help sub (add|remove|list)` for more details!"
+            return "Both a subscription type and target must be provided! " \
+                   "Type `!help sub (add|remove|list)` for more details!"
 
         subscription, target = content.split(' ', 1)
 
@@ -91,7 +93,7 @@ class Subscriptions(commands.Cog):
                         sub_list.append(('gym', l, entry, gym_dict[l]['ids']))
                 return sub_list, error_list
         if sub_type == 'item':
-            result = RewardTable.select(RewardTable.name,RewardTable.quantity)
+            result = RewardTable.select(RewardTable.name, RewardTable.quantity)
             result = result.objects(Reward)
             results = [o for o in result]
             item_names = [r.name.lower() for r in results]
@@ -148,7 +150,6 @@ class Subscriptions(commands.Cog):
                 error_list.append(name)
         
         return sub_list, error_list
-
 
     @commands.group(name="subscription", aliases=["sub"])
     @checks.allowsubscription()
@@ -245,8 +246,8 @@ class Subscriptions(commands.Cog):
         elif type_str == "Perfect (100 IV spawns)":
             return await ctx.invoke(self.bot.get_command('sub rem'), content="wild 100")
         else:
-            prompt = await channel.send(f"Please tell me which {type_str} subscriptions you would" +
-                                         "like to remove from the list below, separated by commas. Or reply " +
+            prompt = await channel.send(f"Please tell me which {type_str} subscriptions you would "
+                                        f"like to remove from the list below, separated by commas. Or reply " +
                                         f"with 'all' to remove all subscriptions of this type.\n\n{sub_list[0]}")
             result = await self._prompt_selections(ctx, "remove")
             await prompt.delete()
@@ -283,7 +284,7 @@ class Subscriptions(commands.Cog):
         
         **Valid types**: `pokemon, raid, research, wild, gym, item, lure`
         **Note**: 'pokemon' includes raid, research, and wild reports"""
-        subscription_types = ['pokemon','raid','research','wild','nest','gym','shiny','item','lure']
+        subscription_types = ['pokemon', 'raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure']
         message = ctx.message
         channel = message.channel
         guild = message.guild
@@ -349,13 +350,17 @@ class Subscriptions(commands.Cog):
         existing_count = len(existing_list)
         error_count = len(error_list)
 
-        confirmation_msg = '{member}, successfully added {count} new subscriptions'.format(member=ctx.author.mention, count=sub_count)
+        confirmation_msg = '{member}, successfully added {count} new subscriptions'.format(member=ctx.author.mention,
+                                                                                           count=sub_count)
         if sub_count > 0:
-            confirmation_msg += '\n**{sub_count} Added:** \n\t{sub_list}'.format(sub_count=sub_count, sub_list=',\n\t'.join(sub_list))
+            confirmation_msg += '\n**{sub_count} Added:** \n\t{sub_list}'.format(sub_count=sub_count,
+                                                                                 sub_list=',\n\t'.join(sub_list))
         if existing_count > 0:
-            confirmation_msg += '\n**{existing_count} Already Existing:** \n\t{existing_list}'.format(existing_count=existing_count, existing_list=', '.join(existing_list))
+            confirmation_msg += '\n**{existing_count} Already Existing:** \n\t{existing_list}'\
+                .format(existing_count=existing_count, existing_list=', '.join(existing_list))
         if error_count > 0:
-            confirmation_msg += '\n**{error_count} Errors:** \n\t{error_list}\n(Check the spelling and try again)'.format(error_count=error_count, error_list=', '.join(error_list))
+            confirmation_msg += '\n**{error_count} Errors:** \n\t{error_list}\n(Check the spelling and try again)'\
+                .format(error_count=error_count, error_list=', '.join(error_list))
 
         await channel.send(content=confirmation_msg)
 
@@ -374,7 +379,7 @@ class Subscriptions(commands.Cog):
 
         **Valid types**: `pokemon, raid, research, wild, gym, item, lure`
         **Note**: 'pokemon' includes raid, research, and wild reports"""
-        subscription_types = ['all','pokemon','raid','research','wild','nest','gym','shiny','item','lure']
+        subscription_types = ['all', 'pokemon', 'raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure']
         message = ctx.message
         channel = message.channel
         guild = message.guild
@@ -384,12 +389,12 @@ class Subscriptions(commands.Cog):
             return await self._guided_subscription(ctx, 'Remove')
         content = content.strip().lower()
         if content == 'shiny':
-            sub_type, target = ['shiny','shiny']
+            sub_type, target = ['shiny', 'shiny']
         else:
             error_message = self._get_subscription_command_error(content, subscription_types)
             if error_message:
                 response = await message.channel.send(error_message)
-                return await utils.sleep_and_cleanup([message,response], 10)
+                return await utils.sleep_and_cleanup([message, response], 10)
             sub_type, target = content.split(' ', 1)
 
         candidate_list = []
@@ -408,7 +413,8 @@ class Subscriptions(commands.Cog):
         if sub_type == 'all':
             if target == 'all':
                 try:
-                    remove_count = SubscriptionTable.delete().where((SubscriptionTable.trainer << trainer_query)).execute()
+                    remove_count = SubscriptionTable.delete()\
+                        .where((SubscriptionTable.trainer << trainer_query)).execute()
                     message = f'I removed your {remove_count} subscriptions!'
                 except:
                     message = 'I was unable to remove your subscriptions!'
@@ -431,7 +437,7 @@ class Subscriptions(commands.Cog):
             skip_parse = True
         elif target == 'shiny':
             candidate_list = [('shiny', 'shiny', 'shiny')]
-            sub_type, target = ['shiny','shiny']
+            sub_type, target = ['shiny', 'shiny']
             skip_parse = True
         if not skip_parse:
             candidate_list, error_list = await self._parse_subscription_content(content, 'remove', message)
@@ -649,7 +655,7 @@ class Subscriptions(commands.Cog):
             except:
                 response_msg = f"Could not process trainer with name: {trainer}"
                 await channel.send(response_msg)
-                return await utils.sleep_and_cleanup([message,response_msg], 10)
+                return await utils.sleep_and_cleanup([message, response_msg], 10)
         try:
             results = (SubscriptionTable
                 .select(SubscriptionTable.type, SubscriptionTable.target)
@@ -663,7 +669,8 @@ class Subscriptions(commands.Cog):
             subscriptions = {t: [s.target for s in results if s.type == t] for t in types}
 
             for sub in subscriptions:
-                subscription_msg += '**{category}**:\n\t{subs}\n\n'.format(category=sub.title(),subs='\n\t'.join(subscriptions[sub]))
+                subscription_msg += '**{category}**:\n\t{subs}\n\n'.format(category=sub.title(),
+                                                                           subs='\n\t'.join(subscriptions[sub]))
             if len(subscription_msg) > 0:
                 listmsg = "Listing subscriptions for user:  {id}\n".format(id=trainer)
                 listmsg += 'Current subscriptions are:\n\n{subscriptions}'.format(subscriptions=subscription_msg)
@@ -802,12 +809,13 @@ class Subscriptions(commands.Cog):
             if 'shiny' in targets:
                 target_matched = True
             if 'takeover' in targets or (lure_type and lure_type in targets):
-                trainer_info = self.bot.guild_dict[guild.id]['trainers'].setdefault('info', {}).setdefault(trainer,{})
+                trainer_info = self.bot.guild_dict[guild.id]['trainers'].setdefault('info', {}).setdefault(trainer, {})
                 t_location = trainer_info.setdefault('location', None)
                 distance = trainer_info.setdefault('distance', None)
                 stop = details['location']
                 if t_location is not None and distance is not None:
-                    if self.close_enough((float(stop.latitude), float(stop.longitude)), (t_location[0], t_location[1]), distance):
+                    if self.close_enough((float(stop.latitude), float(stop.longitude)),
+                                         (t_location[0], t_location[1]), distance):
                         target_matched = True
                     else:
                         target_matched = False
@@ -819,13 +827,13 @@ class Subscriptions(commands.Cog):
             start = 'An' if re.match(r'^[aeiou]', description, re.I) else 'A'
             if type == 'item':
                 start = 'An' if re.match(r'^[aeiou]', item, re.I) else 'A'
-                message = f'{start} **{item}** task has been reported at {location}! For more details, go to the {new_channel.mention} channel.'
+                message = f'{start} **{item}** task has been reported at {location}!'
             elif type == 'lure':
                 message = f'A **{lure_type.capitalize()}** lure has been dropped at {location.name}!'
             elif type == 'takeover':
                 message = f'A **Team Rocket Takeover** has been spotted at {location.name}!'
             else:
-                message = f'**New {type.title()}**! {start} {description} {type} at {location} has been reported! For more details, go to the {new_channel.mention} channel!'
+                message = f'**New {type.title()}**! {start} {description} {type} at {location} has been reported!'
             outbound_dict[trainer] = {'discord_obj': user, 'message': message}
         pokemon_names = ' '.join([p.name for p in pokemon_list])
         if type == 'item':
@@ -853,10 +861,11 @@ class Subscriptions(commands.Cog):
         msg_obj = await channel.send(f'{temp_role.mention} {message}')
 
         async def cleanup():
-            await asyncio.sleep(300)
+            await asyncio.sleep(180)
             await temp_role.delete()
             await msg_obj.delete()
         asyncio.ensure_future(cleanup())
+
 
 def setup(bot):
     bot.add_cog(Subscriptions(bot))
