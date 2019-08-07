@@ -301,21 +301,26 @@ class SetCommands(commands.Cog):
         if region not in region_names.keys():
             await ctx.message.add_reaction(self.bot.failed_react)
             return await ctx.send(f"No region with name: **{region}** found in this server's configuration.", delete_after=15)
-        channel = None
-        name = utils.sanitize_name(channel_info)
-        # If a channel mention is passed, it won't be recognized as an int but this for get will succeed
-        try:
-            channel = discord.utils.get(guild.text_channels, id=int(name))
-        except ValueError:
-            pass
-        if not channel:
-            channel = discord.utils.get(guild.text_channels, name=name)
-        if not channel:
-            await ctx.message.add_reaction(self.bot.failed_react)
-            return await ctx.send(f"No channel with name or id: **{channel_info}** found in this server's channel list.", delete_after=15)
-        self.bot.guild_dict[guild.id]['configure_dict']['raid'].setdefault('short_output', {})[region] = channel.id
+        if channel_info == "none":
+            self.bot.guild_dict[guild.id]['configure_dict']['raid'].setdefault('short_output', {})[region] = None
+            msg = f"Short output channel removed for **{region}**."
+        else:
+            channel = None
+            name = utils.sanitize_name(channel_info)
+            # If a channel mention is passed, it won't be recognized as an int but this for get will succeed
+            try:
+                channel = discord.utils.get(guild.text_channels, id=int(name))
+            except ValueError:
+                pass
+            if not channel:
+                channel = discord.utils.get(guild.text_channels, name=name)
+            if not channel:
+                await ctx.message.add_reaction(self.bot.failed_react)
+                return await ctx.send(f"No channel with name or id: **{channel_info}** found in this server's channel list.", delete_after=15)
+            self.bot.guild_dict[guild.id]['configure_dict']['raid'].setdefault('short_output', {})[region] = channel.id
+            msg = f"Short output channel for **{region}** set to **{channel.mention}**"
         await ctx.message.add_reaction(self.bot.success_react)
-        return await ctx.send(f"Short output channel for **{region}** set to **{channel.mention}**", delete_after=15)
+        return await ctx.send(msg, delete_after=15)
 
 
 def setup(bot):

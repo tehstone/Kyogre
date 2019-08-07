@@ -1766,11 +1766,19 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
     raidreport = await channel.send(content=msg, embed=report_embed)
     short_output_channel_id = guild_dict[guild.id]['configure_dict']['raid'].setdefault('short_output', {}).get(gym.region, None)
     if short_output_channel_id:
-        short_output_channel = Kyogre.get_channel(short_output_channel_id)
-        await short_output_channel.send(f"Raid Reported: {raid_channel.mention}")
+        send_level = 0
+        if raid_pokemon:
+            if raid_pokemon.raid_level:
+                send_level = int(raid_pokemon.raid_level)
+        else:
+            if level:
+                send_level = int(level)
+        if send_level >= 4:
+            short_output_channel = Kyogre.get_channel(short_output_channel_id)
+            await short_output_channel.send(f"Raid Reported: {raid_channel.mention}")
     await asyncio.sleep(1)
     raid_embed.add_field(name='**Tips:**', value='`!i` if interested\n`!c` if on the way\n`!h` '
-                                                 'when you arrive\n`!list` to view all interested\n'
+                                                 'when you arrive\n`!x` to cancel your status\n'
                                                  '`!s` to signal lobby start', inline=True)
     ctrsmessage_id = None
     if raid_report:
