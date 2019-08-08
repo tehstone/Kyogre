@@ -120,8 +120,9 @@ class QuickBadge(commands.Cog):
             await send_channel.send(f"$gb {p_badge_id} {user.mention}")
             badge_cog = self.bot.cogs.get('Badges')
             badge_to_give = BadgeTable.get(BadgeTable.id == k_badge_id)
+
             reaction, embed = await badge_cog.try_grant_badge(badge_to_give, payload.guild_id,
-                                                              payload.user_id, k_badge_id)
+                                                              message.author.id, k_badge_id)
             badge_channel = self.bot.get_channel(quick_badge_dict['badge_channel'])
             await badge_channel.send(embed=embed)
 

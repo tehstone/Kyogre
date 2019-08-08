@@ -352,7 +352,7 @@ async def expire_channel(channel):
         try:
             if (not guild_dict[guild.id]['raidchannel_dict'][channel.id]['active']) and (not Kyogre.is_closed()):
                 short_id = guild_dict[guild.id]['raidchannel_dict'][channel.id]['short']
-                if short_id:
+                if short_id is not None:
                     try:
                         region = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('regions', [None])[0]
                         if region is not None:
@@ -362,8 +362,8 @@ async def expire_channel(channel):
                                 if so_channel is not None:
                                     so_message = await so_channel.fetch_message(short_id)
                                     await so_message.delete()
-                    except:
-                        pass
+                    except Exception as err:
+                        logger.warning("Short message delete failed" + err)
                 if dupechannel:
                     try:
                         report_channel = Kyogre.get_channel(
