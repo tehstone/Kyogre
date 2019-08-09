@@ -351,9 +351,9 @@ async def expire_channel(channel):
         # Also, if the channel got reactivated, don't do anything either.
         try:
             if (not guild_dict[guild.id]['raidchannel_dict'][channel.id]['active']) and (not Kyogre.is_closed()):
-                short_id = guild_dict[guild.id]['raidchannel_dict'][channel.id]['short']
-                if short_id is not None:
-                    try:
+                try:
+                    short_id = guild_dict[guild.id]['raidchannel_dict'][channel.id]['short']
+                    if short_id is not None:
                         region = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('regions', [None])[0]
                         if region is not None:
                             so_channel_id = guild_dict[guild.id]['configure_dict']['raid'].setdefault('short_output', {}).get(region, None)
@@ -362,8 +362,8 @@ async def expire_channel(channel):
                                 if so_channel is not None:
                                     so_message = await so_channel.fetch_message(short_id)
                                     await so_message.delete()
-                    except Exception as err:
-                        logger.warning("Short message delete failed" + err)
+                except Exception as err:
+                    logger.info("Short message delete failed" + err)
                 if dupechannel:
                     try:
                         report_channel = Kyogre.get_channel(
@@ -2047,7 +2047,7 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
             egg_report = None
     if reportcitychannel:
         try:
-            city_report = await reportcitychannel.fetch_message(eggdetails.get('raidcityreport',0))
+            city_report = await reportcitychannel.fetch_message(eggdetails.get('raidcityreport', 0))
         except (discord.errors.NotFound, discord.errors.HTTPException):
             city_report = None
     starttime = eggdetails.get('starttime',None)
@@ -2068,7 +2068,7 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
     oldembed = raid_message.embeds[0]
     raid_gmaps_link = oldembed.url
     enabled = True
-    if guild_dict[guild.id].get('raidchannel_dict',{}).get(raid_channel.id,{}).get('meetup',{}):
+    if guild_dict[guild.id].get('raidchannel_dict', {}).get(raid_channel.id, {}).get('meetup', {}):
         guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['type'] = 'exraid'
         guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['egglevel'] = '0'
         await raid_channel.send("The event has started!", embed=oldembed)
@@ -2181,7 +2181,7 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
     else:
         send_channel = subscriptions_cog.get_region_list_channel(guild, gym.region, 'raid')
         if send_channel is None:
-            send_channel = channel
+            send_channel = reportchannel
     await subscriptions_cog.send_notifications_async('raid', raid_details, send_channel,
                                                      [author] if author else [])
     if embed_indices["gym"] is not None:
@@ -2236,6 +2236,7 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
         ctrs_dict = eggdetails.get('ctrs_dict', {})
         ctrsmessage_id = eggdetails.get('ctrsmessage', None)
     regions = eggdetails.get('regions', None)
+    short_id = eggdetails.get('short', None)
     guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = {
         'regions': regions,
         'reportcity': reportcitychannel.id,
@@ -2256,7 +2257,8 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
         'moveset': 0,
         'gym': gym,
         'reporter': reporter,
-        'last_status': new_status.id if new_status is not None else None
+        'last_status': new_status.id if new_status is not None else None,
+        'short': short_id
     }
     guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['starttime'] = starttime
     guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['duplicate'] = duplicate
