@@ -28,6 +28,12 @@ class Badges(commands.Cog):
     @_badge.command(name='add', aliases=['create', 'cr', 'new'])
     @commands.has_permissions(manage_roles=True)
     async def _add(self, ctx, *, info):
+        """**Usage**: `!badge add <emoji>, <badge name>, [<badge description], [create in pokenav]`
+        **Aliases**: `create, cr, new`
+        Emoji and name are required with a comma between each. Description is optional
+        Optionally can provide "false/no" to prevent badge from being created in Pokenav as well.
+        By default, badge will be created on both bots
+        """
         info = re.split(r',\s+', info)
         if len(info) < 2:
             await ctx.message.add_reaction(self.bot.failed_react)
@@ -35,7 +41,7 @@ class Badges(commands.Cog):
                                   delete_after=10)
         converter = commands.PartialEmojiConverter()
         try:
-            badge_emoji = await converter.convert(ctx, info[0])
+            badge_emoji = await converter.convert(ctx, info[0].strip())
         except:
             badge_emoji = None
         if not badge_emoji:
@@ -43,8 +49,12 @@ class Badges(commands.Cog):
             return await ctx.send("Could not find that emoji.", delete_after=10)
         badge_name = info[1]
         badge_desc = ''
+        create_in_pokenav = True
         if len(info) > 2:
             badge_desc = info[2]
+            if len(info) > 3:
+                if info[3].lower() == 'false' or info[3].lower() == 'no':
+                    create_in_pokenav = False
         try:
             new_badge, __ = BadgeTable.get_or_create(name=badge_name, description=badge_desc,
                                                      emoji=badge_emoji.id, active=True)
@@ -53,6 +63,11 @@ class Badges(commands.Cog):
                 message = f"{send_emoji} {badge_name} (#{new_badge.id}) successfully created!"
                 colour = discord.Colour.green()
                 reaction = self.bot.success_react
+                quick_badge_config = self.bot.guild_dict[ctx.guild.id]['configure_dict'].get('quick_badge', None)
+                if create_in_pokenav and quick_badge_config is not None:
+                    pokenav_channel_id = quick_badge_config['pokenav_channel']
+                    pokenav_channel = self.bot.get_channel(pokenav_channel_id)
+                    await pokenav_channel.send(f'$create badge {badge_emoji} "{badge_name}" "{badge_desc}"')
             else:
                 message = "Failed to create badge. Please try again."
                 colour = discord.Colour.red()
@@ -146,6 +161,8 @@ class Badges(commands.Cog):
     async def try_grant_badge(self, badge, guild_id, member_id, badge_id):
         guild = self.bot.get_guild(guild_id)
         member = guild.get_member(member_id)
+        colour = discord.Colour.red()
+        reaction = self.bot.failed_react
         try:
             guild_obj, __ = GuildTable.get_or_create(snowflake=guild_id)
             trainer_obj, __ = TrainerTable.get_or_create(snowflake=member.id, guild=guild_id)
