@@ -29,7 +29,7 @@ class Social(commands.Cog):
         xp = trainer_info.get('xp', 0)
         try:
             xp = int(xp)
-        except ValueError:
+        except (ValueError, TypeError):
             xp = 0
         xp_msg = f'{xp:,d}' if xp > 0 else 'not set'
         trainer_name = trainer_info.get('trainername', None)
@@ -41,7 +41,7 @@ class Social(commands.Cog):
             colour = user.colour
             team_url = None
         else:
-            colour = self.bot.team_color_map[team]
+            colour = self.bot.team_color_map[team.capitalize()]
             team_url = f"https://github.com/tehstone/Kyogre/blob/master/images/teams/{team.lower()}.png?raw=true"
         raids, eggs, wilds, research, joined = await self._get_profile_counts(ctx, user)
         badge_cog = self.bot.cogs.get('Badges')

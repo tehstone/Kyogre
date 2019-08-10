@@ -67,10 +67,12 @@ class SetCommands(commands.Cog):
         try:
             timezone = float(timezone)
         except ValueError:
-            await ctx.channel.send("I couldn't convert your answer to an appropriate timezone! Please double check what you sent me and resend a number from **-12** to **12**.")
+            await ctx.channel.send("I couldn't convert your answer to an appropriate timezone! "
+                                   "Please double check what you sent me and resend a number from **-12** to **12**.")
             return
         if not ((- 12) <= timezone <= 14):
-            await ctx.channel.send("I couldn't convert your answer to an appropriate timezone! Please double check what you sent me and resend a number from **-12** to **12**.")
+            await ctx.channel.send("I couldn't convert your answer to an appropriate timezone! "
+                                   "Please double check what you sent me and resend a number from **-12** to **12**.")
             return
         self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset'] = timezone
         now = datetime.datetime.utcnow() + datetime.timedelta(
@@ -93,7 +95,6 @@ class SetCommands(commands.Cog):
         
         self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['invasion_minutes'] = minutes
         await ctx.channel.send(f"Team Rocket Takeover expiration time changed to {minutes}.")
-
 
     @_set.command()
     @commands.has_permissions(manage_guild=True)
@@ -207,7 +208,8 @@ class SetCommands(commands.Cog):
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
         return await ctx.message.add_reaction('✅')
 
-    profile_steps = [{'prompt': "What is your current xp?", 'td_key': 'xp'},
+    profile_steps = [{'prompt': "What team are you on?", 'td_key': 'team'},
+                     {'prompt': "What is your current xp?", 'td_key': 'xp'},
                      {'prompt': "What is your friend code?", 'td_key': 'code'},
                      {'prompt': "What is your Trainer Name?", 'td_key': 'trainername'},
                      {'prompt': "What is the name on your Silph Road Traveler's Card?", 'td_key': 'silphid'},
@@ -221,13 +223,32 @@ class SetCommands(commands.Cog):
         trainer_dict_copy = copy.deepcopy(self.bot.guild_dict[ctx.guild.id].setdefault('trainers', {})
                                           .setdefault('info', {}).setdefault(ctx.author.id, {}))
         for step in self.profile_steps:
-            response = await self._profile_step(ctx, step)
+            if step['td_key'] == 'team':
+                if 'team' in trainer_dict_copy and trainer_dict_copy['team'] is not None:
+                    continue
+                while True:
+                    response = await self._profile_step(ctx, step)
+                    if response is None:
+                        break
+                    if response.lower().capitalize() not in self.bot.team_color_map:
+                        if response.lower() == 'clear' or response.lower() == 'skip':
+                            break
+                        if response.lower() == 'cancel' or response.lower() == 'exit':
+                            return await ctx.author.send("Profile setup cancelled.")
+                        await ctx.author.send(f'**{response}** is not a valid team. Please respond with one of the '
+                                              f'following: **{", ".join(self.bot.team_color_map.keys())}**')
+                    else:
+                        break
+            else:
+                response = await self._profile_step(ctx, step)
             if response is None:
                 return await ctx.author.send("You took too long to reply, profile setup cancelled.")
             if response.lower() == 'clear':
                 trainer_dict_copy[step['td_key']] = None
             elif response.lower() == 'skip':
                 continue
+            elif response.lower() == 'cancel' or response.lower() == 'exit':
+                return await ctx.author.send("Profile setup cancelled.")
             else:
                 if step['td_key'] == 'silphid':
                     card = await self._silph(ctx, response)
@@ -246,15 +267,18 @@ class SetCommands(commands.Cog):
         return await ctx.invoke(self.bot.get_command('profile'), user=ctx.author)
     
     async def _profile_step(self, ctx, step):
-        embed = discord.Embed(colour = self.bot.user.colour)
-        description = step["prompt"]
-        description += '\n\nReply with "clear" to remove this item from your profile. Reply with "skip" to continue to the next item.'
+        embed = discord.Embed(colour=self.bot.user.colour)
+        embed.title = step["prompt"]
+        description = '\n\nReply with "**clear**" to remove this item from your profile. \n' \
+                       'Reply with "**skip**" to continue to the next item. \n' \
+                       'Reply with "**cancel**" to exit profile setup.'
         embed.description = description
         await ctx.author.send(embed=embed)
         try:
             response = await self.bot.wait_for('message', timeout=60,
                                                check=(lambda reply: reply.author == ctx.message.author))
         except asyncio.TimeoutError:
+            response = None
             pass
         if response is None:
             return None
@@ -271,8 +295,10 @@ class SetCommands(commands.Cog):
             lon = float(info[1])
         except ValueError:
             await ctx.message.add_reaction(self.bot.failed_react)
-            return await ctx.send("Latitude and Longitude must be provided in the following form: `47.23456, -122.65432`", delete_after=15)
-        self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {}).setdefault(ctx.author.id, {})['location'] = (lat, lon)
+            return await ctx.send("Latitude and Longitude must be provided in the following form: "
+                                  "`47.23456, -122.65432`", delete_after=15)
+        self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {})\
+            .setdefault(ctx.author.id, {})['location'] = (lat, lon)
         await ctx.message.add_reaction(self.bot.success_react)
     
     @_set.command(name='distance', aliases=['dis'])
@@ -282,7 +308,8 @@ class SetCommands(commands.Cog):
         except ValueError:
             await ctx.message.add_reaction(self.bot.failed_react)
             return await ctx.send("Please provide a number of miles.", delete_after=15)
-        self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {}).setdefault(ctx.author.id, {})['distance'] = distance
+        self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {})\
+            .setdefault(ctx.author.id, {})['distance'] = distance
         await ctx.message.add_reaction(self.bot.success_react)
 
     @_set.command(name='short_output', aliases=['so'])
@@ -300,7 +327,8 @@ class SetCommands(commands.Cog):
             return await ctx.send("No regions have been configured for this server.", delete_after=15)
         if region not in region_names.keys():
             await ctx.message.add_reaction(self.bot.failed_react)
-            return await ctx.send(f"No region with name: **{region}** found in this server's configuration.", delete_after=15)
+            return await ctx.send(f"No region with name: **{region}** found in this server's configuration.",
+                                  delete_after=15)
         if channel_info == "none":
             self.bot.guild_dict[guild.id]['configure_dict']['raid'].setdefault('short_output', {})[region] = None
             msg = f"Short output channel removed for **{region}**."
@@ -316,7 +344,8 @@ class SetCommands(commands.Cog):
                 channel = discord.utils.get(guild.text_channels, name=name)
             if not channel:
                 await ctx.message.add_reaction(self.bot.failed_react)
-                return await ctx.send(f"No channel with name or id: **{channel_info}** found in this server's channel list.", delete_after=15)
+                return await ctx.send(f"No channel with name or id: **{channel_info}** "
+                                      f"found in this server's channel list.", delete_after=15)
             self.bot.guild_dict[guild.id]['configure_dict']['raid'].setdefault('short_output', {})[region] = channel.id
             msg = f"Short output channel for **{region}** set to **{channel.mention}**"
         await ctx.message.add_reaction(self.bot.success_react)

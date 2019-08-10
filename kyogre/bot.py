@@ -83,14 +83,13 @@ class KyogreBot(commands.AutoShardedBot):
                                'Instinct': discord.Colour.from_rgb(255, 255, 0)}
 
         for ext in default_exts:
-            self.load_extension(f"kyogre.exts.{ext}")
-            # try:
-            #     self.load_extension(f"kyogre.exts.{ext}")
-            # except Exception as e:
-            #     print(f'**Error when loading extension {ext}:**\n{type(e).__name__}: {e}')
-            # else:
-            #     if 'debug' in sys.argv[1:]:
-            #         print(f'Loaded {ext} extension.')
+            try:
+                self.load_extension(f"kyogre.exts.{ext}")
+            except Exception as e:
+                print(f'**Error when loading extension {ext}:**\n{type(e).__name__}: {e}')
+            else:
+                if 'debug' in sys.argv[1:]:
+                    print(f'Loaded {ext} extension.')
 
     class RenameUnpickler(pickle.Unpickler):
         def find_class(self, module, name):
@@ -277,7 +276,7 @@ class KyogreBot(commands.AutoShardedBot):
         teams = ["instinct", "mystic", "valor"]
         guild = after.guild
         region_dict = self.guild_dict[guild.id]['configure_dict'].get('regions',None)
-        trainers_info_dict = self.guild_dict[guild.id]['trainers'].setdefault('info', {}).setdefault(after.id,{})
+        trainers_info_dict = self.guild_dict[guild.id]['trainers'].setdefault('info', {}).setdefault(after.id, {})
         prev_roles = set([r.name for r in before.roles])
         post_roles = set([r.name for r in after.roles])
         added_roles = post_roles - prev_roles
