@@ -102,11 +102,10 @@ class Badges(commands.Cog):
 
     @_badge.command(name='info')
     async def _info(self, ctx, badge_id: int = 0):
-        # TODO Pull the number of trainers who have earned this badge and add to embed
         try:
             count = (BadgeAssignmentTable.select()
-                .where(BadgeAssignmentTable.badge_id == badge_id)
-                .count())
+                     .where(BadgeAssignmentTable.badge_id == badge_id)
+                     .count())
         except:
             self.bot.logger.error(f"Failed to pull badge assignment count for badge: {badge_id}")
             count = 0
@@ -123,7 +122,7 @@ class Badges(commands.Cog):
             count_str = "No one has earned this badge yet!"
         badge = result[0]
         send_emoji = self.bot.get_emoji(badge.emoji)
-        title = f"${badge.id} {badge.name}"
+        title = f"(*#{badge.id}*) {badge.name}"
         message = f"{badge.description}"
         if badge.active:
             footer = "This badge is currently available."
@@ -245,12 +244,13 @@ class Badges(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name="badges")
-    async def _badges(self, ctx):
-        """**Usage**: `!badges`
-        Shows all badges earned by whomever sent the command."""
-        author = ctx.message.author
-        badges = self.get_badges(author.id)
-        embed = discord.Embed(title=f"{author.display_name} has earned {len(badges)} badges", colour=author.colour)
+    async def _badges(self, ctx, user: discord.Member = None):
+        """**Usage**: `!badges [user]`
+        Shows all badges earned by whomever sent the command or for the user provided."""
+        if not user:
+            user = ctx.message.author
+        badges = self.get_badges(user.id)
+        embed = discord.Embed(title=f"{user.display_name} has earned {len(badges)} badges", colour=user.colour)
         description = ''
         for b in badges:
             emoji = self.bot.get_emoji(b.emoji)
