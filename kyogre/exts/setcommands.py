@@ -222,6 +222,7 @@ class SetCommands(commands.Cog):
         await ctx.send("I will message you directly to help you get your profile set up.")
         trainer_dict_copy = copy.deepcopy(self.bot.guild_dict[ctx.guild.id].setdefault('trainers', {})
                                           .setdefault('info', {}).setdefault(ctx.author.id, {}))
+        team_role_names = [r.lower() for r in self.bot.team_color_map.keys()]
         for step in self.profile_steps:
             if step['td_key'] == 'team':
                 if 'team' in trainer_dict_copy and trainer_dict_copy['team'] is not None:
@@ -230,13 +231,13 @@ class SetCommands(commands.Cog):
                     response = await self._profile_step(ctx, step)
                     if response is None:
                         break
-                    if response.lower().capitalize() not in self.bot.team_color_map:
+                    if response.lower() not in team_role_names:
                         if response.lower() == 'clear' or response.lower() == 'skip':
                             break
                         if response.lower() == 'cancel' or response.lower() == 'exit':
                             return await ctx.author.send("Profile setup cancelled.")
                         await ctx.author.send(f'**{response}** is not a valid team. Please respond with one of the '
-                                              f'following: **{", ".join(self.bot.team_color_map.keys())}**')
+                                              f'following: **{", ".join(team_role_names)}**')
                     else:
                         break
             else:
@@ -261,6 +262,18 @@ class SetCommands(commands.Cog):
                     if card.discord_name != str(ctx.author):
                         await ctx.author.send('This Travelers Card is linked to another Discord account!')
                         continue
+                if step['td_key'] == 'team':
+                    has_team = False
+                    for team in team_role_names:
+                        temp_role = discord.utils.get(ctx.guild.roles, name=team)
+                        if temp_role:
+                            # and the user has this role,
+                            if (temp_role in ctx.author.roles):
+                                has_team = True
+                    if not has_team:
+                        team_role = discord.utils.get(ctx.guild.roles, name=response.lower())
+                        if team_role is not None:
+                            await ctx.author.add_roles(team_role)
                 trainer_dict_copy[step['td_key']] = response
         await ctx.author.send("Great, your profile is all set!")
         self.bot.guild_dict[ctx.guild.id]['trainers']['info'][ctx.author.id] = trainer_dict_copy
