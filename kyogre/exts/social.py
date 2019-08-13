@@ -95,12 +95,14 @@ class Social(commands.Cog):
                 region = type
                 type = "total"
             else:
+                self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: {type} leaderboard is invalid.")
                 return await ctx.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Leaderboard type not supported. Please select from: **{', '.join(typelist)}**"))
         if region is not None:
             region = region.lower()
             if region in regions:
                 regions = [region]
             else:
+                self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: {region} region is invalid.")
                 return await ctx.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No region found with name {region}"))
         for region in regions:
             trainers = copy.deepcopy(self.guild_dict[guild.id]['trainers'].setdefault(region, {}))

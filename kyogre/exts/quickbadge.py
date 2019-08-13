@@ -23,6 +23,7 @@ class QuickBadge(commands.Cog):
         quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
             .get('quick_badge', self.quick_badge_dict_default)
         if len(quick_badge_dict['listen_channels']) < 1:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No quickbadge listen channel set.")
             await ctx.channel.send('No Quick-Badge listen channels set.', delete_after=10)
             return await ctx.message.add_reaction(self.failed_react)
         quick_badge_dict['badges'][badge.id] = {}
@@ -37,7 +38,9 @@ class QuickBadge(commands.Cog):
     async def add_quick_badge_listen_channel(self, ctx, item):
         qbl_channel = await self.qblc_channel_helper(ctx, item)
         if qbl_channel is None:
-            return
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Channel not found: {item}.")
+            await ctx.channel.send(f'Channel not found: {item}. Could not set listen channel', delete_after=10)
+            return await ctx.message.add_reaction(self.failed_react)
         quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
             .get('quick_badge', self.quick_badge_dict_default)
         quick_badge_dict['listen_channels'].append(qbl_channel.id)
@@ -50,7 +53,9 @@ class QuickBadge(commands.Cog):
     async def remove_quick_badge_listen_channel(self, ctx, item):
         qbl_channel = await self.qblc_channel_helper(ctx, item)
         if qbl_channel is None:
-            return
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Channel not found: {item}.")
+            await ctx.channel.send(f'Channel not found: {item}. Could not remove listen channel', delete_after=10)
+            return await ctx.message.add_reaction(self.failed_react)
         quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
             .get('quick_badge', self.quick_badge_dict_default)
         if qbl_channel.id in quick_badge_dict['listen_channels']:
@@ -66,6 +71,7 @@ class QuickBadge(commands.Cog):
     async def set_pokenav_channel(self, ctx, *, info):
         info = re.split(r',*\s+', info)
         if len(info) < 2:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Bot name or channel info missing: {info}.")
             await ctx.message.add_reaction(self.bot.failed_react)
             return await ctx.send("Please provide both a bot name and a channel name or id.", delete_after=15)
         bot_name = info[0].lower()

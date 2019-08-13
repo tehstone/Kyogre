@@ -33,6 +33,7 @@ class InviteRoleCog(commands.Cog):
         info = re.split(r',*\s+', info)
         if len(info) < 2:
             await ctx.message.add_reaction(self.failed_react)
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info: {info}.")
             return await ctx.send("Please provide both an invite code and a role name.", delete_after=10)
         invite_code = info[0]
         role_id = info[1]
@@ -95,6 +96,7 @@ class InviteRoleCog(commands.Cog):
         info = re.split(r',*\s+', info)
         if len(info) < 2:
             await ctx.message.add_reaction(self.failed_react)
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info: {info}.")
             return await ctx.send("Please provide both an invite code and a role name.", delete_after=10)
         invite_code = info[0]
         role_id = info[1]

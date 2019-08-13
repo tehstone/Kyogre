@@ -5,7 +5,7 @@ import os
 import pickle
 import sys
 
-from kyogre.logs import init_loggers
+from kyogre.logs import init_loggers, init_help_logger
 from kyogre.errors import custom_error_handling
 
 import discord
@@ -66,6 +66,7 @@ class KyogreBot(commands.AutoShardedBot):
                          activity=discord.Game(name="Pokemon Go"))
 
         self.logger = init_loggers()
+        self.help_logger = init_help_logger()
         custom_error_handling(self, self.logger)
         self.guild_dict = {}
         self._load_data()

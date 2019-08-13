@@ -243,12 +243,14 @@ class SetCommands(commands.Cog):
             else:
                 response = await self._profile_step(ctx, step)
             if response is None:
+                self.bot.help_logger.info(f"{ctx.author.name} took to long on profile step: {step['prompt']}.")
                 return await ctx.author.send("You took too long to reply, profile setup cancelled.")
             if response.lower() == 'clear':
                 trainer_dict_copy[step['td_key']] = None
             elif response.lower() == 'skip':
                 continue
             elif response.lower() == 'cancel' or response.lower() == 'exit':
+                self.bot.help_logger.info(f"{ctx.author.name} cancelled on profile step: {step['prompt']}.")
                 return await ctx.author.send("Profile setup cancelled.")
             else:
                 if step['td_key'] == 'silphid':

@@ -38,6 +38,7 @@ class LocationManagement(commands.Cog):
         except:
             pass
         if error_msg is not None:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info: {info}.")
             return await channel.send(error_msg)
         data = {}
         data["coordinates"] = f"{latitude},{longitude}"
@@ -56,11 +57,11 @@ class LocationManagement(commands.Cog):
             error_msg = LocationTable.create_location(name, data)
         if error_msg is None:
             success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Successfully added **{loc_type}** with name: **{name}**."))
-            await message.add_reaction('✅')
+            await message.add_reaction(self.bot.success_react)
             return await utils.sleep_and_cleanup([success], 10)
         else:
             failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=error_msg + f"Failed to add **{loc_type}** with name: **{name}**."))
-            await message.add_reaction('❌')   
+            await message.add_reaction(self.bot.failed_react)   
             return await utils.sleep_and_cleanup([failed], 10)
 
 
@@ -75,15 +76,16 @@ class LocationManagement(commands.Cog):
         stop = await self._location_match_prompt(channel, author.id, info, stops)
         if not stop:
             no_stop_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No pokestop found with name **{info}**"))
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No Pokestop found with name: {info}.")
             return await utils.sleep_and_cleanup([no_stop_msg], 10)
         result = await self.stopToGym(ctx, stop.name)
         if result[0] == 0:
             failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Failed to convert stop to gym."))
-            await ctx.message.add_reaction('❌') 
+            await ctx.message.add_reaction(self.bot.failed_react) 
             return await utils.sleep_and_cleanup([failed], 10)       
         else:
             success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Converted {result[0]} stop(s) to gym(s)."))
-            await ctx.message.add_reaction('✅')
+            await ctx.message.add_reaction(self.bot.success_react)
             return await utils.sleep_and_cleanup([success], 10)
 
 
@@ -97,16 +99,16 @@ class LocationManagement(commands.Cog):
         gyms = self._get_gyms(ctx.guild.id, None)
         gym = await self._location_match_prompt(channel, author.id, info, gyms)
         if not gym:
-            no_gym_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No gym found with name {info}"), delete_after=15)
-            return
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No Gym found with name: {info}.")
+            return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No gym found with name {info}"), delete_after=15)
         result = await self.toggleEX(ctx, gym.name)
         if result == 0:
             failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Failed to change gym's EX status."), delete_after=15)
-            await ctx.message.add_reaction('❌')        
+            await ctx.message.add_reaction(self.bot.failed_react)        
             return
         else:
             success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Successfully changed EX status for {result} gym(s)."), delete_after=15)
-            await ctx.message.add_reaction('✅')
+            await ctx.message.add_reaction(self.bot.success_react)
             return
 
 
@@ -121,8 +123,9 @@ class LocationManagement(commands.Cog):
         info = [x.strip() for x in info.split(',')]
         stop, gym = None, None
         if len(info) != 3:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info: {info}.")
             failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Please provide (comma separated) the location type (stop or gym), name of the Pokestop or gym, and the new region it should be assigned to."))
-            await message.add_reaction('❌')
+            await message.add_reaction(self.bot.failed_react)
             return await utils.sleep_and_cleanup([failed], 10)
         if info[0].lower() == "stop":
             stops = self._get_stops(ctx.guild.id, None)
@@ -135,17 +138,18 @@ class LocationManagement(commands.Cog):
             if gym is not None:
                 name = gym.name
         if not stop and not gym:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No {info[0]} found with name: {info[1]}.")
             failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No {info[0]} found with name {info[1]}."))
-            await message.add_reaction('❌')        
+            await message.add_reaction(self.bot.failed_react)        
             return await utils.sleep_and_cleanup([failed], 10)
         result = await self.changeRegion(ctx, name, info[2])
         if result == 0:
             failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Failed to change location for {name}."))
-            await message.add_reaction('❌')        
+            await message.add_reaction(self.bot.failed_react)        
             return await utils.sleep_and_cleanup([failed], 10)
         else:
             success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Successfully changed location for {name}."))
-            await message.add_reaction('✅')
+            await message.add_reaction(self.bot.success_react)
             return await utils.sleep_and_cleanup([success], 10)
 
     @_loc.command(name="deletelocation", aliases=["del"])
@@ -160,8 +164,9 @@ class LocationManagement(commands.Cog):
         author = message.author
         info = info.split(',')
         if len(info) != 2:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info: {info}.")
             failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Please provide (comma separated) the location type (stop or gym) and the name of the Pokestop or gym."))
-            await message.add_reaction('❌')
+            await message.add_reaction(self.bot.failed_react)
             return await utils.sleep_and_cleanup([failed], 10)
         loc_type = info[0].lower()
         stop = None
@@ -177,17 +182,18 @@ class LocationManagement(commands.Cog):
             if gym is not None:
                 name = gym.name
         if not stop and not gym:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No {info[0]} found with name: {info[1]}.")
             failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No {info[0]} found with name {info[1]}."))
-            await message.add_reaction('❌')        
+            await message.add_reaction(self.bot.failed_react)        
             return await utils.sleep_and_cleanup([failed], 10)
         result = await self.deleteLocation(ctx, loc_type, name)
         if result == 0:
             failed = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"Failed to delete {loc_type}: {name}."))
-            await message.add_reaction('❌')        
+            await message.add_reaction(self.bot.failed_react)        
             return await utils.sleep_and_cleanup([failed], 10)
         else:
             success = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Successfully deleted {loc_type}: {name}."))
-            await message.add_reaction('✅')
+            await message.add_reaction(self.bot.success_react)
             return await utils.sleep_and_cleanup([success], 10)
 
     async def deleteLocation(self, ctx, type, name):

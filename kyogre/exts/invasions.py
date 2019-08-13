@@ -39,6 +39,7 @@ class Invasions(commands.Cog):
         if stops:
             stop = await location_matching_cog.match_prompt(channel, author.id, stopname, stops)
             if not stop:
+                self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No Pokestop found {stopname}.")
                 return await channel.send(
                     embed=discord.Embed(colour=discord.Colour.red(),
                                         description=f"No pokestop found with name '**{stopname}**' "

@@ -198,6 +198,7 @@ def custom_error_handling(bot, logger):
             return
         channel = ctx.channel
         prefix = ctx.prefix.replace(ctx.bot.user.mention, '@' + ctx.bot.user.name)
+        bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: {error.__class__.__name__}")
         if isinstance(error, commands.MissingRequiredArgument):
             error = await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=missing_arg_msg(ctx)))
             await delete_error(ctx.message, error, 10)

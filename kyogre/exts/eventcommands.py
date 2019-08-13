@@ -26,9 +26,11 @@ class EventCommands(commands.Cog):
         events = [r.eventname for r in result]
         if len(roles) < 1:
             await ctx.message.add_reaction(self.failed_react)
+            self.bot.help_logger(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No active event.")
             return await ctx.send("There is no active event.", delete_after=10)
         if len(roles) > 1:
             await ctx.message.add_reaction(self.failed_react)
+            self.bot.help_logger(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Too many active events.")
             return await ctx.send("There are too many active events, please contact an admin.", delete_after=10)
         try:
             role = await self._validate_or_create_role(ctx, roles[0], eventname=events[0], checkin=True)
@@ -38,9 +40,11 @@ class EventCommands(commands.Cog):
             await asyncio.sleep(0.1)
             if role not in member.roles:
                 await ctx.message.add_reaction(self.failed_react)
+                self.bot.help_logger(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Failed to give event badge {events[0]} to {member.display_name}.")
                 return await ctx.send(f"Failed to give event role to {member.display_name}.", delete_after=10)
         except discord.Forbidden:
             await ctx.message.add_reaction(self.failed_react)
+            self.bot.help_logger(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Failed to give event badge {events[0]} to {member.display_name} due to permissions.")
             return await ctx.send(f"Failed to give event role to to {member.display_name} because you do not have permission", delete_after=10)
         message = f"Checked in **{member.display_name}** for the **{events[0]}** event!"
         await ctx.send(embed=discord.Embed(colour=discord.Colour.green(), description=message), delete_after=10)
@@ -58,6 +62,7 @@ class EventCommands(commands.Cog):
         info = re.split(r',\s+', info)
         if len(info) < 2:
             await ctx.message.add_reaction(self.failed_react)
+            self.bot.help_logger(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info: {info}.")
             return await ctx.send("Please provide both an invite code and a role name.", delete_after=10)
         name = info[0]
         role = await self._validate_or_create_role(ctx, info[1])
@@ -85,6 +90,7 @@ class EventCommands(commands.Cog):
         info = re.split(r',\s+', info)
         if len(info) < 2:
             await ctx.message.add_reaction(self.failed_react)
+            self.bot.help_logger(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info: {info}.")
             return await ctx.send("Please provide both the current event name and a new event name.", delete_after=10)
         oldname = info[0]
         newname = info[1]
@@ -109,6 +115,7 @@ class EventCommands(commands.Cog):
         info = re.split(r',\s+', info)
         if len(info) < 2:
             await ctx.message.add_reaction(self.failed_react)
+            self.bot.help_logger(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info: {info}.")
             return await ctx.send("Please provide both a valid event name and the new role name.", delete_after=10)
         name = info[0]
         role = await self._validate_or_create_role(ctx, info[1])

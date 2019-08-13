@@ -31,6 +31,7 @@ class BadgeCommands(commands.Cog):
         info = re.split(r',\s+', info)
         if len(info) < 2:
             await ctx.message.add_reaction(self.bot.failed_react)
+            self.bot.help_logger(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient badge info: {info}.")
             return await ctx.send("Must provide at least an emoji and badge name, and optionally badge description.", delete_after=10)
         converter = commands.PartialEmojiConverter()
         try:
@@ -39,6 +40,7 @@ class BadgeCommands(commands.Cog):
             badge_emoji = None
         if not badge_emoji:
             await ctx.message.add_reaction(self.bot.failed_react)
+            self.bot.help_logger(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No emoji found: {info[0]}.")
             return await ctx.send("Could not find that emoji.", delete_after=10)
         badge_name = info[1]
         badge_desc = ''
@@ -67,6 +69,7 @@ class BadgeCommands(commands.Cog):
     async def _grant(self, ctx, id: int=0, member: discord.Member=None):
         if id == 0 or member is None:
             await ctx.message.add_reaction(self.bot.failed_react)
+            self.bot.help_logger(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info.")
             return await ctx.send("Must provide a badge id and Trainer name.", delete_after=10)
         badge_to_give = BadgeTable.get(BadgeTable.id == id)
         if badge_to_give:

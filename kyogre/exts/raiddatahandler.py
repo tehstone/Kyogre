@@ -67,6 +67,7 @@ class RaidDataHandler(commands.Cog):
         for pokemon in raid_pokemon:
             pkmn = Pokemon.get_pokemon(self.bot, pokemon)
             if not pkmn:
+                self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Invalid pokemon name: {pokemon}.")
                 return await ctx.send('Invalid Pokemon Name')
             hit_key = []
             name = pkmn.name.lower()
@@ -113,6 +114,7 @@ class RaidDataHandler(commands.Cog):
         """
 
         if level not in self.raid_info['raid_eggs'].keys():
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Invalid raid level.")
             return await ctx.send("Invalid raid level specified.")
 
         added, failed = self.add_raid_pkmn(level, raid_pokemon)
@@ -139,8 +141,10 @@ class RaidDataHandler(commands.Cog):
         Example: !raiddata replace 3 Mr Mime, Jynx, Alolan Raichu
         """
         if level not in self.raid_info['raid_eggs'].keys():
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Invalid raid level.")
             return await ctx.send("Invalid raid level specified.")
         if not raid_pokemon:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No Pokemon provided.")
             return await ctx.send("No pokemon provided.")
         old_data = tuple(self.raid_info['raid_eggs'][level]['pokemon'])
         self.raid_info['raid_eggs'][level]['pokemon'] = []

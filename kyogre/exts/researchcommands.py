@@ -68,6 +68,7 @@ class ResearchCommands(commands.Cog):
                         stop = await location_matching_cog.match_prompt(channel, author.id, location.strip(), stops)
                         if not stop:
                             await swap_msg.delete()
+                            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No Pokestop found with name: {location.strip()}.")
                             err_msg = await channel.send(
                                 embed=discord.Embed(colour=discord.Colour.red(),
                                                     description=f"No pokestop found with name '**{location.strip()}**' "
@@ -86,6 +87,7 @@ class ResearchCommands(commands.Cog):
                 location = location.replace(loc_url, "").strip()
                 quest = await questrewardmanagement_cog.get_quest(ctx, quest_name.strip())
                 if not quest:
+                    self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No quest found with name: {quest_name}.")
                     return await channel.send(embed=discord.Embed(
                         colour=discord.Colour.red(),
                         description=f"I couldn't find a quest named '{quest_name}'"))
@@ -126,6 +128,7 @@ class ResearchCommands(commands.Cog):
                     if stops:
                         stop = await location_matching_cog.match_prompt(channel, author.id, location, stops)
                         if not stop:
+                            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No Pokestop found with name: {location.strip()}.")
                             return await channel\
                                 .send(embed=discord.Embed(colour=discord.Colour.red(),
                                                           description=f"I couldn't find a pokestop named '{location}'."
@@ -280,6 +283,7 @@ class ResearchCommands(commands.Cog):
                         stop = await location_matching_cog.match_prompt(channel, user.id,
                                                                         pokestopmsg.clean_content, stops)
                         if not stop:
+                            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No Pokestop found with name: {pokestopmsg.clean_content}.")
                             await channel.send(embed=discord.Embed(
                                 colour=discord.Colour.red(),
                                 description=f"I couldn't find a pokestop named '{pokestopmsg.clean_content}'."

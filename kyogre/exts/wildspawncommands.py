@@ -31,6 +31,7 @@ class WildSpawnCommands(commands.Cog):
                      datetime.timedelta(hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset']))\
                     .strftime('%I:%M %p (%H:%M)')
         if len(content.split()) <= 1:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient wild report info provided.")
             return await channel.send(
                 embed=discord.Embed(colour=discord.Colour.red(),
                                     description='Give more details when reporting! '
@@ -47,6 +48,7 @@ class WildSpawnCommands(commands.Cog):
             content = ' '.join([match, content])
         pkmn = Pokemon.get_pokemon(self.bot, entered_wild if entered_wild.isdigit() else content)
         if not pkmn:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Pokemon not found with name: {content}.")
             return await channel.send(
                 embed=discord.Embed(colour=discord.Colour.red(),
                                     description="Unable to find that pokemon. Please check the name and try again!"))
@@ -69,6 +71,7 @@ class WildSpawnCommands(commands.Cog):
                 wild_gmaps_link = utilities_cog.create_gmaps_query(wild_details, channel, type="wild")
                 wild_details = 'Custom Map Pin'
             else:
+                self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Invalid location provided.")
                 return await channel.send(
                     embed=discord.Embed(
                         colour=discord.Colour.red(),

@@ -25,6 +25,7 @@ class LureCommands(commands.Cog):
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         subscriptions_cog = self.bot.cogs.get('Subscriptions')
         if len(content.split()) <= 1:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info.")
             return await channel.send(
                 embed=discord.Embed(colour=discord.Colour.red(),
                                     description='Give more details when reporting! Usage: **!lure <type> <location>**'))
@@ -39,6 +40,7 @@ class LureCommands(commands.Cog):
         query = query.execute()
         result = [d for d in query]
         if len(result) != 1:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Lure type: {luretype} not found.")
             return await channel.send(
                 embed=discord.Embed(colour=discord.Colour.red(),
                                     description='Unable to find the lure type provided, please try again.'))
@@ -48,6 +50,7 @@ class LureCommands(commands.Cog):
         if stops:
             stop = await location_matching_cog.match_prompt(channel, author.id, pokestop, stops)
             if not stop:
+                self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Pokestop not found with name: {pokestop}.")
                 return await channel.send(
                     embed=discord.Embed(colour=discord.Colour.red(),
                                         description="Unable to find that Pokestop. "

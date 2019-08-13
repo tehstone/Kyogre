@@ -967,6 +967,7 @@ async def modify_raid_report(payload, raid_report):
                                 colour=discord.Colour.red(),
                                 description=f"I couldn't find a gym named '{gymmsg.clean_content}'. "
                                 f"Try again using the exact gym name!"))
+                        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Couldn't find gym with name: {gymmsg.clean_content}")
                     else:
                         location = gym.name
                         raid_channel_ids = get_existing_raid(guild, gym)
@@ -977,6 +978,7 @@ async def modify_raid_report(payload, raid_report):
                                     embed=discord.Embed(
                                         colour=discord.Colour.red(),
                                         description=f"A raid has already been reported for {gym.name}"))
+                                Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Raid already reported.")
                         else:
                             await entity_updates.update_raid_location(Kyogre, guild_dict, message,
                                                                       report_channel, raid_channel, gym)
@@ -1396,6 +1398,7 @@ async def _raid_internal(ctx, content):
         fromegg = True
     raid_split = content.split()
     if len(raid_split) == 0:
+        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient raid details provided.")
         return await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
                                                       description='Give more details when reporting! '
                                                                   'Usage: **!raid <pokemon name> <location>**'))
@@ -1418,6 +1421,7 @@ async def _raid_internal(ctx, content):
                 return
         elif (raid_split[0] == "alolan" and len(raid_split) > 2) or (raid_split[0] != "alolan" and len(raid_split) > 1):
             if (raid_split[0] not in Pokemon.get_forms_list() and len(raid_split) > 1):
+                Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Raid report made in raid channel.")
                 return await channel.send(
                     embed=discord.Embed(
                         colour=discord.Colour.red(),
@@ -1428,7 +1432,8 @@ async def _raid_internal(ctx, content):
         ## before Kyogre catches up with hatching the egg.
         elif guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] - 60 < datetime.datetime.now().timestamp():
             eggtoraid = True
-        else:            
+        else:
+            Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Hatch announced too soon.")            
             return await channel.send(embed=discord.Embed(
                 colour=discord.Colour.red(),
                 description='Please wait until the egg has hatched before changing it to an open raid!'))
@@ -1510,6 +1515,7 @@ async def _raid_internal(ctx, content):
         return await _eggtoraid(ctx, new_content.lower(), channel, author)
     raid_split = new_content.strip().split()
     if len(raid_split) == 0:
+        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient raid details provided.")
         return await channel.send(embed=discord.Embed(
             colour=discord.Colour.red(),
             description='Give more details when reporting! Usage: **!raid <pokemon name> <location>**'))
@@ -1517,6 +1523,7 @@ async def _raid_internal(ctx, content):
     if raidexp:
         del raid_split[-1]
         if _timercheck(raidexp, raid_info['raid_eggs'][raid_pokemon.raid_level]['raidtime']):
+            Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Raid expiration time too long.")
             time_embed = discord.Embed(description="That's too long. Level {raidlevel} Raids currently last no "
                                                    "more than {hatchtime} minutes...\nExpire time will not be set."
                                        .format(raidlevel=raid_pokemon.raid_level,
@@ -1524,6 +1531,7 @@ async def _raid_internal(ctx, content):
                                        colour=discord.Colour.red())
             await channel.send(embed=time_embed)
             raidexp = False
+            Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: raid expiration time too long")
     else:
         await channel.send(
             embed=discord.Embed(colour=discord.Colour.orange(),
@@ -1531,6 +1539,7 @@ async def _raid_internal(ctx, content):
     raid_details = ' '.join(raid_split)
     raid_details = raid_details.strip()
     if raid_details == '':
+        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient raid details provided.")
         return await channel.send(embed=discord.Embed(
             colour=discord.Colour.red(),
             description='Give more details when reporting! Usage: **!raid <pokemon name> <location>**'))
@@ -1543,6 +1552,7 @@ async def _raid_internal(ctx, content):
     raid_pokemon.weather = weather
     raid_details = raid_details.replace(str(weather), '', 1)
     if raid_details == '':
+        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient raid details provided.")
         return await channel.send(embed=discord.Embed(
             colour=discord.Colour.red(),
             description='Give more details when reporting! Usage: **!raid <pokemon name> <location>**'))
@@ -1578,6 +1588,7 @@ async def _raidegg(ctx, content):
     channel = message.channel
 
     if checks.check_eggchannel(ctx) or checks.check_raidchannel(ctx):
+        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Raid reported in raid channel.")
         return await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
                                                       description='Please report new raids in a reporting channel.'))
     
@@ -1589,6 +1600,7 @@ async def _raidegg(ctx, content):
     if raidegg_split[0].lower() == 'egg':
         del raidegg_split[0]
     if len(raidegg_split) <= 1:
+        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient raid details provided.")
         return await channel.send(embed=discord.Embed(
             colour=discord.Colour.red(),
             description='Give more details when reporting! Usage: **!raidegg <level> <location>**'))
@@ -1596,6 +1608,7 @@ async def _raidegg(ctx, content):
         egg_level = int(raidegg_split[0])
         del raidegg_split[0]
     else:
+        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient raid details provided.")
         return await channel.send(embed=discord.Embed(
             colour=discord.Colour.red(),
             description='Give more details when reporting! Use at least: **!raidegg <level> <location>**. '
@@ -1608,6 +1621,7 @@ async def _raidegg(ctx, content):
                                "currently last no more than {hatchtime} minutes..."
                                .format(raidlevel=egg_level,
                                        hatchtime=raid_info['raid_eggs'][str(egg_level)]['hatchtime']))
+            Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: raid expiration time too long")
             return
     else:
         await channel.send(
@@ -1616,6 +1630,7 @@ async def _raidegg(ctx, content):
     raid_details = ' '.join(raidegg_split)
     raid_details = raid_details.strip()
     if raid_details == '':
+        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient raid details provided.")
         return await channel.send(embed=discord.Embed(
             colour=discord.Colour.red(), 
             description='Give more details when reporting! Use at least: **!raidegg <level> <location>**. '
@@ -1628,6 +1643,7 @@ async def _raidegg(ctx, content):
     if not weather:
         weather = guild_dict[guild.id]['raidchannel_dict'].get(channel.id,{}).get('weather', None)
     if raid_details == '':
+        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient raid details provided.")
         return await channel.send(embed=discord.Embed(
             colour=discord.Colour.red(), 
             description='Give more details when reporting! Usage: **!raid <pokemon name> <location>**'))
@@ -1657,6 +1673,7 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
             if not gym:
                 gym = await retry_gym_match(channel, author.id, raid_details, gyms)
                 if not gym:
+                    Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No gym found with name: {raid_details}.")
                     return await channel.send(embed=discord.Embed(
                         colour=discord.Colour.red(),
                         description=f"I couldn't find a gym named '{raid_details}'. "
@@ -1920,10 +1937,12 @@ async def _eggassume(args, raid_channel):
     if not raid_pokemon:
         return
     if not raid_pokemon.is_raid:
+        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: {raid_pokemon.name} reported, but not in raid data.")
         return await raid_channel.send(embed=discord.Embed(
             colour=discord.Colour.red(),
             description=f'The Pokemon {raid_pokemon.name} does not appear in raids!'))
     elif raid_pokemon.name.lower() not in raid_info['raid_eggs'][egglevel]['pokemon']:
+        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: {raid_pokemon.name} reported, but not in raid data for this raid level.")
         return await raid_channel.send(embed=discord.Embed(
             colour=discord.Colour.red(),
             description=f'The Pokemon {raid_pokemon.name} does not hatch from level {egglevel} raid eggs!'))
@@ -2056,6 +2075,7 @@ async def _eggtoraid(ctx, entered_raid, raid_channel, author=None):
     meetup = eggdetails.get('meetup',{})
     raid_match = pkmn.is_raid
     if not raid_match:
+        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: {raid_pokemon.name} reported, but not in raid data.")
         return await raid_channel.send(embed=discord.Embed(
             colour=discord.Colour.red(),
             description=f'The Pokemon {pkmn.full_name} does not appear in raids!'))
@@ -2767,6 +2787,7 @@ async def timerset(ctx, *, timer):
         if raidexp is False:
             return
         if _timercheck(raidexp, maxtime):
+            Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: raid expiration time too long")
             return await channel.send(embed=discord.Embed(
                 colour=discord.Colour.red(),
                 description=f"That's too long. Level {raidlevel} {raidtype.capitalize()}s "
