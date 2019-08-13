@@ -3292,7 +3292,7 @@ async def weather(ctx, *, weather):
 Status Management
 """
 
-status_parse_rgx = r'^(\d+)$|^(\d+(?:[, ]+))?([\dimvu ,]+)?(?:[, ]*)([a-zA-Z ,]+)?$'
+status_parse_rgx = r'^(w*\d+)$|^(\d+(?:[, ]+))?([\dimvu ,]+)?(?:[, ]*)([a-zA-Z ,]+)?$'
 status_parser = re.compile(status_parse_rgx)
 
 
@@ -3315,6 +3315,11 @@ async def _parse_teamcounts(ctx, teamcounts, trainer_dict, egglevel):
 
 
 async def _process_status_command(ctx, teamcounts):
+    eta = None
+    if teamcounts.lower().find('eta') > -1:
+        idx = teamcounts.lower().find('eta')
+        eta = teamcounts[idx:]
+        teamcounts = teamcounts[:idx]
     guild = ctx.guild
     trainer_dict = guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict']
     entered_interest = trainer_dict.get(ctx.author.id, {}).get('interest', [])
@@ -3347,6 +3352,8 @@ async def _process_status_command(ctx, teamcounts):
     elif not bosses and guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['type'] == 'egg':
         entered_interest = [p for p in raid_info['raid_eggs'][egglevel]['pokemon']]
     if total:
+        if total[0] == 'w':
+            total = total[1:]
         total = int(total)
     elif (ctx.author.id in trainer_dict) and (sum(trainer_dict[ctx.author.id]['status'].values()) > 0):
         total = trainer_dict[ctx.author.id]['count']
@@ -3359,7 +3366,7 @@ async def _process_status_command(ctx, teamcounts):
         groups = ''
     teamcounts = f"{total} {groups}"
     result = await _party_status(ctx, total, teamcounts)
-    return (result, entered_interest)
+    return (result, entered_interest, eta)
 
 
 @Kyogre.command()
@@ -3415,13 +3422,13 @@ async def interested(ctx, *, teamcounts: str = None):
     Party must be a number plus a team.
     **Example**: `!i 3 1i 1m 1v`"""
     try:
-        result, entered_interest = await _process_status_command(ctx, teamcounts)
+        result, entered_interest, eta = await _process_status_command(ctx, teamcounts)
     except ValueError as e:
         return await ctx.channel.send(e)
     if isinstance(result, list):
         count = result[0]
         partylist = result[1]
-        await list_helpers._maybe(ctx, Kyogre, guild_dict, raid_info, count, partylist, entered_interest)
+        await list_helpers._maybe(ctx, Kyogre, guild_dict, raid_info, count, partylist, eta, entered_interest)
 
 
 @Kyogre.command(aliases=['c'])
@@ -3437,13 +3444,13 @@ async def coming(ctx, *, teamcounts: str=None):
     Party must be a number plus a team.
     **Example**: `!c 3 1i 1m 1v`"""
     try:
-        result, entered_interest = await _process_status_command(ctx, teamcounts)
+        result, entered_interest, eta = await _process_status_command(ctx, teamcounts)
     except ValueError as e:
         return await ctx.channel.send(e)
     if isinstance(result, list):
         count = result[0]
         partylist = result[1]
-        await list_helpers._coming(ctx, Kyogre, guild_dict, raid_info, count, partylist, entered_interest)
+        await list_helpers._coming(ctx, Kyogre, guild_dict, raid_info, count, partylist, eta, entered_interest)
 
 
 @Kyogre.command(aliases=['h'])
@@ -3458,7 +3465,7 @@ async def here(ctx, *, teamcounts: str=None):
     Party must be a number plus a team.
     **Example**: `!h 3 1i 1m 1v`"""
     try:
-        result, entered_interest = await _process_status_command(ctx, teamcounts)
+        result, entered_interest, eta = await _process_status_command(ctx, teamcounts)
     except ValueError as e:
         return await ctx.channel.send(e)
     if isinstance(result, list):

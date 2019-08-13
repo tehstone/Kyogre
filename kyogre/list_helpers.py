@@ -422,13 +422,15 @@ async def _interest(ctx, Kyogre, guild_dict, tag=False, team=False):
     return listmsg
 
 
-async def _maybe(ctx, Kyogre, guild_dict, raid_info, count, party, entered_interest=None):
+async def _maybe(ctx, Kyogre, guild_dict, raid_info, count, party, eta, entered_interest=None):
     channel = ctx.channel
     author = ctx.author
     trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
     if (not party):
         party = determine_simple_party(author, count)
-    message = f"**{author.display_name}** is interested!"   
+    message = f"**{author.display_name}** is interested!"
+    if eta is not None:
+        message += f" {eta}"
     await ctx.message.delete()
     last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
     if last_status is not None:
@@ -490,13 +492,15 @@ async def _otw(ctx, Kyogre, guild_dict, tag=False, team=False):
     return listmsg
 
 
-async def _coming(ctx, Kyogre, guild_dict, raid_info, count, party, entered_interest=None):
+async def _coming(ctx, Kyogre, guild_dict, raid_info, count, party, eta, entered_interest=None):
     channel = ctx.channel
     author = ctx.author
     trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
     if (not party):
         party = determine_simple_party(author, count)
     message = f"**{author.display_name}** is on their way!"
+    if eta is not None:
+        message += f" {eta}"
     await ctx.message.delete()
     last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
     if last_status is not None:
