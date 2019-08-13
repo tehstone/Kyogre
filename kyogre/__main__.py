@@ -1812,7 +1812,7 @@ async def finish_raid_report(ctx, raid_details, raid_pokemon, level, weather, ra
     await asyncio.sleep(1)
     raid_embed.add_field(name='**Tips:**', value='`!i` if interested\n`!c` if on the way\n`!h` '
                                                  'when you arrive\n`!x` to cancel your status\n'
-                                                 '`!s` to signal lobby start', inline=True)
+                                                 "`!s` to signal lobby start\n`!shout` to ping raid party", inline=True)
     ctrsmessage_id = None
     if raid_report:
         raidmsg = "{pokemon} raid reported at {location_details} gym by {member} in {citychannel}. " \
@@ -3316,10 +3316,11 @@ async def _parse_teamcounts(ctx, teamcounts, trainer_dict, egglevel):
 
 async def _process_status_command(ctx, teamcounts):
     eta = None
-    if teamcounts.lower().find('eta') > -1:
-        idx = teamcounts.lower().find('eta')
-        eta = teamcounts[idx:]
-        teamcounts = teamcounts[:idx]
+    if teamcounts is not None:
+        if teamcounts.lower().find('eta') > -1:
+            idx = teamcounts.lower().find('eta')
+            eta = teamcounts[idx:]
+            teamcounts = teamcounts[:idx]
     guild = ctx.guild
     trainer_dict = guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict']
     entered_interest = trainer_dict.get(ctx.author.id, {}).get('interest', [])
@@ -3549,9 +3550,6 @@ async def _party_status(ctx, total, teamcounts):
             return await channel.send(((( a + str(total)) + b) + str(team_total)) + c)
         if int(total) > int(team_total):
             if team_aliases[my_team][1]:
-                if unknown[1]:
-                    return await channel.send('Something is not adding up! Try making sure '
-                                              'your total matches what each team adds up to!')
                 unknown[1] = total - team_total
             else:
                 team_aliases[my_team][1] = total - team_total
