@@ -134,6 +134,7 @@ class Social(commands.Cog):
         if len(regions) == 1:
             leaderboard_title += f" {region.capitalize()}"
         embed.set_author(name=leaderboard_title, icon_url=self.bot.user.avatar_url)
+        description = ''
         for trainer in leaderboardlist:
             user = guild.get_member(int(trainer['trainer']))
             if user:
@@ -147,11 +148,20 @@ class Social(commands.Cog):
                     field_value += "Research: **{research}** | ".format(research=trainer['research'])
                 if self.guild_dict[guild.id]['configure_dict']['raid']['enabled']:
                     field_value += "Raids Joined: **{joined}** | ".format(joined=trainer['joined'])
-                embed.add_field(name=f"{rank}. {user.display_name} - {type.title()}: **{trainer[type]}**", value=field_value[:-3], inline=False)
-                field_value = ""
+                if type == 'total':
+                    embed.add_field(name=f"{rank}. {user.display_name} - {type.title()}: **{trainer[type]}**\n", value=field_value[:-3], inline=False)
+                    field_value = ""
+                else:
+                    if type == 'joined':
+                        description += f"{rank}. **{user.display_name}** - {type.title()}: **{trainer[type]}**\n"
+                    else:
+                        description += f"{rank}. **{user.display_name}** - {type.title()} Reported: **{trainer[type]}**\n"
                 rank += 1
         if len(embed.fields) == 0:
-            embed.add_field(name="No Reports", value="Nobody has made a report or this report type is disabled.")
+            if len(description) > 0:
+                embed.description = description
+            else:
+                embed.add_field(name="No Reports", value="Nobody has made a report or this report type is disabled.")
         await ctx.send(embed=embed)
 
     @staticmethod

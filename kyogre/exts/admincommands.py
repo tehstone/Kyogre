@@ -237,7 +237,7 @@ class AdminCommands(commands.Cog):
         with open(os.path.join('logs', 'kyogre.log'), 'rb') as logfile:
             await ctx.send(file=discord.File(logfile, filename=f'log{int(time.time())}.txt'))
         with open(os.path.join('logs', 'kyogre_help.log'), 'rb') as logfile:
-            await ctx.send(file=discord.File(logfile, filename=f'log{int(time.time())}.txt'))
+            await ctx.send(file=discord.File(logfile, filename=f'help_log{int(time.time())}.txt'))
 
     @commands.command(aliases=['say'])
     @commands.has_permissions(manage_guild=True)
