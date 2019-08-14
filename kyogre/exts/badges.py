@@ -20,7 +20,6 @@ class Badges(commands.Cog):
         self.bot = bot
 
     @commands.group(name='badge', aliases=['bg'])
-    @commands.has_permissions(manage_roles=True)
     async def _badge(self, ctx):
         if ctx.invoked_subcommand is None:
             raise commands.BadArgument()
