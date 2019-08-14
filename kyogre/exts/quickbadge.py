@@ -110,6 +110,12 @@ class QuickBadge(commands.Cog):
         guild = message.guild
         if not guild:
             return
+        try:
+            utilities_cog = self.bot.cogs.get('Utilities')
+            if not utilities_cog.can_manage(guild.get_member(payload.user_id)):
+                return
+        except:
+            pass
         quick_badge_dict = self.bot.guild_dict[guild.id]['configure_dict']\
             .get('quick_badge', self.quick_badge_dict_default)
         if quick_badge_dict['pokenav_channel'] == 0 or payload.channel_id not in quick_badge_dict['listen_channels']:
@@ -117,18 +123,19 @@ class QuickBadge(commands.Cog):
         
         if payload.emoji.id in quick_badge_dict['badges']:
             try:
-                user = guild.get_member(message.author.id)
+                target_user = guild.get_member(message.author.id)
             except AttributeError:
                 return
             k_badge_id = quick_badge_dict['badges'][payload.emoji.id]['kyogre']
             p_badge_id = quick_badge_dict['badges'][payload.emoji.id]['pokenav']
             send_channel = self.bot.get_channel(quick_badge_dict['pokenav_channel'])
-            await send_channel.send(f"$gb {p_badge_id} {user.mention}")
             badge_cog = self.bot.cogs.get('Badges')
             badge_to_give = BadgeTable.get(BadgeTable.id == k_badge_id)
 
             reaction, embed = await badge_cog.try_grant_badge(badge_to_give, payload.guild_id,
                                                               message.author.id, k_badge_id)
+            if reaction == self.bot.success_react:
+                await send_channel.send(f"$gb {p_badge_id} {target_user.mention}")
             badge_channel = self.bot.get_channel(quick_badge_dict['badge_channel'])
             await badge_channel.send(embed=embed)
 

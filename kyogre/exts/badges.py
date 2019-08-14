@@ -168,12 +168,15 @@ class Badges(commands.Cog):
         try:
             guild_obj, __ = GuildTable.get_or_create(snowflake=guild_id)
             trainer_obj, __ = TrainerTable.get_or_create(snowflake=member.id, guild=guild_id)
-            new_badge, __ = BadgeAssignmentTable.get_or_create(trainer=member.id, badge=badge_id)
+            new_badge, created = BadgeAssignmentTable.get_or_create(trainer=member.id, badge=badge_id)
             if new_badge:
-                send_emoji = self.bot.get_emoji(badge.emoji)
-                message = f"{member.display_name} has been given {send_emoji} **{badge.name}**!"
-                colour = discord.Colour.green()
-                reaction = self.bot.success_react
+                if created:
+                    send_emoji = self.bot.get_emoji(badge.emoji)
+                    message = f"{member.display_name} has been given {send_emoji} **{badge.name}**!"
+                    colour = discord.Colour.green()
+                    reaction = self.bot.success_react
+                else:
+                    message = f"{member.display_name} already has the **{badge.name}** badge."
             else:
                 message = "Failed to give badge. Please try again."
         except peewee.IntegrityError:
@@ -239,12 +242,22 @@ class Badges(commands.Cog):
                           BadgeTable.active))
         result = result.objects(Badge)
         result = [r for r in result if r.active]
-        embed = discord.Embed(title="Badges currently available", colour=discord.Colour.purple())
+        fields = []
         for r in result:
             send_emoji = self.bot.get_emoji(r.emoji)
             name = f"{send_emoji} {r.name} (#{r.id})"
-            embed.add_field(name=name, value=f"     {r.description}", inline=False)
-        await ctx.send(embed=embed)
+            fields.append((name, f"{r.description}"))
+        chunked_fields = list(self.list_chunker(fields, 20))
+        for sub_list in chunked_fields:
+            embed = discord.Embed(title="Badges currently available", colour=discord.Colour.purple())
+            for field in sub_list:
+                embed.add_field(name=field[0], value=f"{self.bot.empty_str}{field[1]}", inline=False)
+            await ctx.send(embed=embed)
+
+    @staticmethod
+    def list_chunker(in_list, n):
+        for i in range(0, len(in_list), n):
+            yield in_list[i:i + n]
 
     @commands.command(name="badges")
     async def _badges(self, ctx, user: discord.Member = None):

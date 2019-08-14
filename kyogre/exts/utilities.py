@@ -79,5 +79,13 @@ class Utilities(commands.Cog):
             await asyncio.sleep(delay)
             await message.add_reaction(r)
 
+    def can_manage(self, user):
+        if checks.is_user_dev_or_owner(self.bot.config, user.id):
+            return True
+        for role in user.roles:
+            if role.permissions.manage_messages:
+                return True
+        return False
+
 def setup(bot):
     bot.add_cog(Utilities(bot))
