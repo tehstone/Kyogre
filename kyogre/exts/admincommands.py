@@ -78,7 +78,7 @@ class AdminCommands(commands.Cog):
         env.update(globals())
         body = cleanup_code(body)
         stdout = io.StringIO()
-        to_compile = (f'async def func():\n{textwrap.indent(body, "  ")}')
+        to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
         try:
             exec(to_compile, env)
         except Exception as e:
@@ -222,21 +222,22 @@ class AdminCommands(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(manage_guild=True)
-    async def welcome(self, ctx, user: discord.Member=None):
+    async def welcome(self, ctx, user: discord.Member = None):
         """**Usage**: `!welcome [@member]`
         Test welcome on yourself or mentioned member"""
-        if (not user):
+        if not user:
             user = ctx.author
         await self.bot.on_member_join(user)
 
-    @commands.command(hidden=True,aliases=['opl'])
+    @commands.command(hidden=True, aliases=['opl'])
     @commands.has_permissions(manage_guild=True)
     async def outputlog(self, ctx):
         """**Usage**: `!outputlog`
         Replies with a file download of the current log file."""
         with open(os.path.join('logs', 'kyogre.log'), 'rb') as logfile:
             await ctx.send(file=discord.File(logfile, filename=f'log{int(time.time())}.txt'))
-
+        with open(os.path.join('logs', 'kyogre_help.log'), 'rb') as logfile:
+            await ctx.send(file=discord.File(logfile, filename=f'log{int(time.time())}.txt'))
 
     @commands.command(aliases=['say'])
     @commands.has_permissions(manage_guild=True)
@@ -250,24 +251,28 @@ class AdminCommands(commands.Cog):
         guild = message.guild
         author = message.author
         announcetitle = 'Announcement'
-        if announce == None:
-            titlewait = await channel.send("If you would like to set a title for your announcement please reply with the title, otherwise reply with 'skip'.")
-            titlemsg = await self.bot.wait_for('message', timeout=180, check=(lambda reply: reply.author == message.author))
+        if announce is None:
+            titlewait = await channel.send("If you would like to set a title for your announcement "
+                                           "please reply with the title, otherwise reply with 'skip'.")
+            titlemsg = await self.bot.wait_for('message', timeout=180,
+                                               check=(lambda reply: reply.author == message.author))
             await titlewait.delete()
-            if titlemsg != None:
+            if titlemsg is not None:
                 if titlemsg.content.lower() == "skip":
                     pass
                 else:
                     announcetitle = titlemsg.content
                 await titlemsg.delete()
             announcewait = await channel.send("I'll wait for your announcement!")
-            announcemsg = await self.bot.wait_for('message', timeout=180, check=(lambda reply: reply.author == message.author))
+            announcemsg = await self.bot.wait_for('message', timeout=180,
+                                                  check=(lambda reply: reply.author == message.author))
             await announcewait.delete()
-            if announcemsg != None:
+            if announcemsg is not None:
                 announce = announcemsg.content
                 await announcemsg.delete()
             else:
-                confirmation = await channel.send("You took too long to send me your announcement! Retry when you're ready.")
+                confirmation = await channel.send("You took too long to send me your announcement! "
+                                                  "Retry when you're ready.")
         embeddraft = discord.Embed(colour=guild.me.colour, description=announce)
         if ctx.invoked_with == "announce":
             title = announcetitle
@@ -310,20 +315,22 @@ class AdminCommands(commands.Cog):
                 confirmation = await channel.send('Announcement Sent.')
             elif res.emoji == '❔':
                 channelwait = await channel.send('What channel would you like me to send it to?')
-                channelmsg = await self.bot.wait_for('message', timeout=60, check=(lambda reply: reply.author == message.author))
+                channelmsg = await self.bot.wait_for('message', timeout=60,
+                                                     check=(lambda reply: reply.author == message.author))
                 if channelmsg.content.isdigit():
                     sendchannel = self.bot.get_channel(int(channelmsg.content))
                 elif channelmsg.raw_channel_mentions:
                     sendchannel = self.bot.get_channel(channelmsg.raw_channel_mentions[0])
                 else:
                     sendchannel = discord.utils.get(guild.text_channels, name=channelmsg.content)
-                if (channelmsg != None) and (sendchannel != None):
+                if (channelmsg is not None) and (sendchannel is not None):
                     announcement = await sendchannel.send(embed=embeddraft)
                     confirmation = await channel.send('Announcement Sent.')
-                elif sendchannel == None:
+                elif sendchannel is None:
                     confirmation = await channel.send("That channel doesn't exist! Retry when you're ready.")
                 else:
-                    confirmation = await channel.send("You took too long to send me your announcement! Retry when you're ready.")
+                    confirmation = await channel.send("You took too long to send me your announcement! "
+                                                      "Retry when you're ready.")
                 await channelwait.delete()
                 await channelmsg.delete()
                 await draft.delete()
@@ -347,8 +354,10 @@ class AdminCommands(commands.Cog):
                     else:
                         sent += 1
                     count += 1
-                self.bot.logger.info('Announcement sent to {} server owners: {} successful, {} failed.'.format(count, sent, failed))
-                confirmation = await channel.send('Announcement sent to {} server owners: {} successful, {} failed.').format(count, sent, failed)
+                self.bot.logger.info('Announcement sent to {} server owners: {} successful, {} failed.'
+                                     .format(count, sent, failed))
+                confirmation = await channel.send('Announcement sent to {} server owners: {} successful, {} failed.')\
+                    .format(count, sent, failed)
             await asyncio.sleep(10)
             await confirmation.delete()
         else:
@@ -387,7 +396,8 @@ class AdminCommands(commands.Cog):
         msg = ''
         if (not level) and (not newlist):
             for level in self.bot.raid_info['raid_eggs']:
-                msg += '\n**Level {level} raid list:** `{raidlist}` \n'.format(level=level, raidlist=self.bot.raid_info['raid_eggs'][level]['pokemon'])
+                msg += '\n**Level {level} raid list:** `{raidlist}` \n'\
+                    .format(level=level, raidlist=self.bot.raid_info['raid_eggs'][level]['pokemon'])
                 for pkmn in self.bot.raid_info['raid_eggs'][level]['pokemon']:
                     p = Pokemon.get_pokemon(self, pkmn)
                     msg += '{name} ({number})'.format(name=str(p), number=p.id)
@@ -395,7 +405,8 @@ class AdminCommands(commands.Cog):
                 msg += '\n'
             return await ctx.channel.send(msg)
         elif level in self.bot.raid_info['raid_eggs'] and (not newlist):
-            msg += '**Level {level} raid list:** `{raidlist}` \n'.format(level=level, raidlist=self.bot.raid_info['raid_eggs'][level]['pokemon'])
+            msg += '**Level {level} raid list:** `{raidlist}` \n'\
+                .format(level=level, raidlist=self.bot.raid_info['raid_eggs'][level]['pokemon'])
             for pkmn in self.bot.raid_info['raid_eggs'][level]['pokemon']:
                 p = Pokemon.get_pokemon(self, pkmn)
                 msg += '{name} ({number})'.format(name=str(p), number=p.id)
@@ -407,9 +418,11 @@ class AdminCommands(commands.Cog):
             try:
                 monlist = [Pokemon.get_pokemon(self, name).name.lower() for name in newlist]
             except:
-                return await ctx.channel.send("I couldn't understand the list you supplied! Please use a comma-separated list of Pokemon species names.")
+                return await ctx.channel.send("I couldn't understand the list you supplied! "
+                                              "Please use a comma-separated list of Pokemon species names.")
             msg += 'I will replace this:\n'
-            msg += '**Level {level} raid list:** `{raidlist}` \n'.format(level=level, raidlist=self.bot.raid_info['raid_eggs'][level]['pokemon'])
+            msg += '**Level {level} raid list:** `{raidlist}` \n'\
+                .format(level=level, raidlist=self.bot.raid_info['raid_eggs'][level]['pokemon'])
             for pkmn in self.bot.raid_info['raid_eggs'][level]['pokemon']:
                 p = Pokemon.get_pokemon(self, pkmn)
                 msg += '{name} ({number})'.format(name=p.name, number=p.id)
@@ -495,27 +508,30 @@ class AdminCommands(commands.Cog):
         and those roles will be assigned to that user."""
         if len(roles) < 1:
             await ctx.message.add_reaction(self.failed_react)
-            return await ctx.send("No roles provided, must include at least 1 role with only a space between role names")
+            return await ctx.send("No roles provided, must include at least 1 role with "
+                                  "only a space between role names")
         await ctx.trigger_typing()
+        rolenames = []
         try:
             await member.add_roles(*roles)
             await asyncio.sleep(0.5)
             failed = []
-            rolenames = []
             for role in roles:
                 rolenames.append(role.name)
                 if role not in member.roles:
                     await ctx.message.add_reaction(self.failed_react)
                     failed.append(role.name)
             if len(failed) > 0:
-                return await ctx.send(f"Failed to add the roles: {', '.join(failed)} to {member.display_name}.", delete_after=10)
+                return await ctx.send(f"Failed to add the roles: {', '.join(failed)} to {member.display_name}.",
+                                      delete_after=10)
             else:
                 await ctx.message.add_reaction(self.success_react)
                 return await ctx.send(f"Granted {', '.join(rolenames)} to {member.display_name}", delete_after=10)
             success = role in member.roles
         except discord.Forbidden:
             await ctx.message.add_reaction(self.failed_react)
-            return await ctx.send(f"Failed to grant {', '.join(rolenames)} to {member.display_name} because you do not have permission", delete_after=10)
+            return await ctx.send(f"Failed to grant {', '.join(rolenames)} to {member.display_name} "
+                                  f"because you do not have permission", delete_after=10)
 
     @commands.command(name="ungrantroles", aliases=["ug"], hidden=True)
     @commands.has_permissions(administrator=True)
@@ -525,26 +541,29 @@ class AdminCommands(commands.Cog):
         and those roles will be removed from that user."""
         if len(roles) < 1:
             await ctx.message.add_reaction(self.failed_react)
-            return await ctx.send("No roles provided, must include at least 1 role with only a space between role names")
+            return await ctx.send("No roles provided, must include at least 1 role with "
+                                  "only a space between role names")
         await ctx.trigger_typing()
+        rolenames = []
         try:
             await member.remove_roles(*roles)
             await asyncio.sleep(0.5)
             failed = []
-            rolenames = []
             for role in roles:
                 rolenames.append(role.name)
                 if role in member.roles:
                     await ctx.message.add_reaction(self.failed_react)
                     failed.append(role.name)
             if len(failed) > 0:
-                return await ctx.send(f"Failed to remove the roles: {', '.join(failed)} from {member.display_name}.", delete_after=10)
+                return await ctx.send(f"Failed to remove the roles: {', '.join(failed)} "
+                                      f"from {member.display_name}.", delete_after=10)
             else:
                 await ctx.message.add_reaction(self.success_react)
                 return await ctx.send(f"Removed {', '.join(rolenames)} from {member.display_name}", delete_after=10)
         except discord.Forbidden:
             await ctx.message.add_reaction(self.failed_react)
-            return await ctx.send(f"Failed to remove {', '.join(rolenames)} from {member.display_name} because you do not have permission", delete_after=10)
+            return await ctx.send(f"Failed to remove {', '.join(rolenames)} from {member.display_name} "
+                                  f"because you do not have permission", delete_after=10)
 
 
 def setup(bot):

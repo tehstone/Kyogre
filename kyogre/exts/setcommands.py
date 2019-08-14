@@ -290,7 +290,7 @@ class SetCommands(commands.Cog):
         embed.description = description
         await ctx.author.send(embed=embed)
         try:
-            response = await self.bot.wait_for('message', timeout=60,
+            response = await self.bot.wait_for('message', timeout=90,
                                                check=(lambda reply: reply.author == ctx.message.author))
         except asyncio.TimeoutError:
             response = None
