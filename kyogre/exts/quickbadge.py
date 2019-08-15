@@ -1,8 +1,10 @@
+import asyncio
 import re
 import discord
 from discord import PartialEmoji
 from discord.ext import commands
 
+from kyogre import utils
 from kyogre.exts.db.kyogredb import *
 
 
@@ -12,7 +14,10 @@ class QuickBadge(commands.Cog):
         self.bot = bot
         self.success_react = '✅'
         self.failed_react = '❌'
+        self.thumbsup_react = '👍'
         self.quick_badge_dict_default = {'listen_channels': [],
+                                         '40_listen_channels': [],
+                                         '40_role': None,
                                          'pokenav_channel': 0,
                                          'badge_channel': 0,
                                          'badges': {}}
@@ -33,13 +38,79 @@ class QuickBadge(commands.Cog):
         await ctx.channel.send(f'Quick-Badge {badge} added for badge with ids: {k_badge_id}, {p_badge_id}.', delete_after=10)
         return await ctx.message.add_reaction(self.success_react)
 
+    @commands.command(hidden=True, aliases=['afl'])
+    @commands.has_permissions(manage_roles=True)
+    async def add_forty_listen_channel(self, ctx, item):
+        qbl_channel = await self.qblc_channel_helper(ctx, item)
+        if qbl_channel is None:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Channel not found: {item}.")
+            await ctx.channel.send(f'Channel not found: {item}. Could not set level 40 listen channel', delete_after=10)
+            return await ctx.message.add_reaction(self.failed_react)
+        quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
+            .get('quick_badge', self.quick_badge_dict_default)
+        listen_channels = quick_badge_dict.get('40_listen_channels', [])
+        if qbl_channel.id in listen_channels:
+            await ctx.channel.send(f'Channel already in level 40 listen channel list', delete_after=10)
+            return await ctx.message.add_reaction(self.failed_react)
+        listen_channels.append(qbl_channel.id)
+        quick_badge_dict['40_listen_channels'] = listen_channels
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['quick_badge'] = quick_badge_dict
+        await ctx.channel.send(f'{qbl_channel.mention} added to level 40 Listen channels list.', delete_after=10)
+        return await ctx.message.add_reaction(self.success_react)
+
+    @commands.command(hidden=True, aliases=['rfl'])
+    @commands.has_permissions(manage_roles=True)
+    async def remove_forty_listen_channel(self, ctx, item):
+        qbl_channel = await self.qblc_channel_helper(ctx, item)
+        if qbl_channel is None:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Channel not found: {item}.")
+            await ctx.channel.send(f'Channel not found: {item}. Could not remove level 40 listen channel', delete_after=10)
+            return await ctx.message.add_reaction(self.failed_react)
+        quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
+            .get('quick_badge', self.quick_badge_dict_default)
+        listen_channels = quick_badge_dict.get('40_listen_channels', [])
+        if qbl_channel.id in listen_channels:
+            listen_channels.remove(qbl_channel.id)
+            quick_badge_dict['40_listen_channels'] = listen_channels
+            self.bot.guild_dict[ctx.guild.id]['configure_dict']['quick_badge'] = quick_badge_dict
+            await ctx.channel.send(f'{qbl_channel.mention} removed from level 40 listen channels list.', delete_after=10)
+            return await ctx.message.add_reaction(self.success_react)
+        await ctx.channel.send(f'{qbl_channel.mention} not found in level 40 listen channels list.', delete_after=10)
+        return await ctx.message.add_reaction(self.failed_react)
+
+    @commands.command(hidden=True, aliases=['sfl'])
+    @commands.has_permissions(manage_roles=True)
+    async def set_forty_role(self, ctx, role_id):
+        role_id = utils.sanitize_name(role_id)
+        try:
+            role_id = int(role_id)
+            role = discord.utils.get(ctx.guild.roles, id=role_id)
+        except:
+            role = discord.utils.get(ctx.guild.roles, name=role_id)
+        if role is None:
+            try:
+                role = await ctx.guild.create_role(name=role_id, hoist=False, mentionable=True)
+            except discord.errors.HTTPException:
+                pass
+            if role is None:
+                await ctx.message.add_reaction(self.failed_react)
+                return await ctx.send(embed=discord.Embed(colour=discord.Colour.red(), 
+                    description=f"Unable to find or create role with name or id: **{role_id}**."), delete_after=10)
+            await ctx.send(embed=discord.Embed(colour=discord.Colour.from_rgb(255, 255, 0), description=f"Created new role: **{role.name}**"), delete_after=10)
+        quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
+            .get('quick_badge', self.quick_badge_dict_default)
+        quick_badge_dict.setdefault('40_role', role.id)
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['quick_badge'] = quick_badge_dict
+        await ctx.channel.send(f'Level 40 auto-assign role set to **{role.name}**.', delete_after=10)
+        return await ctx.message.add_reaction(self.success_react)
+
     @commands.command(hidden=True, aliases=['aqbl', 'qbl'])
     @commands.has_permissions(manage_roles=True)
     async def add_quick_badge_listen_channel(self, ctx, item):
         qbl_channel = await self.qblc_channel_helper(ctx, item)
         if qbl_channel is None:
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Channel not found: {item}.")
-            await ctx.channel.send(f'Channel not found: {item}. Could not set listen channel', delete_after=10)
+            await ctx.channel.send(f'Channel not found: {item}. Could not set quick badge listen channel', delete_after=10)
             return await ctx.message.add_reaction(self.failed_react)
         quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
             .get('quick_badge', self.quick_badge_dict_default)
@@ -118,9 +189,10 @@ class QuickBadge(commands.Cog):
             pass
         quick_badge_dict = self.bot.guild_dict[guild.id]['configure_dict']\
             .get('quick_badge', self.quick_badge_dict_default)
-        if quick_badge_dict['pokenav_channel'] == 0 or payload.channel_id not in quick_badge_dict['listen_channels']:
+        if quick_badge_dict['pokenav_channel'] == 0 \
+            or (payload.channel_id not in quick_badge_dict['listen_channels'] \
+            and payload.channel_id not in quick_badge_dict.get('40_listen_channels',[])) :
             return
-        
         if payload.emoji.id in quick_badge_dict['badges']:
             try:
                 target_user = guild.get_member(message.author.id)
@@ -138,7 +210,22 @@ class QuickBadge(commands.Cog):
                 await send_channel.send(f"$gb {p_badge_id} {target_user.mention}")
             badge_channel = self.bot.get_channel(quick_badge_dict['badge_channel'])
             await badge_channel.send(embed=embed)
-
+        elif str(payload.emoji) == self.thumbsup_react:
+            try:
+                target_user = guild.get_member(message.author.id)
+            except AttributeError:
+                return
+            forty_role_id = self.bot.guild_dict[guild.id]['configure_dict']\
+                .get('quick_badge', self.quick_badge_dict_default).get('40_role', None)
+            if forty_role_id is None:
+                return
+            forty_role = discord.utils.get(guild.roles, id=forty_role_id)
+            if forty_role is None:
+                return
+            await target_user.add_roles(*[forty_role])
+            await asyncio.sleep(0.1)
+            if forty_role in target_user.roles:
+                await channel.send(f"{target_user.mention} has been verified as level 40!")
 
 def setup(bot):
     bot.add_cog(QuickBadge(bot))

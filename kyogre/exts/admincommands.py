@@ -42,6 +42,10 @@ class AdminCommands(commands.Cog):
         Enables or disables the "role can be tagged" setting for the role provided.
         """
         role = discord.utils.get(ctx.guild.roles, name=rolename)
+        if role is None:
+            role = discord.utils.get(ctx.guild.roles, name=rolename.lower())
+        if role is None:
+            role = discord.utils.get(ctx.guild.roles, name=rolename.capitalize())
         if role:
             await role.edit(mentionable=not role.mentionable)
             if role.mentionable:
