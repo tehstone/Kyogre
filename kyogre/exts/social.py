@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 
 from kyogre.exts.db.kyogredb import *
-
+from kyogre import utils
 
 class Social(commands.Cog):
     def __init__(self, bot):
@@ -170,6 +170,83 @@ class Social(commands.Cog):
             if key != 'trainer':
                 a[key] = a[key] + b[key]
         return a
+
+    @commands.command()
+    @commands.has_permissions(manage_guild=True)
+    async def reset_board(self, ctx, *, user=None, board_type=None):
+        guild = ctx.guild
+        trainers = self.bot.guild_dict[guild.id]['trainers']
+        tgt_string = ""
+        tgt_trainer = None
+        if user:
+            converter = commands.MemberConverter()
+            for argument in user.split():
+                try:
+                    await ctx.channel.send(argument)
+                    tgt_trainer = await converter.convert(ctx, argument)
+                    tgt_string = tgt_trainer.display_name
+                except:
+                    tgt_trainer = None
+                    tgt_string = "every user"
+                if tgt_trainer:
+                    user = user.replace(argument, "").strip()
+                    break
+            for argument in user.split():
+                if "raid" in argument.lower():
+                    board_type = "raid_reports"
+                    break
+                elif "egg" in argument.lower():
+                    board_type = "egg_reports"
+                    break
+                elif "ex" in argument.lower():
+                    board_type = "ex_reports"
+                    break
+                elif "wild" in argument.lower():
+                    board_type = "wild_reports"
+                    break
+                elif "res" in argument.lower():
+                    board_type = "research_reports"
+                    break
+                elif "join" in argument.lower():
+                    board_type = "joined"
+                    break
+        if not board_type:
+            board_type = "total_reports"
+        if tgt_string == "":
+            tgt_string = "all report types and all users"
+        msg = "Are you sure you want to reset the **{type}** report stats for **{target}**?".format(type=board_type,
+                                                                                                    target=tgt_string)
+        question = await ctx.channel.send(msg)
+        try:
+            timeout = False
+            res, reactuser = await utils.simple_ask(self.bot, question, ctx.message.channel, ctx.message.author.id)
+        except TypeError:
+            timeout = True
+        await question.delete()
+        if timeout or res.emoji == '❎':
+            return
+        elif res.emoji == '✅':
+            pass
+        else:
+            return
+        regions = self.bot.guild_dict[guild.id]['configure_dict']['regions']['info'].keys()
+        for region in regions:
+            trainers.setdefault(region, {})
+            for trainer in trainers[region]:
+                if tgt_trainer:
+                    trainer = tgt_trainer.id
+                if board_type == "total_reports":
+                    for rtype in trainers[region][trainer]:
+                        trainers[region][trainer][rtype] = 0
+                else:
+                    type_score = trainers[region][trainer].get(board_type, 0)
+                    type_score = 0
+                if tgt_trainer:
+                    await ctx.send(
+                        "{trainer}'s report stats have been cleared!".format(trainer=tgt_trainer.display_name))
+                    return
+        await ctx.send("This server's report stats have been reset!")
+
 
 def setup(bot):
     bot.add_cog(Social(bot))
