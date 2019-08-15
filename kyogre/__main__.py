@@ -14,7 +14,6 @@ from kyogre import entity_updates, list_helpers, raid_helpers, raid_lobby_helper
 from kyogre.bot import KyogreBot
 
 from kyogre.exts.pokemon import Pokemon
-from kyogre.exts.bosscp import boss_cp_chart
 
 from kyogre.exts.db.kyogredb import *
 KyogreDB.start('data/kyogre.db')
@@ -60,85 +59,6 @@ def get_all_locations(guild_id, regions=None):
 async def location_match_prompt(channel, author_id, name, locations):
     location_matching_cog = Kyogre.cogs.get('LocationMatching')
     return await location_matching_cog.match_prompt(channel, author_id, name, locations)
-
-
-def get_category(channel, level, category_type="raid"):
-    guild = channel.guild
-    if category_type == "raid" or category_type == "egg":
-        report = "raid"
-    else:
-        report = category_type
-    catsort = guild_dict[guild.id]['configure_dict'][report].get('categories', None)
-    if catsort == "same":
-        return channel.category
-    elif catsort == "region":
-        category = discord.utils.get(guild.categories,
-                                     id=guild_dict[guild.id]['configure_dict'][report]['category_dict'][channel.id])
-        return category
-    elif catsort == "level":
-        category = discord.utils.get(guild.categories,
-                                     id=guild_dict[guild.id]['configure_dict'][report]['category_dict'][level])
-        return category
-    else:
-        return None
-
-
-async def create_raid_channel(raid_type, pkmn, level, gym, report_channel):
-    guild = report_channel.guild
-    cat = None
-    if raid_type == "exraid":
-        name = "ex-raid-egg-"
-        raid_channel_overwrite_dict = report_channel.overwrites
-        # If and when ex reporting is revisited this will need a complete rewrite. Overwrites went from Tuple -> Dict
-        # if guild_dict[guild.id]['configure_dict']['invite']['enabled']:
-        #     if guild_dict[guild.id]['configure_dict']['exraid']['permissions'] == "everyone":
-        #         everyone_overwrite = (guild.default_role, discord.PermissionOverwrite(send_messages=False))
-        #         raid_channel_overwrite_list.append(everyone_overwrite)
-        #     for overwrite in raid_channel_overwrite_dict:
-        #         if isinstance(overwrite[0], discord.Role):
-        #             if overwrite[0].permissions.manage_guild or
-        #             #overwrite[0].permissions.manage_channels or overwrite[0].permissions.manage_messages:
-        #                 continue
-        #             overwrite[1].send_messages = False
-        #         elif isinstance(overwrite[0], discord.Member):
-        #             if report_channel.permissions_for(overwrite[0]).manage_guild or
-        #             report_channel.permissions_for(overwrite[0]).manage_channels or
-        #             report_channel.permissions_for(overwrite[0]).manage_messages:
-        #                 continue
-        #             overwrite[1].send_messages = False
-        #         if (overwrite[0].name not in guild.me.top_role.name) and (overwrite[0].name not in guild.me.name):
-        #             overwrite[1].send_messages = False
-        #     for role in guild.role_hierarchy:
-        #         if role.permissions.manage_guild or role.permissions.manage_channels
-        #         or role.permissions.manage_messages:
-        #             raid_channel_overwrite_dict.update({role: discord.PermissionOverwrite(send_messages=True)})
-        # else:
-        if guild_dict[guild.id]['configure_dict']['exraid']['permissions'] == "everyone":
-            everyone_overwrite = {guild.default_role: discord.PermissionOverwrite(send_messages=True)}
-            raid_channel_overwrite_dict.update(everyone_overwrite)
-        cat = get_category(report_channel, "EX", category_type=raid_type)
-    else:
-        reporting_channels = await list_helpers.get_region_reporting_channels(guild, gym.region, guild_dict)
-        report_channel = guild.get_channel(reporting_channels[0])
-        raid_channel_overwrite_dict = report_channel.overwrites
-        if raid_type == "raid":
-            name = pkmn.name.lower() + "_"
-            cat = get_category(report_channel, str(pkmn.raid_level), category_type=raid_type)
-        elif raid_type == "egg":
-            name = "{level}-egg_".format(level=str(level))
-            cat = get_category(report_channel, str(level), category_type=raid_type)
-    kyogre_overwrite = {Kyogre.user: discord.PermissionOverwrite(send_messages=True, read_messages=True, manage_roles=True, manage_channels=True, manage_messages=True, add_reactions=True, external_emojis=True, read_message_history=True, embed_links=True, mention_everyone=True, attach_files=True)}
-    raid_channel_overwrite_dict.update(kyogre_overwrite)
-    enabled = raid_helpers.raid_channels_enabled(guild, report_channel, guild_dict)
-    if not enabled:
-        user_overwrite = {guild.default_role: discord.PermissionOverwrite(send_messages=False, read_messages=False, read_message_history=False)}
-        raid_channel_overwrite_dict.update(user_overwrite)
-        role = discord.utils.get(guild.roles, name=gym.region)
-        if role is not None:
-            role_overwrite = {role: discord.PermissionOverwrite(send_messages=False, read_messages=False, read_message_history=False)}
-            raid_channel_overwrite_dict.update(role_overwrite)
-    name = utils.sanitize_name(name+gym.name)[:32]
-    return await guild.create_text_channel(name, overwrites=raid_channel_overwrite_dict, category=cat)
 
 
 @Kyogre.command(hidden=True)
@@ -215,346 +135,6 @@ async def expire_raid_notice(message):
         pass
     del guild_dict[guild.id]['raid_notice_dict'][message.id]
 
-
-async def expiry_check(channel):
-    logger.info('Expiry_Check - ' + channel.name)
-    guild = channel.guild
-    global active_raids
-    channel = Kyogre.get_channel(channel.id)
-    if channel not in active_raids:
-        active_raids.append(channel)
-        logger.info(
-            'Expire_Channel - Channel Added To Watchlist - ' + channel.name)
-        await asyncio.sleep(0.5)
-        while True:
-            try:
-                if guild_dict[guild.id]['raidchannel_dict'][channel.id].get('meetup',{}):
-                    now = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
-                    start = guild_dict[guild.id]['raidchannel_dict'][channel.id]['meetup'].get('start',False)
-                    end = guild_dict[guild.id]['raidchannel_dict'][channel.id]['meetup'].get('end',False)
-                    if start and guild_dict[guild.id]['raidchannel_dict'][channel.id]['type'] == 'egg':
-                        if start < now:
-                            pokemon = raid_info['raid_eggs']['EX']['pokemon'][0]
-                            await _eggtoraid(None, pokemon.lower(), channel, author=None)
-                    if end and end < now:
-                        event_loop.create_task(expire_channel(channel))
-                        try:
-                            active_raids.remove(channel)
-                        except ValueError:
-                            logger.info(
-                                'Expire_Channel - Channel Removal From Active Raid Failed - Not in List - ' + channel.name)
-                        logger.info(
-                            'Expire_Channel - Channel Expired And Removed From Watchlist - ' + channel.name)
-                        break
-                elif guild_dict[guild.id]['raidchannel_dict'][channel.id]['active']:
-                    if guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp']:
-                        if guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] <= time.time():
-                            if guild_dict[guild.id]['raidchannel_dict'][channel.id]['type'] == 'egg':
-                                pokemon = guild_dict[guild.id]['raidchannel_dict'][channel.id]['pokemon']
-                                egglevel = guild_dict[guild.id]['raidchannel_dict'][channel.id]['egglevel']
-                                if not pokemon and len(raid_info['raid_eggs'][egglevel]['pokemon']) == 1:
-                                    pokemon = raid_info['raid_eggs'][egglevel]['pokemon'][0]
-                                elif not pokemon and egglevel == "5" and guild_dict[guild.id]['configure_dict']['settings'].get('regional','').lower() in raid_info['raid_eggs']["5"]['pokemon']:
-                                    pokemon = str(Pokemon.get_pokemon(Kyogre, guild_dict[guild.id]['configure_dict']['settings']['regional']))
-                                if pokemon:
-                                    logger.info(
-                                        'Expire_Channel - Egg Auto Hatched - ' + channel.name)
-                                    try:
-                                        active_raids.remove(channel)
-                                    except ValueError:
-                                        logger.info(
-                                            'Expire_Channel - Channel Removal From Active Raid Failed - Not in List - ' + channel.name)
-                                    await _eggtoraid(None, pokemon.lower(), channel, author=None)
-                                    break
-                            event_loop.create_task(expire_channel(channel))
-                            try:
-                                active_raids.remove(channel)
-                            except ValueError:
-                                logger.info(
-                                    'Expire_Channel - Channel Removal From Active Raid Failed - Not in List - ' + channel.name)
-                            logger.info(
-                                'Expire_Channel - Channel Expired And Removed From Watchlist - ' + channel.name)
-                            break
-            except:
-                pass
-            await asyncio.sleep(30)
-            continue
-
-
-async def expire_channel(channel):
-    guild = channel.guild
-    alreadyexpired = False
-    logger.info('Expire_Channel - ' + channel.name)
-    # If the channel exists, get ready to delete it.
-    # Otherwise, just clean up the dict since someone
-    # else deleted the actual channel at some point.
-    channel_exists = Kyogre.get_channel(channel.id)
-    channel = channel_exists
-    if (channel_exists == None) and (not Kyogre.is_closed()):
-        try:
-            del guild_dict[guild.id]['raidchannel_dict'][channel.id]
-        except KeyError:
-            pass
-        return
-    elif (channel_exists):
-        dupechannel = False
-        if guild_dict[guild.id]['raidchannel_dict'][channel.id]['active'] == False:
-            alreadyexpired = True
-        else:
-            guild_dict[guild.id]['raidchannel_dict'][channel.id]['active'] = False
-        logger.info('Expire_Channel - Channel Expired - ' + channel.name)
-        dupecount = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('duplicate',0)
-        if dupecount >= 3:
-            dupechannel = True
-            guild_dict[guild.id]['raidchannel_dict'][channel.id]['duplicate'] = 0
-            guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] = time.time()
-            if (not alreadyexpired):
-                await channel.send('This channel has been successfully reported as a duplicate and will be deleted in 1 minute. Check the channel list for the other raid channel to coordinate in!\nIf this was in error, reset the raid with **!timerset**')
-            delete_time = (guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] + (1 * 60)) - time.time()
-        elif guild_dict[guild.id]['raidchannel_dict'][channel.id]['type'] == 'egg' and not guild_dict[guild.id]['raidchannel_dict'][channel.id].get('meetup',{}):
-            if (not alreadyexpired):
-                pkmn = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('pokemon', None)
-                if pkmn:
-                    await _eggtoraid(None, pkmn.lower(), channel)
-                    return
-                maybe_list = []
-                trainer_dict = copy.deepcopy(
-                    guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
-                for trainer in trainer_dict.keys():
-                    user = guild.get_member(trainer)
-                    maybe_list.append(user.mention)
-                h = 'hatched-'
-                new_name = h if h not in channel.name else ''
-                new_name += channel.name
-                await channel.edit(name=new_name)
-                await channel.send("**This egg has hatched!**\n\nTrainers {trainer_list}: \
-                \nUse **!raid <pokemon>** to set the Raid Boss\
-                \nor **!timerset** to reset the hatch timer. \
-                \nThis channel will be deactivated until I get an update.".format(trainer_list=', '.join(maybe_list)))
-            delete_time = (guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] + (45 * 60)) - time.time()
-            expiremsg = '**This level {level} raid egg has expired!**'.format(
-                level=guild_dict[guild.id]['raidchannel_dict'][channel.id]['egglevel'])
-        else:
-            if (not alreadyexpired):
-                e = 'expired-'
-                new_name = e if e not in channel.name else ''
-                new_name += channel.name
-                await channel.edit(name=new_name)
-                await channel.send('This channel timer has expired! The channel has been deactivated and will be deleted in 1 minute.\nTo reactivate the channel, use **!timerset** to set the timer again.')
-            delete_time = (guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] + (1 * 60)) - time.time()
-            raidtype = "event" if guild_dict[guild.id]['raidchannel_dict'][channel.id].get('meetup',False) else " raid"
-            expiremsg = '**This {pokemon}{raidtype} has expired!**'.format(
-                pokemon=guild_dict[guild.id]['raidchannel_dict'][channel.id]['pokemon'].capitalize(), raidtype=raidtype)
-        await asyncio.sleep(delete_time)
-        # If the channel has already been deleted from the dict, someone
-        # else got to it before us, so don't do anything.
-        # Also, if the channel got reactivated, don't do anything either.
-        try:
-            if (not guild_dict[guild.id]['raidchannel_dict'][channel.id]['active']) and (not Kyogre.is_closed()):
-                try:
-                    short_id = guild_dict[guild.id]['raidchannel_dict'][channel.id]['short']
-                    if short_id is not None:
-                        region = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('regions', [None])[0]
-                        if region is not None:
-                            so_channel_id = guild_dict[guild.id]['configure_dict']['raid'].setdefault('short_output', {}).get(region, None)
-                            if so_channel_id is not None:
-                                so_channel = Kyogre.get_channel(so_channel_id)
-                                if so_channel is not None:
-                                    so_message = await so_channel.fetch_message(short_id)
-                                    await so_message.delete()
-                except Exception as err:
-                    logger.info("Short message delete failed" + err)
-                if dupechannel:
-                    try:
-                        report_channel = Kyogre.get_channel(
-                            guild_dict[guild.id]['raidchannel_dict'][channel.id]['reportcity'])
-                        reportmsg = await report_channel.fetch_message(guild_dict[guild.id]['raidchannel_dict'][channel.id]['raidreport'])
-                        await reportmsg.delete()
-                    except:
-                        pass
-                else:
-                    try:
-                        report_channel = Kyogre.get_channel(
-                            guild_dict[guild.id]['raidchannel_dict'][channel.id]['reportcity'])
-                        reportmsg = await report_channel.fetch_message(guild_dict[guild.id]['raidchannel_dict'][channel.id]['raidreport'])
-                        await reportmsg.edit(embed=discord.Embed(description=expiremsg, colour=channel.guild.me.colour))
-                        await reportmsg.clear_reactions()
-                        await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, 'raid', edit=True, regions=guild_dict[guild.id]['raidchannel_dict'][channel.id].get('regions', None))
-                    except:
-                        pass
-                    # channel doesn't exist anymore in serverdict
-                archive = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('archive',False)
-                logs = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('logs', {})
-                channel_exists = Kyogre.get_channel(channel.id)
-                if channel_exists == None:
-                    return
-                elif not archive and not logs:
-                    try:
-                        del guild_dict[guild.id]['raidchannel_dict'][channel.id]
-                    except KeyError:
-                        pass
-                    await channel_exists.delete()
-                    logger.info(
-                        'Expire_Channel - Channel Deleted - ' + channel.name)
-                elif archive or logs:
-                    # Todo: Fix this
-                    # Overwrites were changed from Tuple -> Dict
-                    # try:
-                    #     for overwrite in channel.overwrites:
-                    #         if isinstance(overwrite[0], discord.Role):
-                    #             if overwrite[0].permissions.manage_guild or overwrite[0].permissions.manage_channels:
-                    #                 await channel.set_permissions(overwrite[0], read_messages=True)
-                    #                 continue
-                    #         elif isinstance(overwrite[0], discord.Member):
-                    #             if channel.permissions_for(overwrite[0]).manage_guild or channel.permissions_for(overwrite[0]).manage_channels:
-                    #                 await channel.set_permissions(overwrite[0], read_messages=True)
-                    #                 continue
-                    #         if (overwrite[0].name not in guild.me.top_role.name) and (overwrite[0].name not in guild.me.name):
-                    #             await channel.set_permissions(overwrite[0], read_messages=False)
-                    #     for role in guild.role_hierarchy:
-                    #         if role.permissions.manage_guild or role.permissions.manage_channels:
-                    #             await channel.set_permissions(role, read_messages=True)
-                    #         continue
-                    #     await channel.set_permissions(guild.default_role, read_messages=False)
-                    # except (discord.errors.Forbidden, discord.errors.HTTPException, discord.errors.InvalidArgument):
-                    #     pass
-                    new_name = 'archived-'
-                    if new_name not in channel.name:
-                        new_name += channel.name
-                        category = guild_dict[guild.id]['configure_dict'].get('archive', {}).get('category', 'same')
-                        if category == 'same':
-                            newcat = channel.category
-                        else:
-                            newcat = guild.get_channel(category)
-                        await channel.edit(name=new_name, category=newcat)
-                        await channel.send('-----------------------------------------------\n**The channel has been archived and removed from view for everybody but Kyogre and those with Manage Channel permissions. Any messages that were deleted after the channel was marked for archival will be posted below. You will need to delete this channel manually.**\n-----------------------------------------------')
-                        while logs:
-                            earliest = min(logs)
-                            embed = discord.Embed(colour=logs[earliest]['color_int'], description=logs[earliest]['content'], timestamp=logs[earliest]['created_at'])
-                            if logs[earliest]['author_nick']:
-                                embed.set_author(name="{name} [{nick}]".format(name=logs[earliest]['author_str'],nick=logs[earliest]['author_nick']), icon_url = logs[earliest]['author_avy'])
-                            else:
-                                embed.set_author(name=logs[earliest]['author_str'], icon_url = logs[earliest]['author_avy'])
-                            await channel.send(embed=embed)
-                            del logs[earliest]
-                            await asyncio.sleep(.25)
-                        del guild_dict[guild.id]['raidchannel_dict'][channel.id]
-        except:
-            pass
-
-Kyogre.expire_channel = expire_channel
-
-async def channel_cleanup(loop=True):
-    while (not Kyogre.is_closed()):
-        global active_raids
-        guilddict_chtemp = copy.deepcopy(guild_dict)
-        logger.info('Channel_Cleanup ------ BEGIN ------')
-        # for every server in save data
-        for guildid in guilddict_chtemp.keys():
-            guild = Kyogre.get_guild(guildid)
-            log_str = 'Channel_Cleanup - Server: ' + str(guildid)
-            log_str = log_str + ' - CHECKING FOR SERVER'
-            if guild == None:
-                logger.info(log_str + ': NOT FOUND')
-                continue
-            logger.info(((log_str + ' (') + guild.name) +
-                        ')  - BEGIN CHECKING SERVER')
-            # clear channel lists
-            dict_channel_delete = []
-            discord_channel_delete = []
-            # check every raid channel data for each server
-            for channelid in guilddict_chtemp[guildid]['raidchannel_dict']:
-                channel = Kyogre.get_channel(channelid)
-                log_str = 'Channel_Cleanup - Server: ' + guild.name
-                log_str = (log_str + ': Channel:') + str(channelid)
-                logger.info(log_str + ' - CHECKING')
-                channelmatch = Kyogre.get_channel(channelid)
-                if channelmatch == None:
-                    # list channel for deletion from save data
-                    dict_channel_delete.append(channelid)
-                    logger.info(log_str + " - NOT IN DISCORD")
-                # otherwise, if kyogre can still see the channel in discord
-                else:
-                    logger.info(
-                        ((log_str + ' (') + channel.name) + ') - EXISTS IN DISCORD')
-                    # if the channel save data shows it's not an active raid
-                    if guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['active'] == False:
-                        if guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['type'] == 'egg':
-                            # and if it has been expired for longer than 45 minutes already
-                            if guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['exp'] < (time.time() - (45 * 60)):
-                                # list the channel to be removed from save data
-                                dict_channel_delete.append(channelid)
-                                # and list the channel to be deleted in discord
-                                discord_channel_delete.append(channel)
-                                logger.info(
-                                    log_str + ' - 15+ MIN EXPIRY NONACTIVE EGG')
-                                continue
-                            # and if it has been expired for longer than 1 minute already
-                        elif guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['exp'] < (time.time() - (1 * 60)):
-                                # list the channel to be removed from save data
-                            dict_channel_delete.append(channelid)
-                                # and list the channel to be deleted in discord
-                            discord_channel_delete.append(channel)
-                            logger.info(
-                                log_str + ' - 5+ MIN EXPIRY NONACTIVE RAID')
-                            continue
-                        event_loop.create_task(expire_channel(channel))
-                        logger.info(
-                            log_str + ' - = RECENTLY EXPIRED NONACTIVE RAID')
-                        continue
-                    # if the channel save data shows it as an active raid still
-                    elif guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['active'] == True:
-                        # if it's an exraid
-                        if guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['type'] == 'exraid':
-                            logger.info(log_str + ' - EXRAID')
-
-                            continue
-                        # or if the expiry time for the channel has already passed within 5 minutes
-                        elif guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['exp'] <= time.time():
-                            # list the channel to be sent to the channel expiry function
-                            event_loop.create_task(expire_channel(channel))
-                            logger.info(log_str + ' - RECENTLY EXPIRED')
-
-                            continue
-
-                        if channel not in active_raids:
-                            # if channel is still active, make sure it's expiry is being monitored
-                            event_loop.create_task(expiry_check(channel))
-                            logger.info(
-                                log_str + ' - MISSING FROM EXPIRY CHECK')
-                            continue
-            # for every channel listed to have save data deleted
-            for c in dict_channel_delete:
-                try:
-                    # attempt to delete the channel from save data
-                    del guild_dict[guildid]['raidchannel_dict'][c]
-                    logger.info(
-                        'Channel_Cleanup - Channel Savedata Cleared - ' + str(c))
-                except KeyError:
-                    pass
-            # for every channel listed to have the discord channel deleted
-            for c in discord_channel_delete:
-                try:
-                    # delete channel from discord
-                    await c.delete()
-                    logger.info(
-                        'Channel_Cleanup - Channel Deleted - ' + c.name)
-                except:
-                    logger.info(
-                        'Channel_Cleanup - Channel Deletion Failure - ' + c.name)
-                    pass
-        # save server_dict changes after cleanup
-        logger.info('Channel_Cleanup - SAVING CHANGES')
-        try:
-            admin_commands_cog = Kyogre.cogs.get('AdminCommands')
-            if not admin_commands_cog:
-                return None
-            await admin_commands_cog.save(guildid)
-        except Exception as err:
-            logger.info('Channel_Cleanup - SAVING FAILED' + str(err))
-        logger.info('Channel_Cleanup ------ END ------')
-        await asyncio.sleep(600)
-        continue
 
 async def guild_cleanup(loop=True):
     while (not Kyogre.is_closed()):
@@ -640,8 +220,8 @@ async def message_cleanup(loop=True):
         # save server_dict changes after cleanup
         for id in update_ids:
             guild = Kyogre.get_guild(id)
-            await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, 'wild', edit=True)
-            await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, 'research', edit=True)
+            await list_helpers.update_listing_channels(Kyogre, guild, 'wild', edit=True)
+            await list_helpers.update_listing_channels(Kyogre, guild, 'research', edit=True)
         logger.info('message_cleanup - SAVING CHANGES')
         try:
             admin_commands_cog = Kyogre.cogs.get('AdminCommands')
@@ -663,10 +243,11 @@ async def _print(owner, message):
     logger.info(message)
 
 
-async def maint_start():
+async def maint_start(bot):
     tasks = []
     try:
-        tasks.append(event_loop.create_task(channel_cleanup()))
+        raids_cog = bot.get_cog("RaidCommands")
+        tasks.append(event_loop.create_task(raids_cog.channel_cleanup()))
         tasks.append(event_loop.create_task(message_cleanup()))
         logger.info('Maintenance Tasks Started')
     except KeyboardInterrupt:
@@ -738,7 +319,7 @@ async def on_ready():
     help_cog = Kyogre.cogs.get('HelpCommand')
     help_cog.set_avatar(Kyogre.user.avatar_url)
     await _print(Kyogre.owner, "{server_count} servers connected.\n{member_count} members found.".format(server_count=guilds, member_count=users))
-    await maint_start()
+    await maint_start(Kyogre)
 
 
 @Kyogre.event
@@ -921,6 +502,7 @@ async def modify_raid_report(payload, raid_report):
         user = guild.get_member(payload.user_id)
     except AttributeError:
         return
+    raids_cog = Kyogre.cogs.get('RaidCommands')
     raid_dict = guild_dict[guild.id].setdefault('raidchannel_dict', {})
     config_dict = guild_dict[guild.id]['configure_dict']
     regions = raid_helpers.get_channel_regions(channel, 'raid', guild_dict)
@@ -967,10 +549,10 @@ async def modify_raid_report(payload, raid_report):
                                 colour=discord.Colour.red(),
                                 description=f"I couldn't find a gym named '{gymmsg.clean_content}'. "
                                 f"Try again using the exact gym name!"))
-                        Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Couldn't find gym with name: {gymmsg.clean_content}")
+                        Kyogre.help_logger.info(f"User: {user.name}, channel: {channel}, error: Couldn't find gym with name: {gymmsg.clean_content}")
                     else:
                         location = gym.name
-                        raid_channel_ids = get_existing_raid(guild, gym)
+                        raid_channel_ids = raids_cog.get_existing_raid(guild, gym)
                         if raid_channel_ids:
                             raid_channel = Kyogre.get_channel(raid_channel_ids[0])
                             if guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]:
@@ -978,7 +560,7 @@ async def modify_raid_report(payload, raid_report):
                                     embed=discord.Embed(
                                         colour=discord.Colour.red(),
                                         description=f"A raid has already been reported for {gym.name}"))
-                                Kyogre.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Raid already reported.")
+                                Kyogre.help_logger.info(f"User: {user.name}, channel: {channel}, error: Raid already reported.")
                         else:
                             await entity_updates.update_raid_location(Kyogre, guild_dict, message,
                                                                       report_channel, raid_channel, gym)
@@ -1004,7 +586,7 @@ async def modify_raid_report(payload, raid_report):
                 await timemsg.delete()
             raidexp = await utils.time_to_minute_count(guild_dict, raid_channel, timemsg.clean_content)
             if raidexp is not False:
-                await _timerset(raid_channel, raidexp)
+                await raids_cog._timerset(raid_channel, raidexp)
             await _refresh_listing_channels_internal(guild, "raid")
             success_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
                                                                  description="Raid hatch / expire time updated"))
@@ -1024,9 +606,9 @@ async def modify_raid_report(payload, raid_report):
             elif bossmsg.clean_content.lower() == "cancel":
                 error = "cancelled the report"
                 await bossmsg.delete()
-            await changeraid_internal(None, guild, raid_channel, bossmsg.clean_content)
+            await raids_cog.changeraid_internal(None, guild, raid_channel, bossmsg.clean_content)
             if not bossmsg.clean_content.isdigit():
-                await _timerset(raid_channel, 45)
+                await raids_cog._timerset(raid_channel, 45)
             await _refresh_listing_channels_internal(guild, "raid")
             success_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
                                                                  description="Raid Tier / Boss updated"))
@@ -1111,85 +693,6 @@ async def reset_board(ctx, *, user=None, type=None):
                 await ctx.send("{trainer}'s report stats have been cleared!".format(trainer=tgt_trainer.display_name))
                 return
     await ctx.send("This server's report stats have been reset!")
-
-
-@Kyogre.command()
-@commands.has_permissions(manage_channels=True)
-@checks.raidchannel()
-async def changeraid(ctx, newraid):
-    """Changes raid boss.
-
-    Usage: !changeraid <new pokemon or level>
-    Only usable by admins."""
-    message = ctx.message
-    guild = message.guild
-    channel = message.channel
-    return await changeraid_internal(ctx, guild, channel, newraid)
-
-
-async def changeraid_internal(ctx, guild, channel, newraid):
-    if (not channel) or (channel.id not in guild_dict[guild.id]['raidchannel_dict']):
-        await channel.send('The channel you entered is not a raid channel.')
-        return
-    raid_dict = guild_dict[guild.id]['raidchannel_dict'][channel.id]
-    if newraid.isdigit():
-        raid_channel_name = '{egg_level}-egg_'.format(egg_level=newraid)
-        raid_channel_name += utils.sanitize_name(raid_dict['address'])[:32]
-        raid_dict['egglevel'] = newraid
-        raid_dict['pokemon'] = ''
-        changefrom = raid_dict['type']
-        raid_dict['type'] = 'egg'
-        egg_img = raid_info['raid_eggs'][newraid]['egg_img']
-        boss_list = []
-        for entry in raid_info['raid_eggs'][newraid]['pokemon']:
-            p = Pokemon.get_pokemon(Kyogre, entry)
-            boss_list.append((((str(p) + ' (') + str(p.id)) + ') ') + ''.join(utils.types_to_str(guild, p.types, Kyogre.config)))
-        raid_img_url = 'https://raw.githubusercontent.com/klords/Kyogre/master/images/eggs/{}?cache=0'.format(str(egg_img))
-        raid_message = await channel.fetch_message(raid_dict['raidmessage'])
-        report_channel = Kyogre.get_channel(raid_dict['reportchannel'])
-        report_message = await report_channel.fetch_message(raid_dict['raidreport'])
-        raid_embed = raid_message.embeds[0]
-        embed_indices = await embed_utils.get_embed_field_indices(raid_embed)
-        if embed_indices["possible"] is not None:
-            index = embed_indices["possible"]
-            raid_embed.set_field_at(index, name="**Possible Bosses:**", value='{bosslist1}'.format(bosslist1='\n'.join(boss_list[::2])), inline=True)
-            if len(boss_list) > 2:
-                raid_embed.set_field_at(index+1, name='\u200b', value='{bosslist2}'.format(bosslist2='\n'.join(boss_list[1::2])), inline=True)
-        else:
-            raid_embed.add_field(name='**Possible Bosses:**', value='{bosslist1}'.format(bosslist1='\n'.join(boss_list[::2])), inline=True)
-            if len(boss_list) > 2:
-                raid_embed.add_field(name='\u200b', value='{bosslist2}'.format(bosslist2='\n'.join(boss_list[1::2])), inline=True)
-        raid_embed.set_thumbnail(url=raid_img_url)
-        if changefrom == "egg":
-            raid_message.content = re.sub(r'level\s\d', 'Level {}'.format(newraid), raid_message.content, flags=re.IGNORECASE)
-            report_message.content = re.sub(r'level\s\d', 'Level {}'.format(newraid), report_message.content, flags=re.IGNORECASE)
-        else:
-            raid_message.content = re.sub(r'.*\sraid\sreported','Level {} reported'.format(newraid), raid_message.content, flags=re.IGNORECASE)
-            report_message.content = re.sub(r'.*\sraid\sreported','Level {}'.format(newraid), report_message.content, flags=re.IGNORECASE)
-        await raid_message.edit(new_content=raid_message.content, embed=raid_embed, content=raid_message.content)
-        try:
-            raid_embed = await embed_utils.filter_fields_for_report_embed(raid_embed, embed_indices)
-            await report_message.edit(new_content=report_message.content, embed=raid_embed, content=report_message.content)
-            if raid_dict.get('raidcityreport', None) is not None:
-                report_city_channel = Kyogre.get_channel(raid_dict['reportcity'])
-                report_city_msg = await report_city_channel.fetch_message(raid_dict['raidcityreport'])
-                await report_city_msg.edit(new_content=report_city_msg.content, embed=raid_embed, content=report_city_msg.content)
-        except (discord.errors.NotFound, AttributeError):
-            pass
-        await channel.edit(name=raid_channel_name, topic=channel.topic)
-    elif newraid and not newraid.isdigit():
-        # What a hack, subtract raidtime from exp time because _eggtoraid will add it back
-        egglevel = raid_dict['egglevel']
-        if egglevel == "0":
-            egglevel = Pokemon.get_pokemon(Kyogre, newraid).raid_level
-        raid_dict['exp'] -= 60 * raid_info['raid_eggs'][egglevel]['raidtime']
-        author = None
-        author_id = raid_dict.get('reporter', None)
-        if author_id is not None:
-            author = guild.get_member(author_id)
-        await _eggtoraid(ctx, newraid.lower(), channel, author=author)
-
-
 
 
 """
@@ -1366,11 +869,11 @@ async def _raid_available(ctx, exptime=None):
     if region is not None:
         footer_text = f"Use the **@{region}-raids** tag to notify all trainers who are currently available"
         raid_notice_embed.set_footer(text=footer_text)
-    raid_notice_msg = await channel.send(content=('{trainer} is available for Raids!')
+    raid_notice_msg = await channel.send(content='{trainer} is available for Raids!'
                                          .format(trainer=trainer.display_name), embed=raid_notice_embed)
     await raid_notice_msg.add_reaction('\u23f2')
     await raid_notice_msg.add_reaction('🚫')
-    expiremsg ='**{trainer} is no longer available for Raids!**'.format(trainer=trainer.display_name)
+    expiremsg = '**{trainer} is no longer available for Raids!**'.format(trainer=trainer.display_name)
     raid_notice_dict = copy.deepcopy(guild_dict[guild.id].get('raid_notice_dict', {}))
     raid_notice_dict[raid_notice_msg.id] = {
         'exp':time.time() + (expiration_minutes * 60),
@@ -1384,297 +887,6 @@ async def _raid_available(ctx, exptime=None):
     
     await trainer.add_roles(*[role_to_assign], reason="User announced raid availability.")
     await message.delete()
-
-
-@Kyogre.command(aliases=['ex'])
-@checks.allowexraidreport()
-async def exraid(ctx, *, location:commands.clean_content(fix_channel_mentions=True) = ""):
-    """Report an upcoming EX raid.
-
-    Usage: !exraid <location>
-    Kyogre will insert the details (really just everything after the species name) into a
-    Google maps link and post the link to the same channel the report was made in.
-    Kyogre's message will also include the type weaknesses of the boss.
-
-    Finally, Kyogre will create a separate channel for the raid report, for the purposes of organizing the raid."""
-    await _exraid(ctx, location)
-
-
-async def _exraid(ctx, location):
-    message = ctx.message
-    channel = message.channel
-    config_dict = guild_dict[message.guild.id]['configure_dict']
-    timestamp = (message.created_at + datetime.timedelta(
-        hours=config_dict['settings']['offset'])).strftime('%I:%M %p (%H:%M)')
-    if not location:
-        await channel.send('Give more details when reporting! Usage: **!exraid <location>**')
-        return
-    raid_details = location
-    regions = raid_helpers.get_channel_regions(channel, 'raid', guild_dict)
-    gym = None
-    gyms = get_gyms(message.guild.id, regions)
-    if gyms:
-        gym = await location_match_prompt(message.channel, message.author.id, raid_details, gyms)
-        if not gym:
-            return await message.channel.send("I couldn't find a gym named '{0}'. "
-                                              "Try again using the exact gym name!".format(raid_details))
-        raid_channel_ids = get_existing_raid(message.guild, gym, only_ex=True)
-        if raid_channel_ids:
-            raid_channel = Kyogre.get_channel(raid_channel_ids[0])
-            return await message.channel.send(f"A raid has already been reported for "
-                                              f"{gym.name}. Coordinate in {raid_channel.mention}")
-        raid_details = gym.name
-        raid_gmaps_link = gym.maps_url
-        regions = [gym.region]
-    else:
-        utilities_cog = Kyogre.cogs.get('Utilities')
-        raid_gmaps_link = utilities_cog.create_gmaps_query(raid_details, message.channel, type="exraid")
-    egg_info = raid_info['raid_eggs']['EX']
-    egg_img = egg_info['egg_img']
-    boss_list = []
-    for entry in egg_info['pokemon']:
-        p = Pokemon.get_pokemon(Kyogre, entry)
-        boss_list.append(str(p) + ' (' + str(p.id) + ') ' + utils.types_to_str(ctx.guild, p.types, Kyogre.config))
-    raid_channel = await create_raid_channel("exraid", None, None, gym, message.channel)
-    if config_dict['invite']['enabled']:
-        for role in channel.guild.role_hierarchy:
-            if role.permissions.manage_guild or role.permissions.manage_channels or role.permissions.manage_messages:
-                try:
-                    await raid_channel.set_permissions(role, send_messages=True)
-                except (discord.errors.Forbidden, discord.errors.HTTPException, discord.errors.InvalidArgument):
-                    pass
-    raid_img_url = 'https://raw.githubusercontent.com/klords/Kyogre/master/images/eggs/{}?cache=0'.format(str(egg_img))
-    raid_embed = discord.Embed(title='Click here for directions to the coming raid!',
-                               url=raid_gmaps_link, colour=message.guild.me.colour)
-    if len(egg_info['pokemon']) > 1:
-        raid_embed.add_field(name='**Possible Bosses:**', value='{bosslist1}'
-                             .format(bosslist1='\n'.join(boss_list[::2])), inline=True)
-        raid_embed.add_field(name='\u200b', value='{bosslist2}'
-                             .format(bosslist2='\n'.join(boss_list[1::2])), inline=True)
-    else:
-        raid_embed.add_field(name='**Possible Bosses:**', value='{bosslist}'
-                             .format(bosslist=''.join(boss_list)), inline=True)
-        raid_embed.add_field(name='\u200b', value='\u200b', inline=True)
-    raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**', inline=True)
-    raid_embed.add_field(name='**Expires:**', value='Set with **!timerset**', inline=True)
-    raid_embed.set_footer(text='Reported by {author} - {timestamp}'
-                          .format(author=message.author, timestamp=timestamp),
-                          icon_url=message.author.avatar_url_as(format=None, static_format='jpg', size=32))
-    raid_embed.set_thumbnail(url=raid_img_url)
-    if config_dict['invite']['enabled']:
-        invitemsgstr = "Use the **!invite** command to gain access and coordinate"
-        invitemsgstr2 = " after using **!invite** to gain access"
-    else:
-        invitemsgstr = "Coordinate"
-        invitemsgstr2 = ""
-    raidreport = await channel.send(content='EX raid egg reported by {member}! Details: {location_details}. '
-                                            '{invitemsgstr} in {raid_channel}'
-                                    .format(member=message.author.mention, location_details=raid_details,
-                                            invitemsgstr=invitemsgstr, raid_channel=raid_channel.mention),
-                                    embed=raid_embed)
-    await asyncio.sleep(1)
-    raidmsg = "EX raid reported by {member} in {citychannel}! Details: {location_details}. " \
-              "Coordinate here{invitemsgstr2}!\n\nClick the question mark reaction to get help on the " \
-              "commands that work in here.\n\nThis channel will be deleted five minutes after the timer expires."\
-        .format(member=message.author.display_name, citychannel=message.channel.mention,
-                location_details=raid_details, invitemsgstr2=invitemsgstr2)
-    raidmessage = await raid_channel.send(content=raidmsg, embed=raid_embed)
-    await raidmessage.add_reaction('\u2754')
-    await asyncio.sleep(0.25)
-    await raidmessage.add_reaction('\u270f')
-    await asyncio.sleep(0.25)
-    await raidmessage.add_reaction('🚫')
-    await asyncio.sleep(0.25)
-    await raidmessage.pin()
-    guild_dict[message.guild.id]['raidchannel_dict'][raid_channel.id] = {
-        'regions': regions,
-        'reportcity': channel.id,
-        'trainer_dict': {},
-        'exp': time.time() + (((60 * 60) * 24) * raid_info['raid_eggs']['EX']['hatchtime']),
-        'manual_timer': False,
-        'active': True,
-        'raidmessage': raidmessage.id,
-        'raidreport': raidreport.id,
-        'address': raid_details,
-        'type': 'egg',
-        'pokemon': '',
-        'egglevel': 'EX',
-        'gym': gym,
-        'reporter': message.author.id
-    }
-    if len(raid_info['raid_eggs']['EX']['pokemon']) == 1:
-        await _eggassume('assume ' + raid_info['raid_eggs']['EX']['pokemon'][0], raid_channel)
-    await raid_channel.send(content='Hey {member}, if you can, set the time left until the egg hatches using '
-                                    '**!timerset <date and time>** so others can check it with **!timer**. '
-                                    '**<date and time>** can just be written exactly how it appears on your '
-                                    'EX Raid Pass.'.format(member=message.author.mention))
-    ex_reports = guild_dict[message.guild.id].setdefault('trainers', {}).setdefault(regions[0], {})\
-                     .setdefault(message.author.id, {}).setdefault('ex_reports', 0) + 1
-    guild_dict[message.guild.id]['trainers'][regions[0]][message.author.id]['ex_reports'] = ex_reports
-    event_loop.create_task(expiry_check(raid_channel))
-
-
-@Kyogre.command()
-@checks.allowinvite()
-async def exinvite(ctx):
-    """Join an EX Raid.
-
-    Usage: !invite"""
-    await _exinvite(ctx)
-
-
-async def _exinvite(ctx):
-    bot = ctx.bot
-    channel = ctx.channel
-    author = ctx.author
-    guild = ctx.guild
-    await channel.trigger_typing()
-    exraidlist = ''
-    exraid_dict = {}
-    exraidcount = 0
-    rc_dict = bot.guild_dict[guild.id]['raidchannel_dict']
-    for channelid in rc_dict:
-        if (not discord.utils.get(guild.text_channels, id=channelid)) or rc_dict[channelid].get('meetup',{}):
-            continue
-        if (rc_dict[channelid]['egglevel'] == 'EX') or (rc_dict[channelid]['type'] == 'exraid'):
-            if guild_dict[guild.id]['configure_dict']['exraid']['permissions'] == "everyone" \
-                    or (guild_dict[guild.id]['configure_dict']['exraid']['permissions'] == "same"
-                        and rc_dict[channelid]['reportcity'] == channel.id):
-                exraid_channel = bot.get_channel(channelid)
-                if exraid_channel.mention != '#deleted-channel':
-                    exraidcount += 1
-                    exraidlist += (('\n**' + str(exraidcount)) + '.**   ') + exraid_channel.mention
-                    exraid_dict[str(exraidcount)] = exraid_channel
-    if exraidcount == 0:
-        await channel.send('No EX Raids have been reported in this server! Use **!exraid** to report one!')
-        return
-    exraidchoice = await channel.send("{0}, you've told me you have an invite to an EX Raid, and I'm just "
-                                      "going to take your word for it! The following {1} EX Raids have been "
-                                      "reported:\n{2}\nReply with **the number** (1, 2, etc) of the EX Raid "
-                                      "you have been invited to. If none of them match your invite, type 'N' "
-                                      "and report it with **!exraid**"
-                                      .format(author.mention, str(exraidcount), exraidlist))
-    reply = await bot.wait_for('message', check=(lambda message: (message.author == author)))
-    if reply.content.lower() == 'n':
-        await exraidchoice.delete()
-        exraidmsg = await channel.send('Be sure to report your EX Raid with **!exraid**!')
-    elif (not reply.content.isdigit()) or (int(reply.content) > exraidcount):
-        await exraidchoice.delete()
-        exraidmsg = await channel.send("I couldn't tell which EX Raid you meant! Try the **!invite** command again,"
-                                       " and make sure you respond with the number of the channel that matches!")
-    elif (int(reply.content) <= exraidcount) and (int(reply.content) > 0):
-        await exraidchoice.delete()
-        overwrite = discord.PermissionOverwrite()
-        overwrite.send_messages = True
-        overwrite.read_messages = True
-        exraid_channel = exraid_dict[str(int(reply.content))]
-        try:
-            await exraid_channel.set_permissions(author, overwrite=overwrite)
-        except (discord.errors.Forbidden, discord.errors.HTTPException, discord.errors.InvalidArgument):
-            pass
-        exraidmsg = await channel.send('Alright {0}, you can now send messages in {1}! Make sure you let the trainers'
-                                       ' in there know if you can make it to the EX Raid!')\
-            .format(author.mention, exraid_channel.mention)
-        await list_helpers._maybe(ctx, Kyogre, guild_dict, raid_info, 0, None)
-    else:
-        await exraidchoice.delete()
-        exraidmsg = await channel.send("I couldn't understand your reply! Try the **!invite** command again!")
-    return await utils.sleep_and_cleanup([ctx.message, reply, exraidmsg], 30)
-
-
-@Kyogre.command()
-@checks.allowmeetupreport()
-async def meetup(ctx, *, location:commands.clean_content(fix_channel_mentions=True) = ""):
-    """Report an upcoming event.
-
-    Usage: !meetup <location>
-    Kyogre will insert the details (really just everything after the species name) into a
-    Google maps link and post the link to the same channel the report was made in.
-
-    Finally, Kyogre will create a separate channel for the report, for the purposes of organizing the event."""
-    await _meetup(ctx, location)
-
-async def _meetup(ctx, location):
-    message = ctx.message
-    channel = message.channel
-    timestamp = (message.created_at + datetime.timedelta(
-        hours=guild_dict[message.channel.guild.id]['configure_dict']['settings']['offset'])).strftime('%I:%M %p (%H:%M)')
-    event_split = location.split()
-    if len(event_split) <= 0:
-        await channel.send('Give more details when reporting! Usage: **!meetup <location>**')
-        return
-    raid_details = ' '.join(event_split)
-    raid_details = raid_details.strip()
-    utilities_cog = Kyogre.cogs.get('Utilities')
-    raid_gmaps_link = utilities_cog.create_gmaps_query(raid_details, message.channel, type="meetup")
-    raid_channel_name = 'meetup-'
-    raid_channel_name += utils.sanitize_name(raid_details)[:32]
-    raid_channel_category = get_category(message.channel,"EX", category_type="meetup")
-    raid_channel = await message.guild.create_text_channel(raid_channel_name,
-                                                           overwrites=message.channel.overwrites,
-                                                           category=raid_channel_category)
-    ow = raid_channel.overwrites_for(raid_channel.guild.default_role)
-    ow.send_messages = True
-    try:
-        await raid_channel.set_permissions(raid_channel.guild.default_role, overwrite = ow)
-    except (discord.errors.Forbidden, discord.errors.HTTPException, discord.errors.InvalidArgument):
-        pass
-    raid_img_url = 'https://raw.githubusercontent.com/klords/Kyogre/master/images/misc/meetup.png?cache=0'
-    raid_embed = discord.Embed(title='Click here for directions to the event!',
-                               url=raid_gmaps_link, colour=message.guild.me.colour)
-    raid_embed.add_field(name='**Event Location:**', value=raid_details, inline=True)
-    raid_embed.add_field(name='\u200b', value='\u200b', inline=True)
-    raid_embed.add_field(name='**Event Starts:**', value='Set with **!starttime**', inline=True)
-    raid_embed.add_field(name='**Event Ends:**', value='Set with **!timerset**', inline=True)
-    raid_embed.set_footer(text='Reported by {author} - {timestamp}'
-                          .format(author=message.author.display_name, timestamp=timestamp),
-                          icon_url=message.author.avatar_url_as(format=None, static_format='jpg', size=32))
-    raid_embed.set_thumbnail(url=raid_img_url)
-    raidreport = await channel.send(content='Meetup reported by {member}! Details: {location_details}. '
-                                            'Coordinate in {raid_channel}'
-                                    .format(member=message.author.display_name,
-                                            location_details=raid_details,
-                                            raid_channel=raid_channel.mention),
-                                    embed=raid_embed)
-    await asyncio.sleep(1)
-    raidmsg = "Meetup reported by {member} in {citychannel}! Details: {location_details}. Coordinate here!" \
-              "\n\nTo update your status, choose from the following commands: **!maybe**, **!coming**, **!here**," \
-              " **!cancel**. If you are bringing more than one trainer/account, add in the number of accounts total," \
-              " teams optional, on your first status update.\nExample: `!coming 5 2m 2v 1i`\n\nTo see the list of " \
-              "trainers who have given their status:\n**!list interested**, **!list coming**, **!list here** or use" \
-              " just **!list** to see all lists. Use **!list teams** to see team distribution.\n\nSometimes I'm not" \
-              " great at directions, but I'll correct my directions if anybody sends me a maps link or uses " \
-              "**!location new <address>**. You can see the location of the event by using **!location**\n\n" \
-              "You can set the start time with **!starttime <MM/DD HH:MM AM/PM>** (you can also omit AM/PM and " \
-              "use 24-hour time) and access this with **!starttime**.\nYou can set the end time with " \
-              "**!timerset <MM/DD HH:MM AM/PM>** and access this with **!timer**.\n\nThis channel will be deleted" \
-              " five minutes after the timer expires."\
-        .format(member=message.author.display_name, citychannel=message.channel.mention, location_details=raid_details)
-    raidmessage = await raid_channel.send(content=raidmsg, embed=raid_embed)
-    await raidmessage.pin()
-    guild_dict[message.guild.id]['raidchannel_dict'][raid_channel.id] = {
-        'reportcity': channel.id,
-        'trainer_dict': {},
-        'exp': time.time() + (((60 * 60) * 24) * raid_info['raid_eggs']['EX']['hatchtime']),
-        'manual_timer': False,
-        'active': True,
-        'raidmessage': raidmessage.id,
-        'raidreport': raidreport.id,
-        'address': raid_details,
-        'type': 'egg',
-        'pokemon': '',
-        'egglevel': 'EX',
-        'meetup': {'start':None, 'end':None},
-        'reporter': message.author.id
-    }
-    now = datetime.datetime.utcnow() + datetime.timedelta(
-        hours=guild_dict[raid_channel.guild.id]['configure_dict']['settings']['offset'])
-    await raid_channel.send(content='Hey {member}, if you can, set the time that the event '
-                                    'starts with **!starttime <date and time>** and also set the '
-                                    'time that the event ends using **!timerset <date and time>**.'
-                            .format(member=message.author.mention))
-    event_loop.create_task(expiry_check(raid_channel))
-
 
 """
 Data Management Commands
@@ -1701,17 +913,17 @@ async def _reports_list(ctx, *, list_type):
 
 @Kyogre.command(name="refresh_listings", hidden=True)
 @commands.has_permissions(manage_guild=True)
-async def _refresh_listing_channels(ctx, type, *, regions=None):
+async def _refresh_listing_channels(ctx, list_type, *, regions=None):
     if regions:
         regions = [r.strip() for r in regions.split(',')]
-    await list_helpers.update_listing_channels(Kyogre, guild_dict, ctx.guild, type, edit=True, regions=regions)
+    await list_helpers.update_listing_channels(Kyogre, ctx.guild, list_type, edit=True, regions=regions)
     await ctx.message.add_reaction('\u2705')
 
 
-async def _refresh_listing_channels_internal(guild, type, *, regions=None):
+async def _refresh_listing_channels_internal(guild, list_type, *, regions=None):
     if regions:
         regions = [r.strip() for r in regions.split(',')]
-    await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, type, edit=True, regions=regions)
+    await list_helpers.update_listing_channels(Kyogre, guild, list_type, edit=True, regions=regions)
 
 
 """
@@ -1791,7 +1003,7 @@ async def interested(ctx, tags: str = ''):
     Works only in raid channels."""
     if tags and tags.lower() == "tags" or tags.lower() == "tag":
         tags = True
-    listmsg = await list_helpers._interest(ctx, Kyogre, guild_dict, tags)
+    listmsg = await list_helpers._interest(ctx, Kyogre, tags)
     await ctx.channel.send(listmsg)
 
 
@@ -1804,7 +1016,7 @@ async def coming(ctx, tags: str = ''):
     Works only in raid channels."""
     if tags and tags.lower() == "tags" or tags.lower() == "tag":
         tags = True
-    listmsg = await list_helpers._otw(ctx, Kyogre, guild_dict, tags)
+    listmsg = await list_helpers._otw(ctx, Kyogre, tags)
     await ctx.channel.send(listmsg)
 
 
@@ -1817,7 +1029,7 @@ async def here(ctx, tags: str = ''):
     Works only in raid channels."""
     if tags and tags.lower() == "tags" or tags.lower() == "tag":
         tags = True
-    listmsg = await list_helpers._waiting(ctx, Kyogre, guild_dict, tags)
+    listmsg = await list_helpers._waiting(ctx, Kyogre, tags)
     await ctx.channel.send(listmsg)
 
 
@@ -1828,7 +1040,7 @@ async def lobby(ctx, tag=False):
 
     Usage: !list lobby
     Works only in raid channels."""
-    listmsg = await list_helpers._lobbylist(ctx, Kyogre, guild_dict)
+    listmsg = await list_helpers._lobbylist(ctx, Kyogre)
     await ctx.channel.send(listmsg)
 
 
@@ -1839,7 +1051,7 @@ async def bosses(ctx):
 
     Usage: !list bosses
     Works only in raid channels."""
-    listmsg = await list_helpers._bosslist(ctx, Kyogre, guild_dict, raid_info)
+    listmsg = await list_helpers._bosslist(ctx, Kyogre)
     if len(listmsg) > 0:
         await ctx.channel.send(listmsg)
 
@@ -1851,7 +1063,7 @@ async def teams(ctx):
 
     Usage: !list teams
     Works only in raid channels."""
-    listmsg = await list_helpers.teamlist(ctx, Kyogre, guild_dict)
+    listmsg = await list_helpers.teamlist(ctx, Kyogre)
     await ctx.channel.send(listmsg)
 
 

@@ -66,7 +66,7 @@ async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid
     raid_dict['regions'] = regions
     guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = raid_dict
     
-    await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, "raid", True)
+    await list_helpers.update_listing_channels(Kyogre, guild, "raid", True)
     return
 
 def get_raidtext(Kyogre, guild, guild_dict, raid_dict, gym, report_channel, raid_channel, report):

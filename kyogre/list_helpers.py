@@ -7,36 +7,38 @@ import time
 from operator import itemgetter
 
 import discord
+from aiohttp import ClientOSError
 
 from kyogre.exts.pokemon import Pokemon
 from kyogre.exts.db.kyogredb import *
 from kyogre import constants, embed_utils, raid_helpers, utils
 
 
-async def _get_listing_messages(Kyogre, guild_dict, type, channel, region=None):
+async def _get_listing_messages(Kyogre, type, channel, region=None):
     if type == 'raid':
-        return await _get_raid_listing_messages(Kyogre, channel, guild_dict, region)
+        return await _get_raid_listing_messages(Kyogre, channel, region)
     elif type == 'wild':
-        return await _get_wild_listing_messages(Kyogre, channel, guild_dict, region)
+        return await _get_wild_listing_messages(Kyogre, channel, region)
     elif type == 'research':
-        return await _get_research_listing_messages(Kyogre, channel, guild_dict, region)
+        return await _get_research_listing_messages(Kyogre, channel, region)
     elif type == 'lure':
-        return await _get_lure_listing_messages(Kyogre, channel, guild_dict, region)
+        return await _get_lure_listing_messages(Kyogre, channel, region)
     elif type == 'takeover':
-        return await _get_invasion_listing_messages(Kyogre, channel, guild_dict, region)
+        return await _get_invasion_listing_messages(Kyogre, channel, region)
     else:
         return None
 
 
-async def _get_raid_listing_messages(Kyogre, channel, guild_dict, region=None):
-    '''
+async def _get_raid_listing_messages(Kyogre, channel, region=None):
+    """
     listings_enabled | region_set | result
     ======================================
             Y        |      Y     |   get for region only (regional listings configured)
             Y        |      N     |   get for all regions (listings configured -- one channel)
             N        |      Y     |   normal list for region only (list command enabled in regional channel)
             N        |      N     |   normal list (all regions -- list command enabled)
-    '''
+    """
+    guild_dict = Kyogre.guild_dict
     guild = channel.guild
     listmsg_list = []
     listmsg = ""
@@ -194,7 +196,8 @@ async def _get_raid_listing_messages(Kyogre, channel, guild_dict, region=None):
     return listmsg_list
 
 
-async def _get_wild_listing_messages(Kyogre, channel, guild_dict, region=None):
+async def _get_wild_listing_messages(Kyogre, channel, region=None):
+    guild_dict = Kyogre.guild_dict
     guild = channel.guild
     if region:
         loc = region
@@ -230,7 +233,8 @@ async def _get_wild_listing_messages(Kyogre, channel, guild_dict, region=None):
     return listmsg_list
 
 
-async def _get_research_listing_messages(Kyogre, channel, guild_dict, region=None):
+async def _get_research_listing_messages(Kyogre, channel, region=None):
+    guild_dict = Kyogre.guild_dict
     guild = channel.guild
     if region:
         loc = region
@@ -272,7 +276,9 @@ async def _get_research_listing_messages(Kyogre, channel, guild_dict, region=Non
     listmsg_list.append(listmsg)
     return listmsg_list
 
-async def _get_invasion_listing_messages(Kyogre, channel, guild_dict, region=None):
+
+async def _get_invasion_listing_messages(Kyogre, channel, region=None):
+    guild_dict = Kyogre.guild_dict
     guild = channel.guild
     if region:
         loc = region
@@ -329,7 +335,9 @@ async def _get_invasion_listing_messages(Kyogre, channel, guild_dict, region=Non
     listmsg_list.append(listmsg)
     return listmsg_list
 
-async def _get_lure_listing_messages(Kyogre, channel, guild_dict, region=None):
+
+async def _get_lure_listing_messages(Kyogre, channel, region=None):
+    guild_dict = Kyogre.guild_dict
     guild = channel.guild
     if region:
         loc = region
@@ -387,7 +395,8 @@ async def _get_lure_listing_messages(Kyogre, channel, guild_dict, region=None):
     return listmsg_list
 
 
-async def _interest(ctx, Kyogre, guild_dict, tag=False, team=False):
+async def _interest(ctx, Kyogre, tag=False, team=False):
+    guild_dict = Kyogre.guild_dict
     ctx_maybecount = 0
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
     trainer_dict = copy.deepcopy(guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict'])
@@ -422,11 +431,12 @@ async def _interest(ctx, Kyogre, guild_dict, tag=False, team=False):
     return listmsg
 
 
-async def _maybe(ctx, Kyogre, guild_dict, raid_info, count, party, eta, entered_interest=None):
+async def _maybe(ctx, Kyogre, count, party, eta, entered_interest=None):
+    guild_dict, raid_info = Kyogre.guild_dict, Kyogre.raid_info
     channel = ctx.channel
     author = ctx.author
     trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
-    if (not party):
+    if not party:
         party = determine_simple_party(author, count)
     message = f"**{author.display_name}** is interested!"
     if eta is not None:
@@ -446,7 +456,7 @@ async def _maybe(ctx, Kyogre, guild_dict, raid_info, count, party, eta, entered_
     trainer_dict[author.id]['status'] = {'maybe':count, 'coming':0, 'here':0, 'lobby':0}
     trainer_dict[author.id]['count'] = count
     trainer_dict[author.id]['party'] = party
-    await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
+    await _edit_party(ctx, Kyogre, channel, author)
     trainer_count = determine_trainer_count(trainer_dict)
     embed = build_status_embed(channel.guild, Kyogre, trainer_count)
     new_status = await channel.send(content=message, embed=embed)
@@ -454,10 +464,11 @@ async def _maybe(ctx, Kyogre, guild_dict, raid_info, count, party, eta, entered_
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
-        await update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
+        await update_listing_channels(Kyogre, channel.guild, 'raid', edit=True, regions=regions)
 
 
-async def _otw(ctx, Kyogre, guild_dict, tag=False, team=False):
+async def _otw(ctx, Kyogre, tag=False, team=False):
+    guild_dict = Kyogre.guild_dict
     ctx_comingcount = 0
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
     trainer_dict = copy.deepcopy(guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict'])
@@ -492,7 +503,8 @@ async def _otw(ctx, Kyogre, guild_dict, tag=False, team=False):
     return listmsg
 
 
-async def _coming(ctx, Kyogre, guild_dict, raid_info, count, party, eta, entered_interest=None):
+async def _coming(ctx, Kyogre, count, party, eta, entered_interest=None):
+    guild_dict, raid_info = Kyogre.guild_dict, Kyogre.raid_info
     channel = ctx.channel
     author = ctx.author
     trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
@@ -516,7 +528,7 @@ async def _coming(ctx, Kyogre, guild_dict, raid_info, count, party, eta, entered
     trainer_dict[author.id]['party'] = party
     if entered_interest:
         trainer_dict[author.id]['interest'] = entered_interest
-    await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
+    await _edit_party(ctx, Kyogre, channel, author)
     trainer_count = determine_trainer_count(trainer_dict)
     embed = build_status_embed(channel.guild, Kyogre, trainer_count)
     new_status = await channel.send(content=message, embed=embed)
@@ -524,10 +536,11 @@ async def _coming(ctx, Kyogre, guild_dict, raid_info, count, party, eta, entered
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
-        await update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
+        await update_listing_channels(Kyogre, channel.guild, 'raid', edit=True, regions=regions)
 
 
-async def _waiting(ctx, Kyogre, guild_dict, tag=False, team=False):
+async def _waiting(ctx, Kyogre, tag=False, team=False):
+    guild_dict = Kyogre.guild_dict
     ctx_herecount = 0
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
     raid_dict = copy.deepcopy(guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id])
@@ -621,7 +634,9 @@ def build_status_embed(guild, Kyogre, trainer_count):
         return None
     return embed
 
-async def _here(ctx, Kyogre, guild_dict, raid_info, count, party, entered_interest=None):
+
+async def _here(ctx, Kyogre, count, party, entered_interest=None):
+    guild_dict, raid_info = Kyogre.guild_dict, Kyogre.raid_info
     channel = ctx.channel
     author = ctx.author
     lobbymsg = ''
@@ -629,10 +644,11 @@ async def _here(ctx, Kyogre, guild_dict, raid_info, count, party, entered_intere
     raidtype = "event" if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('meetup',False) else "raid"
     try:
         if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['lobby']:
-            lobbymsg += '\nThere is a group already in the lobby! Use **!lobby** to join them or **!backout** to request a backout! Otherwise, you may have to wait for the next group!'
+            lobbymsg += '\nThere is a group already in the lobby! Use **!lobby** to join them ' \
+                        'or **!backout** to request a backout! Otherwise, you may have to wait for the next group!'
     except KeyError:
         pass
-    if (not party):
+    if not party:
         party = determine_simple_party(author, count)
     message = f"**{author.display_name}** is at the raid!"
     await ctx.message.delete()
@@ -650,7 +666,7 @@ async def _here(ctx, Kyogre, guild_dict, raid_info, count, party, entered_intere
     trainer_dict[author.id]['party'] = party
     if entered_interest:
         trainer_dict[author.id]['interest'] = entered_interest
-    await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
+    await _edit_party(ctx, Kyogre, channel, author)
     trainer_count = determine_trainer_count(trainer_dict)
     embed = build_status_embed(channel.guild, Kyogre, trainer_count)
     new_status = await channel.send(content=message, embed=embed)
@@ -658,10 +674,11 @@ async def _here(ctx, Kyogre, guild_dict, raid_info, count, party, entered_intere
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
-        await update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
+        await update_listing_channels(Kyogre, channel.guild, 'raid', edit=True, regions=regions)
 
 
-async def _cancel(ctx, Kyogre, guild_dict, raid_info):
+async def _cancel(ctx, Kyogre):
+    guild_dict, raid_info = Kyogre.guild_dict, Kyogre.raid_info
     channel = ctx.channel
     author = ctx.author
     guild = channel.guild
@@ -704,17 +721,18 @@ async def _cancel(ctx, Kyogre, guild_dict, raid_info):
     trainer_dict['party'] = {'mystic':0, 'valor':0, 'instinct':0, 'unknown':0}
     trainer_dict['interest'] = []
     trainer_dict['count'] = 1
-    await _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author)
+    await _edit_party(ctx, Kyogre, channel, author)
     trainer_count = determine_trainer_count(guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
     embed = build_status_embed(channel.guild, Kyogre, trainer_count)
     new_status = await channel.send(content=message, embed=embed)
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
-        await update_listing_channels(Kyogre, guild_dict, guild, 'raid', edit=True, regions=regions)
+        await update_listing_channels(Kyogre, guild, 'raid', edit=True, regions=regions)
 
 
-async def _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author=None):
+async def _edit_party(ctx, Kyogre, channel, author=None):
+    guild_dict, raid_info = Kyogre.guild_dict, Kyogre.raid_info
     egglevel = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['egglevel']
     if egglevel != "0":
         boss_dict = {}
@@ -824,7 +842,8 @@ async def _edit_party(ctx, Kyogre, guild_dict, raid_info, channel, author=None):
         pass
 
 
-async def _lobbylist(ctx, Kyogre, guild_dict, tag=False, team=False):
+async def _lobbylist(ctx, Kyogre, tag=False, team=False):
+    guild_dict = Kyogre.guild_dict
     ctx_lobbycount = 0
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
     raid_dict = copy.deepcopy(guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id])
@@ -861,7 +880,8 @@ async def _lobbylist(ctx, Kyogre, guild_dict, tag=False, team=False):
     return listmsg
 
 
-async def _bosslist(ctx, Kyogre, guild_dict, raid_info):
+async def _bosslist(ctx, Kyogre):
+    guild_dict, raid_info = Kyogre.guild_dict, Kyogre.raid_info
     message = ctx.message
     channel = ctx.channel
     egglevel = guild_dict[message.guild.id]['raidchannel_dict'][channel.id]['egglevel']
@@ -901,7 +921,8 @@ async def _bosslist(ctx, Kyogre, guild_dict, raid_info):
     return listmsg
 
 
-async def teamlist(ctx, Kyogre, guild_dict):
+async def teamlist(ctx, Kyogre):
+    guild_dict = Kyogre.guild_dict
     message = ctx.message
     team_dict = {}
     team_dict["mystic"] = {"total":0,"maybe":0,"coming":0,"here":0}
@@ -943,7 +964,8 @@ async def get_region_reporting_channels(guild, region, guild_dict):
     return report_channels
 
 
-async def update_listing_channels(Kyogre, guild_dict, guild, type, edit=False, regions=None):
+async def update_listing_channels(Kyogre, guild, type, edit=False, regions=None):
+    guild_dict = Kyogre.guild_dict
     valid_types = ['raid', 'research', 'wild', 'nest', 'lure', 'takeover']
     if type not in valid_types:
         return
@@ -952,7 +974,7 @@ async def update_listing_channels(Kyogre, guild_dict, guild, type, edit=False, r
         return
     if 'channel' in listing_dict:
         channel = Kyogre.get_channel(listing_dict['channel']['id'])
-        return await _update_listing_channel(Kyogre, guild_dict, channel, type, edit)
+        return await _update_listing_channel(Kyogre, channel, type, edit)
     if 'channels' in listing_dict:
         if not regions:
             regions = [r for r in listing_dict['channels']]
@@ -962,17 +984,18 @@ async def update_listing_channels(Kyogre, guild_dict, guild, type, edit=False, r
                 channel_list = [channel_list]
             for channel_info in channel_list:
                 channel = Kyogre.get_channel(channel_info['id'])
-                await _update_listing_channel(Kyogre, guild_dict, channel, type, edit, region=region)
+                await _update_listing_channel(Kyogre, channel, type, edit, region=region)
 
 
-async def _update_listing_channel(Kyogre, guild_dict, channel, type, edit, region=None):
+async def _update_listing_channel(Kyogre, channel, type, edit, region=None):
+    guild_dict = Kyogre.guild_dict
     lock = asyncio.Lock()
     async with lock:
         listing_dict = guild_dict[channel.guild.id]['configure_dict'].get(type, {}).get('listings', None)
         if not listing_dict or not listing_dict['enabled']:
             return
-        new_messages = await _get_listing_messages(Kyogre, guild_dict, type, channel, region)
-        previous_messages = await _get_previous_listing_messages(Kyogre, guild_dict, type, channel, region)
+        new_messages = await _get_listing_messages(Kyogre, type, channel, region)
+        previous_messages = await _get_previous_listing_messages(Kyogre, type, channel, region)
         new_messages = [] if new_messages is None else new_messages
         previous_messages = [] if previous_messages is None else previous_messages
         matches = itertools.zip_longest(new_messages, previous_messages)
@@ -1017,7 +1040,8 @@ async def _update_listing_channel(Kyogre, guild_dict, channel, type, edit, regio
         guild_dict[channel.guild.id]['configure_dict'][type]['listings'] = listing_dict
 
 
-async def _get_previous_listing_messages(Kyogre, guild_dict, type, channel, region=None):
+async def _get_previous_listing_messages(Kyogre, type, channel, region=None):
+    guild_dict = Kyogre.guild_dict
     listing_dict = guild_dict[channel.guild.id]['configure_dict'].get(type, {}).get('listings', None)
     if not listing_dict or not listing_dict['enabled']:
         return

@@ -212,8 +212,7 @@ class ResearchCommands(commands.Cog):
                                    .setdefault(author.id, {})\
                                    .setdefault('research_reports', 0) + 1
             self.bot.guild_dict[ctx.guild.id]['trainers'][regions[0]][author.id]['research_reports'] = research_reports
-            await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild, 'research',
-                                                       edit=False, regions=regions)
+            await list_helpers.update_listing_channels(self.bot, guild, 'research', edit=False, regions=regions)
             subscriptions_cog = self.bot.cogs.get('Subscriptions')
             send_channel = subscriptions_cog.get_region_list_channel(guild, regions[0], 'research')
             if send_channel is None:
@@ -298,8 +297,7 @@ class ResearchCommands(commands.Cog):
                                 loc_url = stop.maps_url
                                 questreport_dict[message.id]['location'] = location
                                 questreport_dict[message.id]['url'] = loc_url
-                                await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
-                                                                           "research", regions=regions)
+                                await list_helpers.update_listing_channels(self.bot, guild, "research", regions=regions)
                                 await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
                                                                        description="Research listing updated"))
                                 await pokestopmsg.delete()
@@ -320,8 +318,7 @@ class ResearchCommands(commands.Cog):
                     reward = await questrewardmanagement_cog.prompt_reward_v(channel, user.id, quest)
                 questreport_dict[message.id]['quest'] = quest.name
                 questreport_dict[message.id]['reward'] = reward
-                await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
-                                                           "research", regions=regions)
+                await list_helpers.update_listing_channels(self.bot, guild, "research", regions=regions)
                 await channel.send(
                     embed=discord.Embed(colour=discord.Colour.green(), description="Research listing updated"))
                 await questmsg.delete()
@@ -332,8 +329,7 @@ class ResearchCommands(commands.Cog):
                 reward = await questrewardmanagement_cog.prompt_reward_v(channel, user.id, quest)
 
                 questreport_dict[message.id]['reward'] = reward
-                await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
-                                                           "research", regions=regions)
+                await list_helpers.update_listing_channels(self.bot, guild, "research", regions=regions)
                 await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
                                                        description="Research listing updated"))
                 await rewardwait.delete()

@@ -8,7 +8,8 @@ import discord
 from kyogre.exts.pokemon import Pokemon
 from kyogre import counters_helpers, embed_utils, list_helpers, utils
 
-async def _backout(ctx, Kyogre, guild_dict):
+async def _backout(ctx, Kyogre):
+    guild_dict = Kyogre.guild_dict
     message = ctx.message
     channel = message.channel
     author = message.author
@@ -24,14 +25,17 @@ async def _backout(ctx, Kyogre, guild_dict):
                 user = guild.get_member(trainer)
                 lobby_list.append(user.mention)
                 trainer_dict[trainer]['status'] = {'maybe':0, 'coming':0, 'here':count, 'lobby':0}
-        if (not lobby_list):
+        if not lobby_list:
             await channel.send("There's no one else in the lobby for this raid!")
             try:
                 del guild_dict[guild.id]['raidchannel_dict'][channel.id]['lobby']
             except KeyError:
                 pass
             return
-        await channel.send('Backout - {author} has indicated that the group consisting of {lobby_list} and the people with them has backed out of the lobby! If this is inaccurate, please use **!lobby** or **!cancel** to help me keep my lists accurate!'.format(author=author.mention, lobby_list=', '.join(lobby_list)))
+        await channel.send('Backout - {author} has indicated that the group consisting of {lobby_list} and the '
+                           'people with them has backed out of the lobby! If this is inaccurate, please use **!lobby** '
+                           'or **!cancel** to help me keep my lists accurate!'
+                           .format(author=author.mention, lobby_list=', '.join(lobby_list)))
         try:
             del guild_dict[guild.id]['raidchannel_dict'][channel.id]['lobby']
         except KeyError:
@@ -143,7 +147,7 @@ async def _starting(ctx, Kyogre, guild_dict, raid_info, team):
     ctx.bot.loop.create_task(lobby_countdown(ctx, Kyogre, team, guild_dict, raid_info))
     regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
     if regions:
-        await list_helpers.update_listing_channels(Kyogre, guild_dict, channel.guild, 'raid', edit=True, regions=regions)
+        await list_helpers.update_listing_channels(Kyogre, channel.guild, 'raid', edit=True, regions=regions)
 
 
 async def lobby_countdown(ctx, Kyogre, team, guild_dict, raid_info):
@@ -171,11 +175,11 @@ async def lobby_countdown(ctx, Kyogre, team, guild_dict, raid_info):
         del guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['lobby']
     except KeyError:
         pass
-    await list_helpers._edit_party(ctx, Kyogre, guild_dict, raid_info, ctx.channel, ctx.author)
+    await list_helpers._edit_party(ctx, Kyogre, ctx.channel, ctx.author)
     guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict'] = ctx.trainer_dict
     regions = guild_dict[ctx.channel.guild.id]['raidchannel_dict'][ctx.channel.id].get('regions', None)
     if regions:
-        await list_helpers.update_listing_channels(Kyogre, guild_dict, ctx.guild, 'raid', edit=True, regions=regions)
+        await list_helpers.update_listing_channels(Kyogre, ctx.guild, 'raid', edit=True, regions=regions)
 
 async def _weather(ctx, Kyogre, guild_dict, weather):
     guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['weather'] = weather.lower()

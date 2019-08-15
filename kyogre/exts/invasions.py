@@ -91,8 +91,7 @@ class Invasions(commands.Cog):
         await subscriptions_cog.send_notifications_async('takeover', details, send_channel, [message.author.id])
         self.bot.event_loop.create_task(self.invasion_expiry_check(invasionreportmsg, report.id, author))
         await asyncio.sleep(1) # without this the listing update will miss the most recent report
-        await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
-                                                   'takeover', edit=False, regions=regions)
+        await list_helpers.update_listing_channels(self.bot, guild, 'takeover', edit=False, regions=regions)
 
     async def invasion_expiry_check(self, message, invasion_id, author):
         print(invasion_id)
@@ -132,7 +131,7 @@ class Invasions(commands.Cog):
             del self.bot.active_invasions[invasion_id]
         except ValueError:
             pass
-        await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild, 'takeover', edit=True,
+        await list_helpers.update_listing_channels(self.bot, guild, 'takeover', edit=True,
                                                    regions=raid_helpers.get_channel_regions(channel, 'takeover',                                                    
                                                                                             self.bot.guild_dict))
                                                     
@@ -190,7 +189,7 @@ class Invasions(commands.Cog):
                 if result is not None:
                     InvasionTable.update(pokemon_number_id=pkmn.id).where(InvasionTable.trainer_report_id == result[0].id).execute()
                 await self._update_report(channel, message.id, pkmn)
-                await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
+                await list_helpers.update_listing_channels(self.bot, guild,
                                                    'takeover', edit=False, regions=regions)
                 await query_msg.delete()
                 await pkmnmsg.delete()

@@ -120,7 +120,7 @@ class WildSpawnCommands(commands.Cog):
         self.bot.guild_dict[guild.id]['trainers'][channel_regions[0]][author.id]['wild_reports'] = wild_reports
         wild_details = {'pokemon': pkmn, 'perfect': is_perfect, 'location': wild_details, 'regions': channel_regions}
         self.bot.event_loop.create_task(self.wild_expiry_check(wildreportmsg))
-        await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, message.guild, 'wild',
+        await list_helpers.update_listing_channels(self.bot, message.guild, 'wild',
                                                    edit=False, regions=channel_regions)
         subscriptions_cog = self.bot.cogs.get('Subscriptions')
         send_channel = subscriptions_cog.get_region_list_channel(guild, channel_regions[0], 'wild')
@@ -168,7 +168,7 @@ class WildSpawnCommands(commands.Cog):
         except (discord.errors.NotFound, discord.errors.Forbidden, discord.errors.HTTPException):
             pass
         del self.bot.guild_dict[guild.id]['wildreport_dict'][message.id]
-        await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild, 'wild', edit=True,
+        await list_helpers.update_listing_channels(self.bot, guild, 'wild', edit=True,
                                                    regions=raid_helpers.get_channel_regions(channel, 'wild',
                                                                                             self.bot.guild_dict))
 

@@ -8,19 +8,17 @@ import time
 import discord
 from discord.ext import commands
 
-from kyogre import checks, list_helpers, raid_helpers, utils
+from kyogre import checks, list_helpers, raid_helpers, raid_lobby_helpers
 from kyogre.exts.pokemon import Pokemon
 
 
 class RaidParty(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    status_parse_rgx = r'^(w*\d+)$|^(\d+(?:[, ]+))?([\dimvu ,]+)?(?:[, ]*)([a-zA-Z ,]+)?$'
-    status_parser = re.compile(status_parse_rgx)
+        self.status_parser = re.compile(r'^(w*\d+)$|^(\d+(?:[, ]+))?([\dimvu ,]+)?(?:[, ]*)([a-zA-Z ,]+)?$')
 
     async def _parse_teamcounts(self, ctx, teamcounts, trainer_dict, egglevel):
-        if (not teamcounts):
+        if not teamcounts:
             if ctx.author.id in trainer_dict:
                 bluecount = str(trainer_dict[ctx.author.id]['party']['mystic']) + 'm '
                 redcount = str(trainer_dict[ctx.author.id]['party']['valor']) + 'v '
@@ -32,9 +30,9 @@ class RaidParty(commands.Cog):
         if "all" in teamcounts.lower():
             teamcounts = "{teamcounts} {bosslist}"\
                 .format(teamcounts=teamcounts,
-                        bosslist=",".join([s.title() for s in raid_info['raid_eggs'][egglevel]['pokemon']]))
+                        bosslist=",".join([s.title() for s in self.bot.raid_info['raid_eggs'][egglevel]['pokemon']]))
             teamcounts = teamcounts.lower().replace("all","").strip()
-        return status_parser.fullmatch(teamcounts)
+        return self.status_parser.fullmatch(teamcounts)
 
     async def _process_status_command(self, ctx, teamcounts):
         eta = None
@@ -44,26 +42,26 @@ class RaidParty(commands.Cog):
                 eta = teamcounts[idx:]
                 teamcounts = teamcounts[:idx]
         guild = ctx.guild
-        trainer_dict = guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict']
+        trainer_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict']
         entered_interest = trainer_dict.get(ctx.author.id, {}).get('interest', [])
-        egglevel = guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['egglevel']
-        parsed_counts = await _parse_teamcounts(ctx, teamcounts, trainer_dict, egglevel)
+        egglevel = self.bot.guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['egglevel']
+        parsed_counts = await self._parse_teamcounts(ctx, teamcounts, trainer_dict, egglevel)
         errors = []
         if not parsed_counts:
             raise ValueError("I couldn't understand that format! "
                              "Check the format against `!help interested` and try again.")
         totalA, totalB, groups, bosses = parsed_counts.groups()
         total = totalA or totalB
-        if bosses and guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['type'] == "egg":
+        if bosses and self.bot.guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['type'] == "egg":
             entered_interest = set(entered_interest)
             bosses_list = bosses.lower().split(',')
             if isinstance(bosses_list, str):
                 bosses_list = [bosses.lower()]
             for boss in bosses_list:
-                pkmn = Pokemon.get_pokemon(Kyogre, boss)
+                pkmn = Pokemon.get_pokemon(self.bot, boss)
                 if pkmn:
                     name = pkmn.name.lower()
-                    if name in raid_info['raid_eggs'][egglevel]['pokemon']:
+                    if name in self.bot.raid_info['raid_eggs'][egglevel]['pokemon']:
                         entered_interest.add(name)
                     else:
                         errors.append("{pkmn} doesn't appear in level {egglevel} raids! Please try again."
@@ -72,8 +70,8 @@ class RaidParty(commands.Cog):
                 errors.append("Invalid Pokemon detected. Please check the pinned message "
                               "for the list of possible bosses and try again.")
                 raise ValueError('\n'.join(errors))
-        elif not bosses and guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['type'] == 'egg':
-            entered_interest = [p for p in raid_info['raid_eggs'][egglevel]['pokemon']]
+        elif not bosses and self.bot.guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['type'] == 'egg':
+            entered_interest = [p for p in self.bot.raid_info['raid_eggs'][egglevel]['pokemon']]
         if total:
             if total[0] == 'w':
                 total = total[1:]
@@ -88,7 +86,7 @@ class RaidParty(commands.Cog):
         if not groups:
             groups = ''
         teamcounts = f"{total} {groups}"
-        result = await _party_status(ctx, total, teamcounts)
+        result = await self._party_status(ctx, total, teamcounts)
         return (result, entered_interest, eta)
 
     @commands.command()
@@ -105,13 +103,13 @@ class RaidParty(commands.Cog):
         author = message.author
         guild = message.guild
         channel = message.channel
-        cooldown_time = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('cooldown', 0)
+        cooldown_time = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id].get('cooldown', 0)
         cooldown = False
         if cooldown_time > int(time.time()):
             cooldown = True
         else:
-            guild_dict[guild.id]['raidchannel_dict'][channel.id]['cooldown'] = int(time.time()) + 120
-        trainer_dict = guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
+            self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['cooldown'] = int(time.time()) + 120
+        trainer_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
         trainer_list = []
         embed = discord.Embed(colour=discord.Colour.green())
         for trainer in trainer_dict:
@@ -143,13 +141,13 @@ class RaidParty(commands.Cog):
         Party must be a number plus a team.
         **Example**: `!i 3 1i 1m 1v`"""
         try:
-            result, entered_interest, eta = await _process_status_command(ctx, teamcounts)
+            result, entered_interest, eta = await self._process_status_command(ctx, teamcounts)
         except ValueError as e:
             return await ctx.channel.send(e)
         if isinstance(result, list):
             count = result[0]
             partylist = result[1]
-            await list_helpers._maybe(ctx, Kyogre, guild_dict, raid_info, count, partylist, eta, entered_interest)
+            await list_helpers._maybe(ctx, self.bot, count, partylist, eta, entered_interest)
 
     @commands.command(aliases=['c'])
     @checks.activechannel()
@@ -164,13 +162,13 @@ class RaidParty(commands.Cog):
         Party must be a number plus a team.
         **Example**: `!c 3 1i 1m 1v`"""
         try:
-            result, entered_interest, eta = await _process_status_command(ctx, teamcounts)
+            result, entered_interest, eta = await self._process_status_command(ctx, teamcounts)
         except ValueError as e:
             return await ctx.channel.send(e)
         if isinstance(result, list):
             count = result[0]
             partylist = result[1]
-            await list_helpers._coming(ctx, Kyogre, guild_dict, raid_info, count, partylist, eta, entered_interest)
+            await list_helpers._coming(ctx, self.bot, count, partylist, eta, entered_interest)
 
     @commands.command(aliases=['h'])
     @checks.activechannel()
@@ -184,18 +182,18 @@ class RaidParty(commands.Cog):
         Party must be a number plus a team.
         **Example**: `!h 3 1i 1m 1v`"""
         try:
-            result, entered_interest, eta = await _process_status_command(ctx, teamcounts)
+            result, entered_interest, eta = await self._process_status_command(ctx, teamcounts)
         except ValueError as e:
             return await ctx.channel.send(e)
         if isinstance(result, list):
             count = result[0]
             partylist = result[1]
-            await list_helpers._here(ctx, Kyogre, guild_dict, raid_info, count, partylist, entered_interest)
+            await list_helpers._here(ctx, self.bot, count, partylist, entered_interest)
 
     async def _party_status(self, ctx, total, teamcounts):
         channel = ctx.channel
         author = ctx.author
-        trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'].get(author.id, {})
+        trainer_dict = self.bot.guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'].get(author.id, {})
         roles = [r.name.lower() for r in author.roles]
         if 'mystic' in roles:
             my_team = 'mystic'
@@ -282,14 +280,14 @@ class RaidParty(commands.Cog):
         **Usage**: `!lobby [count]`
         Count must be a number. If count is omitted, assumes you are a group of 1."""
         try:
-            if guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['type'] == 'egg':
-                if guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['pokemon'] == '':
+            if self.bot.guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['type'] == 'egg':
+                if self.bot.guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['pokemon'] == '':
                     await ctx.channel.send("Please wait until the raid egg has hatched "
                                            "before announcing you're coming or present.")
                     return
         except:
             pass
-        trainer_dict = guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict']
+        trainer_dict = self.bot.guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict']
         if count:
             if count.isdigit():
                 count = int(count)
@@ -301,36 +299,36 @@ class RaidParty(commands.Cog):
             count = trainer_dict[ctx.author.id]['count']
         else:
             count = 1
-        await _lobby(ctx.message, count)
+        await self._lobby(ctx.message, count)
 
     async def _lobby(self, message, count):
         trainer = message.author
         guild = message.guild
         channel = message.channel
-        if 'lobby' not in guild_dict[guild.id]['raidchannel_dict'][channel.id]:
+        if 'lobby' not in self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]:
             await channel.send('There is no group in the lobby for you to join!\
             Use **!starting** if the group waiting at the raid is entering the lobby!')
             return
-        trainer_dict = guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
+        trainer_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
         if count == 1:
             await channel.send('{member} is entering the lobby!'.format(member=trainer.mention))
         else:
             await channel.send('{member} is entering the lobby with a total of {trainer_count} trainers!'
                                .format(member=trainer.mention, trainer_count=count))
-            regions = raid_helpers.get_channel_regions(channel, 'raid', guild_dict)
-            joined = guild_dict[guild.id].setdefault('trainers', {})\
+            regions = raid_helpers.get_channel_regions(channel, 'raid', self.bot.guild_dict)
+            joined = self.bot.guild_dict[guild.id].setdefault('trainers', {})\
                          .setdefault(regions[0], {})\
                          .setdefault(trainer.id, {})\
                          .setdefault('joined', 0) + 1
-            guild_dict[guild.id]['trainers'][regions[0]][trainer.id]['joined'] = joined
+            self.bot.guild_dict[guild.id]['trainers'][regions[0]][trainer.id]['joined'] = joined
         if trainer.id not in trainer_dict:
             trainer_dict[trainer.id] = {}
         trainer_dict[trainer.id]['status'] = {'maybe': 0, 'coming': 0, 'here': 0, 'lobby': count}
         trainer_dict[trainer.id]['count'] = count
-        guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
-        regions = guild_dict[guild.id]['raidchannel_dict'][channel.id].get('regions', None)
+        self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
+        regions = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id].get('regions', None)
         if regions:
-            await list_helpers.update_listing_channels(Kyogre, guild_dict, channel.guild,
+            await list_helpers.update_listing_channels(self.bot, channel.guild,
                                                        'raid', edit=True, regions=regions)
 
     @commands.command(aliases=['x'])
@@ -341,7 +339,7 @@ class RaidParty(commands.Cog):
         **Usage**: `!cancel/x`
         Removes you and your party from the list of trainers who are "coming" or "here".
         Or removes you and your party from the active lobby."""
-        await list_helpers._cancel(ctx, Kyogre, guild_dict, raid_info)
+        await list_helpers._cancel(ctx, self.bot)
 
     @commands.command(aliases=['s'])
     @checks.activeraidchannel()
@@ -352,7 +350,7 @@ class RaidParty(commands.Cog):
         Sends a message notifying all trainers who are at the raid and clears the waiting list.
         Starts a 2 minute lobby countdown during which time trainers can join this lobby using `!lobby`.
         Users who are waiting for a second group must reannounce with `!here`."""
-        await raid_lobby_helpers._starting(ctx, Kyogre, guild_dict, raid_info, team)
+        await raid_lobby_helpers._starting(ctx, self.bot, team)
 
     @commands.command()
     @checks.activeraidchannel()
@@ -362,7 +360,7 @@ class RaidParty(commands.Cog):
         **Usage**: `!backout`
         Will alert all trainers in the lobby that a backout is requested.
         Those trainers can exit the lobby with `!cancel`."""
-        await raid_lobby_helpers._backout(ctx, Kyogre, guild_dict)
+        await raid_lobby_helpers._backout(ctx, self.bot)
          
 
 def setup(bot):

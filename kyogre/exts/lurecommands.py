@@ -68,8 +68,7 @@ class LureCommands(commands.Cog):
             icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
         lurereportmsg = await channel.send(f'**{luretype.name.capitalize()}** lure reported by '
                                            f'{author.display_name} at {stop.name}', embed=lure_embed)
-        await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
-                                                   'lure', edit=False, regions=lure_regions)
+        await list_helpers.update_listing_channels(self.bot, guild, 'lure', edit=False, regions=lure_regions)
         details = {'regions': lure_regions, 'type': 'lure', 'lure_type': luretype.name, 'location': stop}
         send_channel = subscriptions_cog.get_region_list_channel(guild, stop.region, 'lure')
         if send_channel is None:
@@ -104,7 +103,7 @@ class LureCommands(commands.Cog):
             await message.edit(content="", embed=discord.Embed(description="This lure has expired"))
         except discord.errors.NotFound:
             pass
-        await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild, 'lure', edit=True,
+        await list_helpers.update_listing_channels(self.bot, guild, 'lure', edit=True,
                                                    regions=raid_helpers.get_channel_regions(channel, 'lure',
                                                                                             self.bot.guild_dict))
 

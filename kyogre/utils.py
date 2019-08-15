@@ -524,3 +524,30 @@ async def prompt_match_result(Kyogre, channel, author_id, target, result_list):
             # found a solitary best match
             match = perfect_scores[0]
         return match
+
+
+async def reaction_delay(message, reacts, delay=0.25):
+    for r in reacts:
+        await asyncio.sleep(delay)
+        await message.add_reaction(r)
+
+
+def get_category(channel, level, guild_dict, category_type="raid"):
+    guild = channel.guild
+    if category_type == "raid" or category_type == "egg":
+        report = "raid"
+    else:
+        report = category_type
+    catsort = guild_dict[guild.id]['configure_dict'][report].get('categories', None)
+    if catsort == "same":
+        return channel.category
+    elif catsort == "region":
+        category = discord.utils.get(guild.categories,
+                                     id=guild_dict[guild.id]['configure_dict'][report]['category_dict'][channel.id])
+        return category
+    elif catsort == "level":
+        category = discord.utils.get(guild.categories,
+                                     id=guild_dict[guild.id]['configure_dict'][report]['category_dict'][level])
+        return category
+    else:
+        return None
