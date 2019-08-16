@@ -8,7 +8,7 @@ import time
 import discord
 from discord.ext import commands
 
-from kyogre import checks, list_helpers, raid_helpers, utils
+from kyogre import checks, utils
 from kyogre.exts.pokemon import Pokemon
 
 
@@ -40,7 +40,8 @@ class ResearchCommands(commands.Cog):
                                   .format(author=author.display_name,
                                           timestamp=timestamp.strftime('%I:%M %p (%H:%M)')),
                                   icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
-        regions = raid_helpers.get_channel_regions(channel, 'research', self.bot.guild_dict)
+        utils_cog = self.bot.cogs.get('Utilities')
+        regions = utils_cog.get_channel_regions(channel, 'research')
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         stops = location_matching_cog.get_stops(guild.id, regions)
         location, quest, reward = None, None, None
@@ -212,7 +213,8 @@ class ResearchCommands(commands.Cog):
                                    .setdefault(author.id, {})\
                                    .setdefault('research_reports', 0) + 1
             self.bot.guild_dict[ctx.guild.id]['trainers'][regions[0]][author.id]['research_reports'] = research_reports
-            await list_helpers.update_listing_channels(self.bot, guild, 'research', edit=False, regions=regions)
+            listmgmt_cog = self.bot.cogs.get('ListManagement')
+            await listmgmt_cog.update_listing_channels(guild, 'research', edit=False, regions=regions)
             subscriptions_cog = self.bot.cogs.get('Subscriptions')
             send_channel = subscriptions_cog.get_region_list_channel(guild, regions[0], 'research')
             if send_channel is None:
@@ -251,7 +253,8 @@ class ResearchCommands(commands.Cog):
             url='https://raw.githubusercontent.com/klords/Kyogre/master/images/misc/field-research.png?cache=0')
         research_embed.set_footer(text='Reported by {user}'.format(user=user.display_name),
                                   icon_url=user.avatar_url_as(format=None, static_format='jpg', size=32))
-        regions = raid_helpers.get_channel_regions(channel, 'research', self.bot.guild_dict)
+        utils_cog = self.bot.cogs.get('Utilities')
+        regions = utils_cog.get_channel_regions(channel, 'research')
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         stops = location_matching_cog.get_stops(guild.id, regions)
         stop = questreport_dict[message.id]['location']
@@ -282,7 +285,7 @@ class ResearchCommands(commands.Cog):
                         stop = await location_matching_cog.match_prompt(channel, user.id,
                                                                         pokestopmsg.clean_content, stops)
                         if not stop:
-                            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No Pokestop found with name: {pokestopmsg.clean_content}.")
+                            self.bot.help_logger.info(f"User: {user.name}, channel: {channel}, error: No Pokestop found with name: {pokestopmsg.clean_content}.")
                             await channel.send(embed=discord.Embed(
                                 colour=discord.Colour.red(),
                                 description=f"I couldn't find a pokestop named '{pokestopmsg.clean_content}'."
@@ -297,7 +300,8 @@ class ResearchCommands(commands.Cog):
                                 loc_url = stop.maps_url
                                 questreport_dict[message.id]['location'] = location
                                 questreport_dict[message.id]['url'] = loc_url
-                                await list_helpers.update_listing_channels(self.bot, guild, "research", regions=regions)
+                                listmgmt_cog = self.bot.cogs.get('ListManagement')
+                                await listmgmt_cog.update_listing_channels(guild, "research", regions=regions)
                                 await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
                                                                        description="Research listing updated"))
                                 await pokestopmsg.delete()
@@ -318,7 +322,8 @@ class ResearchCommands(commands.Cog):
                     reward = await questrewardmanagement_cog.prompt_reward_v(channel, user.id, quest)
                 questreport_dict[message.id]['quest'] = quest.name
                 questreport_dict[message.id]['reward'] = reward
-                await list_helpers.update_listing_channels(self.bot, guild, "research", regions=regions)
+                listmgmt_cog = self.bot.cogs.get('ListManagement')
+                await listmgmt_cog.update_listing_channels(guild, "research", regions=regions)
                 await channel.send(
                     embed=discord.Embed(colour=discord.Colour.green(), description="Research listing updated"))
                 await questmsg.delete()
@@ -329,7 +334,8 @@ class ResearchCommands(commands.Cog):
                 reward = await questrewardmanagement_cog.prompt_reward_v(channel, user.id, quest)
 
                 questreport_dict[message.id]['reward'] = reward
-                await list_helpers.update_listing_channels(self.bot, guild, "research", regions=regions)
+                listmgmt_cog = self.bot.cogs.get('ListManagement')
+                await listmgmt_cog.update_listing_channels(guild, "research", regions=regions)
                 await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
                                                        description="Research listing updated"))
                 await rewardwait.delete()
@@ -356,6 +362,42 @@ class ResearchCommands(commands.Cog):
             return report['location'].lower() == location.name.lower()
 
         return [confirmation_id for confirmation_id, report in report_dict.items() if matches_existing(report)]
+
+    @commands.Cog.listener()
+    @checks.good_standing()
+    async def on_raw_reaction_add(self, payload):
+        if payload.user_id == self.bot.user.id:
+            return
+        guild_dict = self.bot.guild_dict
+        channel = self.bot.get_channel(payload.channel_id)
+        try:
+            message = await channel.fetch_message(payload.message_id)
+        except (discord.errors.NotFound, AttributeError):
+            return
+        guild = message.guild
+        try:
+            user = guild.get_member(payload.user_id)
+        except AttributeError:
+            return
+        utils_cog = self.bot.cogs.get('Utilities')
+        regions = utils_cog.get_channel_regions(channel, 'raid')
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
+        questreport_dict = guild_dict[guild.id].setdefault('questreport_dict', {})
+        if message.id in questreport_dict:
+            quest_dict = questreport_dict.get(message.id, None)
+            if quest_dict and (quest_dict['reportauthor'] == payload.user_id or utils.can_manage(user, self.bot.config)):
+                if str(payload.emoji) == '\u270f':
+                    await self.modify_research_report(payload)
+                elif str(payload.emoji) == '🚫':
+                    try:
+                        await message.edit(embed=discord.Embed(description="Research report cancelled",
+                                                               colour=message.embeds[0].colour.value))
+                        await message.clear_reactions()
+                    except discord.errors.NotFound:
+                        pass
+                    del questreport_dict[message.id]
+                    await listmgmt_cog.update_listing_channels(guild, "research", edit=True, regions=regions)
+                await message.remove_reaction(payload.emoji, user)
 
 
 def setup(bot):

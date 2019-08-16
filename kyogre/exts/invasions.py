@@ -6,7 +6,7 @@ import re
 import discord
 from discord.ext import commands
 
-from kyogre import checks, list_helpers, raid_helpers
+from kyogre import checks, utils
 from kyogre.exts.db.kyogredb import *
 
 from kyogre.exts.pokemon import Pokemon
@@ -34,7 +34,8 @@ class Invasions(commands.Cog):
         utilities_cog = self.bot.cogs.get('Utilities')
         subscriptions_cog = self.bot.cogs.get('Subscriptions')
         location_matching_cog = self.bot.cogs.get('LocationMatching')
-        regions = raid_helpers.get_channel_regions(channel, 'invasion', self.bot.guild_dict)
+        utils_cog = self.bot.cogs.get('Utilities')
+        regions = utils_cog.get_channel_regions(channel, 'takeover')
         stops = location_matching_cog.get_stops(guild.id, regions)
         if stops:
             stop = await location_matching_cog.match_prompt(channel, author.id, stopname, stops)
@@ -91,7 +92,8 @@ class Invasions(commands.Cog):
         await subscriptions_cog.send_notifications_async('takeover', details, send_channel, [message.author.id])
         self.bot.event_loop.create_task(self.invasion_expiry_check(invasionreportmsg, report.id, author))
         await asyncio.sleep(1) # without this the listing update will miss the most recent report
-        await list_helpers.update_listing_channels(self.bot, guild, 'takeover', edit=False, regions=regions)
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
+        await listmgmt_cog.update_listing_channels(guild, 'takeover', edit=False, regions=regions)
 
     async def invasion_expiry_check(self, message, invasion_id, author):
         print(invasion_id)
@@ -131,12 +133,14 @@ class Invasions(commands.Cog):
             del self.bot.active_invasions[invasion_id]
         except ValueError:
             pass
-        await list_helpers.update_listing_channels(self.bot, guild, 'takeover', edit=True,
-                                                   regions=raid_helpers.get_channel_regions(channel, 'takeover',                                                    
-                                                                                            self.bot.guild_dict))
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
+        utils_cog = self.bot.cogs.get('Utilities')
+        regions = utils_cog.get_channel_regions(channel, 'takeover')
+        await listmgmt_cog.update_listing_channels(guild, 'takeover', edit=True, regions=regions)
                                                     
     async def _check_existing(self, ctx, stop):
-        current = datetime.datetime.utcnow() + datetime.timedelta(hours=self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset'])
+        current = datetime.datetime.utcnow() \
+                + datetime.timedelta(hours=self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset'])
         current = round(current.timestamp())
         expiration_seconds = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['invasion_minutes'] * 60
         result = (TrainerReportRelation.select(
@@ -162,7 +166,8 @@ class Invasions(commands.Cog):
             user = guild.get_member(payload.user_id)
         except AttributeError:
             return
-        regions = raid_helpers.get_channel_regions(channel, 'invasion', self.bot.guild_dict)
+        utils_cog = self.bot.cogs.get('Utilities')
+        regions = utils_cog.get_channel_regions(channel, 'takeover')
         if str(payload.emoji) == '🇵':
             query_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(),
                                                                description="What is the Pokemon awarded from this encounter?"))
@@ -189,16 +194,17 @@ class Invasions(commands.Cog):
                 if result is not None:
                     InvasionTable.update(pokemon_number_id=pkmn.id).where(InvasionTable.trainer_report_id == result[0].id).execute()
                 await self._update_report(channel, message.id, pkmn)
-                await list_helpers.update_listing_channels(self.bot, guild,
-                                                   'takeover', edit=False, regions=regions)
+                listmgmt_cog = self.bot.cogs.get('ListManagement')
+                await listmgmt_cog.update_listing_channels(guild, 'takeover', edit=False, regions=regions)
                 await query_msg.delete()
                 await pkmnmsg.delete()
                 await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
-                                                           description="Team Rocket Takeover listing updated."),
-                                       delete_after=15)
+                                                       description="Team Rocket Takeover listing updated."),
+                                   delete_after=15)
         elif str(payload.emoji) == '\u270f':
             location_matching_cog = self.bot.cogs.get('LocationMatching')
-            regions = raid_helpers.get_channel_regions(channel, 'invasion', self.bot.guild_dict)
+            utils_cog = self.bot.cogs.get('Utilities')
+            regions = utils_cog.get_channel_regions(channel, 'takeover')
             stops = location_matching_cog.get_stops(guild.id, regions)
             query_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(),
                                                                description="What is the correct Location?"))
@@ -213,13 +219,13 @@ class Invasions(commands.Cog):
                 error = "cancelled the report"
                 await stopmsg.delete()
             elif stopmsg:
-                stop = await location_matching_cog.match_prompt(channel, author.id, stopmsg.clean_content, stops)
+                stop = await location_matching_cog.match_prompt(channel, user.id, stopmsg.clean_content, stops)
                 if not stop:
                     return await channel.send(
                         embed=discord.Embed(colour=discord.Colour.red(),
-                                            description=f"No pokestop found with name '**{stopname}**' "
+                                            description=f"No pokestop found with name '**{stopmsg.clean_content}**' "
                                             f"either. Try reporting again using the exact pokestop name!"),
-                        delete_after = 15)
+                        delete_after=15)
                 if await self._check_existing(ctx, stop):
                     return await channel.send(
                         embed=discord.Embed(colour=discord.Colour.red(),
@@ -229,7 +235,8 @@ class Invasions(commands.Cog):
                 regions = [stop.region]
         await message.remove_reaction(payload.emoji, user)
 
-    async def _update_report(self, channel, message_id, pokemon):
+    @staticmethod
+    async def _update_report(channel, message_id, pokemon):
         report_message = await channel.fetch_message(message_id)
         if report_message is None:
             return
@@ -246,6 +253,29 @@ class Invasions(commands.Cog):
             pass
         await report_message.edit(embed=embed)
 
+    @commands.Cog.listener()
+    @checks.good_standing()
+    async def on_raw_reaction_add(self, payload):
+        if payload.user_id == self.bot.user.id:
+            return
+        channel = self.bot.get_channel(payload.channel_id)
+        try:
+            message = await channel.fetch_message(payload.message_id)
+        except (discord.errors.NotFound, AttributeError):
+            return
+        guild = message.guild
+        try:
+            user = guild.get_member(payload.user_id)
+        except AttributeError:
+            return
+        for i, d in self.bot.active_invasions.items():
+            if d["message"].id == message.id:
+                if d["author"] == payload.user_id or utils.can_manage(user, self.bot.config):
+                    if str(payload.emoji) == '💨':
+                        await self.expire_invasion(i)
+                        break
+                    elif str(payload.emoji) in ['🇵', '\u270f']:
+                        await self.modify_report(payload)
 
 def setup(bot):
     bot.add_cog(Invasions(bot))

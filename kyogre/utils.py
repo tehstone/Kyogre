@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import dateparser
 import re
@@ -7,7 +8,7 @@ from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
 import discord
-import asyncio
+from kyogre import checks
 
 
 def get_match(word_list: list, word: str, score_cutoff: int = 60, isPartial: bool = False, limit: int = 1):
@@ -551,3 +552,11 @@ def get_category(channel, level, guild_dict, category_type="raid"):
         return category
     else:
         return None
+
+def can_manage(user, config):
+    if checks.is_user_dev_or_owner(config, user.id):
+        return True
+    for role in user.roles:
+        if role.permissions.manage_messages:
+            return True
+    return False

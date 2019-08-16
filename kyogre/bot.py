@@ -1,4 +1,3 @@
-import asyncio
 import copy
 import json
 import os
@@ -22,6 +21,8 @@ default_exts = ['admincommands',
                 'helpcommand',
                 'invasions',
                 'inviterole',
+                'listcommands',
+                'listmanagement',
                 'locationmanagement',
                 'locationmatching',
                 'lurecommands',
@@ -30,9 +31,10 @@ default_exts = ['admincommands',
                 'pvp',
                 'questrewardmanagement',
                 'quickbadge',
+                'raidavailable',
                 'raidcommands',
-                'raidparty',
                 'raiddatahandler',
+                'raidparty',
                 'regions',
                 'researchcommands',
                 'setcommands',

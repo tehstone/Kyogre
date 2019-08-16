@@ -7,7 +7,7 @@ import time
 import discord
 from discord.ext import commands
 
-from kyogre import checks, list_helpers, raid_helpers, utils
+from kyogre import checks, utils
 from kyogre.exts.pokemon import Pokemon
 
 
@@ -36,7 +36,8 @@ class WildSpawnCommands(commands.Cog):
                 embed=discord.Embed(colour=discord.Colour.red(),
                                     description='Give more details when reporting! '
                                                 'Usage: **!wild <pokemon name> <location>**'))
-        channel_regions = raid_helpers.get_channel_regions(channel, 'wild', self.bot.guild_dict)
+        utils_cog = self.bot.cogs.get('Utilities')
+        channel_regions = utils_cog.get_channel_regions(channel, 'wild')
         rgx = r'\s*((100(\s*%)?|perfect)(\s*ivs?\b)?)\s*'
         content, count = re.subn(rgx, '', content.strip(), flags=re.I)
         is_perfect = count > 0
@@ -120,8 +121,8 @@ class WildSpawnCommands(commands.Cog):
         self.bot.guild_dict[guild.id]['trainers'][channel_regions[0]][author.id]['wild_reports'] = wild_reports
         wild_details = {'pokemon': pkmn, 'perfect': is_perfect, 'location': wild_details, 'regions': channel_regions}
         self.bot.event_loop.create_task(self.wild_expiry_check(wildreportmsg))
-        await list_helpers.update_listing_channels(self.bot, message.guild, 'wild',
-                                                   edit=False, regions=channel_regions)
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
+        await listmgmt_cog.update_listing_channels(message.guild, 'wild', edit=False, regions=channel_regions)
         subscriptions_cog = self.bot.cogs.get('Subscriptions')
         send_channel = subscriptions_cog.get_region_list_channel(guild, channel_regions[0], 'wild')
         if send_channel is None:
@@ -168,9 +169,42 @@ class WildSpawnCommands(commands.Cog):
         except (discord.errors.NotFound, discord.errors.Forbidden, discord.errors.HTTPException):
             pass
         del self.bot.guild_dict[guild.id]['wildreport_dict'][message.id]
-        await list_helpers.update_listing_channels(self.bot, guild, 'wild', edit=True,
-                                                   regions=raid_helpers.get_channel_regions(channel, 'wild',
-                                                                                            self.bot.guild_dict))
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
+        utils_cog = self.bot.cogs.get('Utilities')
+        await listmgmt_cog.update_listing_channels(guild, 'wild', edit=True,
+                                                   regions=utils_cog.get_channel_regions(channel, 'wild'))
+
+    @commands.Cog.listener()
+    @checks.good_standing()
+    async def on_raw_reaction_add(self, payload):
+        if payload.user_id == self.bot.user.id:
+            return
+        guild_dict = self.bot.guild_dict
+        channel = self.bot.get_channel(payload.channel_id)
+        try:
+            message = await channel.fetch_message(payload.message_id)
+        except (discord.errors.NotFound, AttributeError):
+            return
+        guild = message.guild
+        try:
+            user = guild.get_member(payload.user_id)
+        except AttributeError:
+            return
+        wildreport_dict = guild_dict[guild.id].setdefault('wildreport_dict', {})
+        if message.id in wildreport_dict:
+            wild_dict = wildreport_dict.get(message.id, None)
+            if str(payload.emoji) == '🏎':
+                wild_dict['omw'].append(user.mention)
+                wildreport_dict[message.id] = wild_dict
+            elif str(payload.emoji) == '💨':
+                for reaction in message.reactions:
+                    if reaction.emoji == '💨' and reaction.count >= 2:
+                        if wild_dict['omw']:
+                            despawn = "has despawned"
+                            await channel.send(
+                                f"{', '.join(wild_dict['omw'])}: {wild_dict['pokemon'].title()} {despawn}!")
+                        wilds_cog = self.bot.cogs.get('WildSpawnCommands')
+                        await wilds_cog.expire_wild(message)
 
 
 def setup(bot):

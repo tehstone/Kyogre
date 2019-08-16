@@ -3,14 +3,12 @@ import copy
 import dateparser
 import datetime
 import re
-import textwrap
 import time
 
 import discord
 from discord.ext import commands
 
-from kyogre import checks, counters_helpers, embed_utils, entity_updates, \
-    list_helpers, raid_helpers, raid_lobby_helpers, utils
+from kyogre import checks, counters_helpers, embed_utils, entity_updates, utils
 from kyogre.exts.pokemon import Pokemon
 from kyogre.exts.bosscp import boss_cp_chart
 
@@ -331,10 +329,12 @@ class RaidCommands(commands.Cog):
             raid_report = False
         else:
             raid_report = True
-        report_regions = raid_helpers.get_channel_regions(channel, 'raid', self.bot.guild_dict)
+        utils_cog = self.bot.cogs.get('Utilities')
+        report_regions = utils_cog.get_channel_regions(channel, 'raid')
         gym = None
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         gyms = location_matching_cog.get_gyms(guild.id, report_regions)
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
         other_region = False
         gym_regions = []
         egg_info = None
@@ -364,7 +364,8 @@ class RaidCommands(commands.Cog):
                     raid_dict_entry = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
                 except:
                     return await message.add_reaction('\u274c')
-                enabled = raid_helpers.raid_channels_enabled(guild, channel, self.bot.guild_dict)
+                utils_cog = self.bot.cogs.get('Utilities')
+                enabled = utils_cog.raid_channels_enabled(guild, channel)
                 if raid_dict_entry and not (raid_dict_entry['exp'] - 60 < datetime.datetime.now().timestamp()):
                     msg = f"A raid has already been reported for {gym.name}."
                     if enabled:
@@ -384,8 +385,7 @@ class RaidCommands(commands.Cog):
             utilities_cog = self.bot.cogs.get('Utilities')
             raid_gmaps_link = utilities_cog.create_gmaps_query(raid_details, channel, type="raid")
         if other_region:
-            report_channels = await list_helpers.get_region_reporting_channels(guild, gym_regions[0],
-                                                                               self.bot.guild_dict)
+            report_channels = await listmgmt_cog.get_region_reporting_channels(guild, gym.regions[0])
             report_channel = self.bot.get_channel(report_channels[0])
         else:
             report_channel = channel
@@ -426,7 +426,8 @@ class RaidCommands(commands.Cog):
         raid_embed = discord.Embed(title='Click here for directions to the raid!',
                                    url=raid_gmaps_link,
                                    colour=guild.me.colour)
-        enabled = raid_helpers.raid_channels_enabled(guild, channel, self.bot.guild_dict)
+        utils_cog = self.bot.cogs.get('Utilities')
+        enabled = utils_cog.raid_channels_enabled(guild, channel)
         if gym:
             gym_info = f"**{raid_details}**\n{'_EX Eligible Gym_' if gym.ex_eligible else ''}"
             raid_embed.add_field(name='**Gym:**', value=gym_info, inline=False)
@@ -446,7 +447,7 @@ class RaidCommands(commands.Cog):
                 raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**')
                 raid_embed.add_field(name='**Expires:**', value='Set with **!timerset**')
             raid_img_url = raid_pokemon.img_url
-            msg = entity_updates.build_raid_report_message(gym, 'raid', raid_pokemon.name, '0',
+            msg = entity_updates.build_raid_report_message(self.bot, gym, 'raid', raid_pokemon.name, '0',
                                                            raidexp, raid_channel, self.bot.guild_dict)
         else:
             if enabled:
@@ -463,7 +464,7 @@ class RaidCommands(commands.Cog):
                 raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**', inline=True)
             raid_img_url = 'https://raw.githubusercontent.com/klords/Kyogre/master/images/eggs/{}?cache=0'\
                 .format(str(egg_img))
-            msg = entity_updates.build_raid_report_message(gym, 'egg', '', level, raidexp,
+            msg = entity_updates.build_raid_report_message(self.bot, gym, 'egg', '', level, raidexp,
                                                            raid_channel, self.bot.guild_dict)
         if enabled:
             raid_embed.set_footer(text='Reported by {author} - {timestamp}'
@@ -555,7 +556,7 @@ class RaidCommands(commands.Cog):
             await raid_channel.send(content='Hey {member}, if you can, set the time left on the raid using '
                                             '**!timerset <minutes>** so others can check it with **!timer**.'
                                     .format(member=author.mention))
-        await list_helpers.update_listing_channels(self.bot, guild, 'raid', edit=False, regions=gym_regions)
+        await listmgmt_cog.update_listing_channels(guild, 'raid', edit=False, regions=gym_regions)
         subscriptions_cog = self.bot.cogs.get('Subscriptions')
         if enabled:
             send_channel = raid_channel
@@ -631,8 +632,7 @@ class RaidCommands(commands.Cog):
                 raid_channel_overwrite_dict.update(everyone_overwrite)
             cat = utils.get_category(report_channel, "EX", self.bot.guild_dict, category_type=raid_type)
         else:
-            reporting_channels = await list_helpers.get_region_reporting_channels(guild, gym.region,
-                                                                                  self.bot.guild_dict)
+            reporting_channels = await listmgmt_cog.get_region_reporting_channels(guild, gym.region)
             report_channel = guild.get_channel(reporting_channels[0])
             raid_channel_overwrite_dict = report_channel.overwrites
             name = ""
@@ -649,7 +649,8 @@ class RaidCommands(commands.Cog):
                                                        external_emojis=True, read_message_history=True,
                                                        embed_links=True, mention_everyone=True, attach_files=True)}
         raid_channel_overwrite_dict.update(kyogre_overwrite)
-        enabled = raid_helpers.raid_channels_enabled(guild, report_channel, self.bot.guild_dict)
+        utils_cog = self.bot.cogs.get('Utilities')
+        enabled = utils_cog.raid_channels_enabled(guild, report_channel)
         if not enabled:
             user_overwrite = {guild.default_role: discord.PermissionOverwrite(send_messages=False, read_messages=False,
                                                                               read_message_history=False)}
@@ -689,7 +690,8 @@ class RaidCommands(commands.Cog):
         eggdetails['pokemon'] = raid_pokemon.name
         oldembed = raid_message.embeds[0]
         raid_gmaps_link = oldembed.url
-        enabled = raid_helpers.raid_channels_enabled(guild, raid_channel, self.bot.guild_dict)
+        utils_cog = self.bot.cogs.get('Utilities')
+        enabled = utils_cog.raid_channels_enabled(guild, raid_channel)
         if enabled:
             embed_indices = await embed_utils.get_embed_field_indices(oldembed)
             raid_embed = discord.Embed(title='Click here for directions to the raid!',
@@ -762,6 +764,7 @@ class RaidCommands(commands.Cog):
         pkmn = Pokemon.get_pokemon(self.bot, entered_raid)
         if not pkmn:
             return
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
         eggdetails = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
         egglevel = eggdetails['egglevel']
         if egglevel == "0":
@@ -842,7 +845,8 @@ class RaidCommands(commands.Cog):
             hatchtype = 'raid'
             raidreportcontent = 'The egg has hatched into a {pokemon} raid at {location_details} gym.'\
                 .format(pokemon=entered_raid.capitalize(), location_details=egg_address)
-            enabled = raid_helpers.raid_channels_enabled(guild, raid_channel, self.bot.guild_dict)
+            utils_cog = self.bot.cogs.get('Utilities')
+            enabled = utils_cog.raid_channels_enabled(guild, raid_channel)
             if enabled:
                 raidreportcontent += 'Coordinate in the raid channel: {raid_channel}'\
                     .format(raid_channel=raid_channel.mention)
@@ -904,8 +908,9 @@ class RaidCommands(commands.Cog):
             else:
                 self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['trainer_dict'][trainer]['interest'] = []
         await asyncio.sleep(1)
-        trainer_count = list_helpers.determine_trainer_count(trainer_dict)
-        status_embed = list_helpers.build_status_embed(guild, self.bot, trainer_count)
+
+        trainer_count = listmgmt_cog.determine_trainer_count(trainer_dict)
+        status_embed = listmgmt_cog.build_status_embed(guild, trainer_count)
         for trainer in trainer_dict.keys():
             if (trainer_dict[trainer]['status']['maybe']) \
                     or (trainer_dict[trainer]['status']['coming']) \
@@ -1026,9 +1031,9 @@ class RaidCommands(commands.Cog):
             raid_reports = self.bot.guild_dict[guild.id].setdefault('trainers', {}).setdefault(regions[0], {})\
                                .setdefault(author.id, {}).setdefault('raid_reports', 0) + 1
             self.bot.guild_dict[guild.id]['trainers'][regions[0]][author.id]['raid_reports'] = raid_reports
-            await list_helpers._edit_party(ctx, self.bot, raid_channel, author)
-        await list_helpers.update_listing_channels(self.bot, guild,
-                                                   'raid', edit=False, regions=regions)
+
+            await listmgmt_cog.edit_party(ctx, raid_channel, author)
+        await listmgmt_cog.update_listing_channels(guild,'raid', edit=False, regions=regions)
         await asyncio.sleep(1)
         self.bot.event_loop.create_task(self.expiry_check(raid_channel))
 
@@ -1230,6 +1235,7 @@ class RaidCommands(commands.Cog):
         return exp_time > maxtime
 
     async def _timerset(self, raidchannel, exptime, to_print=True):
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
         guild = raidchannel.guild
         now = datetime.datetime.utcnow() + datetime.timedelta(
             hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
@@ -1293,8 +1299,7 @@ class RaidCommands(commands.Cog):
                                                embed=embed, content=city_report.content)
                     except:
                         pass
-        await list_helpers.update_listing_channels(self.bot, guild,
-                                                   'raid', edit=True, regions=raid_dict.get('regions', None))
+        await listmgmt_cog.update_listing_channels(guild, 'raid', edit=True, regions=raid_dict.get('regions', None))
         self.bot.get_channel(raidchannel.id)
 
     @commands.command()
@@ -1463,7 +1468,8 @@ class RaidCommands(commands.Cog):
                             report_channel = m.raw_channel_mentions[0]
                             break
             details = ' '.join(location_split)
-            regions = raid_helpers.get_channel_regions(channel, 'raid', self.bot.guild_dict)
+            utils_cog = self.bot.cogs.get('Utilities')
+            regions = utils_cog.get_channel_regions(channel, 'raid')
             gym = None
             location_matching_cog = self.bot.cogs.get('LocationMatching')
             gyms = location_matching_cog.get_gyms(message.guild.id, regions)
@@ -1588,6 +1594,7 @@ class RaidCommands(commands.Cog):
         # else deleted the actual channel at some point.
         channel_exists = self.bot.get_channel(channel.id)
         channel = channel_exists
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
         if channel_exists is None and not self.bot.is_closed():
             try:
                 del self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]
@@ -1697,8 +1704,7 @@ class RaidCommands(commands.Cog):
                                 embed=discord.Embed(description=expiremsg, colour=channel.guild.me.colour))
                             await reportmsg.clear_reactions()
                             regions = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id].get('regions', None)
-                            await list_helpers.update_listing_channels(self.bot, guild, 'raid',
-                                                                       edit=True, regions=regions)
+                            await listmgmt_cog.update_listing_channels(guild, 'raid', edit=True, regions=regions)
                         except:
                             pass
                         # channel doesn't exist anymore in serverdict
@@ -1993,7 +1999,33 @@ class RaidCommands(commands.Cog):
         if weather.lower() not in weather_list:
             return await ctx.channel.send("Enter one of the following weather conditions: {}".format(", ".join(weather_list)))
         else:
-            await raid_lobby_helpers._weather(ctx, self.bot, self.bot.self.bot.guild_dict, weather)
+            guild_dict = self.bot.guild_dict
+            guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['weather'] = weather.lower()
+            pkmn = guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id].get('pokemon', None)
+            pkmn = Pokemon.get_pokemon(self.bot, pkmn)
+            if pkmn:
+                if str(pkmn.raid_level) in guild_dict[ctx.guild.id]['configure_dict']['counters']['auto_levels']:
+                    ctrs_dict = await counters_helpers._get_generic_counters(self.bot, ctx.guild, pkmn, weather.lower())
+                    try:
+                        ctrsmessage = await ctx.channel.fetch_message(
+                            guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['ctrsmessage'])
+                        moveset = guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['moveset']
+                        newembed = ctrs_dict[moveset]['embed']
+                        await ctrsmessage.edit(embed=newembed)
+                    except (discord.errors.NotFound, discord.errors.Forbidden, discord.errors.HTTPException):
+                        pass
+                    guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['ctrs_dict'] = ctrs_dict
+            raid_message = guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['raidmessage']
+            raid_message = await ctx.channel.fetch_message(raid_message)
+            embed = raid_message.embeds[0]
+            embed_indices = await embed_utils.get_embed_field_indices(embed)
+            new_embed = embed
+            gym_embed = embed.fields[embed_indices['gym']]
+            gym_embed_value = '\n'.join(gym_embed.value.split('\n')[:2])
+            gym_embed_value += "\n**Weather**: " + weather
+            new_embed.set_field_at(embed_indices['gym'], name=gym_embed.name, value=gym_embed_value, inline=True)
+            await raid_message.edit(embed=new_embed)
+            return await ctx.channel.send("Weather set to {}!".format(weather.lower()))
 
     async def expiry_check(self, channel):
         self.bot.logger.info('Expiry_Check - ' + channel.name)
@@ -2156,6 +2188,213 @@ class RaidCommands(commands.Cog):
             if author_id is not None:
                 author = guild.get_member(author_id)
             await self._eggtoraid(ctx, newraid.lower(), channel, author=author)
+
+    @commands.Cog.listener()
+    @checks.good_standing()
+    async def on_raw_reaction_add(self, payload):
+        if payload.user_id == self.bot.user.id:
+            return
+        guild_dict = self.bot.guild_dict
+        channel = self.bot.get_channel(payload.channel_id)
+        try:
+            message = await channel.fetch_message(payload.message_id)
+        except (discord.errors.NotFound, AttributeError):
+            return
+        guild = message.guild
+        try:
+            user = guild.get_member(payload.user_id)
+        except AttributeError:
+            return
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
+        raid_dict = guild_dict[guild.id].setdefault('raidchannel_dict', {})
+        if channel.id in guild_dict[guild.id]['raidchannel_dict']:
+            if message.id == guild_dict[guild.id]['raidchannel_dict'][channel.id].get('ctrsmessage', None):
+                ctrs_dict = guild_dict[guild.id]['raidchannel_dict'][channel.id]['ctrs_dict']
+                for i in ctrs_dict:
+                    if ctrs_dict[i]['emoji'] == str(payload.emoji):
+                        newembed = ctrs_dict[i]['embed']
+                        moveset = i
+                        break
+                else:
+                    return
+                await message.edit(embed=newembed)
+                guild_dict[guild.id]['raidchannel_dict'][channel.id]['moveset'] = moveset
+                await message.remove_reaction(payload.emoji, user)
+            elif message.id == guild_dict[guild.id]['raidchannel_dict'][channel.id].get('raidmessage', None):
+                if str(payload.emoji) == '\u2754':
+                    prefix = guild_dict[guild.id]['configure_dict']['settings']['prefix']
+                    prefix = prefix or self.bot.config['default_prefix']
+                    avatar = self.bot.user.avatar_url
+                    await utils.get_raid_help(prefix, avatar, user)
+        if channel.id in raid_dict:
+            raid_report = channel.id
+        else:
+            raid_report = self.get_raid_report(guild, message.id)
+        if raid_report is not None:
+            if raid_dict[raid_report].get('reporter', 0) == payload.user_id or utils.can_manage(user, self.bot.config):
+                try:
+                    await message.remove_reaction(payload.emoji, user)
+                except:
+                    pass
+                if str(payload.emoji) == '\u270f':
+                    await self.modify_raid_report(payload, raid_report)
+                elif str(payload.emoji) == '🚫':
+                    try:
+                        await message.edit(embed=discord.Embed(description="Raid report cancelled",
+                                                               colour=message.embeds[0].colour.value))
+                        await message.clear_reactions()
+                    except discord.errors.NotFound:
+                        pass
+                    report_channel = self.bot.get_channel(raid_report)
+                    await report_channel.delete()
+                    try:
+                        del raid_dict[raid_report]
+                    except:
+                        pass
+                    utils_cog = self.bot.cogs.get('Utilities')
+                    regions = utils_cog.get_channel_regions(channel, 'raid')
+                    await listmgmt_cog.update_listing_channels(guild, "raid", edit=True, regions=regions)
+
+    def get_raid_report(self, guild, message_id):
+        raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict']
+        for raid in raid_dict:
+            if raid_dict[raid]['raidreport'] == message_id:
+                return raid
+            if 'raidcityreport' in raid_dict[raid]:
+                if raid_dict[raid]['raidcityreport'] == message_id:
+                    return raid
+        return None
+
+    async def modify_raid_report(self, payload, raid_report):
+        guild_dict = self.bot.guild_dict
+        channel = self.bot.get_channel(payload.channel_id)
+        try:
+            message = await channel.fetch_message(payload.message_id)
+        except (discord.errors.NotFound, AttributeError):
+            return
+        guild = message.guild
+        try:
+            user = guild.get_member(payload.user_id)
+        except AttributeError:
+            return
+        raids_cog = self.bot.cogs.get('RaidCommands')
+        raid_dict = guild_dict[guild.id].setdefault('raidchannel_dict', {})
+        config_dict = guild_dict[guild.id]['configure_dict']
+        utils_cog = self.bot.cogs.get('Utilities')
+        regions = utils_cog.get_channel_regions(channel, 'raid')
+        raid_channel = channel.id
+        if channel.id not in guild_dict[guild.id]['raidchannel_dict']:
+            for rchannel in guild_dict[guild.id]['raidchannel_dict']:
+                if raid_dict[rchannel]['raidreport'] == message.id:
+                    raid_channel = rchannel
+                    break
+        raid_channel = self.bot.get_channel(raid_report)
+        raid_report = raid_dict[raid_channel.id]
+        report_channel_id = raid_report['reportchannel']
+        report_channel = self.bot.get_channel(report_channel_id)
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
+        locationmatching_cog = self.bot.cogs.get('LocationMatching')
+        gyms = locationmatching_cog.get_gyms(guild.id, regions)
+        choices_list = ['Location', 'Hatch / Expire Time', 'Boss / Tier']
+        gym = raid_report["address"]
+        prompt = f'Modifying details for **raid** at **{gym}**\n' \
+                 f'Which item would you like to modify ***{user.display_name}***?'
+        match = await utils.ask_list(self.bot, prompt, channel, choices_list, user_list=user.id)
+        err_msg = None
+        success_msg = None
+        if match in choices_list:
+            # Updating location
+            if match == choices_list[0]:
+                query_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(),
+                                                                   description="What is the correct Location?"))
+                try:
+                    gymmsg = await self.bot.wait_for('message', timeout=30, check=(lambda reply: reply.author == user))
+                except asyncio.TimeoutError:
+                    await query_msg.delete()
+                    gymmsg = None
+                if not gymmsg:
+                    error = "took too long to respond"
+                elif gymmsg.clean_content.lower() == "cancel":
+                    error = "cancelled the report"
+                    await gymmsg.delete()
+                elif gymmsg:
+                    if gyms:
+                        gym = await locationmatching_cog.match_prompt(channel, user.id, gymmsg.clean_content, gyms)
+                        if not gym:
+                            await channel.send(
+                                embed=discord.Embed(
+                                    colour=discord.Colour.red(),
+                                    description=f"I couldn't find a gym named '{gymmsg.clean_content}'. "
+                                                f"Try again using the exact gym name!"))
+                            self.bot.help_logger.info(
+                                f"User: {user.name}, channel: {channel}, error: Couldn't find gym with name: {gymmsg.clean_content}")
+                        else:
+                            location = gym.name
+                            raid_channel_ids = raids_cog.get_existing_raid(guild, gym)
+                            if raid_channel_ids:
+                                raid_channel = self.bot.get_channel(raid_channel_ids[0])
+                                if guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]:
+                                    await channel.send(
+                                        embed=discord.Embed(
+                                            colour=discord.Colour.red(),
+                                            description=f"A raid has already been reported for {gym.name}"))
+                                    self.bot.help_logger.info(
+                                        f"User: {user.name}, channel: {channel}, error: Raid already reported.")
+                            else:
+                                await entity_updates.update_raid_location(self.bot, guild_dict, message,
+                                                                          report_channel, raid_channel, gym)
+                                await listmgmt_cog.update_listing_channels(guild, "raid", edit=True, regions=regions)
+                                await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
+                                                                       description="Raid location updated"))
+                                await gymmsg.delete()
+                                await query_msg.delete()
+
+            # Updating time
+            elif match == choices_list[1]:
+                timewait = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(),
+                                                                  description="What is the Hatch / Expire time?"))
+                try:
+                    timemsg = await self.bot.wait_for('message', timeout=30, check=(lambda reply: reply.author == user))
+                except asyncio.TimeoutError:
+                    timemsg = None
+                    await timewait.delete()
+                if not timemsg:
+                    error = "took too long to respond"
+                elif timemsg.clean_content.lower() == "cancel":
+                    error = "cancelled the report"
+                    await timemsg.delete()
+                raidexp = await utils.time_to_minute_count(guild_dict, raid_channel, timemsg.clean_content)
+                if raidexp is not False:
+                    await raids_cog._timerset(raid_channel, raidexp)
+                await listmgmt_cog.update_listing_channels(guild, "raid", edit=True, regions=regions)
+                await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
+                                                       description="Raid hatch / expire time updated"))
+                await timewait.delete()
+                await timemsg.delete()
+            # Updating boss
+            elif match == choices_list[2]:
+                bosswait = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(),
+                                                                  description="What is the Raid Tier / Boss?"))
+                try:
+                    bossmsg = await self.bot.wait_for('message', timeout=30, check=(lambda reply: reply.author == user))
+                except asyncio.TimeoutError:
+                    bossmsg = None
+                    await bosswait.delete()
+                if not bossmsg:
+                    error = "took too long to respond"
+                elif bossmsg.clean_content.lower() == "cancel":
+                    error = "cancelled the report"
+                    await bossmsg.delete()
+                await raids_cog.changeraid_internal(None, guild, raid_channel, bossmsg.clean_content)
+                if not bossmsg.clean_content.isdigit():
+                    await raids_cog._timerset(raid_channel, 45)
+                await listmgmt_cog.update_listing_channels(guild, "raid", edit=True, regions=regions)
+                await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
+                                                       description="Raid Tier / Boss updated"))
+                await bosswait.delete()
+                await bossmsg.delete()
+        else:
+            return
 
 
 def setup(bot):
