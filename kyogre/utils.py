@@ -503,6 +503,7 @@ async def time_to_minute_count(guild_dict, channel, timestr, error=True):
                 description="I couldn't understand your time format."))
         return False
 
+
 async def prompt_match_result(Kyogre, channel, author_id, target, result_list):
         if not isinstance(result_list, list):
             result_list = [result_list]
@@ -524,3 +525,8 @@ async def prompt_match_result(Kyogre, channel, author_id, target, result_list):
             # found a solitary best match
             match = perfect_scores[0]
         return match
+
+
+def list_chunker(in_list, n):
+    for i in range(0, len(in_list), n):
+        yield in_list[i:i + n]

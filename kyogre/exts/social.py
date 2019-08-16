@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 
 from kyogre.exts.db.kyogredb import *
-
+from kyogre import utils
 
 class Social(commands.Cog):
     def __init__(self, bot):
@@ -23,9 +23,9 @@ class Social(commands.Cog):
             card = "Traveler Card"
             silph = f"[{card}](https://sil.ph/{silph.lower()})"
         else:
-            silph = "not set"
+            silph = None
         pokebattlerid = trainer_info.get('pokebattlerid', None)
-        pkb = str(pokebattlerid) if pokebattlerid else 'not set'
+        pkb = str(pokebattlerid) if pokebattlerid else None
         xp = trainer_info.get('xp', 0)
         try:
             xp = int(xp)
@@ -47,8 +47,11 @@ class Social(commands.Cog):
         badge_cog = self.bot.cogs.get('Badges')
         badges = badge_cog.get_badge_emojis(user.id)
         badge_str = self.bot.empty_str
-        for b in badges:
-            badge_str += f" {b}"
+        badges = utils.list_chunker(badges, 4)
+        for c in badges:
+            for b in c:
+                badge_str += f"{b} "
+            badge_str += '\n'
         embed = discord.Embed(colour=colour)
         embed.set_author(name=user.display_name, icon_url=user.avatar_url)
         if team_url:
@@ -56,14 +59,14 @@ class Social(commands.Cog):
         embed.add_field(name="XP", value=f"{xp_msg}", inline=True)
         embed.add_field(name="Friend Code", value=f"{code_msg}")
         embed.add_field(name="Trainer Name", value=f"{name_msg}")
-        embed.add_field(name="Silph Road", value=f"{silph}")
-        embed.add_field(name="Pokebattler", value=f"{pkb}")
-        embed.add_field(name="Raid Reports", value=f"{raids}")
-        embed.add_field(name="Egg Reports", value=f"{eggs}")
-        embed.add_field(name="Wild Reports", value=f"{wilds}")
-        embed.add_field(name="Research Reports", value=f"{research}")
-        embed.add_field(name="Raids Joined", value=f"{joined}")
-        embed.add_field(name="Badges earned", value=f"{badge_str}", inline=False)
+        if silph is not None:
+            embed.add_field(name="Silph Road", value=f"{silph}")
+        if pkb is not None:
+            embed.add_field(name="Pokebattler", value=f"{pkb}")
+        embed.add_field(name="Badges earned", value=f"{badge_str}")
+        stats_str = f"Raid Reports: {raids}\nEgg Reports: {eggs}\nWild Reports: {wilds}\n" \
+            f"Research Reports: {research}\nRaids Joined: {joined}\n"
+        embed.add_field(name="Kyogre Stats", value=stats_str)
         embed.set_footer(text='Do "!set profile" to get your profile set up!')
         await ctx.send(embed=embed)
 
