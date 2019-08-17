@@ -219,7 +219,8 @@ def get_effectiveness(type_eff):
             return 0.51
         return 1
 
-async def simple_ask(Kyogre, message, destination, user_list=None, *, react_list=['✅', '❎']):
+
+async def simple_ask(Kyogre, message, destination, user_list=None, *, react_list=['✅', '❌']):
     if user_list and not isinstance(user_list, list):
         user_list = [user_list]
     def check(reaction, user):
@@ -240,7 +241,7 @@ async def simple_ask(Kyogre, message, destination, user_list=None, *, react_list
         await message.clear_reactions()
         return  
 
-async def ask(bot, message, user_list=None, timeout=60, *, react_list=['✅', '❎'], multiple=False):
+async def ask(bot, message, user_list=None, timeout=60, *, react_list=['✅', '❌'], multiple=False):
     finish_multiple = '👍'
     if user_list and not isinstance(user_list, list):
         user_list = [user_list]
