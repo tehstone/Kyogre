@@ -213,9 +213,8 @@ class QuickBadge(commands.Cog):
                 except TypeError:
                     timeout = True
                 await badge_check.delete()
-                if not timeout:
-                    if res.emoji == self.bot.failed_react:
-                        return
+                if timeout or res.emoji == self.bot.failed_react:
+                    return
 
             reaction, embed = await badge_cog.try_grant_badge(badge_to_give, payload.guild_id,
                                                               message.author.id, k_badge_id)
