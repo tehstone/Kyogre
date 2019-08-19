@@ -97,7 +97,7 @@ class QuickBadge(commands.Cog):
             await ctx.send(embed=discord.Embed(colour=discord.Colour.from_rgb(255, 255, 0), description=f"Created new role: **{role.name}**"), delete_after=10)
         quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
             .get('quick_badge', self.quick_badge_dict_default)
-        quick_badge_dict.setdefault('40_role', role.id)
+        quick_badge_dict['40_role'] = role.id
         self.bot.guild_dict[ctx.guild.id]['configure_dict']['quick_badge'] = quick_badge_dict
         await ctx.channel.send(f'Level 40 auto-assign role set to **{role.name}**.', delete_after=10)
         return await ctx.message.add_reaction(self.bot.success_react)
