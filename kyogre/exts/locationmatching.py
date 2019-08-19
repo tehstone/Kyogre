@@ -34,16 +34,21 @@ class Location:
                 query += f"+{'+'.join(self.region)}"
         return f"https://www.google.com/maps/search/?api=1&query={query}"
 
+
 class Gym(Location):
     __name__ = "Gym"
+
     def __init__(self, id, name, latitude, longitude, region, ex_eligible, note):
         super().__init__(id, name, latitude, longitude, region, note)
         self.ex_eligible = ex_eligible
 
+
 class Pokestop(Location):
     __name__ = "Pokestop"
+
     def __init__(self, id, name, latitude, longitude, region, note):
         super().__init__(id, name, latitude, longitude, region, note)
+
 
 class LocationMatching(commands.Cog):
     def __init__(self, bot):
@@ -51,22 +56,23 @@ class LocationMatching(commands.Cog):
 
     def get_all(self, guild_id, regions=None):
         return self.get_gyms(guild_id, regions=regions) + self.get_stops(guild_id, regions=regions)
-    
-    def get_gyms(self, guild_id, regions=None):
+
+    @staticmethod
+    def get_gyms(guild_id, regions=None):
         result = (GymTable
-                    .select(LocationTable.id,
-                            LocationTable.name, 
-                            LocationTable.latitude, 
-                            LocationTable.longitude, 
-                            RegionTable.name.alias('region'),
-                            GymTable.ex_eligible,
-                            LocationNoteTable.note)
-                    .join(LocationTable)
-                    .join(LocationRegionRelation)
-                    .join(RegionTable)
-                    .join(LocationNoteTable, JOIN.LEFT_OUTER, on=(LocationNoteTable.location_id == LocationTable.id))
-                    .where((LocationTable.guild == guild_id) &
-                           (LocationTable.guild == RegionTable.guild)))
+                  .select(LocationTable.id,
+                          LocationTable.name,
+                          LocationTable.latitude,
+                          LocationTable.longitude,
+                          RegionTable.name.alias('region'),
+                          GymTable.ex_eligible,
+                          LocationNoteTable.note)
+                  .join(LocationTable)
+                  .join(LocationRegionRelation)
+                  .join(RegionTable)
+                  .join(LocationNoteTable, JOIN.LEFT_OUTER, on=(LocationNoteTable.location_id == LocationTable.id))
+                  .where((LocationTable.guild == guild_id) &
+                         (LocationTable.guild == RegionTable.guild)))
         if regions:
             if not isinstance(regions, list):
                 regions = [regions]
@@ -74,20 +80,21 @@ class LocationMatching(commands.Cog):
         result = result.objects(Gym)
         return [o for o in result]
 
-    def get_stops(self, guild_id, regions=None):
+    @staticmethod
+    def get_stops(guild_id, regions=None):
         result = (PokestopTable
-                    .select(LocationTable.id,
-                            LocationTable.name, 
-                            LocationTable.latitude, 
-                            LocationTable.longitude, 
-                            RegionTable.name.alias('region'),
-                            LocationNoteTable.note)
-                    .join(LocationTable)
-                    .join(LocationRegionRelation)
-                    .join(RegionTable)
-                    .join(LocationNoteTable, JOIN.LEFT_OUTER, on=(LocationNoteTable.location_id == LocationTable.id))
-                    .where((LocationTable.guild == guild_id) &
-                           (LocationTable.guild == RegionTable.guild)))
+                  .select(LocationTable.id,
+                          LocationTable.name,
+                          LocationTable.latitude,
+                          LocationTable.longitude,
+                          RegionTable.name.alias('region'),
+                          LocationNoteTable.note)
+                  .join(LocationTable)
+                  .join(LocationRegionRelation)
+                  .join(RegionTable)
+                  .join(LocationNoteTable, JOIN.LEFT_OUTER, on=(LocationNoteTable.location_id == LocationTable.id))
+                  .where((LocationTable.guild == guild_id) &
+                         (LocationTable.guild == RegionTable.guild)))
         if regions:
             if not isinstance(regions, list):
                 regions = [regions]
@@ -95,8 +102,9 @@ class LocationMatching(commands.Cog):
         result = result.objects(Pokestop)
         return [o for o in result]
 
-    def location_match(self, name, locations, threshold=75, isPartial=True, limit=None):
-        match = utils.get_match([l.name for l in locations], name, threshold, isPartial, limit)
+    @staticmethod
+    def location_match(name, locations, threshold=75, is_partial=True, limit=None):
+        match = utils.get_match([l.name for l in locations], name, threshold, is_partial, limit)
         if not isinstance(match, list):
             match = [match]
         return [(l, score) for l in locations for match_name, score in match if l.name == match_name]
@@ -105,6 +113,7 @@ class LocationMatching(commands.Cog):
     @commands.has_permissions(manage_nicknames=True)
     async def location_match_test(self, ctx, *, content=None):
         """**Usage**: `!lmt <type (stop/gym)>, <name>, [region]`
+        **Alias**: `lmt`
         Looks up all locations with a name matching the one provided of the type provided.
         Can optionally be filtered to a particular region.
         """
@@ -127,48 +136,71 @@ class LocationMatching(commands.Cog):
             return        
         result = self.location_match(name, locations)
         if not result:
-            result = 'No matches found!'
+            result_str = 'No matches found!'
         else:
-            result = '\n'.join([f"{f'[{l.__name__}] ' if add_prefix else ''}{l.name} {score} ({l.latitude}, {l.longitude}) {l.region}" for l, score in result])
-        for i in range(len(result) // 2001 + 1):
-            await ctx.send(result[2001*i:2001*(i+1)])
-    
-    def _get_location_info_output(self, result, locations):
+            result_str = f'{len(result)} result(s) found for **{loc_type}** matching query "**{name}**"'
+            if len(regions) > 0:
+                result_str += f' within region(s) **{", ".join(regions)}**:\n\n'
+            else:
+                result_str += ':\n\n'
+            result_str += '\n'.join([f"{f'[{l.__name__}] ' if add_prefix else ''}{l.name} {score} "
+                                    f"({l.latitude}, {l.longitude}) {l.region}" for l, score in result])
+        for i in range(len(result_str) // 1999 + 1):
+            await ctx.send(result_str[1999*i:1999*(i+1)])
+
+    @commands.command(name="lmts", aliases=['smt'])
+    @commands.has_permissions(manage_nicknames=True)
+    async def stop_match_test(self, ctx, *, content=None):
+        if content is None:
+            return
+        return await ctx.invoke(self.bot.get_command('lmt'), content=f"stop, {content}")
+
+    @commands.command(name="lmtg", aliases=['gmt'])
+    @commands.has_permissions(manage_nicknames=True)
+    async def gym_match_test(self, ctx, *, content=None):
+        if content is None:
+            return
+        return await ctx.invoke(self.bot.get_command('lmt'), content=f"gym, {content}")
+
+    @staticmethod
+    def _get_location_info_output(result, locations):
         match, score = result
         location_info = locations[match]
         coords = location_info['coordinates']
         notes = location_info.get('notes', 'No notes for this location.')
-        location_info_str = (f"**Coordinates:** {coords}\n"
-                        f"**Notes:** {notes}")
+        location_info_str = f"**Coordinates:** {coords}\n**Notes:** {notes}"
         return (f"Successful match with `{match}` "
                 f"with a score of `{score}`\n{location_info_str}")
 
-    def __process(self, type, locations):
+    @staticmethod
+    def __process(location_type, locations):
         result = []
         for name, data in locations.items():
             coords = data['coordinates'].split(',')
-            if type == "gym":
+            if location_type == "gym":
                 result.append(Gym(name, coords[0], coords[1], None, data['ex_eligible']))
-            elif type == "stop":
+            elif location_type == "stop":
                 result.append(Pokestop(name, coords[0], coords[1], None))
         return result
 
-    def saveStopsToJson(self, guild_id):
+    @staticmethod
+    def save_stops_to_json(guild_id):
         try:
-            with tempfile.NamedTemporaryFile('w', dir=os.path.dirname(os.path.join('data', 'pokestop_data_backup1')), delete=False) as f:
+            with tempfile.NamedTemporaryFile('w', dir=os.path.dirname(os.path.join('data', 'pokestop_data_backup1')),
+                                             delete=False) as f:
                 stops = (PokestopTable
-                        .select(LocationTable.id,
-                                LocationTable.name, 
-                                LocationTable.latitude, 
-                                LocationTable.longitude, 
-                                RegionTable.name.alias('region'),
-                                LocationNoteTable.note)
-                        .join(LocationTable)
-                        .join(LocationRegionRelation)
-                        .join(RegionTable)
-                        .join(LocationNoteTable, JOIN.LEFT_OUTER, on=(LocationNoteTable.location_id == LocationTable.id))
-                        .where((LocationTable.guild == guild_id) &
-                               (LocationTable.guild == RegionTable.guild)))
+                         .select(LocationTable.id,
+                                 LocationTable.name,
+                                 LocationTable.latitude,
+                                 LocationTable.longitude,
+                                 RegionTable.name.alias('region'),
+                                 LocationNoteTable.note)
+                         .join(LocationTable)
+                         .join(LocationRegionRelation)
+                         .join(RegionTable)
+                         .join(LocationNoteTable, JOIN.LEFT_OUTER, on=(LocationNoteTable.location_id == LocationTable.id))
+                         .where((LocationTable.guild == guild_id) &
+                                (LocationTable.guild == RegionTable.guild)))
                 stops = stops.objects(Location)
                 s = {}
                 for stop in stops:
@@ -205,23 +237,24 @@ class LocationMatching(commands.Cog):
         except Exception as err:
             return err
 
-    def saveGymsToJson(self, guild_id):
+    @staticmethod
+    def save_gyms_to_json(guild_id):
         try:
             with tempfile.NamedTemporaryFile('w', dir=os.path.dirname(os.path.join('data', 'gym_data_backup1')), delete=False) as f:
                 gyms = (GymTable
-                            .select(LocationTable.id,
-                                    LocationTable.name, 
-                                    LocationTable.latitude, 
-                                    LocationTable.longitude, 
-                                    RegionTable.name.alias('region'),
-                                    GymTable.ex_eligible,
-                                    LocationNoteTable.note)
-                            .join(LocationTable)
-                            .join(LocationRegionRelation)
-                            .join(RegionTable)
-                            .join(LocationNoteTable, JOIN.LEFT_OUTER, on=(LocationNoteTable.location_id == LocationTable.id))
-                            .where((LocationTable.guild == guild_id) &
-                                   (LocationTable.guild == RegionTable.guild)))
+                        .select(LocationTable.id,
+                                LocationTable.name,
+                                LocationTable.latitude,
+                                LocationTable.longitude,
+                                RegionTable.name.alias('region'),
+                                GymTable.ex_eligible,
+                                LocationNoteTable.note)
+                        .join(LocationTable)
+                        .join(LocationRegionRelation)
+                        .join(RegionTable)
+                        .join(LocationNoteTable, JOIN.LEFT_OUTER, on=(LocationNoteTable.location_id == LocationTable.id))
+                        .where((LocationTable.guild == guild_id) &
+                                (LocationTable.guild == RegionTable.guild)))
                 gyms = gyms.objects(Gym)
                 g = {}
                 for gym in gyms:
@@ -283,6 +316,7 @@ class LocationMatching(commands.Cog):
         results = [(match.name, score) for match, score in result]
         match = await utils.prompt_match_result(self.bot, channel, author_id, name, results)
         return next((l for l in locations if l.name == match), None)
+
 
 def setup(bot):
     bot.add_cog(LocationMatching(bot))

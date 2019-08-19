@@ -3,8 +3,9 @@ import datetime
 
 import discord
 
-from kyogre import embed_utils, list_helpers, raid_helpers, utils
+from kyogre import embed_utils, utils
 from kyogre.exts.pokemon import Pokemon
+
 
 async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid_channel, gym):
     guild = message.guild
@@ -21,7 +22,8 @@ async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid
         if (t not in field.name.lower()) and (s not in field.name.lower()):
             new_embed.add_field(name=field.name, value=field.value, inline=field.inline)
     weather = raid_dict.get('weather', None)
-    enabled = raid_helpers.raid_channels_enabled(raid_channel.guild, raid_channel, guild_dict)
+    utils_cog = Kyogre.cogs.get('Utilities')
+    enabled = utils_cog.raid_channels_enabled(guild, raid_channel)
     if enabled:
         embed_indices = await embed_utils.get_embed_field_indices(new_embed)
         gym_embed = new_embed.fields[embed_indices['gym']]
@@ -65,8 +67,9 @@ async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid
     raid_dict['address'] = gym.name
     raid_dict['regions'] = regions
     guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = raid_dict
-    
-    await list_helpers.update_listing_channels(Kyogre, guild_dict, guild, "raid", True)
+
+    list_cog = Kyogre.cogs.get('ListManagement')
+    await list_cog.update_listing_channels(guild, "raid", True)
     return
 
 def get_raidtext(Kyogre, guild, guild_dict, raid_dict, gym, report_channel, raid_channel, report):
@@ -83,7 +86,7 @@ def get_raidtext(Kyogre, guild, guild_dict, raid_dict, gym, report_channel, raid
     member = guild.get_member(member)
     pkmn = Pokemon.get_pokemon(Kyogre, pkmn)
     if report:
-        raidtext = build_raid_report_message(gym, type, pkmn, level, raidexp, report_channel, guild_dict)
+        raidtext = build_raid_report_message(Kyogre, gym, type, pkmn, level, raidexp, report_channel, guild_dict)
     else:
         if type == "raid":
             raidtext = "{pkmn} raid reported by {member} in {channel}! Coordinate here!\n\nFor help, react to this message with the question mark and I will DM you a list of commands you can use!".format(pkmn=pkmn.name(), member=member.display_name, channel=raid_channel.mention)
@@ -93,9 +96,10 @@ def get_raidtext(Kyogre, guild, guild_dict, raid_dict, gym, report_channel, raid
             raidtext = "EX raid reported by {member} in {channel}! Coordinate here!\n\nFor help, react to this message with the question mark and I will DM you a list of commands you can use!".format(member=member.display_name, channel=raid_channel.mention)
     return raidtext
 
-def build_raid_report_message(gym, type, pkmn, level, raidexp, channel, guild_dict):
+def build_raid_report_message(Kyogre, gym, type, pkmn, level, raidexp, channel, guild_dict):
     guild = channel.guild
-    enabled = raid_helpers.raid_channels_enabled(guild, channel, guild_dict)
+    utils_cog = Kyogre.cogs.get('Utilities')
+    enabled = utils_cog.raid_channels_enabled(guild, channel)
     if type == "raid":
         msg = '{boss} @ {location}{ex}'.format(ex=" (EX)" if gym.ex_eligible else "", boss=pkmn, location=gym.name)
         end_str = "Expires: "

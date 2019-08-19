@@ -21,9 +21,10 @@ class MyHelpCommand(commands.DefaultHelpCommand):
                 "server_admin": {"commands": ["announce", "grantroles", "ungrantroles", "subscription adminlist",
                                  "loc add", "event create"]},
                 "bot_admin": {"commands": ["configure", "save", "exit", "restart", "welcome", "outputlog"]},
-                "debug": ["outputlog"]
+                "debug": ["outputlog"],
+                "location management": ["loc changeregion", "loc extoggle", "loc add",
+                                        "loc deletelocation", "loc convert", "location_match_test"]
                 }
-
 
     def __init__(self, guild_dict):
         super().__init__()

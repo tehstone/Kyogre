@@ -4,7 +4,6 @@ import datetime
 import discord
 from discord.ext import commands
 
-from kyogre import list_helpers, raid_helpers
 from kyogre.exts.db.kyogredb import LureTable, LureTypeTable, LureTypeRelation, TrainerReportRelation
 
 
@@ -45,7 +44,8 @@ class LureCommands(commands.Cog):
                 embed=discord.Embed(colour=discord.Colour.red(),
                                     description='Unable to find the lure type provided, please try again.'))
         luretype = result[0]
-        lure_regions = raid_helpers.get_channel_regions(channel, 'lure', self.bot.guild_dict)
+        utils_cog = self.bot.cogs.get('Utilities')
+        lure_regions = utils_cog.get_channel_regions(channel, 'lure')
         stops = location_matching_cog.get_stops(guild.id, lure_regions)
         if stops:
             stop = await location_matching_cog.match_prompt(channel, author.id, pokestop, stops)
@@ -68,8 +68,8 @@ class LureCommands(commands.Cog):
             icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
         lurereportmsg = await channel.send(f'**{luretype.name.capitalize()}** lure reported by '
                                            f'{author.display_name} at {stop.name}', embed=lure_embed)
-        await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild,
-                                                   'lure', edit=False, regions=lure_regions)
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
+        await listmgmt_cog.update_listing_channels(guild, 'lure', edit=False, regions=lure_regions)
         details = {'regions': lure_regions, 'type': 'lure', 'lure_type': luretype.name, 'location': stop}
         send_channel = subscriptions_cog.get_region_list_channel(guild, stop.region, 'lure')
         if send_channel is None:
@@ -104,9 +104,10 @@ class LureCommands(commands.Cog):
             await message.edit(content="", embed=discord.Embed(description="This lure has expired"))
         except discord.errors.NotFound:
             pass
-        await list_helpers.update_listing_channels(self.bot, self.bot.guild_dict, guild, 'lure', edit=True,
-                                                   regions=raid_helpers.get_channel_regions(channel, 'lure',
-                                                                                            self.bot.guild_dict))
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
+        utils_cog = self.bot.cogs.get('Utilities')
+        await listmgmt_cog.update_listing_channels(guild, 'lure', edit=True,
+                                                   regions=utils_cog.get_channel_regions(channel, 'lure'))
 
 
 def setup(bot):

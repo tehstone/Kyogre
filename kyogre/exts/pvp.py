@@ -96,7 +96,6 @@ class PvP(commands.Cog):
         if time_msg is not None:
             await asyncio.sleep(10)
             await time_msg.delete()
-        
 
     async def _send_pvp_notification_async(self, ctx):
         message = ctx.message
@@ -169,7 +168,6 @@ class PvP(commands.Cog):
             self.guild_dict[guild.id]['trainers'] = trainer_dict
             await message.add_reaction('✅')
         return await utils.sleep_and_cleanup([failed_msg, exist_msg, success_msg], 10)
-
 
     @_pvp.command(name="remove", aliases=["rem"], brief="Remove a user from your friends list")
     async def _pvp_remove_friend(self, ctx, *, friends: str = ''):
@@ -244,7 +242,6 @@ class PvP(commands.Cog):
                 await asyncio.sleep(30)
                 continue
 
-
     async def expire_pvp(self, message):
         channel = message.channel
         guild = channel.guild
@@ -267,6 +264,37 @@ class PvP(commands.Cog):
             pass
         del self.guild_dict[guild.id]['pvp_dict'][message.id]
 
+    @commands.Cog.listener()
+    @checks.good_standing()
+    async def on_raw_reaction_add(self, payload):
+        guild_dict = self.bot.guild_dict
+        channel = self.bot.get_channel(payload.channel_id)
+        try:
+            message = await channel.fetch_message(payload.message_id)
+        except (discord.errors.NotFound, AttributeError):
+            return
+        guild = message.guild
+        try:
+            user = guild.get_member(payload.user_id)
+        except AttributeError:
+            return
+        pvp_dict = guild_dict[guild.id].setdefault('pvp_dict', {})
+        if message.id in pvp_dict and user.id != self.bot.user.id:
+            trainer = pvp_dict[message.id]['reportauthor']
+            if trainer == payload.user_id or utils.can_manage(user, self.bot.config):
+                return await self.expire_pvp(message)
+            if str(payload.emoji) == '\u2694':
+                attacker = guild.get_member(payload.user_id)
+                defender = guild.get_member(pvp_dict[message.id]['reportauthor'])
+                if attacker == defender:
+                    return
+                battle_msg = await channel.send(content=f"{defender.mention} you have been challenged "
+                                                        f"by {attacker.mention}!",
+                                                embed=discord.Embed(colour=discord.Colour.red(),
+                                                                    description=f"{defender.mention} you have been challenged "
+                                                                                f"by {attacker.mention}!"),
+                                                delete_after=30)
+                await battle_msg.edit(content="")
 
 def setup(bot):
     bot.add_cog(PvP(bot))

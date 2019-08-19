@@ -16,7 +16,7 @@ from contextlib import redirect_stdout
 import discord
 from discord.ext import commands
 
-from kyogre import utils, checks
+from kyogre import checks, utils
 from kyogre.exts.pokemon import Pokemon
 
 
@@ -146,8 +146,8 @@ class AdminCommands(commands.Cog):
         if not location_matching_cog:
             await self._print(self.bot.owner, 'Pokestop and Gym data not saved!')
             return None
-        stop_save = location_matching_cog.saveStopsToJson(guildid)
-        gym_save = location_matching_cog.saveGymsToJson(guildid)
+        stop_save = location_matching_cog.save_stops_to_json(guildid)
+        gym_save = location_matching_cog.save_gyms_to_json(guildid)
         if stop_save is not None:
             await self._print(self.bot.owner, f'Failed to save pokestop data with error: {stop_save}!')
         if gym_save is not None:
@@ -568,6 +568,15 @@ class AdminCommands(commands.Cog):
             await ctx.message.add_reaction(self.failed_react)
             return await ctx.send(f"Failed to remove {', '.join(rolenames)} from {member.display_name} "
                                   f"because you do not have permission", delete_after=10)
+
+    @commands.command(name="refresh_listings", hidden=True)
+    @commands.has_permissions(manage_guild=True)
+    async def _refresh_listing_channels(self, ctx, list_type, *, regions=None):
+        if regions:
+            regions = [r.strip() for r in regions.split(',')]
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
+        await listmgmt_cog.update_listing_channels(ctx.guild, list_type, edit=True, regions=regions)
+        await ctx.message.add_reaction('\u2705')
 
 
 def setup(bot):

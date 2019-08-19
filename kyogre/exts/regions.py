@@ -15,7 +15,7 @@ class Regions(commands.Cog):
     @checks.allowregion()
     async def _region(self, ctx):
         """Handles user-region settings"""
-        if ctx.invoked_subcommand == None:
+        if ctx.invoked_subcommand is None:
             raise commands.BadArgument()
 
     @_region.command(name="join")
@@ -49,7 +49,7 @@ class Regions(commands.Cog):
         if invalid_requests:
             response += f"\n\n{len(invalid_requests)} invalid roles detected:\n{', '.join(invalid_requests)}\n\n"
             response += f"Acceptable regions are: {', '.join(enabled_roles)}"
-        resp = await channel.send(response, delete_after=20)
+        await channel.send(response, delete_after=20)
 
     @_region.command(name="leave")
     async def _leave(self, ctx, *, region_names: str = ''):
@@ -82,9 +82,10 @@ class Regions(commands.Cog):
         if invalid_requests:
             response += f"\n\n{len(invalid_requests)} invalid roles detected:\n{', '.join(invalid_requests)}\n\n"
             response += f"Acceptable regions are: {', '.join(enabled_roles)}"
-        resp = await channel.send(response, delete_after=20)
-                      
-    def _user_region_list(self, action, author, enabled_roles):
+        await channel.send(response, delete_after=20)
+
+    @staticmethod
+    def _user_region_list(action, author, enabled_roles):
         roles = [r.name for r in author.roles]
         response = f"Please select one or more regions separated by commas `!region {action} renton, kent`\n\n"
         if action == "join":
@@ -109,7 +110,7 @@ class Regions(commands.Cog):
         response = f"You have {len(active_roles)} active region roles:\n{', '.join(active_roles)}"
         response += f" Regions available to join are: {', '.join(set(active_roles).difference(enabled_roles)) or 'N/A'}"
         await message.add_reaction('✅')
-        resp = await channel.send(response, delete_after=20)
+        await channel.send(response, delete_after=20)
 
 
 def setup(bot):

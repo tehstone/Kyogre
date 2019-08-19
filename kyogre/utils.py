@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import dateparser
 import re
@@ -7,7 +8,7 @@ from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
 import discord
-import asyncio
+from kyogre import checks
 
 
 def get_match(word_list: list, word: str, score_cutoff: int = 60, isPartial: bool = False, limit: int = 1):
@@ -526,7 +527,6 @@ async def prompt_match_result(Kyogre, channel, author_id, target, result_list):
             # found a solitary best match
             match = perfect_scores[0]
         return match
-
 
 def list_chunker(in_list, n):
     for i in range(0, len(in_list), n):

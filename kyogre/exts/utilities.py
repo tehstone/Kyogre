@@ -6,6 +6,7 @@ from discord.ext import commands
 
 from kyogre import checks, utils
 
+
 class Utilities(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -23,7 +24,8 @@ class Utilities(commands.Cog):
                         icon=icon_url, image=image_url,
                         thumbnail=thumbnail_url, plain_msg=plain_msg)
 
-    async def get_channel_by_name_or_id(self, ctx, name):
+    @staticmethod
+    async def get_channel_by_name_or_id(ctx, name):
         channel = None
         # If a channel mention is passed, it won't be recognized as an int but this get will succeed
         name = utils.sanitize_name(name)
@@ -86,6 +88,35 @@ class Utilities(commands.Cog):
             if role.permissions.manage_messages:
                 return True
         return False
+
+    def raid_channels_enabled(self, guild, channel):
+        enabled = True
+        regions = self.get_channel_regions(channel, 'raid')
+        # TODO: modify this to accomodate multiple regions once necessary
+        if regions and len(regions) > 0:
+            enabled_dict = self.bot.guild_dict[guild.id]['configure_dict']['raid'].setdefault('raid_channels', {})
+            enabled = enabled_dict.setdefault(regions[0], True)
+        return enabled
+
+    def get_channel_regions(self, channel, channel_type):
+        regions = None
+        config_dict = self.bot.guild_dict[channel.guild.id]['configure_dict']
+        if config_dict.get(channel_type, {}).get('enabled', None):
+            regions = config_dict.get(channel_type, {}).get('report_channels', {}).get(channel.id, None)
+            if regions and not isinstance(regions, list):
+                regions = [regions]
+        if channel_type == "raid":
+            cat_dict = config_dict.get(channel_type, {}).get('category_dict', {})
+            for r in cat_dict:
+                if cat_dict[r] == channel.category.id:
+                    regions = [config_dict.get(channel_type, {}).get('report_channels', {}).get(r, None)]
+        if regions is None:
+            return []
+        if len(regions) < 1:
+            return []
+        else:
+            return list(set(regions))
+
 
 def setup(bot):
     bot.add_cog(Utilities(bot))
