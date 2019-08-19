@@ -310,7 +310,7 @@ class Subscriptions(commands.Cog):
         # don't remove. this makes sure the guild and trainer are in the db
         guild_obj, __ = GuildTable.get_or_create(snowflake=guild.id)
         trainer_obj, __ = TrainerTable.get_or_create(snowflake=trainer, guild=guild.id)
-
+        s_type = ''
         for sub in candidate_list:
             s_type = sub[0]
             s_target = sub[1]
@@ -350,8 +350,7 @@ class Subscriptions(commands.Cog):
         existing_count = len(existing_list)
         error_count = len(error_list)
 
-        confirmation_msg = '{member}, successfully added {count} new subscriptions'.format(member=ctx.author.mention,
-                                                                                           count=sub_count)
+        confirmation_msg = f'{ctx.author.mention}, successfully added {sub_count} new {s_type} subscriptions'
         if sub_count > 0:
             confirmation_msg += '\n**{sub_count} Added:** \n\t{sub_list}'.format(sub_count=sub_count,
                                                                                  sub_list=',\n\t'.join(sub_list))
@@ -441,6 +440,7 @@ class Subscriptions(commands.Cog):
         if not skip_parse:
             candidate_list, error_list = await self._parse_subscription_content(content, 'remove', message)
         remove_count = 0
+        s_type = ''
         for sub in candidate_list:
             s_type = sub[0]
             s_target = sub[1]
@@ -493,11 +493,10 @@ class Subscriptions(commands.Cog):
         not_found_count = len(not_found_list)
         error_count = len(error_list)
 
-        confirmation_msg = '{member}, successfully removed {count} subscriptions'\
-            .format(member=ctx.author.mention, count=remove_count)
+        confirmation_msg = f'{ctx.author.mention}, successfully removed {remove_count} {s_type} subscriptions'
         if remove_count > 0:
             confirmation_msg += '\n**{remove_count} Removed:** \n\t{remove_list}'\
-                .format(remove_count=remove_count, remove_list=',\n'.join(remove_list))
+                .format(remove_count=remove_count, remove_list=',\n\t'.join(remove_list))
         if not_found_count > 0:
             confirmation_msg += '\n**{not_found_count} Not Found:** \n\t{not_found_list}'\
                 .format(not_found_count=not_found_count, not_found_list=', '.join(not_found_list))
@@ -619,10 +618,11 @@ class Subscriptions(commands.Cog):
                 subscriptions[t] = [s.target for s in results if s.type == t and t != 'gym']
         listmsg_list = []
         subscription_msg = ""
+        sep = '\n\t'
         for sub in subscriptions.keys():
             if not isinstance(subscriptions[sub], list):
                 subscriptions[sub] = [subscriptions[sub]]
-            new_msg = '**{category}**:\n\t{subs}\n\n'.format(category=sub.title(), subs='\n\t'.join(subscriptions[sub]))
+            new_msg = f"**Subscription type - {sub.title()}**:\n\t{sep.join(subscriptions[sub])}\n\n"
             if len(subscription_msg) + len(new_msg) < constants.MAX_MESSAGE_LENGTH:
                 subscription_msg += new_msg
             else:

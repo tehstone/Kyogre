@@ -3,7 +3,7 @@ from discord.ext import commands
 import discord.utils
 from kyogre import errors
 
-def is_user_owner_check(config,userid):
+def is_user_owner_check(config, userid):
     owner = config['master']
     return userid == owner
 

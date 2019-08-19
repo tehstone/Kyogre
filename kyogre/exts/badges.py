@@ -4,7 +4,7 @@ from discord.ext import commands
 import peewee
 
 from kyogre.exts.db.kyogredb import *
-
+from kyogre import utils
 
 class Badge:
     def __init__(self, id, name, description, emoji, active):
@@ -246,17 +246,12 @@ class Badges(commands.Cog):
             send_emoji = self.bot.get_emoji(r.emoji)
             name = f"{send_emoji} {r.name} (#{r.id})"
             fields.append((name, f"{r.description}"))
-        chunked_fields = list(self.list_chunker(fields, 20))
+        chunked_fields = list(utils.list_chunker(fields, 20))
         for sub_list in chunked_fields:
             embed = discord.Embed(title="Badges currently available", colour=discord.Colour.purple())
             for field in sub_list:
                 embed.add_field(name=field[0], value=f"{self.bot.empty_str}{field[1]}", inline=False)
             await ctx.send(embed=embed)
-
-    @staticmethod
-    def list_chunker(in_list, n):
-        for i in range(0, len(in_list), n):
-            yield in_list[i:i + n]
 
     @commands.command(name="badges")
     async def _badges(self, ctx, user: discord.Member = None):

@@ -17,7 +17,7 @@ class LocationManagement(commands.Cog):
             raise commands.BadArgument()
 
     @_loc.command(name="add")
-    @commands.has_permissions(manage_guild=True)
+    @commands.has_permissions(manage_roles=True)
     async def _loc_add(self, ctx, *, info):
         """**Usage**: `!loc add <type (gym/stop)>, <name>, <latitude>, <longitude>, <region>, [ex_eligible]`
         Adds a new location to the database. ex_eligible is optional, all other are required.
