@@ -12,6 +12,8 @@ from kyogre import checks, counters_helpers, embed_utils, entity_updates, utils
 from kyogre.exts.pokemon import Pokemon
 from kyogre.exts.bosscp import boss_cp_chart
 
+from kyogre.exts.db.kyogredb import KyogreDB, RaidTable, TrainerReportRelation
+
 
 class RaidCommands(commands.Cog):
     def __init__(self, bot):
@@ -46,7 +48,7 @@ class RaidCommands(commands.Cog):
         author = message.author
         fromegg = False
         eggtoraid = False
-        if self.bot.guild_dict[guild.id]['raidchannel_dict'].get(channel.id,{}).get('type') == "egg":
+        if self.bot.guild_dict[guild.id]['raidchannel_dict'].get(channel.id, {}).get('type') == "egg":
             fromegg = True
         raid_split = content.split()
         if len(raid_split) == 0:
@@ -72,8 +74,9 @@ class RaidCommands(commands.Cog):
                 else:
                     await self._eggassume(" ".join(raid_split), channel, author)
                     return
-            elif (raid_split[0] == "alolan" and len(raid_split) > 2) or (raid_split[0] != "alolan" and len(raid_split) > 1):
-                if (raid_split[0] not in Pokemon.get_forms_list() and len(raid_split) > 1):
+            elif (raid_split[0] == "alolan" and len(raid_split) > 2) \
+                    or (raid_split[0] != "alolan" and len(raid_split) > 1):
+                if raid_split[0] not in Pokemon.get_forms_list() and len(raid_split) > 1:
                     self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel},"
                                               f" error: Raid report made in raid channel.")
                     return await channel.send(
@@ -128,16 +131,16 @@ class RaidCommands(commands.Cog):
             new_content = ' '.join(content.split()[1:])
         if pkmn_error is not None:
             while True:
-                pkmn_embed=discord.Embed(colour=discord.Colour.red(), description=pkmn_error_dict[pkmn_error])
+                pkmn_embed = discord.Embed(colour=discord.Colour.red(), description=pkmn_error_dict[pkmn_error])
                 pkmn_embed.set_footer(text="Reply with 'cancel' to cancel your raid report.")
                 pkmnquery_msg = await channel.send(embed=pkmn_embed)
                 try:
-                    pokemon_msg = await self.bot.wait_for('message', timeout=30,
+                    pokemon_msg = await self.bot.wait_for('message', timeout=20,
                                                           check=(lambda reply: reply.author == author))
                 except asyncio.TimeoutError:
                     await channel.send(embed=discord.Embed(
                         colour=discord.Colour.light_grey(),
-                        description="You took too long to reply. Raid report cancelled."))
+                        description="You took too long to reply. Raid report cancelled."), delete_after=12)
                     await pkmnquery_msg.delete()
                     return
                 if pokemon_msg.clean_content.lower() == "cancel":
@@ -404,11 +407,14 @@ class RaidCommands(commands.Cog):
             await raid_channel.set_permissions(guild.default_role, overwrite=ow)
         except (discord.errors.Forbidden, discord.errors.HTTPException, discord.errors.InvalidArgument):
             pass
+        exp = raidexp
+        if not raidexp:
+            exp = time.time() + (60 * self.bot.raid_info['raid_eggs'][str(level)]['raidtime'])
         raid_dict = {
             'regions': gym_regions,
             'reportcity': report_channel.id,
             'trainer_dict': {},
-            'exp': time.time() + (60 * self.bot.raid_info['raid_eggs'][str(level)]['raidtime']),
+            'exp': exp,
             'manual_timer': False,
             'active': True,
             'reportchannel': channel.id,
@@ -551,7 +557,7 @@ class RaidCommands(commands.Cog):
             raid_dict['ctrs_dict'] = ctrs_dict
         self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = raid_dict
         if raidexp is not False:
-            await self._timerset(raid_channel, raidexp, False)
+            await self._timerset(raid_channel, raidexp, to_print=False)
         else:
             await raid_channel.send(content='Hey {member}, if you can, set the time left on the raid using '
                                             '**!timerset <minutes>** so others can check it with **!timer**.'
@@ -594,11 +600,13 @@ class RaidCommands(commands.Cog):
                                       self.bot.guild_dict[guild.id]['configure_dict']['settings']['regional'],
                                       raid_channel, author)
         self.bot.event_loop.create_task(self.expiry_check(raid_channel))
+        await self._add_update_db_raid_report(ctx, raid_channel)
         return raid_channel
 
     async def create_raid_channel(self, raid_type, pkmn, level, gym, report_channel):
         guild = report_channel.guild
         cat = None
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
         if raid_type == "exraid":
             name = "ex-raid-egg-"
             raid_channel_overwrite_dict = report_channel.overwrites
@@ -1037,6 +1045,38 @@ class RaidCommands(commands.Cog):
         await asyncio.sleep(1)
         self.bot.event_loop.create_task(self.expiry_check(raid_channel))
 
+    async def _add_update_db_raid_report(self, ctx, raid_channel):
+        message = ctx.message
+        channel = message.channel
+        guild = channel.guild
+        author = message.author
+        raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
+        gym = raid_dict['gym']
+        created = round(message.created_at.timestamp())
+        level, pokemon, hatch_time, expire_time, weather = None, None, None, None, None
+        if 'level' in raid_dict and raid_dict['level'] > 0:
+            level = raid_dict['level']
+        if 'pokemon' in raid_dict and raid_dict['pokemon'] != '':
+            pokemon = raid_dict['pokemon']
+            raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon)
+            level = raid_pokemon.raid_level
+        if 'weather' in raid_dict:
+            weather = raid_dict['weather']
+        if 'type' in raid_dict:
+            if 'exp' in raid_dict:
+                if raid_dict['type'] == 'egg':
+                    hatch_time = round(raid_dict['exp'])
+                    expire_time = round(raid_dict['exp']) + 2700
+                elif raid_dict['type'] == 'raid':
+                    expire_time = round(raid_dict['exp'])
+                    hatch_time = round(raid_dict['exp']) - 2700
+        print(hatch_time)
+        print(expire_time)
+        report = TrainerReportRelation.create(created=created, trainer=author.id, location=gym.id)
+        RaidTable.create(trainer_report=report, level=level, pokemon=pokemon, hatch_time=hatch_time,
+                         expire_time=expire_time, channel=raid_channel.id, weather=weather)
+        pass
+
     @commands.command()
     @commands.has_permissions(manage_channels=True)
     @checks.raidchannel()
@@ -1164,7 +1204,7 @@ class RaidCommands(commands.Cog):
         channel = message.channel
         guild = message.guild
         author = message.author
-        raid_type = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['raid_type']
+        raid_type = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['type']
         if (not checks.check_exraidchannel(ctx)) and not (checks.check_meetupchannel(ctx)):
             if raid_type == 'egg':
                 raidlevel = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['egglevel']
@@ -1185,7 +1225,7 @@ class RaidCommands(commands.Cog):
                     colour=discord.Colour.red(),
                     description=f"That's too long. Level {raidlevel} {raidtype.capitalize()}s "
                     f"currently last no more than {maxtime} minutes."))
-            await self._timerset(channel, raidexp)
+            await self._timerset(channel, raidexp, update=True)
         if checks.check_exraidchannel(ctx):
             if checks.check_eggchannel(ctx) or checks.check_meetupchannel(ctx):
                 now = datetime.datetime.utcnow() + datetime.timedelta(
@@ -1234,7 +1274,7 @@ class RaidCommands(commands.Cog):
     def _timercheck(exp_time, maxtime):
         return exp_time > maxtime
 
-    async def _timerset(self, raidchannel, exptime, to_print=True):
+    async def _timerset(self, raidchannel, exptime, to_print=True, update=False):
         listmgmt_cog = self.bot.cogs.get('ListManagement')
         guild = raidchannel.guild
         now = datetime.datetime.utcnow() + datetime.timedelta(
@@ -1260,6 +1300,8 @@ class RaidCommands(commands.Cog):
             endtime = hatch.strftime('%I:%M %p (%H:%M)')
         else:
             topicstr += 'Ends at {end}'.format(end=end.strftime('%I:%M %p (%H:%M)'))
+            egglevel = Pokemon.get_pokemon(self.bot, raid_dict['pokemon']).raid_level
+            hatch = end - datetime.timedelta(minutes=self.bot.raid_info['raid_eggs'][egglevel]['raidtime'])
             endtime = end.strftime('%I:%M %p (%H:%M)')
         if to_print:
             timerstr = await self.print_raid_timer(raidchannel)
@@ -1300,7 +1342,15 @@ class RaidCommands(commands.Cog):
                     except:
                         pass
         await listmgmt_cog.update_listing_channels(guild, 'raid', edit=True, regions=raid_dict.get('regions', None))
-        self.bot.get_channel(raidchannel.id)
+        if update:
+            with KyogreDB._db.atomic() as txn:
+                try:
+                    RaidTable.update(hatch_time=round(hatch.timestamp()), expire_time=round(end.timestamp()))\
+                        .where(RaidTable.channel == raidchannel.id).execute()
+                    txn.commit()
+                except Exception as e:
+                    self.bot.logger.info("Failed to update hatch and expire time for raid.")
+                    txn.rollback()
 
     @commands.command()
     @checks.raidchannel()

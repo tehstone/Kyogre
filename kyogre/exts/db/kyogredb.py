@@ -328,11 +328,12 @@ class BossTable(BaseModel):
 
 class RaidTable(BaseModel):
     trainer_report = ForeignKeyField(TrainerReportRelation, backref='raids')
-    level = TextField(index=True)
-    type = TextField(index=True)
-    next_event_time = DateTimeField(index=True)
+    level = TextField(index=True, null=True)
+    pokemon = TextField(index=True, null=True)
+    hatch_time = DateTimeField(index=True, null=True)
+    expire_time = DateTimeField(index=True, null=True)
     channel = BigIntegerField(index=True)
-    trainer_dict = JSONField()
+    weather = TextField(index=True, null=True)
 
 class RaidBossRelation(BaseModel):
     boss = ForeignKeyField(BossTable, backref='raids')
