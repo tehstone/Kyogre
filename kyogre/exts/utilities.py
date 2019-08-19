@@ -24,7 +24,8 @@ class Utilities(commands.Cog):
                         icon=icon_url, image=image_url,
                         thumbnail=thumbnail_url, plain_msg=plain_msg)
 
-    async def get_channel_by_name_or_id(self, ctx, name):
+    @staticmethod
+    async def get_channel_by_name_or_id(ctx, name):
         channel = None
         # If a channel mention is passed, it won't be recognized as an int but this get will succeed
         name = utils.sanitize_name(name)
@@ -115,6 +116,7 @@ class Utilities(commands.Cog):
             return []
         else:
             return list(set(regions))
+
 
 def setup(bot):
     bot.add_cog(Utilities(bot))
