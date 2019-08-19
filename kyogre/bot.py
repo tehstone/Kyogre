@@ -4,7 +4,7 @@ import os
 import pickle
 import sys
 
-from kyogre.logs import init_loggers, init_help_logger
+from kyogre.logs import init_loggers, init_help_logger, init_user_logger
 from kyogre.errors import custom_error_handling
 
 import discord
@@ -46,6 +46,7 @@ default_exts = ['admincommands',
                 'utilities',
                 'wildspawncommands']
 
+
 def _prefix_callable(bot, msg):
     user_id = bot.user.id
     base = [f'<@!{user_id}> ', f'<@{user_id}> ']
@@ -61,6 +62,7 @@ def _prefix_callable(bot, msg):
         base.extend(prefix)
     return base
 
+
 class KyogreBot(commands.AutoShardedBot):
     """Custom Discord Bot class for Kyogre"""
 
@@ -71,6 +73,7 @@ class KyogreBot(commands.AutoShardedBot):
 
         self.logger = init_loggers()
         self.help_logger = init_help_logger()
+        self.user_logger = init_user_logger()
         custom_error_handling(self, self.logger)
         self.guild_dict = {}
         self._load_data()
@@ -172,6 +175,8 @@ class KyogreBot(commands.AutoShardedBot):
     async def on_member_join(self, member):
         """Welcome message to the server and some basic instructions."""
         guild = member.guild
+        self.user_logger.info(f"{member.name}#{member.discriminator} joined."
+                              f" Account created {member.created_at}. ID: {member.id}")
         invite_tracking = self.guild_dict[guild.id]['configure_dict']\
             .get('invite_tracking', {'enabled': False, 'destination': None, 'invite_counts': {}})
         if invite_tracking['enabled']:
@@ -205,6 +210,11 @@ class KyogreBot(commands.AutoShardedBot):
         else:
             return
 
+    async def on_member_remove(self, member):
+        self.user_logger.info(f"{member.name}#{member.discriminator} left."
+                              f" Last joined: {member.joined_at}. ID: {member.id}"
+                              f" Roles: {', '.join([r.name for r in member.roles])}")
+
     async def _calculate_invite_used(self, member):
         guild = member.guild
         t_guild_dict = copy.deepcopy(self.guild_dict)
@@ -222,9 +232,10 @@ class KyogreBot(commands.AutoShardedBot):
                 messages.append(f"Using new invite code: {inv.code} for: {inv.channel} created by: {inv.inviter}")
                 invite_codes.append(inv.code)
             invite_dict[inv.code] = inv.uses
+        notify = '\n'.join(messages)
+        self.user_logger.info(notify)
         destination = t_guild_dict[guild.id]['configure_dict']['invite_tracking'].get('destination', None)
         if destination and len(messages) > 0:
-            notify = '\n'.join(messages)
             try:
                 await self.get_channel(destination).send(notify)
             except AttributeError:
@@ -233,8 +244,9 @@ class KyogreBot(commands.AutoShardedBot):
             invite_roles = (InviteRoleTable
                             .select(InviteRoleTable.role)
                             .where(InviteRoleTable.invite << invite_codes))
-            role_ids = [i.role for i in invite_roles]
+            role_ids = [int(i.role) for i in invite_roles]
             roles = [discord.utils.get(guild.roles, id=r) for r in role_ids]
+            self.user_logger.info(f"{', '.join([role.name for role in roles])} role auto-assigned.")
             await member.add_roles(*roles)
 
         self.guild_dict[guild.id]['configure_dict']['invite_tracking']['invite_counts'] = invite_dict
@@ -280,7 +292,7 @@ class KyogreBot(commands.AutoShardedBot):
             return
         teams = ["instinct", "mystic", "valor"]
         guild = after.guild
-        region_dict = self.guild_dict[guild.id]['configure_dict'].get('regions',None)
+        region_dict = self.guild_dict[guild.id]['configure_dict'].get('regions', None)
         trainers_info_dict = self.guild_dict[guild.id]['trainers'].setdefault('info', {}).setdefault(after.id, {})
         prev_roles = set([r.name for r in before.roles])
         post_roles = set([r.name for r in after.roles])
@@ -289,26 +301,30 @@ class KyogreBot(commands.AutoShardedBot):
         for role in added_roles:
             if role.lower() in teams:
                 trainers_info_dict["team"] = role.capitalize()
+                self.user_logger.info(f"{after.name} was assigned team {role}.")
                 return
         for role in removed_roles:
             if role.lower() in teams:
                 trainers_info_dict["team"] = None
+                self.user_logger.info(f"{after.name} team assignment cleared. Previous team role: {role}.")
                 return
         if region_dict:
-            notify_channel = region_dict.get('notify_channel',None)
+            notify_channel = region_dict.get('notify_channel', None)
             if notify_channel is not None:
-                regioninfo_dict = region_dict.get('info',None)
+                regioninfo_dict = region_dict.get('info', None)
                 if regioninfo_dict:
                     notify = None
                     if len(added_roles) > 0:
                         # a single member update event should only ever have 1 role change
                         role = list(added_roles)[0]
                         if role in regioninfo_dict.keys():
+                            self.user_logger.info(f"{after.name} was assigned {role} region role.")
                             return await self.get_channel(notify_channel).send(f"{after.mention} you have joined the {role.capitalize()} region.", delete_after=8)
                     if len(removed_roles) > 0:
                         # a single member update event should only ever have 1 role change
                         role = list(removed_roles)[0]
                         if role in regioninfo_dict.keys():
+                            self.user_logger.info(f"{role} region role removed from {after.name}.")
                             return await self.get_channel(notify_channel).send(f"{after.mention} you have left the {role.capitalize()} region.", delete_after=8)
 
     async def on_message_delete(self, message):

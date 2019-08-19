@@ -198,12 +198,13 @@ def custom_error_handling(bot, logger):
             return
         channel = ctx.channel
         prefix = ctx.prefix.replace(ctx.bot.user.mention, '@' + ctx.bot.user.name)
-        bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: {error.__class__.__name__}")
+        bot.help_logger.info(f"User: {ctx.author.name}, channel: {channel}, error: {error.__class__.__name__}")
+        bot.help_logger.info(f"Original error: {error.original}")
         if isinstance(error, commands.MissingRequiredArgument):
-            error = await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=missing_arg_msg(ctx)))
+            error = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=missing_arg_msg(ctx)))
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, commands.BadArgument):
-            error = await ctx.channel.send(f"The **{prefix}{ctx.command}** command doesn't take a subcommand of **{ctx.subcommand_passed}**")
+            error = await channel.send(f"The **{prefix}{ctx.command}** command doesn't take a subcommand of **{ctx.subcommand_passed}**")
             await delete_error(ctx.message, error, 20)
         elif isinstance(error, commands.CommandNotFound):
             pass
@@ -211,59 +212,59 @@ def custom_error_handling(bot, logger):
             pass
         elif isinstance(error, TeamSetCheckFail):
             msg = 'Team Management is not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, SubscriptionSetCheckFail):
             msg = 'Subscriptions are not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, WildSetCheckFail):
             msg = 'Wild Reporting is not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, LureSetCheckFail):
             msg = 'Lure Reporting is not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, ReportCheckFail):
             msg = 'Reporting is not enabled for this channel. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, RaidSetCheckFail):
             msg = 'Raid Management is not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, EXRaidSetCheckFail):
             msg = 'EX Raid Management is not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, ResearchSetCheckFail):
             msg = 'Research Reporting is not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, InvasionSetCheckFail):
             msg = 'Team Rocket Takeover Reporting is not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, MeetupSetCheckFail):
             msg = 'Meetup Reporting is not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, ArchiveSetCheckFail):
             msg = 'Channel Archiving is not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, RegionsSetCheckFail):
             msg = 'Regions are not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, InviteSetCheckFail):
             msg = 'EX Raid Invite is not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, JoinSetCheckFail):
             msg = 'Invite links are not enabled on this server. **{prefix}{cmd_name}** is unable to be used.'.format(cmd_name=ctx.invoked_with, prefix=prefix)
-            error = await ctx.channel.send(msg)
+            error = await channel.send(msg)
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, CityChannelCheckFail):
             guild = ctx.guild

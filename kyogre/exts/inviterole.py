@@ -20,7 +20,7 @@ class InviteRoleCog(commands.Cog):
     @commands.group(name="inviterole", aliases=["ir"])
     @commands.has_permissions(manage_roles=True)
     async def inviterole(self, ctx):
-        if ctx.invoked_subcommand == None:
+        if ctx.invoked_subcommand is None:
             raise commands.BadArgument()
     
     @inviterole.command(name='add', aliases=['create', 'cr', 'new'])

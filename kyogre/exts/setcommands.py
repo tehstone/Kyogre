@@ -220,6 +220,13 @@ class SetCommands(commands.Cog):
         if not ctx.guild:
             return await ctx.send("Please use this command within a server.")
         await ctx.send("I will message you directly to help you get your profile set up.")
+        try:
+            await ctx.author.send("Let's get your profile set up!")
+        except discord.Forbidden:
+            embed = discord.Embed(colour=discord.Colour.red())
+            embed.description = "Your discord settings prevent me from messaging you directly. " \
+                                "Unable to set up profile."
+            return await ctx.send(embed)
         trainer_dict_copy = copy.deepcopy(self.bot.guild_dict[ctx.guild.id].setdefault('trainers', {})
                                           .setdefault('info', {}).setdefault(ctx.author.id, {}))
         team_role_names = [r.lower() for r in self.bot.team_color_map.keys()]
@@ -270,7 +277,7 @@ class SetCommands(commands.Cog):
                         temp_role = discord.utils.get(ctx.guild.roles, name=team)
                         if temp_role:
                             # and the user has this role,
-                            if (temp_role in ctx.author.roles):
+                            if temp_role in ctx.author.roles:
                                 has_team = True
                     if not has_team:
                         team_role = discord.utils.get(ctx.guild.roles, name=response.lower())
