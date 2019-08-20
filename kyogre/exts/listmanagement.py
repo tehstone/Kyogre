@@ -185,8 +185,9 @@ class ListManagement(commands.Cog):
         report_str = ""
         if region:
             reporting_channels = await self.get_region_reporting_channels(guild, region)
-            report_channel = guild.get_channel(reporting_channels[0])
-            report_str = f"Report a new raid in {report_channel.mention}\n"
+            if len(reporting_channels) > 0:
+                report_channel = guild.get_channel(reporting_channels[0])
+                report_str = f"Report a new raid in {report_channel.mention}\n"
         if activeraidnum:
             listmsg += f"**Current eggs and raids reported in {cty.capitalize()}**\n"
             if region:

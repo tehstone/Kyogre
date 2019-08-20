@@ -600,7 +600,7 @@ class RaidCommands(commands.Cog):
                                       self.bot.guild_dict[guild.id]['configure_dict']['settings']['regional'],
                                       raid_channel, author)
         self.bot.event_loop.create_task(self.expiry_check(raid_channel))
-        await self._add_update_db_raid_report(ctx, raid_channel)
+        await self._add_db_raid_report(ctx, raid_channel)
         return raid_channel
 
     async def create_raid_channel(self, raid_type, pkmn, level, gym, report_channel):
@@ -1041,11 +1041,12 @@ class RaidCommands(commands.Cog):
             self.bot.guild_dict[guild.id]['trainers'][regions[0]][author.id]['raid_reports'] = raid_reports
 
             await listmgmt_cog.edit_party(ctx, raid_channel, author)
-        await listmgmt_cog.update_listing_channels(guild,'raid', edit=False, regions=regions)
+        await listmgmt_cog.update_listing_channels(guild, 'raid', edit=False, regions=regions)
         await asyncio.sleep(1)
         self.bot.event_loop.create_task(self.expiry_check(raid_channel))
+        await self._update_db_raid_report(guild, raid_channel)
 
-    async def _add_update_db_raid_report(self, ctx, raid_channel):
+    async def _add_db_raid_report(self, ctx, raid_channel):
         message = ctx.message
         channel = message.channel
         guild = channel.guild
@@ -1054,8 +1055,13 @@ class RaidCommands(commands.Cog):
         gym = raid_dict['gym']
         created = round(message.created_at.timestamp())
         level, pokemon, hatch_time, expire_time, weather = None, None, None, None, None
-        if 'level' in raid_dict and raid_dict['level'] > 0:
+        if 'level' in raid_dict and raid_dict['level'] != '0':
             level = raid_dict['level']
+        if 'egglevel' in raid_dict and raid_dict['egglevel'] != '0':
+            try:
+                level = int(raid_dict['egglevel'])
+            except TypeError:
+                pass
         if 'pokemon' in raid_dict and raid_dict['pokemon'] != '':
             pokemon = raid_dict['pokemon']
             raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon)
@@ -1070,12 +1076,42 @@ class RaidCommands(commands.Cog):
                 elif raid_dict['type'] == 'raid':
                     expire_time = round(raid_dict['exp'])
                     hatch_time = round(raid_dict['exp']) - 2700
-        print(hatch_time)
-        print(expire_time)
+        print(raid_dict)
         report = TrainerReportRelation.create(created=created, trainer=author.id, location=gym.id)
         RaidTable.create(trainer_report=report, level=level, pokemon=pokemon, hatch_time=hatch_time,
                          expire_time=expire_time, channel=raid_channel.id, weather=weather)
         pass
+
+    async def _update_db_raid_report(self, guild, raid_channel):
+        report = RaidTable.get(RaidTable.channel == raid_channel.id)
+        if report is None:
+            self.bot.logger.info(f"No Raid report found in db to update. Channel id: {raid_channel.id}")
+            return
+        report_relation = TrainerReportRelation.get(TrainerReportRelation.id == report.trainer_report_id)
+        raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
+        if 'level' in raid_dict and raid_dict['level'] > 0:
+            report.level = raid_dict['level']
+        if 'pokemon' in raid_dict and raid_dict['pokemon'] != '':
+            report.pokemon = raid_dict['pokemon']
+            raid_pokemon = Pokemon.get_pokemon(self.bot, report.pokemon)
+            report.level = raid_pokemon.raid_level
+        if 'weather' in raid_dict:
+            report.weather = raid_dict['weather']
+        if 'type' in raid_dict:
+            if 'exp' in raid_dict:
+                if raid_dict['type'] == 'egg':
+                    report.hatch_time = round(raid_dict['exp'])
+                    report.expire_time = round(raid_dict['exp']) + 2700
+                elif raid_dict['type'] == 'raid':
+                    report.expire_time = round(raid_dict['exp'])
+                    report.hatch_time = round(raid_dict['exp']) - 2700
+        report.save()
+        if report_relation is not None:
+            gym = raid_dict['gym']
+            if gym is None:
+                return
+            report_relation.location_id = gym.id
+            report_relation.save()
 
     @commands.command()
     @commands.has_permissions(manage_channels=True)
@@ -2075,7 +2111,8 @@ class RaidCommands(commands.Cog):
             gym_embed_value += "\n**Weather**: " + weather
             new_embed.set_field_at(embed_indices['gym'], name=gym_embed.name, value=gym_embed_value, inline=True)
             await raid_message.edit(embed=new_embed)
-            return await ctx.channel.send("Weather set to {}!".format(weather.lower()))
+            await ctx.channel.send("Weather set to {}!".format(weather.lower()))
+            return await self._update_db_raid_report(ctx, ctx.channel)
 
     async def expiry_check(self, channel):
         self.bot.logger.info('Expiry_Check - ' + channel.name)
@@ -2443,6 +2480,7 @@ class RaidCommands(commands.Cog):
                                                        description="Raid Tier / Boss updated"))
                 await bosswait.delete()
                 await bossmsg.delete()
+            await self._update_db_raid_report(guild, raid_channel)
         else:
             return
 
