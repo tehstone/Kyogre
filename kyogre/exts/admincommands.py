@@ -128,7 +128,7 @@ class AdminCommands(commands.Cog):
         try:
             with tempfile.NamedTemporaryFile('wb', dir=os.path.dirname(os.path.join('data', 'serverdict')),
                                              delete=False) as tf:
-                pickle.dump(self.bot.guild_dict, tf, -1)
+                pickle.dump(self.bot.guild_dict, tf, 4)
                 tempname = tf.name
             try:
                 os.remove(os.path.join('data', 'serverdict_backup'))
@@ -140,8 +140,8 @@ class AdminCommands(commands.Cog):
                 if e.errno != errno.ENOENT:
                     raise
             os.rename(tempname, os.path.join('data', 'serverdict'))
-        except:
-            self.bot.logger.error("Failed to save serverdict")
+        except Exception as e:
+            self.bot.logger.error(f"Failed to save serverdict. Error: {str(e)}")
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         if not location_matching_cog:
             await self._print(self.bot.owner, 'Pokestop and Gym data not saved!')

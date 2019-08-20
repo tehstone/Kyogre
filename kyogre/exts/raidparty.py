@@ -30,7 +30,7 @@ class RaidParty(commands.Cog):
             teamcounts = "{teamcounts} {bosslist}"\
                 .format(teamcounts=teamcounts,
                         bosslist=",".join([s.title() for s in self.bot.raid_info['raid_eggs'][egglevel]['pokemon']]))
-            teamcounts = teamcounts.lower().replace("all","").strip()
+            teamcounts = teamcounts.lower().replace("all", "").strip()
         return self.status_parser.fullmatch(teamcounts)
 
     async def _process_status_command(self, ctx, teamcounts):
@@ -64,7 +64,7 @@ class RaidParty(commands.Cog):
                         entered_interest.add(name)
                     else:
                         errors.append("{pkmn} doesn't appear in level {egglevel} raids! Please try again."
-                                      .format(pkmn=pkmn.name,egglevel=egglevel))
+                                      .format(pkmn=pkmn.name, egglevel=egglevel))
             if errors:
                 errors.append("Invalid Pokemon detected. Please check the pinned message "
                               "for the list of possible bosses and try again.")
@@ -147,11 +147,11 @@ class RaidParty(commands.Cog):
             count = result[0]
             partylist = result[1]
             listmgmt_cog = self.bot.cogs.get('ListManagement')
-            await listmgmt_cog.maybe(ctx, self.bot, count, partylist, eta, entered_interest)
+            await listmgmt_cog.maybe(ctx, count, partylist, eta, entered_interest)
 
     @commands.command(aliases=['c'])
     @checks.activechannel()
-    async def coming(self, ctx, *, teamcounts: str=None):
+    async def coming(self, ctx, *, teamcounts: str = None):
         """Indicate you are on the way to a raid.
 
         **Usage**: `!coming/c [count] [party]`
@@ -169,11 +169,11 @@ class RaidParty(commands.Cog):
             count = result[0]
             partylist = result[1]
             listmgmt_cog = self.bot.cogs.get('ListManagement')
-            await listmgmt_cog.coming(ctx, self.bot, count, partylist, eta, entered_interest)
+            await listmgmt_cog.coming(ctx, count, partylist, eta, entered_interest)
 
     @commands.command(aliases=['h'])
     @checks.activechannel()
-    async def here(self, ctx, *, teamcounts: str=None):
+    async def here(self, ctx, *, teamcounts: str = None):
         """Indicate you have arrived at the raid.
 
         **Usage**: `!here/h [count] [party]`
@@ -190,12 +190,13 @@ class RaidParty(commands.Cog):
             count = result[0]
             partylist = result[1]
             listmgmt_cog = self.bot.cogs.get('ListManagement')
-            await listmgmt_cog.here(ctx, self.bot, count, partylist, entered_interest)
+            await listmgmt_cog.here(ctx, count, partylist, entered_interest)
 
     async def _party_status(self, ctx, total, teamcounts):
         channel = ctx.channel
         author = ctx.author
-        trainer_dict = self.bot.guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'].get(author.id, {})
+        trainer_dict = self.bot.guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']\
+            .get(author.id, {})
         roles = [r.name.lower() for r in author.roles]
         if 'mystic' in roles:
             my_team = 'mystic'
@@ -270,7 +271,7 @@ class RaidParty(commands.Cog):
                     unknown[1] = total - team_total
                 else:
                     team_aliases[my_team][1] = total - team_total
-        partylist = {'mystic':mystic[1], 'valor':valor[1], 'instinct':instinct[1], 'unknown':unknown[1]}
+        partylist = {'mystic': mystic[1], 'valor': valor[1], 'instinct': instinct[1], 'unknown': unknown[1]}
         result = [total, partylist]
         return result
 
@@ -308,7 +309,7 @@ class RaidParty(commands.Cog):
         guild = message.guild
         channel = message.channel
         if 'lobby' not in self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]:
-            await channel.send('There is no group in the lobby for you to join!\
+            await channel.send('There is no group in the lobby for you to join!\n\
             Use **!starting** if the group waiting at the raid is entering the lobby!')
             return
         trainer_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
@@ -395,9 +396,8 @@ class RaidParty(commands.Cog):
                     trainer_joined = True
                     ctx_startinglist.append(user.mention)
             if trainer_joined:
-                joined = guild_dict[guild.id].setdefault('trainers', {}).setdefault(regions[0], {}).setdefault(trainer,
-                                                                                                               {}).setdefault(
-                    'joined', 0) + 1
+                joined = guild_dict[guild.id].setdefault('trainers', {}).setdefault(regions[0], {})\
+                             .setdefault(trainer, {}).setdefault('joined', 0) + 1
                 guild_dict[guild.id]['trainers'][regions[0]][trainer]['joined'] = joined
 
         if len(ctx_startinglist) == 0:
@@ -411,12 +411,16 @@ class RaidParty(commands.Cog):
             guild_dict[guild.id]['raidchannel_dict'][channel.id]['starttime'] = None
         else:
             timestr = ' '
-        starting_str = 'Starting - The group that was waiting{timestr}is starting the raid! Trainers {trainer_list}, if you are not in this group and are waiting for the next group, please respond with {here_emoji} or **!here**. If you need to ask those that just started to back out of their lobby, use **!backout**'.format(
-            timestr=timestr, trainer_list=', '.join(ctx_startinglist),
-            here_emoji=utils.parse_emoji(guild, self.bot.config['here_id']))
+        starting_str = 'Starting - The group that was waiting{timestr}is starting the raid! ' \
+                       'Trainers {trainer_list}, if you are not in this group and are waiting for the next group, ' \
+                       'please respond with {here_emoji} or **!here**. If you need to ask those that just started ' \
+                       'to back out of their lobby, use **!backout**'\
+            .format(timestr=timestr, trainer_list=', '.join(ctx_startinglist),
+                    here_emoji=utils.parse_emoji(guild, self.bot.config['here_id']))
         guild_dict[guild.id]['raidchannel_dict'][channel.id]['lobby'] = {"exp": time.time() + 120, "team": team}
         if starttime:
-            starting_str += '\n\nThe start time has also been cleared, new groups can set a new start time wtih **!starttime HH:MM AM/PM** (You can also omit AM/PM and use 24-hour time!).'
+            starting_str += '\n\nThe start time has also been cleared, new groups can set a new start time with' \
+                            ' **!starttime HH:MM AM/PM** (You can also omit AM/PM and use 24-hour time!).'
             report_channel = self.bot.get_channel(guild_dict[guild.id]['raidchannel_dict'][channel.id]['reportcity'])
             raidmsg = await channel.fetch_message(guild_dict[guild.id]['raidchannel_dict'][channel.id]['raidmessage'])
             reportmsg = await report_channel.fetch_message(
@@ -434,15 +438,19 @@ class RaidParty(commands.Cog):
             except discord.errors.NotFound:
                 pass
         await channel.send(starting_str)
-        ctx.bot.loop.create_task(self.lobby_countdown(ctx, team))
+        action_time = round(ctx.message.created_at.timestamp())
+        ctx.bot.loop.create_task(self.lobby_countdown(ctx, team, action_time))
         regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
         if regions:
             listmgmt_cog = self.bot.cogs.get('ListManagement')
             await listmgmt_cog.update_listing_channels(channel.guild, 'raid', edit=True, regions=regions)
+        raid_cog = self.bot.cogs.get('RaidCommands')
+        await raid_cog.add_db_raid_action(channel, "lobby start", action_time)
 
-    async def lobby_countdown(self, ctx, team):
+    async def lobby_countdown(self, ctx, team, action_time):
         guild_dict, raid_info = self.bot.guild_dict, self.bot.raid_info
-        await asyncio.sleep(120)
+        lobby_duration = 120
+        await asyncio.sleep(lobby_duration)
         if ('lobby' not in guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]) or (
                 time.time() < guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['lobby']['exp']):
             return
@@ -475,6 +483,9 @@ class RaidParty(commands.Cog):
         regions = guild_dict[ctx.channel.guild.id]['raidchannel_dict'][ctx.channel.id].get('regions', None)
         if regions:
             await listmgmt_cog.update_listing_channels(ctx.guild, 'raid', edit=True, regions=regions)
+        raid_cog = self.bot.cogs.get('RaidCommands')
+        action_time += lobby_duration
+        await raid_cog.add_db_raid_action(ctx.channel, "lobby complete", action_time)
 
     @commands.command()
     @checks.activeraidchannel()

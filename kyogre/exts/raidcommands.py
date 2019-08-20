@@ -12,7 +12,7 @@ from kyogre import checks, counters_helpers, embed_utils, entity_updates, utils
 from kyogre.exts.pokemon import Pokemon
 from kyogre.exts.bosscp import boss_cp_chart
 
-from kyogre.exts.db.kyogredb import KyogreDB, RaidTable, TrainerReportRelation
+from kyogre.exts.db.kyogredb import KyogreDB, RaidActionTable, RaidTable, TrainerReportRelation
 
 
 class RaidCommands(commands.Cog):
@@ -772,6 +772,7 @@ class RaidCommands(commands.Cog):
         pkmn = Pokemon.get_pokemon(self.bot, entered_raid)
         if not pkmn:
             return
+        action_time = round(time.time())
         listmgmt_cog = self.bot.cogs.get('ListManagement')
         eggdetails = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
         egglevel = eggdetails['egglevel']
@@ -825,11 +826,12 @@ class RaidCommands(commands.Cog):
         meetup = eggdetails.get('meetup', {})
         raid_match = pkmn.is_raid
         if not raid_match:
-            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel},"
-                                      f" error: {pkmn.name} reported, but not in raid data.")
-            return await raid_channel.send(embed=discord.Embed(
+            await raid_channel.send(embed=discord.Embed(
                 colour=discord.Colour.red(),
                 description=f'The Pokemon {pkmn.full_name} does not appear in raids!'))
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel},"
+                                      f" error: {pkmn.name} reported, but not in raid data.")
+            return
         if (egglevel.isdigit() and int(egglevel) > 0) or egglevel == 'EX':
             raidexp = eggdetails['exp'] + 60 * self.bot.raid_info['raid_eggs'][str(egglevel)]['raidtime']
         else:
@@ -1045,6 +1047,7 @@ class RaidCommands(commands.Cog):
         await asyncio.sleep(1)
         self.bot.event_loop.create_task(self.expiry_check(raid_channel))
         await self._update_db_raid_report(guild, raid_channel)
+        await self.add_db_raid_action(raid_channel, "hatch", action_time)
 
     async def _add_db_raid_report(self, ctx, raid_channel):
         message = ctx.message
@@ -1055,8 +1058,6 @@ class RaidCommands(commands.Cog):
         gym = raid_dict['gym']
         created = round(message.created_at.timestamp())
         level, pokemon, hatch_time, expire_time, weather = None, None, None, None, None
-        if 'level' in raid_dict and raid_dict['level'] != '0':
-            level = raid_dict['level']
         if 'egglevel' in raid_dict and raid_dict['egglevel'] != '0':
             try:
                 level = int(raid_dict['egglevel'])
@@ -1076,11 +1077,9 @@ class RaidCommands(commands.Cog):
                 elif raid_dict['type'] == 'raid':
                     expire_time = round(raid_dict['exp'])
                     hatch_time = round(raid_dict['exp']) - 2700
-        print(raid_dict)
         report = TrainerReportRelation.create(created=created, trainer=author.id, location=gym.id)
         RaidTable.create(trainer_report=report, level=level, pokemon=pokemon, hatch_time=hatch_time,
                          expire_time=expire_time, channel=raid_channel.id, weather=weather)
-        pass
 
     async def _update_db_raid_report(self, guild, raid_channel):
         report = RaidTable.get(RaidTable.channel == raid_channel.id)
@@ -1088,9 +1087,15 @@ class RaidCommands(commands.Cog):
             self.bot.logger.info(f"No Raid report found in db to update. Channel id: {raid_channel.id}")
             return
         report_relation = TrainerReportRelation.get(TrainerReportRelation.id == report.trainer_report_id)
-        raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
-        if 'level' in raid_dict and raid_dict['level'] > 0:
-            report.level = raid_dict['level']
+        raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'].get(raid_channel.id, None)
+        if raid_dict is None:
+            return self.bot.logger.info(f"No raid_dict found in guild_dict. "
+                                        f"Cannot update raid report. Channel id: {raid_channel.id}")
+        if 'egglevel' in raid_dict and raid_dict['egglevel'] != '0':
+            try:
+                report.level = int(raid_dict['egglevel'])
+            except TypeError:
+                pass
         if 'pokemon' in raid_dict and raid_dict['pokemon'] != '':
             report.pokemon = raid_dict['pokemon']
             raid_pokemon = Pokemon.get_pokemon(self.bot, report.pokemon)
@@ -1112,6 +1117,18 @@ class RaidCommands(commands.Cog):
                 return
             report_relation.location_id = gym.id
             report_relation.save()
+
+    async def add_db_raid_action(self, raid_channel, action, action_time):
+        guild = raid_channel.guild
+        report = RaidTable.get(RaidTable.channel == raid_channel.id)
+        if report is None:
+            return self.bot.logger.info(f"No Raid report found in db to add raid action. Channel id: {raid_channel.id}")
+        raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'].get(raid_channel.id, None)
+        if raid_dict is None:
+            return self.bot.logger.info(f"No raid_dict found in guild_dict. "
+                                        f"Cannot add raid action. Channel id: {raid_channel.id}")
+        trainer_dict = raid_dict.get('trainer_dict', {})
+        RaidActionTable.create(raid=report, action=action, action_time=action_time, trainer_dict=trainer_dict)
 
     @commands.command()
     @commands.has_permissions(manage_channels=True)
@@ -1704,8 +1721,8 @@ class RaidCommands(commands.Cog):
                         'This channel has been successfully reported as a duplicate and will be deleted in 1 minute. '
                         'Check the channel list for the other raid channel to coordinate in!\n'
                         'If this was in error, reset the raid with **!timerset**')
-                delete_time = (self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] + (1 * 60)) \
-                              - time.time()
+                delete_time = (self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp']
+                               + (1 * 60)) - time.time()
             elif self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['type'] == 'egg' and not \
                     self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id].get('meetup', {}):
                 if not alreadyexpired:
@@ -1728,8 +1745,8 @@ class RaidCommands(commands.Cog):
                     \nor **!timerset** to reset the hatch timer. \
                     \nThis channel will be deactivated until I get an update.".format(
                         trainer_list=', '.join(maybe_list)))
-                delete_time = (self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] + (45 * 60)) \
-                              - time.time()
+                delete_time = (self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp']
+                               + (45 * 60)) - time.time()
                 expiremsg = '**This level {level} raid egg has expired!**'.format(
                     level=self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['egglevel'])
             else:

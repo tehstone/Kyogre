@@ -4,6 +4,7 @@ from playhouse.apsw_ext import *
 from playhouse.sqlite_ext import JSONField
 from playhouse.migrate import *
 
+
 class KyogreDB:
     _db = Proxy()
     _migrator = None
@@ -18,16 +19,11 @@ class KyogreDB:
         cls._db.initialize(handle)
         # ensure db matches current schema
         cls._db.create_tables([
-            LocationTable, TeamTable, GuildTable, 
-            TrainerTable, PokemonTable, SilphcardTable, 
-            RegionTable, LocationRegionRelation, PokestopTable, 
-            GymTable, TrainerReportRelation, QuestTable, 
-            ResearchTable, SightingTable, RaidBossRelation, 
-            RaidTable, SubscriptionTable, TradeTable,
-            LocationNoteTable, RewardTable, LureTable,
-            LureTypeTable, LureTypeRelation,
-            InviteRoleTable, EventTable, BadgeTable,
-            BadgeAssignmentTable, InvasionTable
+            BadgeAssignmentTable, BadgeTable, EventTable, GuildTable, GymTable, InvasionTable, InviteRoleTable,
+            LocationNoteTable, LocationRegionRelation, LocationTable, LureTable, LureTypeRelation, LureTypeTable,
+            PokemonTable, PokestopTable, QuestTable, RaidActionTable, RaidBossRelation, RaidTable, RegionTable,
+            ResearchTable, RewardTable, SightingTable, SilphcardTable, SubscriptionTable, TeamTable, TradeTable,
+            TrainerReportRelation, TrainerTable
         ])
         cls.init()
         cls._migrator = SqliteMigrator(cls._db)
@@ -38,27 +34,27 @@ class KyogreDB:
     
     @classmethod
     def init(cls):
-        #check team
+        # check team
         try:
             TeamTable.get()
         except:
             TeamTable.reload_default()
-        #check pokemon
+        # check pokemon
         try:
             PokemonTable.get()
         except:
             PokemonTable.reload_default()
-        #check regions
+        # check regions
         try:
             RegionTable.get()
         except:
             RegionTable.reload_default()
-        #check locations
+        # check locations
         try:
             LocationTable.get()
         except:
             LocationTable.reload_default()
-        #check quests
+        # check quests
         try:
             QuestTable.get()
         except:
@@ -68,9 +64,11 @@ class KyogreDB:
         except:
             LureTypeTable.reload_default()
 
+
 class BaseModel(Model):
     class Meta:
         database = KyogreDB._db
+
 
 class TeamTable(BaseModel):
     name = TextField(unique=True)
@@ -89,9 +87,11 @@ class TeamTable(BaseModel):
         for name, emoji in team_data.items():
             cls.insert(name=name, emoji=emoji).execute()
 
+
 class GuildTable(BaseModel):
     snowflake = BigIntegerField(unique=True)
     config_dict = JSONField(null=True)
+
 
 class TrainerTable(BaseModel):
     snowflake = BigIntegerField(index=True)
@@ -100,6 +100,7 @@ class TrainerTable(BaseModel):
 
     class Meta:
         constraints = [SQL('UNIQUE(snowflake, guild_id)')]
+
 
 class PokemonTable(BaseModel):
     id = IntegerField(primary_key=True)
@@ -125,10 +126,12 @@ class PokemonTable(BaseModel):
             for chunk in chunked(pkmn_data, 50):
                 cls.insert_many(chunk).execute()
 
+
 class SilphcardTable(BaseModel):
     trainer = BigIntegerField(index=True)
     name = TextField(index=True)
     url = TextField(unique=True)
+
 
 class RegionTable(BaseModel):
     name = TextField(index=True)
@@ -158,6 +161,7 @@ class RegionTable(BaseModel):
     
     class Meta:
         constraints = [SQL('UNIQUE(name, guild_id)')]
+
 
 class LocationTable(BaseModel):
     id = AutoField()
@@ -211,20 +215,25 @@ class LocationTable(BaseModel):
         for name, data in pokestop_data.items():
             LocationTable.create_location(name, data)
 
+
 class LocationNoteTable(BaseModel):
     location = ForeignKeyField(LocationTable, backref='notes')
     note = TextField()
+
 
 class LocationRegionRelation(BaseModel):
     location = ForeignKeyField(LocationTable, backref='regions')
     region = ForeignKeyField(RegionTable, backref='locations')
 
+
 class PokestopTable(BaseModel):
     location = ForeignKeyField(LocationTable, backref='pokestops', primary_key=True)
+
 
 class GymTable(BaseModel):
     location = ForeignKeyField(LocationTable, backref='gyms', primary_key=True)
     ex_eligible = BooleanField(index=True)
+
 
 class TrainerReportRelation(BaseModel):
     id = AutoField()
@@ -232,6 +241,7 @@ class TrainerReportRelation(BaseModel):
     trainer = BigIntegerField(index=True)
     location = ForeignKeyField(LocationTable, index=True)
     message = BigIntegerField(index=True, null=True)
+
 
 class QuestTable(BaseModel):
     name = TextField(unique=True)
@@ -253,43 +263,50 @@ class QuestTable(BaseModel):
                     name = quest['name']
                     pool = quest['reward_pool']
                     QuestTable.create(name=name, reward_pool=pool)
-                    parseRewardPool(pool)
+                    parse_reward_pool(pool)
                 except Exception as e:
                     import pdb; pdb.set_trace()
                     print(e)
+
 
 class ResearchTable(BaseModel):
     trainer_report = ForeignKeyField(TrainerReportRelation, backref='research')
     quest = ForeignKeyField(QuestTable, backref='reports', index=True)
 
-class LureInstance():
-    def __init__(self, created, location_name, lure_type, latitude, longitude):
-        self.created=created
-        self.location_name=location_name
-        self.lure_type=lure_type
-        self.latitude=latitude
-        self.longitude=longitude
 
-class Lure():
+class LureInstance:
+    def __init__(self, created, location_name, lure_type, latitude, longitude):
+        self.created = created
+        self.location_name = location_name
+        self.lure_type = lure_type
+        self.latitude = latitude
+        self.longitude = longitude
+
+
+class Lure:
     def __init__(self, name):
         self.name = name
+
 
 class LureTypeTable(BaseModel):
     name = TextField()
 
     @classmethod
     def reload_default(cls):
-        for type in ['normal', 'glacial', 'mossy', 'magnetic']:
-            LureTypeTable.create(name=type)
+        for lure_type in ['normal', 'glacial', 'mossy', 'magnetic']:
+            LureTypeTable.create(name=lure_type)
+
 
 class LureTable(BaseModel):
     trainer_report = ForeignKeyField(TrainerReportRelation, backref='lure')
+
 
 class LureTypeRelation(BaseModel):
     lure = ForeignKeyField(LureTable, backref='lure')
     type = ForeignKeyField(LureTypeTable, backref='lure')
 
-class InvasionInstance():
+
+class InvasionInstance:
     def __init__(self, id, created, location_name, pokemon, latitude, longitude):
         self.id=id
         self.created=created
@@ -298,33 +315,40 @@ class InvasionInstance():
         self.latitude=latitude
         self.longitude=longitude
 
+
 class InvasionTable(BaseModel):
     trainer_report = ForeignKeyField(TrainerReportRelation, backref='invasion')
     pokemon_number = ForeignKeyField(PokemonTable, null=True, backref='invasion')
 
-def parseRewardPool(pool):
-    for key,val in pool["items"].items():
+
+def parse_reward_pool(pool):
+    for key, val in pool["items"].items():
         try:
             RewardTable.create(name=key.lower())
         except Exception as e:
             pass
 
-class Reward():
+
+class Reward:
     def __init__(self, name, quantity):
         self.name = name
         self.quantity = quantity
+
 
 class RewardTable(BaseModel):
     name = TextField(index=True, unique=True)
     quantity = IntegerField(null=True)
 
+
 class SightingTable(BaseModel):
     trainer_report = ForeignKeyField(TrainerReportRelation, backref='sightings')
     pokemon = ForeignKeyField(PokemonTable, backref='sightings')
 
+
 class BossTable(BaseModel):
     pokemon = TextField(index=True)
     level = TextField(index=True)
+
 
 class RaidTable(BaseModel):
     trainer_report = ForeignKeyField(TrainerReportRelation, backref='raids')
@@ -335,9 +359,18 @@ class RaidTable(BaseModel):
     channel = BigIntegerField(index=True)
     weather = TextField(index=True, null=True)
 
+
+class RaidActionTable(BaseModel):
+    raid = ForeignKeyField(RaidTable, backref='raid_action')
+    action = TextField(index=True)
+    action_time = DateTimeField(index=True)
+    trainer_dict = JSONField(null=True)
+
+
 class RaidBossRelation(BaseModel):
     boss = ForeignKeyField(BossTable, backref='raids')
     raid = ForeignKeyField(RaidTable, backref='boss')
+
 
 class SubscriptionTable(BaseModel):
     trainer = BigIntegerField(index=True)
@@ -348,11 +381,13 @@ class SubscriptionTable(BaseModel):
     class Meta:
         constraints = [SQL('UNIQUE(trainer, type, target, specific)')]
 
+
 class TradeTable(BaseModel):
     trainer = BigIntegerField(index=True)
     channel = BigIntegerField()
     offer = TextField()
     wants = TextField()
+
 
 class InviteRoleTable(BaseModel):
     guild = ForeignKeyField(GuildTable, field=GuildTable.snowflake, backref='inviteroles', index=True)
@@ -361,6 +396,7 @@ class InviteRoleTable(BaseModel):
 
     class Meta:
         constraints = [SQL('UNIQUE(guild_id, invite)')]
+
 
 class EventTable(BaseModel):
     guild = ForeignKeyField(GuildTable, field=GuildTable.snowflake, backref='events', index=True)
@@ -371,6 +407,7 @@ class EventTable(BaseModel):
     class Meta:
         constraints = [SQL('UNIQUE(guild_id, eventname)')]
 
+
 class BadgeTable(BaseModel):
     name = TextField(index=True)
     description = TextField()
@@ -379,6 +416,7 @@ class BadgeTable(BaseModel):
 
     class Meta:
         constraints = [SQL('UNIQUE(name, description, emoji)')]
+
 
 class BadgeAssignmentTable(BaseModel):
     trainer = BigIntegerField(index=True)
