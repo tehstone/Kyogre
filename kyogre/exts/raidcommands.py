@@ -226,7 +226,6 @@ class RaidCommands(commands.Cog):
                 description='Give more details when reporting! Usage: **!raid <pokemon name> <location>**'))
         return await self.finish_raid_report(ctx, raid_details, raid_pokemon, raid_pokemon.raid_level, weather, raidexp)
 
-    @staticmethod
     async def retry_gym_match(self, channel, author_id, raid_details, gyms):
         attempt = raid_details.split(' ')
         if len(attempt) > 1:

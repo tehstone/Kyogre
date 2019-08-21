@@ -55,8 +55,8 @@ class ListManagement(commands.Cog):
             cty = region
         else:
             cty = channel.name
-        raid_dict = {}
-        egg_dict = {}
+        egg_dict = {'1': {}, '2': {}, '3': {}, '4': {}, '5': {}}
+        raid_dict = {'1': {}, '2': {}, '3': {}, '4': {}, '5': {}}
         exraid_list = []
         event_list = []
         for r in rc_d:
@@ -73,13 +73,14 @@ class ListManagement(commands.Cog):
                 type = rc_d[r]['type']
                 level = rc_d[r]['egglevel']
                 if (type == 'egg') and level.isdigit():
-                    egg_dict[r] = exp
+                    egg_dict[level][r] = exp
                 elif rc_d[r].get('meetup', {}):
                     event_list.append(r)
                 elif type == 'exraid' or level == 'EX':
                     exraid_list.append(r)
                 else:
-                    raid_dict[r] = exp
+                    egglevel = Pokemon.get_pokemon(self.bot, rc_d[r]['pokemon']).raid_level
+                    raid_dict[egglevel][r] = exp
 
         def list_output(raid):
             trainer_dict = rc_d[raid]['trainer_dict']
@@ -144,13 +145,15 @@ class ListManagement(commands.Cog):
                 red_emoji = utils.parse_emoji(rchan.guild, self.bot.config['team_dict']['valor'])
                 yellow_emoji = utils.parse_emoji(rchan.guild, self.bot.config['team_dict']['instinct'])
                 team_emoji_dict = {'mystic': blue_emoji, 'valor': red_emoji, 'instinct': yellow_emoji, 'unknown': '❔'}
-                total_count = ''
+                total_count_list = []
                 for team in trainer_count:
-                    total_count += trainer_count[team] * team_emoji_dict[team]
+                    if trainer_count[team] > 0:
+                        total_count_list.append(f"{team_emoji_dict[team]}:{trainer_count[team]}")
+                total_count = " | ".join(total_count_list)
                 if len(total_count) < 1:
                     total_count = '0'
                 # sum([ctx_maybecount, ctx_comingcount, ctx_herecount, ctx_lobbycount])
-                output += '\t{tier} {chan}{ex}\n\t\t{expiry_text}{starttime}\n\t\t**Trainer Count**: {total_count}\n'\
+                output += '\t{tier} {chan}{ex}\n\t\t{expiry_text}{starttime} | **Trainer Count**: {total_count}\n'\
                     .format(tier=t_emoji, chan=rchan.mention, ex=ex_eligibility, expiry_text=expirytext,
                             total_count=total_count, starttime=start_str)
             else:
@@ -193,12 +196,16 @@ class ListManagement(commands.Cog):
             if region:
                 listmsg += report_str
             listmsg += "\n"
-            if raid_dict:
-                listmsg += process_category(listmsg_list, "Active Raids",
-                                            [r for (r, __) in sorted(raid_dict.items(), key=itemgetter(1))])
             if egg_dict:
-                listmsg += process_category(listmsg_list, "Raid Eggs",
-                                            [r for (r, __) in sorted(egg_dict.items(), key=itemgetter(1))])
+                for level in egg_dict:
+                    if len(egg_dict[level].items()) > 0:
+                        listmsg += process_category(listmsg_list, f"Level {level} Eggs",
+                                                    [r for (r, __) in sorted(egg_dict[level].items(), key=itemgetter(1))])
+            if raid_dict:
+                for level in raid_dict:
+                    if len(raid_dict[level].items()) > 0:
+                        listmsg += process_category(listmsg_list, f"Active Level {level} Raids",
+                                                    [r for (r, __) in sorted(raid_dict[level].items(), key=itemgetter(1))])
             if exraid_list and not listing_enabled:
                 listmsg += process_category(listmsg_list, "EX Raids", exraid_list)
             if event_list and not listing_enabled:
