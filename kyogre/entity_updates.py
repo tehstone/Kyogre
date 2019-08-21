@@ -69,7 +69,7 @@ async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid
     guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = raid_dict
 
     list_cog = Kyogre.cogs.get('ListManagement')
-    await list_cog.update_listing_channels(guild, "raid", True)
+    await list_cog.update_listing_channels(guild, "raid", edit=True)
     return
 
 def get_raidtext(Kyogre, guild, guild_dict, raid_dict, gym, report_channel, raid_channel, report):

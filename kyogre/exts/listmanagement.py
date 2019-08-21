@@ -236,7 +236,7 @@ class ListManagement(commands.Cog):
             except:
                 continue
             utils_cog = self.bot.cogs.get('Utilities')
-            if not region or region in utils_cog.get_channel_regions(channel, 'wild'):
+            if not region or region in utils_cog.get_channel_regions(report_channel, 'wild'):
                 try:
                     await report_channel.fetch_message(wildid)
                     newmsg += ('\n🔹')
@@ -279,7 +279,8 @@ class ListManagement(commands.Cog):
             except:
                 continue
             utils_cog = self.bot.cogs.get('Utilities')
-            if not region or region in utils_cog.get_channel_regions(channel, 'research'):
+
+            if not region or region in utils_cog.get_channel_regions(report_channel, 'research'):
                 try:
                     await report_channel.fetch_message(questid) # verify quest message exists
                     cat = research_dict[questid]['quest'].title()

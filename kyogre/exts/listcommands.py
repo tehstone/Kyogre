@@ -33,7 +33,7 @@ class ListCommands(commands.Cog):
                         and raid_dict.get('categories', None) == 'region':
                     region = raid_dict.get('category_dict', {}).get(channel.id, None)
                 listmgmt_cog = self.bot.cogs.get('ListManagement')
-                listmsg = await listmgmt_cog.get_listing_messages(self.bot, 'raid', channel, region)
+                listmsg = await listmgmt_cog.get_listing_messages('raid', channel, region)
             elif checks.check_raidactive(ctx):
                 newembed = discord.Embed(colour=discord.Colour.purple(), title="Trainer Status List")
                 blue_emoji = utils.parse_emoji(guild, self.bot.config['team_dict']['mystic'])
