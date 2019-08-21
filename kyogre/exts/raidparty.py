@@ -344,7 +344,7 @@ class RaidParty(commands.Cog):
         Removes you and your party from the list of trainers who are "coming" or "here".
         Or removes you and your party from the active lobby."""
         listmgmt_cog = self.bot.cogs.get('ListManagement')
-        await listmgmt_cog.cancel(ctx, self.bot)
+        await listmgmt_cog.cancel(ctx)
 
     @commands.command(aliases=['s'])
     @checks.activeraidchannel()
