@@ -50,7 +50,7 @@ class Subscriptions(commands.Cog):
         
         return error_message
 
-    async def _parse_subscription_content(self, content, source, message = None):
+    async def _parse_subscription_content(self, content, source, message=None):
         channel = message.channel
         author = message.author
         sub_list = []
@@ -62,7 +62,6 @@ class Subscriptions(commands.Cog):
             if message:
                 channel = message.channel
                 guild = message.guild
-                trainer = message.author.id
                 gyms = self._get_gyms(guild.id)
                 if gyms:
                     gym_dict = {}
@@ -134,6 +133,12 @@ class Subscriptions(commands.Cog):
             target = set([target])
 
         if sub_type == 'raid':
+            selected_levels = target.intersection(raid_level_list)
+            for level in selected_levels:
+                entry = f'L{level} Raids'
+                target.remove(level)
+                sub_list.append((sub_type, level, entry))
+
             ex_pattern = r'^(ex([- ]*eligible)?)$'
             ex_r = re.compile(ex_pattern, re.I)
             matches = list(filter(ex_r.match, target))
@@ -142,6 +147,11 @@ class Subscriptions(commands.Cog):
                 for match in matches:
                     target.remove(match)
                 sub_list.append((sub_type, 'ex-eligible', entry))
+            remaining_list = [str(n) for n in list(range(6, 800))]
+            other_numbers = target.intersection(remaining_list)
+            for num in other_numbers:
+                target.remove(num)
+                error_list.append(num)
         
         for name in target:
             pkmn = Pokemon.get_pokemon(self.bot, name)
@@ -167,8 +177,9 @@ class Subscriptions(commands.Cog):
         await message.delete()
         choices_list = ['Add', 'Remove', 'View Existing']
         if choice is None:
-            prompt = "I'll help you manage your subscriptions!\n\n" \
-            + "Would you like to add a new subscription, remove a subscription, or see your current subscriptions?"
+            prompt = "I'll help you manage your subscriptions!\n\n " \
+                     "Would you like to add a new subscription, " \
+                     "remove a subscription, or see your current subscriptions?"
             choice = await utils.ask_list(self.bot, prompt, channel, choices_list, user_list=author.id)
         if choice == choices_list[0]:
             prompt = "What type of subscription would you like to add?"
@@ -267,7 +278,6 @@ class Subscriptions(commands.Cog):
                                                  check=(lambda reply: reply.author == ctx.message.author))
         except asyncio.TimeoutError:
             pass
-        error = None
         if prompt_msg is None:
             return None, f"Failed to {action} subscriptions because you took too long to respond."
         await prompt_msg.delete()
@@ -310,6 +320,8 @@ class Subscriptions(commands.Cog):
         # don't remove. this makes sure the guild and trainer are in the db
         guild_obj, __ = GuildTable.get_or_create(snowflake=guild.id)
         trainer_obj, __ = TrainerTable.get_or_create(snowflake=trainer, guild=guild.id)
+        if guild_obj is None or trainer_obj is None:
+            pass
         s_type = ''
         for sub in candidate_list:
             s_type = sub[0]
@@ -322,7 +334,7 @@ class Subscriptions(commands.Cog):
                     current_gym_ids = result.specific
                     split_ids = []
                     if current_gym_ids:
-                        current_gym_ids = current_gym_ids.strip('[').strip(']')
+                        current_gym_ids = current_gym_ids.strip('[]')
                         split_id_string = current_gym_ids.split(', ')
                         for s in split_id_string:
                             try:
@@ -369,12 +381,17 @@ class Subscriptions(commands.Cog):
 
         **Usage**: `!sub remove <type> <target>`
         You will no longer be notified of the specified target for the given event type.
+        You must remove subscriptions using the same type with which they were added.
+        It may be helpful to do `!sub list` first to see your existing subscriptions.
 
         You can remove all subscriptions of a type:
         `!sub remove <type> all`
 
         Or remove all subscriptions:
         `!sub remove all all`
+
+        Or started a guided session with:
+        `!sub remove`
 
         **Valid types**: `pokemon, raid, research, wild, gym, item, lure`
         **Note**: 'pokemon' includes raid, research, and wild reports"""
@@ -452,7 +469,7 @@ class Subscriptions(commands.Cog):
                     current_gym_ids = result.specific
                     split_ids = []
                     if current_gym_ids:
-                        current_gym_ids = current_gym_ids.strip('[').strip(']')
+                        current_gym_ids = current_gym_ids.strip('[]')
                         split_id_string = current_gym_ids.split(', ')
                         for s in split_id_string:
                             try:
@@ -536,7 +553,8 @@ class Subscriptions(commands.Cog):
             if invalid_types:
                 response_msg = "\nUnable to find these subscription types: {inv}".format(inv=', '.join(invalid_types))
         listmsg_list = self._generate_sub_list_message(ctx, valid_types)
-        response_msg = f"{author.mention}, check your inbox! I've sent your subscriptions to you directly!" + response_msg
+        response_msg = f"{author.mention}, check your inbox! " \
+                       f"I've sent your subscriptions to you directly!" + response_msg
         if len(listmsg_list) > 0:
             if valid_types:
                 await author.send(f"Your current {', '.join(valid_types)} subscriptions are:")
@@ -558,7 +576,8 @@ class Subscriptions(commands.Cog):
         await message.add_reaction(self.success_react)
         return await channel.send(response_msg, delete_after=10)
 
-    def _generate_sub_list_message(self, ctx, types):
+    @staticmethod
+    def _generate_sub_list_message(ctx, types):
         message = ctx.message
         guild = message.guild
         results = (SubscriptionTable
@@ -593,7 +612,8 @@ class Subscriptions(commands.Cog):
                         .join(LocationTable)
                         .join(LocationRegionRelation)
                         .join(RegionTable)
-                        .join(LocationNoteTable, JOIN.LEFT_OUTER, on=(LocationNoteTable.location_id == LocationTable.id))
+                        .join(LocationNoteTable, JOIN.LEFT_OUTER,
+                              on=(LocationNoteTable.location_id == LocationTable.id))
                         .where((LocationTable.guild == guild.id) &
                                (LocationTable.guild == RegionTable.guild) &
                                (LocationTable.id << split_ids)))
@@ -643,7 +663,7 @@ class Subscriptions(commands.Cog):
         if not trainer:
             response_msg = "Please provide a trainer name or id"
             response = await channel.send(response_msg)
-            return await utils.sleep_and_cleanup([message,response], 10)
+            return await utils.sleep_and_cleanup([message, response], 10)
 
         if trainer.isdigit():
             trainerid = trainer
@@ -658,10 +678,10 @@ class Subscriptions(commands.Cog):
                 return await utils.sleep_and_cleanup([message, response_msg], 10)
         try:
             results = (SubscriptionTable
-                .select(SubscriptionTable.type, SubscriptionTable.target)
-                .join(TrainerTable, on=(SubscriptionTable.trainer == TrainerTable.snowflake))
-                .where(SubscriptionTable.trainer == trainerid)
-                .where(TrainerTable.guild == ctx.guild.id))
+                       .select(SubscriptionTable.type, SubscriptionTable.target)
+                       .join(TrainerTable, on=(SubscriptionTable.trainer == TrainerTable.snowflake))
+                       .where(SubscriptionTable.trainer == trainerid)
+                       .where(TrainerTable.guild == ctx.guild.id))
 
             results = results.execute()
             subscription_msg = ''
@@ -692,7 +712,8 @@ class Subscriptions(commands.Cog):
         gyms = location_matching_cog.get_gyms(guild_id, regions)
         return gyms
 
-    def close_enough(self, coord1, coord2, distance):
+    @staticmethod
+    def close_enough(coord1, coord2, distance):
         #haversine
         R = 6372800  # Earth radius in meters
         conv = 1609.34 # meters in a mile
@@ -700,17 +721,17 @@ class Subscriptions(commands.Cog):
         lat2, lon2 = coord2
         
         phi1, phi2 = math.radians(lat1), math.radians(lat2) 
-        dphi       = math.radians(lat2 - lat1)
-        dlambda    = math.radians(lon2 - lon1)
+        dphi = math.radians(lat2 - lat1)
+        dlambda = math.radians(lon2 - lon1)
         
         a = math.sin(dphi/2)**2 + \
             math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
         
         return 2*R*math.atan2(math.sqrt(a), math.sqrt(1 - a)) / conv < distance
 
-    async def send_notifications_async(self, type, details, new_channel, exclusions=[]):
+    async def send_notifications_async(self, notification_type, details, new_channel, exclusions=[]):
         valid_types = ['raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure', 'takeover']
-        if type not in valid_types:
+        if notification_type not in valid_types:
             return
         guild = new_channel.guild
         # get trainers
@@ -718,7 +739,7 @@ class Subscriptions(commands.Cog):
             results = (SubscriptionTable
                        .select(SubscriptionTable.trainer, SubscriptionTable.target, SubscriptionTable.specific)
                        .join(TrainerTable, on=(SubscriptionTable.trainer == TrainerTable.snowflake))
-                       .where((SubscriptionTable.type == type) |
+                       .where((SubscriptionTable.type == notification_type) |
                               (SubscriptionTable.type == 'pokemon') |
                               (SubscriptionTable.type == 'gym'))
                        .where(TrainerTable.guild == guild.id)).execute()
@@ -825,34 +846,35 @@ class Subscriptions(commands.Cog):
                 continue
             description = ', '.join(descriptors)
             start = 'An' if re.match(r'^[aeiou]', description, re.I) else 'A'
-            if type == 'item':
+            if notification_type == 'item':
                 start = 'An' if re.match(r'^[aeiou]', item, re.I) else 'A'
                 message = f'{start} **{item} research task** has been reported at **{location}**!'
-            elif type == 'lure':
+            elif notification_type == 'lure':
                 message = f'A **{lure_type.capitalize()}** lure has been dropped at {location.name}!'
-            elif type == 'takeover':
+            elif notification_type == 'takeover':
                 message = f'A **Team Rocket Takeover** has been spotted at {location.name}!'
-            elif type == 'wild':
+            elif notification_type == 'wild':
                 message = f'A **wild {description} spawn** has been reported at **{location}**!'
-            elif type == 'research':
+            elif notification_type == 'research':
                 message = f'{start} **{description} research task** has been reported at **{location}**!'
             elif 'hatching' in details and details['hatching']:
                 message = f"The egg at **{location}** has hatched into {start.lower()} **{description}** raid!"
             else:
-                message = f'{start} {description} {type} at {location} has been reported!'
+                message = f'{start} {description} {notification_type} at {location} has been reported!'
             outbound_dict[trainer] = {'discord_obj': user, 'message': message}
         pokemon_names = ' '.join([p.name for p in pokemon_list])
-        if type == 'item':
+        if notification_type == 'item':
             role_name = utils.sanitize_name(f"{item} {location}".title())
-        elif type == 'lure':
+        elif notification_type == 'lure':
             role_name = utils.sanitize_name(f'{lure_type} {location.name}'.title())
-        elif type == 'takeover':
+        elif notification_type == 'takeover':
             role_name = utils.sanitize_name(f'Rocket Takeover {location.name}'.title())
         else:
-            role_name = utils.sanitize_name(f"{type} {pokemon_names} {location}".title())
+            role_name = utils.sanitize_name(f"{notification_type} {pokemon_names} {location}".title())
         return await self.generate_role_notification_async(role_name, new_channel, outbound_dict)
 
-    async def generate_role_notification_async(self, role_name, channel, outbound_dict):
+    @staticmethod
+    async def generate_role_notification_async(role_name, channel, outbound_dict):
         """Generates and handles a temporary role notification in the new raid channel"""
         if len(outbound_dict) == 0:
             return
