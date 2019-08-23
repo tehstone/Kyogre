@@ -387,7 +387,7 @@ class RaidCommands(commands.Cog):
             utilities_cog = self.bot.cogs.get('Utilities')
             raid_gmaps_link = utilities_cog.create_gmaps_query(raid_details, channel, type="raid")
         if other_region:
-            report_channels = await listmgmt_cog.get_region_reporting_channels(guild, gym.regions[0])
+            report_channels = await listmgmt_cog.get_region_reporting_channels(guild, gym.region)
             report_channel = self.bot.get_channel(report_channels[0])
         else:
             report_channel = channel

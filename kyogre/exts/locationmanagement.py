@@ -160,7 +160,7 @@ class LocationManagement(commands.Cog):
             gym = await self._location_match_prompt(channel, author.id, info[1], gyms)
             if gym is not None:
                 name = gym.name
-        if not stop and not gym:
+        if stop is None and gym is None:
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, "
                                       f"error: No {info[0]} found with name: {info[1]}.")
             await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
@@ -168,7 +168,7 @@ class LocationManagement(commands.Cog):
                                delete_after=12)
             return await message.add_reaction(self.bot.failed_react)
         region = info[2]
-        regions = self.bot.guild_dict[ctx.guild.id]['configure_dict'].get('regions', [])
+        regions = self.bot.guild_dict[ctx.guild.id]['configure_dict'].get('regions', []).get('info', {}).keys()
         if region not in regions:
             if region.lower() in regions:
                 region = region.lower()
