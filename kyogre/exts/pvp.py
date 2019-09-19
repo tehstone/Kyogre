@@ -281,8 +281,9 @@ class PvP(commands.Cog):
         pvp_dict = guild_dict[guild.id].setdefault('pvp_dict', {})
         if message.id in pvp_dict and user.id != self.bot.user.id:
             trainer = pvp_dict[message.id]['reportauthor']
-            if trainer == payload.user_id or utils.can_manage(user, self.bot.config):
-                return await self.expire_pvp(message)
+            if str(payload.emoji) == '🚫':
+                if trainer == payload.user_id or utils.can_manage(user, self.bot.config):
+                    return await self.expire_pvp(message)
             if str(payload.emoji) == '\u2694':
                 attacker = guild.get_member(payload.user_id)
                 defender = guild.get_member(pvp_dict[message.id]['reportauthor'])

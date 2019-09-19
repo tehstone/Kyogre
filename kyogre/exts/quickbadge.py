@@ -185,6 +185,9 @@ class QuickBadge(commands.Cog):
                 return
         except:
             pass
+        react_user = guild.get_member(payload.user_id)
+        if not utils.can_manage(react_user, self.bot.config):
+            return
         quick_badge_dict = self.bot.guild_dict[guild.id]['configure_dict']\
             .get('quick_badge', self.quick_badge_dict_default)
         if quick_badge_dict['pokenav_channel'] == 0 \
@@ -202,7 +205,6 @@ class QuickBadge(commands.Cog):
             badge_cog = self.bot.cogs.get('Badges')
             badge_to_give = BadgeTable.get(BadgeTable.id == k_badge_id)
 
-            react_user = guild.get_member(payload.user_id)
             if not checks.is_user_owner_check(self.bot.config, react_user):
                 check_message_str = f"{react_user.mention} do you want to give badge " \
                                     f"{badge_to_give.name} to {message.author.name}?"
