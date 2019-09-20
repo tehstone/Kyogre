@@ -331,7 +331,8 @@ class ResearchCommands(commands.Cog):
                 rewardwait = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(),
                                                                     description="What is the correct reward?"))
                 quest = self.bot.guild_dict[guild.id]['questreport_dict'].get(message.id, None)
-                reward = await questrewardmanagement_cog.prompt_reward_v(channel, user.id, quest)
+                quest_obj = await questrewardmanagement_cog.get_quest_v(channel, user.id, quest['quest'])
+                reward = await questrewardmanagement_cog.prompt_reward_v(channel, user.id, quest_obj)
 
                 questreport_dict[message.id]['reward'] = reward
                 listmgmt_cog = self.bot.cogs.get('ListManagement')
