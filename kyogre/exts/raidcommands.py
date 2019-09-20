@@ -1077,8 +1077,11 @@ class RaidCommands(commands.Cog):
                     expire_time = round(raid_dict['exp'])
                     hatch_time = round(raid_dict['exp']) - 2700
         report = TrainerReportRelation.create(created=created, trainer=author.id, location=gym.id)
-        RaidTable.create(trainer_report=report, level=level, pokemon=pokemon, hatch_time=hatch_time,
-                         expire_time=expire_time, channel=raid_channel.id, weather=weather)
+        try:
+            RaidTable.create(trainer_report=report, level=level, pokemon=pokemon, hatch_time=hatch_time,
+                             expire_time=expire_time, channel=raid_channel.id, weather=weather)
+        except Exception as e:
+            self.bot.logger.info(f"Failed to create raid table entry with error: {e}")
 
     async def _update_db_raid_report(self, guild, raid_channel):
         report = RaidTable.get(RaidTable.channel == raid_channel.id)
@@ -1119,7 +1122,10 @@ class RaidCommands(commands.Cog):
 
     async def add_db_raid_action(self, raid_channel, action, action_time):
         guild = raid_channel.guild
-        report = RaidTable.get(RaidTable.channel == raid_channel.id)
+        try:
+            report = RaidTable.get(RaidTable.channel == raid_channel.id)
+        except Exception as e:
+            self.bot.logger.info(f"Failed to create raid table entry with error: {e}")
         if report is None:
             return self.bot.logger.info(f"No Raid report found in db to add raid action. Channel id: {raid_channel.id}")
         raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'].get(raid_channel.id, None)
