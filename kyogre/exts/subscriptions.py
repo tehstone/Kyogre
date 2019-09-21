@@ -871,7 +871,35 @@ class Subscriptions(commands.Cog):
             role_name = utils.sanitize_name(f'Rocket Takeover {location.name}'.title())
         else:
             role_name = utils.sanitize_name(f"{notification_type} {pokemon_names} {location}".title())
-        return await self.generate_role_notification_async(role_name, new_channel, outbound_dict)
+        # starting to hit rate limit for role creation so explicitly mentioning all trainers in the meantime
+        return await self.notify_all_async(new_channel, outbound_dict)
+        #return await self.generate_role_notification_async(role_name, new_channel, outbound_dict)
+
+    @staticmethod
+    async def notify_all_async(channel, outbound_dict):
+        if len(outbound_dict) == 0:
+            return
+        guild = channel.guild
+        trainer_notify_string = ''
+        for trainer in outbound_dict.values():
+            try:
+                user = guild.get_member(trainer['discord_obj'].id)
+                trainer_notify_string += user.mention
+            except:
+                pass
+        # send notification message in channel
+        obj = next(iter(outbound_dict.values()))
+        message = obj['message']
+        msg_obj = await channel.send(f'{message} {trainer_notify_string}')
+
+        async def cleanup():
+            await asyncio.sleep(60)
+            try:
+                await msg_obj.delete()
+            except:
+                pass
+
+        asyncio.ensure_future(cleanup())
 
     @staticmethod
     async def generate_role_notification_async(role_name, channel, outbound_dict):

@@ -1084,10 +1084,13 @@ class RaidCommands(commands.Cog):
             self.bot.logger.info(f"Failed to create raid table entry with error: {e}")
 
     async def _update_db_raid_report(self, guild, raid_channel):
-        report = RaidTable.get(RaidTable.channel == raid_channel.id)
+        report = None
+        try:
+            report = RaidTable.get(RaidTable.channel == raid_channel.id)
+        except Exception as e:
+            self.bot.logger.info(f"Failed to update raid table entry with error: {e}")
         if report is None:
-            self.bot.logger.info(f"No Raid report found in db to update. Channel id: {raid_channel.id}")
-            return
+            return self.bot.logger.info(f"No Raid report found in db to update. Channel id: {raid_channel.id}")
         report_relation = TrainerReportRelation.get(TrainerReportRelation.id == report.trainer_report_id)
         raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'].get(raid_channel.id, None)
         if raid_dict is None:
@@ -1122,6 +1125,7 @@ class RaidCommands(commands.Cog):
 
     async def add_db_raid_action(self, raid_channel, action, action_time):
         guild = raid_channel.guild
+        report = None
         try:
             report = RaidTable.get(RaidTable.channel == raid_channel.id)
         except Exception as e:
