@@ -136,8 +136,11 @@ class ListManagement(commands.Cog):
             if not t_emoji and boss:
                 t_emoji = str(boss.raid_level) + '\u20e3'
             gym = rc_d[raid].get('gym', None)
+            gym_note = ''
             if gym:
                 ex_eligibility = ' *EX-Eligible* ' if gym.ex_eligible else ''
+                if gym.note is not None:
+                    gym_note = f"\n**Note**: {gym.note}"
             utils_cog = self.bot.cogs.get('Utilities')
             enabled = utils_cog.raid_channels_enabled(guild, rchan)
             if enabled:
@@ -153,9 +156,8 @@ class ListManagement(commands.Cog):
                 if len(total_count) < 1:
                     total_count = '0'
                 # sum([ctx_maybecount, ctx_comingcount, ctx_herecount, ctx_lobbycount])
-                output += '\t{tier} {chan}{ex}\n\t\t{expiry_text}{starttime} | **Trainer Count**: {total_count}\n'\
-                    .format(tier=t_emoji, chan=rchan.mention, ex=ex_eligibility, expiry_text=expirytext,
-                            total_count=total_count, starttime=start_str)
+                output += f'\t{t_emoji} {rchan.mention}{ex_eligibility}{gym_note}\n\t\t{expirytext}{start_str}' \
+                          f' | **Trainer Count**: {total_count}\n'
             else:
                 channel_name = rchan.name.replace('_', ': ').replace('-', ' ').title()
                 map_url = rc_d[raid]['gym'].maps_url
@@ -163,10 +165,8 @@ class ListManagement(commands.Cog):
                     map_url = rc_d[raid]['gym'].maps_url
                 except:
                     pass
-                output += '\t{tier} **{raidchannel}** {ex_eligibility}\n{expiry_text}' \
-                          '\n[Click for directions]({map_url})\n'\
-                    .format(tier=t_emoji, raidchannel=channel_name, ex_eligibility=ex_eligibility,
-                            expiry_text=expirytext, map_url=map_url)
+                output += f'\t{t_emoji} **{channel_name}** {ex_eligibility}\n{expirytext}' \
+                          f'{gym_note}\n[Click for directions]({map_url})\n'
             return output
 
         def process_category(listmsg_list, category_title, category_list):

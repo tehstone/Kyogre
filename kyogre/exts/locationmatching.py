@@ -15,6 +15,7 @@ class Location:
         self.latitude = latitude
         self.longitude = longitude
         self.region = region
+        self.note = None
         if note is not None:
             self.note = note
     

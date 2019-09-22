@@ -15,7 +15,8 @@ async def get_embed_field_indices(embed):
                     "maybe": None,
                     "coming": None,
                     "here": None,
-                    "tips": None
+                    "tips": None,
+                    "directions": None
                     }
     for field in embed.fields:
         if "gym" in field.name.lower():
@@ -46,6 +47,8 @@ async def get_embed_field_indices(embed):
             embed_indices["coming"] = index
         if "here" in field.name.lower():
             embed_indices["here"] = index
+        if "directions" in field.name.lower():
+            embed_indices["directions"] = index
         # if "" in field.name.lower():
         #     embed_indices[""] = index
         index += 1

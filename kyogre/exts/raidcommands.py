@@ -337,6 +337,7 @@ class RaidCommands(commands.Cog):
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         gyms = location_matching_cog.get_gyms(guild.id, report_regions)
         listmgmt_cog = self.bot.cogs.get('ListManagement')
+        utils_cog = self.bot.cogs.get('Utilities')
         other_region = False
         gym_regions = []
         egg_info = None
@@ -382,10 +383,11 @@ class RaidCommands(commands.Cog):
 
             raid_details = gym.name
             raid_gmaps_link = gym.maps_url
+            waze_link = utils_cog.create_waze_query(gym.latitude, gym.longitude)
+            apple_link = utils_cog.create_applemaps_query(gym.latitude, gym.longitude)
             gym_regions = [gym.region]
         else:
-            utilities_cog = self.bot.cogs.get('Utilities')
-            raid_gmaps_link = utilities_cog.create_gmaps_query(raid_details, channel, type="raid")
+            raid_gmaps_link = utils_cog.create_gmaps_query(raid_details, channel, type="raid")
         if other_region:
             report_channels = await listmgmt_cog.get_region_reporting_channels(guild, gym.region)
             report_channel = self.bot.get_channel(report_channels[0])
@@ -428,14 +430,16 @@ class RaidCommands(commands.Cog):
             'hatching': False,
             'short': None
         }
-        raid_embed = discord.Embed(title='Click here for directions to the raid!',
-                                   url=raid_gmaps_link,
-                                   colour=guild.me.colour)
-        utils_cog = self.bot.cogs.get('Utilities')
+        raid_embed = discord.Embed(colour=guild.me.colour)
         enabled = utils_cog.raid_channels_enabled(guild, channel)
         if gym:
             gym_info = f"**{raid_details}**\n{'_EX Eligible Gym_' if gym.ex_eligible else ''}"
+            if gym.note is not None:
+                gym_info += f"\n**Note**: {gym.note}"
             raid_embed.add_field(name='**Gym:**', value=gym_info, inline=False)
+        raid_embed.add_field(name='Directions',
+                             value=f'[Google]({raid_gmaps_link}) | [Waze]({waze_link}) | [Apple]({apple_link})',
+                             inline=False)
         cp_range = ''
         if raid_report:
             if enabled:
@@ -701,9 +705,9 @@ class RaidCommands(commands.Cog):
         enabled = utils_cog.raid_channels_enabled(guild, raid_channel)
         if enabled:
             embed_indices = await embed_utils.get_embed_field_indices(oldembed)
-            raid_embed = discord.Embed(title='Click here for directions to the raid!',
-                                       url=raid_gmaps_link,
-                                       colour=guild.me.colour)
+            raid_embed = discord.Embed(colour=guild.me.colour)
+            raid_embed.add_field(name=oldembed.fields[embed_indices["directions"]].name,
+                                 value=oldembed.fields[embed_indices["directions"]].value, inline=True)
             raid_embed.add_field(name=oldembed.fields[embed_indices["gym"]].name,
                                  value=oldembed.fields[embed_indices["gym"]].value, inline=True)
             cp_range = ''
@@ -888,9 +892,7 @@ class RaidCommands(commands.Cog):
                         invitemsgstr2=invitemsgstr2)
         raid_channel_name = utils.sanitize_name(pkmn.name.lower() + '_' + egg_address)[:32]
         embed_indices = await embed_utils.get_embed_field_indices(oldembed)
-        raid_embed = discord.Embed(title='Click here for directions to the raid!',
-                                   url=raid_gmaps_link,
-                                   colour=guild.me.colour)
+        raid_embed = discord.Embed(colour=guild.me.colour)
         cp_range = ''
         if pkmn.name.lower() in boss_cp_chart:
             cp_range = boss_cp_chart[pkmn.name.lower()]
@@ -957,6 +959,9 @@ class RaidCommands(commands.Cog):
                 send_channel = reportchannel
         await subscriptions_cog.send_notifications_async('raid', raid_details, send_channel,
                                                          [author] if author else [])
+        if embed_indices["directions"] is not None:
+            raid_embed.add_field(name=oldembed.fields[embed_indices["directions"]].name,
+                                 value=oldembed.fields[embed_indices["directions"]].value, inline=True)
         if embed_indices["gym"] is not None:
             raid_embed.add_field(name=oldembed.fields[embed_indices["gym"]].name,
                                  value=oldembed.fields[embed_indices["gym"]].value, inline=True)

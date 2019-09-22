@@ -76,6 +76,14 @@ class Utilities(commands.Cog):
                                                                                 '+'.join(loc_list))
 
     @staticmethod
+    def create_waze_query(lat, long):
+        return f'https://www.waze.com/ul?ll={lat}%2C{long}&navigate=yes&zoom=17'
+
+    @staticmethod
+    def create_applemaps_query(lat, long):
+        return f'http://maps.apple.com/?ll={lat},{long}'
+
+    @staticmethod
     async def reaction_delay(message, reacts, delay=0.25):
         for r in reacts:
             await asyncio.sleep(delay)

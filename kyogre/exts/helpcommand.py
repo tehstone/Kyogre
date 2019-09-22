@@ -22,7 +22,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
                                  "loc add", "event create"]},
                 "bot_admin": {"commands": ["configure", "save", "exit", "restart", "welcome", "outputlog"]},
                 "debug": ["outputlog"],
-                "location management": ["loc changeregion", "loc extoggle", "loc add",
+                "location management": ["loc changeregion", "loc extoggle", "loc add", "loc addnote",
                                         "loc deletelocation", "loc convert", "location_match_test"]
                 }
 
@@ -108,7 +108,6 @@ class MyHelpCommand(commands.DefaultHelpCommand):
             except:
                 pass
         return await self.get_destination().send(embed=help_embed)
-        return await super().send_group_help(group)
 
     def _generate_command_help(self, command):
         help_embed = self._basic_embed_setup(f"Help for {command.qualified_name}")

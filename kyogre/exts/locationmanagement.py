@@ -2,8 +2,8 @@ import discord
 from discord.ext import commands
 
 from kyogre import utils
-from kyogre.exts.db.kyogredb import KyogreDB, RegionTable, GymTable, PokestopTable
-from kyogre.exts.db.kyogredb import LocationTable, LocationRegionRelation
+from kyogre.exts.db.kyogredb import KyogreDB, RegionTable, GymTable, PokestopTable, GuildTable
+from kyogre.exts.db.kyogredb import LocationTable, LocationRegionRelation, LocationNoteTable
 
 
 class LocationManagement(commands.Cog):
@@ -240,6 +240,63 @@ class LocationManagement(commands.Cog):
                                                    description=f"Successfully deleted {loc_type}: {name}."),
                                delete_after=12)
             return await message.add_reaction(self.bot.success_react)
+
+    @_loc.command(name="addnote", aliases=["an"])
+    @commands.has_permissions(manage_guild=True)
+    async def _loc_addnote(self, ctx, *, info):
+        """**Usage**: `!loc addnote type (stop/gym), name, note`
+        **Alias**: `an`
+        Add the note provided to the location provided.
+        If the location already has a note, it will be replaced with the new note."""
+        channel = ctx.channel
+        message = ctx.message
+        author = message.author
+        guild = ctx.guild
+        info = [x.strip() for x in info.split(',')]
+        stop, gym, name = None, None, None
+        if len(info) < 3:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, "
+                                      f"error: Insufficient info: {info}.")
+            await channel.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description=f"Please provide (comma separated) the location type (stop or gym), "
+                            f"name of the Pokestop or gym, and the note you would like to add."),
+                delete_after=12)
+            return await message.add_reaction(self.bot.failed_react)
+        if info[0].lower() == "stop":
+            stops = self._get_stops(ctx.guild.id, None)
+            stop = await self._location_match_prompt(channel, author.id, info[1], stops)
+            if stop is not None:
+                name = stop.name
+        elif info[0].lower() == "gym":
+            gyms = self._get_gyms(ctx.guild.id, None)
+            gym = await self._location_match_prompt(channel, author.id, info[1], gyms)
+            if gym is not None:
+                name = gym.name
+        if name is None:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, "
+                                      f"error: No {info[0]} found with name: {info[1]}.")
+            await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
+                                                   description=f"No {info[0]} found with name {info[1]}."),
+                               delete_after=12)
+            return await message.add_reaction(self.bot.failed_react)
+        location_note = ','.join(info[2:])
+        try:
+            locationresult = (LocationTable
+                              .get((LocationTable.guild == guild.id) &
+                                   (LocationTable.name == name)))
+            current_note = LocationNoteTable.get(location_id=locationresult.id)
+            current_note.delete_instance()
+            LocationNoteTable.create(location_id=locationresult.id, note=location_note)
+            await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
+                                                   description=f"Successfully added note to {name}."),
+                               delete_after=12)
+            return await message.add_reaction(self.bot.success_react)
+        except:
+            await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
+                                                   description=f"Failed to add note to {name}."),
+                               delete_after=12)
+            return await message.add_reaction(self.bot.failed_react)
 
     @staticmethod
     async def delete_location(ctx, location_type, name):
