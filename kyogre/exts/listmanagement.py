@@ -239,11 +239,12 @@ class ListManagement(commands.Cog):
             if not region or region in utils_cog.get_channel_regions(report_channel, 'wild'):
                 try:
                     await report_channel.fetch_message(wildid)
-                    newmsg += ('\n🔹')
-                    newmsg += "**Pokemon**: {pokemon}, **Location**: [{location}]({url})"\
+                    newmsg += '\n🔹'
+                    newmsg += "**Pokemon**: {perfect}{pokemon}, **Location**: [{location}]({url})"\
                         .format(pokemon=wild_dict[wildid]['pokemon'].title(),
                                 location=wild_dict[wildid]['location'].title(),
-                                url=wild_dict[wildid].get('url',None))
+                                url=wild_dict[wildid].get('url', None),
+                                perfect="💯 " if wild_dict[wildid]['perfect'] else "")
                     if len(listmsg) + len(newmsg) < constants.MAX_MESSAGE_LENGTH:
                         listmsg += newmsg
                     else:

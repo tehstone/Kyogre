@@ -81,7 +81,7 @@ class Utilities(commands.Cog):
 
     @staticmethod
     def create_applemaps_query(lat, long):
-        return f'http://maps.apple.com/?ll={lat},{long}'
+        return f'http://maps.apple.com/maps?daddr={lat},{long}'
 
     @staticmethod
     async def reaction_delay(message, reacts, delay=0.25):

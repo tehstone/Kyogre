@@ -11,6 +11,8 @@ from discord.ext import commands
 from kyogre import checks, utils
 from kyogre.exts.pokemon import Pokemon
 
+from kyogre.exts.db.kyogredb import GuildTable, ResearchTable, TrainerTable, TrainerReportRelation
+
 
 class ResearchCommands(commands.Cog):
     def __init__(self, bot):
@@ -202,8 +204,10 @@ class ResearchCommands(commands.Cog):
                 'reportchannel': channel.id,
                 'reportauthor': author.id,
                 'location': location,
+                'location_id': stop.id,
                 'url': loc_url,
                 'quest': quest.name,
+                'quest_id': quest.id,
                 'reward': reward
             }
             self.bot.guild_dict[guild.id]['questreport_dict'] = research_dict
@@ -228,7 +232,8 @@ class ResearchCommands(commands.Cog):
             elif reward.split(' ')[0].isdigit() and 'stardust' not in reward.lower():
                 item = ' '.join(reward.split(' ')[1:])
                 research_details = {'item': item, 'location': location, 'regions': regions}
-                await subscriptions_cog.send_notifications_async('item', research_details, send_channel, [message.author.id])
+                await subscriptions_cog.send_notifications_async('item', research_details, send_channel, [author.id])
+            await self._add_db_research_report(ctx, confirmation)
         else:
             research_embed.clear_fields()
             research_embed.add_field(name='**Research Report Cancelled**',
@@ -236,6 +241,49 @@ class ResearchCommands(commands.Cog):
                                            "Retry when you're ready.".format(error=error), inline=False)
             confirmation = await channel.send(embed=research_embed)
             return await utils.sleep_and_cleanup([message, confirmation], 10)
+
+    async def _add_db_research_report(self, ctx, message):
+        channel = ctx.channel
+        guild = channel.guild
+        author = ctx.author
+        quest_dict = self.bot.guild_dict[guild.id]['questreport_dict'][message.id]
+        created = round(message.created_at.timestamp())
+        __, __ = GuildTable.get_or_create(snowflake=guild.id)
+        __, __ = TrainerTable.get_or_create(snowflake=author.id, guild=guild.id)
+        report = TrainerReportRelation.create(created=created, trainer=author.id,
+                                              location=quest_dict['location_id'], message=message.id)
+        try:
+            ResearchTable.create(trainer_report=report, quest=quest_dict['quest_id'], reward=quest_dict['reward'])
+        except Exception as e:
+            self.bot.logger.info(f"Failed to create research table entry with error: {e}")
+
+    async def _update_db_research_report(self, guild, message, updated):
+        report, report_relation = None, None
+        try:
+            report_relation = TrainerReportRelation.get(TrainerReportRelation.message == message.id)
+            report = ResearchTable.get(ResearchTable.trainer_report_id == report_relation.id)
+        except Exception as e:
+            self.bot.logger.info(f"Failed to update research table entry with error: {e}")
+        if report is None or report_relation is None:
+            return self.bot.logger.info(f"No Research report found in db to update. Message id: {message.id}")
+        quest_dict = self.bot.guild_dict[guild.id]['questreport_dict'].get(message.id, None)
+        if quest_dict is None:
+            return self.bot.logger.info(f"No quest_dict found in guild_dict. "
+                                        f"Cannot update research report. Message id: {message.id}")
+        report.quest_id = quest_dict['quest_id']
+        report.reward = quest_dict['reward']
+        report.save()
+        report_relation.location_id = quest_dict['location_id']
+        report_relation.updated = updated
+        report_relation.save()
+
+    async def _cancel_db_research_report(self, message):
+        try:
+            report_relation = TrainerReportRelation.get(TrainerReportRelation.message == message.id)
+        except Exception as e:
+            return self.bot.logger.info(f"Failed to cancel research table entry with error: {e}")
+        report_relation.cancelled = 'True'
+        report_relation.save()
 
     async def modify_research_report(self, payload):
         channel = self.bot.get_channel(payload.channel_id)
@@ -248,6 +296,7 @@ class ResearchCommands(commands.Cog):
             user = guild.get_member(payload.user_id)
         except AttributeError:
             return
+        updated_time = round(time.time())
         questreport_dict = self.bot.guild_dict[guild.id].setdefault('questreport_dict', {})
         research_embed = discord.Embed(colour=message.guild.me.colour).set_thumbnail(
             url='https://raw.githubusercontent.com/klords/Kyogre/master/images/misc/field-research.png?cache=0')
@@ -299,6 +348,7 @@ class ResearchCommands(commands.Cog):
                                 location = stop.name
                                 loc_url = stop.maps_url
                                 questreport_dict[message.id]['location'] = location
+                                questreport_dict[message.id]['location_id'] = stop.id
                                 questreport_dict[message.id]['url'] = loc_url
                                 listmgmt_cog = self.bot.cogs.get('ListManagement')
                                 await listmgmt_cog.update_listing_channels(guild, "research", regions=regions)
@@ -321,6 +371,7 @@ class ResearchCommands(commands.Cog):
                     quest = await questrewardmanagement_cog.get_quest_v(channel, user.id, questmsg.clean_content)
                     reward = await questrewardmanagement_cog.prompt_reward_v(channel, user.id, quest)
                 questreport_dict[message.id]['quest'] = quest.name
+                questreport_dict[message.id]['quest_id'] = quest.id
                 questreport_dict[message.id]['reward'] = reward
                 listmgmt_cog = self.bot.cogs.get('ListManagement')
                 await listmgmt_cog.update_listing_channels(guild, "research", regions=regions)
@@ -352,6 +403,7 @@ class ResearchCommands(commands.Cog):
             embed.url = questreport_dict[message.id]['url']
             new_msg = f'{name} Field Research task, reward: {reward} reported at {location}'
             await message.edit(content=new_msg, embed=embed)
+            await self._update_db_research_report(guild, message, updated_time)
         else:
             return
 
@@ -394,6 +446,7 @@ class ResearchCommands(commands.Cog):
                         await message.edit(embed=discord.Embed(description="Research report cancelled",
                                                                colour=message.embeds[0].colour.value))
                         await message.clear_reactions()
+                        await self._cancel_db_research_report(message)
                     except discord.errors.NotFound:
                         pass
                     del questreport_dict[message.id]

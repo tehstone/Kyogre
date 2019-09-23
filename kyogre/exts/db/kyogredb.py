@@ -239,8 +239,10 @@ class TrainerReportRelation(BaseModel):
     id = AutoField()
     created = BigIntegerField(index=True)
     trainer = BigIntegerField(index=True)
-    location = ForeignKeyField(LocationTable, index=True)
+    location = ForeignKeyField(LocationTable, index=True, null=True)
     message = BigIntegerField(index=True, null=True)
+    updated = DateTimeField()
+    cancelled = TextField()
 
 
 class QuestTable(BaseModel):
@@ -272,6 +274,7 @@ class QuestTable(BaseModel):
 class ResearchTable(BaseModel):
     trainer_report = ForeignKeyField(TrainerReportRelation, backref='research')
     quest = ForeignKeyField(QuestTable, backref='reports', index=True)
+    reward = TextField()
 
 
 class LureInstance:

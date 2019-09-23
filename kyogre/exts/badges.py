@@ -83,6 +83,12 @@ class Badges(commands.Cog):
     @_badge.command(name='toggle_available', aliases=['tg'])
     @commands.has_permissions(manage_roles=True)
     async def _toggle_available(self, ctx, badge_id: int = 0):
+        """**Usage**: `!badge toggle_available <badge id>`
+        **Alias**: `tg`
+        Toggle the availability status of the badge with provided id.
+        Available badges are listed with the `avb` command, unavailable badges are only displayed for trainers who have
+        earned them.
+        """
         updated = BadgeTable.update(active=~BadgeTable.active).where(BadgeTable.id == badge_id).execute()
         result = BadgeTable.select(BadgeTable.name, BadgeTable.active).where(BadgeTable.id == badge_id)
         if updated == 0:
@@ -103,6 +109,9 @@ class Badges(commands.Cog):
 
     @_badge.command(name='info')
     async def _info(self, ctx, badge_id: int = 0):
+        """**Usage**: `!badge info <badge id>`
+        Displays information about the badge with provided id.
+        """
         try:
             count = (BadgeAssignmentTable.select()
                      .where(BadgeAssignmentTable.badge_id == badge_id)
@@ -233,6 +242,16 @@ class Badges(commands.Cog):
     async def _available(self, ctx):
         """**Usage**: `!available_badges/avb`
         Lists all badges that are currently available."""
+        return await self._list_badges(ctx, True, "The following badges currently available:")
+
+    @commands.command(name="all_badges", aliases=['aab'])
+    @commands.has_permissions(manage_guild=True)
+    async def _all_badges(self, ctx):
+        """**Usage**: `!all_badges/aab`
+        Lists all badges."""
+        return await self._list_badges(ctx, False, "All created badges")
+
+    async def _list_badges(self, ctx, available, title):
         result = (BadgeTable
                   .select(BadgeTable.id,
                           BadgeTable.name,
@@ -240,15 +259,19 @@ class Badges(commands.Cog):
                           BadgeTable.emoji,
                           BadgeTable.active))
         result = result.objects(Badge)
-        result = [r for r in result if r.active]
+        if available:
+            result = [r for r in result if r.active]
         fields = []
         for r in result:
             send_emoji = self.bot.get_emoji(r.emoji)
             name = f"{send_emoji} {r.name} (#{r.id})"
-            fields.append((name, f"{r.description}"))
+            if not available:
+                if not r.active:
+                    name += " - *retired*"
+            fields.append((name, f"\t\t{r.description}"))
         chunked_fields = list(utils.list_chunker(fields, 20))
         for sub_list in chunked_fields:
-            embed = discord.Embed(title="Badges currently available", colour=discord.Colour.purple())
+            embed = discord.Embed(title=title, colour=discord.Colour.purple())
             for field in sub_list:
                 embed.add_field(name=field[0], value=f"{self.bot.empty_str}{field[1]}", inline=False)
             await ctx.send(embed=embed)

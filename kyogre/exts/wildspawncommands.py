@@ -10,6 +10,8 @@ from discord.ext import commands
 from kyogre import checks, utils
 from kyogre.exts.pokemon import Pokemon
 
+from kyogre.exts.db.kyogredb import GuildTable, SightingTable, TrainerTable, TrainerReportRelation
+
 
 class WildSpawnCommands(commands.Cog):
     def __init__(self, bot):
@@ -62,11 +64,13 @@ class WildSpawnCommands(commands.Cog):
             wild_details = re.sub(pkmn.name.lower(), '', content, flags=re.I)
         wild_gmaps_link = None
         locations = location_matching_cog.get_all(guild.id, channel_regions)
+        location_id = None
         if locations and not ('http' in wild_details or '/maps' in wild_details):
             location = await location_matching_cog.match_prompt(channel, author.id, location, locations)
             if location:
                 wild_gmaps_link = location.maps_url
                 wild_details = location.name
+                location_id = location.id
         if wild_gmaps_link is None:
             if 'http' in wild_details or '/maps' in wild_details:
                 wild_gmaps_link = utilities_cog.create_gmaps_query(wild_details, channel, type="wild")
@@ -79,8 +83,9 @@ class WildSpawnCommands(commands.Cog):
                         description="Please use the name of an existing pokestop or gym, "
                                     "or include a valid Google Maps link."))
 
-        wild_embed = discord.Embed(title='Click here for my directions to the wild {pokemon}!'
-                                   .format(pokemon=pkmn.full_name),
+        wild_embed = discord.Embed(title='Click here for my directions to the wild {perfect}{pokemon}!'
+                                   .format(pokemon=pkmn.full_name,
+                                           perfect="💯 " if is_perfect else ""),
                                    description="Ask {author} if my directions aren't perfect!"
                                    .format(author=author.name),
                                    url=wild_gmaps_link, colour=guild.me.colour)
@@ -95,8 +100,9 @@ class WildSpawnCommands(commands.Cog):
         wild_embed.set_footer(text='Reported by {author} - {timestamp}'
                               .format(author=author.display_name, timestamp=timestamp),
                               icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
-        wildreportmsg = await channel.send(content='Wild {pokemon} reported by {member}! Details: {location_details}'
-                                           .format(pokemon=pkmn.full_name, member=author.display_name,
+        wildreportmsg = await channel.send(content='Wild {perfect}{pokemon} reported by {member} at: {location_details}'
+                                           .format(perfect="💯 " if is_perfect else "",
+                                                   pokemon=pkmn.full_name, member=author.display_name,
                                                    location_details=wild_details), embed=wild_embed)
         await utilities_cog.reaction_delay(wildreportmsg, ['🏎', '💨'])
         wild_dict = copy.deepcopy(self.bot.guild_dict[guild.id].get('wildreport_dict', {}))
@@ -107,8 +113,10 @@ class WildSpawnCommands(commands.Cog):
             'reportchannel': channel.id,
             'reportauthor': author.id,
             'location': wild_details,
+            'location_id': location_id,
             'url': wild_gmaps_link,
             'pokemon': pkmn.full_name,
+            'pokemon_id': pkmn.id,
             'perfect': is_perfect,
             'omw': []
         }
@@ -128,6 +136,7 @@ class WildSpawnCommands(commands.Cog):
         if send_channel is None:
             send_channel = message.channel
         await subscriptions_cog.send_notifications_async('wild', wild_details, send_channel, [message.author.id])
+        await self._add_db_sighting_report(ctx, wildreportmsg)
 
     async def wild_expiry_check(self, message):
         self.bot.logger.info('Expiry_Check - ' + message.channel.name)
@@ -205,6 +214,21 @@ class WildSpawnCommands(commands.Cog):
                                 f"{', '.join(wild_dict['omw'])}: {wild_dict['pokemon'].title()} {despawn}!")
                         wilds_cog = self.bot.cogs.get('WildSpawnCommands')
                         await wilds_cog.expire_wild(message)
+
+    async def _add_db_sighting_report(self, ctx, message):
+        channel = ctx.channel
+        guild = channel.guild
+        author = ctx.author
+        wild_dict = self.bot.guild_dict[guild.id]['wildreport_dict'][message.id]
+        created = round(message.created_at.timestamp())
+        __, __ = GuildTable.get_or_create(snowflake=guild.id)
+        __, __ = TrainerTable.get_or_create(snowflake=author.id, guild=guild.id)
+        report = TrainerReportRelation.create(created=created, trainer=author.id,
+                                              location=wild_dict['location_id'], message=message.id)
+        try:
+            SightingTable.create(trainer_report=report, pokemon=wild_dict['pokemon_id'])
+        except Exception as e:
+            self.bot.logger.info(f"Failed to create sighting table entry with error: {e}")
 
 
 def setup(bot):

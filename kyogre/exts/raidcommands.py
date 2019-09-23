@@ -1088,7 +1088,7 @@ class RaidCommands(commands.Cog):
         except Exception as e:
             self.bot.logger.info(f"Failed to create raid table entry with error: {e}")
 
-    async def _update_db_raid_report(self, guild, raid_channel):
+    async def _update_db_raid_report(self, guild, raid_channel, updated):
         report = None
         try:
             report = RaidTable.get(RaidTable.channel == raid_channel.id)
@@ -1126,7 +1126,20 @@ class RaidCommands(commands.Cog):
             if gym is None:
                 return
             report_relation.location_id = gym.id
+            report_relation.updated = updated
             report_relation.save()
+
+    async def _cancel_db_raid_report(self, raid_channel_id):
+        report = None
+        try:
+            report = RaidTable.get(RaidTable.channel == raid_channel_id)
+        except Exception as e:
+            self.bot.logger.info(f"Failed to cancel raid table entry with error: {e}")
+        if report is None:
+            return self.bot.logger.info(f"No Raid report found in db to cancel. Channel id: {raid_channel_id}")
+        report_relation = TrainerReportRelation.get(TrainerReportRelation.id == report.trainer_report_id)
+        report_relation.cancelled = 'True'
+        report_relation.save()
 
     async def add_db_raid_action(self, raid_channel, action, action_time):
         guild = raid_channel.guild
@@ -2361,6 +2374,7 @@ class RaidCommands(commands.Cog):
                         await message.edit(embed=discord.Embed(description="Raid report cancelled",
                                                                colour=message.embeds[0].colour.value))
                         await message.clear_reactions()
+                        await self._cancel_db_raid_report(raid_report)
                     except discord.errors.NotFound:
                         pass
                     report_channel = self.bot.get_channel(raid_report)
@@ -2395,6 +2409,7 @@ class RaidCommands(commands.Cog):
             user = guild.get_member(payload.user_id)
         except AttributeError:
             return
+        updated_time = round(time.time())
         raids_cog = self.bot.cogs.get('RaidCommands')
         raid_dict = guild_dict[guild.id].setdefault('raidchannel_dict', {})
         config_dict = guild_dict[guild.id]['configure_dict']
@@ -2511,7 +2526,7 @@ class RaidCommands(commands.Cog):
                                                        description="Raid Tier / Boss updated"))
                 await bosswait.delete()
                 await bossmsg.delete()
-            await self._update_db_raid_report(guild, raid_channel)
+            await self._update_db_raid_report(guild, raid_channel, updated_time)
         else:
             return
 
