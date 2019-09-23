@@ -898,7 +898,9 @@ class ListManagement(commands.Cog):
             pass
         try:
             embed_indices = await embed_utils.get_embed_field_indices(newembed)
-            newembed = await embed_utils.filter_fields_for_report_embed(newembed, embed_indices)
+            utils_cog = self.bot.cogs.get('Utilities')
+            enabled = utils_cog.raid_channels_enabled(ctx.guild, ctx.channel)
+            newembed = await embed_utils.filter_fields_for_report_embed(newembed, embed_indices, enabled)
             await reportmsg.edit(embed=newembed)
         except:
             pass

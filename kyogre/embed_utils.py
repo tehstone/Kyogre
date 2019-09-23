@@ -54,7 +54,7 @@ async def get_embed_field_indices(embed):
         index += 1
     return embed_indices
 
-async def filter_fields_for_report_embed(embed, embed_indices):
+async def filter_fields_for_report_embed(embed, embed_indices, enabled):
     new_embed = copy.deepcopy(embed)
     new_embed.clear_fields()
     if embed_indices['gym'] is not None:
@@ -69,4 +69,7 @@ async def filter_fields_for_report_embed(embed, embed_indices):
         new_embed.add_field(name=embed.fields[embed_indices['team']].name, value=embed.fields[embed_indices['team']].value, inline=True)
     if embed_indices['status'] is not None:
         new_embed.add_field(name=embed.fields[embed_indices['status']].name, value=embed.fields[embed_indices['status']].value, inline=True)
+    if not enabled:
+        if embed_indices['directions'] is not None:
+            new_embed.add_field(name=embed.fields[embed_indices['directions']].name, value=embed.fields[embed_indices['directions']].value, inline=True)
     return new_embed

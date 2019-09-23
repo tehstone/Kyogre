@@ -52,7 +52,7 @@ async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid
     try:
         if enabled:
             embed_indices = await embed_utils.get_embed_field_indices(new_embed)
-            new_embed = await embed_utils.filter_fields_for_report_embed(new_embed, embed_indices)
+            new_embed = await embed_utils.filter_fields_for_report_embed(new_embed, embed_indices, enabled)
             message_content = get_raidtext(Kyogre, guild, guild_dict, raid_dict, gym, report_channel, raid_channel, True)
             await oldreportmsg.edit(new_content=message_content, embed=new_embed, content=message_content)
             if raid_dict['raidcityreport'] is not None:

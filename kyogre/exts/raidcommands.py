@@ -482,7 +482,7 @@ class RaidCommands(commands.Cog):
         raid_embed.set_thumbnail(url=raid_img_url)
         report_embed = raid_embed
         embed_indices = await embed_utils.get_embed_field_indices(report_embed)
-        report_embed = await embed_utils.filter_fields_for_report_embed(report_embed, embed_indices)
+        report_embed = await embed_utils.filter_fields_for_report_embed(report_embed, embed_indices, enabled)
         raidreport = await channel.send(content=msg, embed=report_embed)
         short_output_channel_id = self.bot.guild_dict[guild.id]['configure_dict']['raid']\
             .setdefault('short_output', {}).get(gym.region, None)
@@ -739,7 +739,7 @@ class RaidCommands(commands.Cog):
                 pass
             try:
                 embed_indices = await embed_utils.get_embed_field_indices(raid_embed)
-                raid_embed = await embed_utils.filter_fields_for_report_embed(raid_embed, embed_indices)
+                raid_embed = await embed_utils.filter_fields_for_report_embed(raid_embed, embed_indices, enabled)
                 await egg_report.edit(new_content=egg_report.content, embed=raid_embed, content=egg_report.content)
             except discord.errors.NotFound:
                 pass
@@ -988,7 +988,7 @@ class RaidCommands(commands.Cog):
             raid_message = None
         try:
             embed_indices = await embed_utils.get_embed_field_indices(raid_embed)
-            report_embed = await embed_utils.filter_fields_for_report_embed(raid_embed, embed_indices)
+            report_embed = await embed_utils.filter_fields_for_report_embed(raid_embed, embed_indices, enabled)
             await egg_report.edit(new_content=raidreportcontent, embed=report_embed, content=raidreportcontent)
             egg_report = egg_report.id
         except (discord.errors.NotFound, AttributeError):
@@ -1408,7 +1408,9 @@ class RaidCommands(commands.Cog):
                 except discord.errors.NotFound:
                     pass
             else:
-                embed = await embed_utils.filter_fields_for_report_embed(embed, embed_indices)
+                utils_cog = self.bot.cogs.get('Utilities')
+                enabled = utils_cog.raid_channels_enabled(guild, raidchannel)
+                embed = await embed_utils.filter_fields_for_report_embed(embed, embed_indices, enabled)
                 try:
                     await message.edit(content=message.content, embed=embed)
                 except discord.errors.NotFound:
@@ -1523,7 +1525,9 @@ class RaidCommands(commands.Cog):
                 except discord.errors.NotFound:
                     pass
                 try:
-                    embed = await embed_utils.filter_fields_for_report_embed(embed, embed_indices)
+                    utils_cog = self.bot.cogs.get('Utilities')
+                    enabled = utils_cog.raid_channels_enabled(ctx.guild, ctx.channel)
+                    embed = await embed_utils.filter_fields_for_report_embed(embed, embed_indices, enabled)
                     await reportmsg.edit(content=reportmsg.content, embed=embed)
                 except discord.errors.NotFound:
                     pass
@@ -2297,7 +2301,9 @@ class RaidCommands(commands.Cog):
                                                 report_message.content, flags=re.IGNORECASE)
             await raid_message.edit(new_content=raid_message.content, embed=raid_embed, content=raid_message.content)
             try:
-                raid_embed = await embed_utils.filter_fields_for_report_embed(raid_embed, embed_indices)
+                utils_cog = self.bot.cogs.get('Utilities')
+                enabled = utils_cog.raid_channels_enabled(guild, channel)
+                raid_embed = await embed_utils.filter_fields_for_report_embed(raid_embed, embed_indices, enabled)
                 await report_message.edit(new_content=report_message.content, embed=raid_embed,
                                           content=report_message.content)
                 if raid_dict.get('raidcityreport', None) is not None:
