@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import json
 import os
@@ -17,6 +18,7 @@ default_exts = ['admincommands',
                 'badges',
                 'configuration',
                 'events',
+                'faves',
                 'getcommands',
                 'helpcommand',
                 'invasions',
@@ -98,6 +100,7 @@ class KyogreBot(commands.AutoShardedBot):
             else:
                 if 'debug' in sys.argv[1:]:
                     print(f'Loaded {ext} extension.')
+        self.sub_leaderboard_task = self.loop.create_task(self._update_subs_leaderboard())
 
     class RenameUnpickler(pickle.Unpickler):
         def find_class(self, module, name):
@@ -340,3 +343,36 @@ class KyogreBot(commands.AutoShardedBot):
                 logs = self.guild_dict[guild.id]['raidchannel_dict'][channel.id].get('logs', {})
                 logs[message.id] = {'author_id': author.id, 'author_str': str(author),'author_avy':author.avatar_url,'author_nick':author.nick,'color_int':author.color.value,'content': message.clean_content,'created_at':message.created_at}
                 self.guild_dict[guild.id]['raidchannel_dict'][channel.id]['logs'] = logs
+
+    async def _update_subs_leaderboard(self):
+        await self.wait_until_ready()
+        while not self.is_closed():
+            guilddict_chtemp = copy.deepcopy(self.guild_dict)
+            # for every server in save data
+            for guildid in guilddict_chtemp.keys():
+                guild = self.get_guild(guildid)
+                message_id = guilddict_chtemp[guildid]['configure_dict'].get('subscriptions', {}).get(
+                    'leaderboard_message', 0)
+                channel_id = guilddict_chtemp[guildid]['configure_dict'].get('subscriptions', {}).get(
+                    'leaderboard_channel', None)
+                if channel_id is not None:
+                    channel = guild.get_channel(channel_id)
+                    message = None
+                    try:
+                        message = await channel.fetch_message(message_id)
+                    except discord.errors.NotFound:
+                        pass
+                    try:
+                        faves_cog = self.cogs.get('Faves')
+                        content = await faves_cog.build_top_sub_lists(guild)
+                        if message is None:
+                            new_msg = await channel.send(content)
+                            guilddict_chtemp[guildid]['configure_dict']['subscriptions']['leaderboard_message'] = new_msg.id
+                        else:
+                            await message.edit(content=content)
+                    except AttributeError:
+                        pass
+            self.guild_dict = guilddict_chtemp
+            sleep_time = guilddict_chtemp[guildid]['configure_dict'].get('subscriptions', {}).get(
+                    'leaderboard_refresh_seconds', 3600)
+            await asyncio.sleep(sleep_time)

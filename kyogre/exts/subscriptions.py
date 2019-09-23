@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import math
 import re
 
