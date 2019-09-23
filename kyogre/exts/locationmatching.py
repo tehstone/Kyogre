@@ -293,22 +293,85 @@ class LocationMatching(commands.Cog):
         except Exception as err:
             return err
 
-    @commands.command(name='gym')
-    async def _gym(self, ctx, *, name):
+    @commands.command(name='gyminfo', aliases=['gym', 'gi'])
+    async def _gym(self, ctx, *, info):
         """**Usage**: `!gym <gym name>`
-        Look up locations to a gym by providing its name.
+        Look up directions to a gym by providing its name.
         Gym name provided should be as close as possible to the name displayed in game."""
         message = ctx.message
         channel = ctx.channel
         guild = ctx.guild
-        gyms = self.get_gyms(guild.id)
+        info = info.split(',')
+        info = [i.strip() for i in info]
+        name, region = None, None
+        if len(info) > 1:
+            region = info[-1:]
+            name = ','.join(info[:-1])
+        else:
+            name = info[0]
+        gyms = self.get_gyms(guild.id, region)
         gym = await self.match_prompt(channel, message.author.id, name, gyms)
         if not gym:
-            return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=f"No gym found with name '{name}'. Try again using the exact gym name!"))
+            region_desc = '. '
+            if region is not None:
+                region_desc = f" in the '{region[0]}' region. "
+            desc = f"No gym found with name '{name}'{region_desc}Try again using the exact gym name!"
+            return await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
+                                                          description=desc))
         else:
-            gym_embed = discord.Embed(title='Click here for directions to {0}!'.format(gym.name), url=gym.maps_url, colour=guild.me.colour)
-            gym_info = "**Name:** {name}\n**Region:** {region}\n**Notes:** {notes}".format(name=gym.name, notes="_EX Eligible Gym_" if gym.ex_eligible else "N/A", region=gym.region.title())
+            gym_embed = discord.Embed(colour=guild.me.colour)
+            utils_cog = self.bot.cogs.get('Utilities')
+            waze_link = utils_cog.create_waze_query(gym.latitude, gym.longitude)
+            apple_link = utils_cog.create_applemaps_query(gym.latitude, gym.longitude)
+            location_str = f'[Google]({gym.maps_url}) | [Waze]({waze_link}) | [Apple]({apple_link})'
+            ex_eligible = ''
+            if gym.ex_eligible:
+                ex_eligible = '\n*This is an EX Eligible gym.*'
+            gym_notes = ''
+            if gym.note is not None:
+                gym_notes = f"\n**Notes:** {gym.note}"
+            gym_info = f"**Name:** {gym.name}{ex_eligible}\n**Region:** {gym.region.title()}" \
+                       f"\n**Directions:** {location_str}{gym_notes}"
             gym_embed.add_field(name='**Gym Information**', value=gym_info, inline=False)
+            return await channel.send(content="", embed=gym_embed)
+
+    @commands.command(name='pokestopinfo', aliases=['pokestop', 'pi'])
+    async def pokestop(self, ctx, *, info):
+        """**Usage**: `!pokestop <pokestop name>`
+        Look up directions to a pokestop by providing its name.
+        Pokestop name provided should be as close as possible to the name displayed in game."""
+        message = ctx.message
+        channel = ctx.channel
+        guild = ctx.guild
+        info = info.split(',')
+        info = [i.strip() for i in info]
+        name, region = None, None
+        if len(info) > 1:
+            region = info[-1:]
+            name = ','.join(info[:-1])
+        else:
+            name = info[0]
+        stops = self.get_stops(guild.id, region)
+        stop = await self.match_prompt(channel, message.author.id, name, stops)
+        if not stop:
+            region_desc = '. '
+            if region is not None:
+                region_desc = f" in the '{region[0]}' region. "
+            desc = f"No Pokestop found with name '{name}'{region_desc}Try again using the exact gym name!"
+            return await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
+                                                          description=desc))
+        else:
+            gym_embed = discord.Embed(colour=guild.me.colour)
+            utils_cog = self.bot.cogs.get('Utilities')
+            waze_link = utils_cog.create_waze_query(stop.latitude, stop.longitude)
+            apple_link = utils_cog.create_applemaps_query(stop.latitude, stop.longitude)
+            location_str = f'[Google]({stop.maps_url}) | [Waze]({waze_link}) | [Apple]({apple_link})'
+            gym_notes = ''
+            if stop.note is not None:
+                gym_notes = f"\n**Notes:** {stop.note}"
+            gym_info = f"**Name:** {stop.name}\n**Region:** {stop.region.title()}" \
+                       f"\n**Directions:** {location_str}{gym_notes}"
+            gym_embed.add_field(name='**Pokestop Information**', value=gym_info, inline=False)
             return await channel.send(content="", embed=gym_embed)
 
     async def match_prompt(self, channel, author_id, name, locations):
