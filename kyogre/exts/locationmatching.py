@@ -59,7 +59,7 @@ class LocationMatching(commands.Cog):
         return self.get_gyms(guild_id, regions=regions) + self.get_stops(guild_id, regions=regions)
 
     @staticmethod
-    def get_gyms(guild_id, regions=None):
+    def get_gyms(guild_id, regions=None, ex=None):
         result = (GymTable
                   .select(LocationTable.id,
                           LocationTable.name,
@@ -78,6 +78,8 @@ class LocationMatching(commands.Cog):
             if not isinstance(regions, list):
                 regions = [regions]
             result = result.where(RegionTable.name << regions)
+        if ex:
+            result = result.where(GymTable.ex_eligible == '1')
         result = result.objects(Gym)
         return [o for o in result]
 
@@ -295,7 +297,8 @@ class LocationMatching(commands.Cog):
 
     @commands.command(name='gyminfo', aliases=['gym', 'gi'])
     async def _gym(self, ctx, *, info):
-        """**Usage**: `!gym <gym name>`
+        """**Usage**: `!gyminfo <gym name>`
+        **Aliases**: `gym`, `gi`
         Look up directions to a gym by providing its name.
         Gym name provided should be as close as possible to the name displayed in game."""
         message = ctx.message
@@ -336,8 +339,9 @@ class LocationMatching(commands.Cog):
             return await channel.send(content="", embed=gym_embed)
 
     @commands.command(name='pokestopinfo', aliases=['pokestop', 'pi'])
-    async def pokestop(self, ctx, *, info):
-        """**Usage**: `!pokestop <pokestop name>`
+    async def _pokestop(self, ctx, *, info):
+        """**Usage**: `!pokestopinfo <pokestop name>`
+        **Aliases**: `pokestop`, `pi`
         Look up directions to a pokestop by providing its name.
         Pokestop name provided should be as close as possible to the name displayed in game."""
         message = ctx.message
@@ -373,6 +377,40 @@ class LocationMatching(commands.Cog):
                        f"\n**Directions:** {location_str}{gym_notes}"
             gym_embed.add_field(name='**Pokestop Information**', value=gym_info, inline=False)
             return await channel.send(content="", embed=gym_embed)
+
+    @commands.command(name='ex_gyms', aliases=['exgym', 'exgyms', 'exg'])
+    async def _ex_gym_lookup(self, ctx, region: str = None):
+        """**Usage**: `!ex_gyms [region]`
+        **Aliases**: `exgym`, `exgyms`, `exg`
+        Look up all EX Eligible gyms.
+        Region is optional *but recommended*.
+        If a region is provided the resulting list will contain only gyms in that region."""
+        gyms = self.get_gyms(ctx.guild.id, region.lower(), True)
+        if len(gyms) < 1:
+            return await ctx.send("No EX gyms found.")
+        region_str = ' (you may want to specify a region when running this command)'
+        if region:
+            region_str = f' in {region.capitalize()}'
+        embeds = []
+        embed = discord.Embed(colour=discord.Colour.gold(), title=f"EX Gyms{region_str}")
+        utils_cog = self.bot.cogs.get('Utilities')
+        length_count = 0
+        for gym in gyms:
+            if len(embed.fields) == 25 or length_count >= 5500:
+                embeds.append(embed)
+                embed = discord.Embed(colour=discord.Colour.gold())
+                length_count = 0
+            waze_link = utils_cog.create_waze_query(gym.latitude, gym.longitude)
+            apple_link = utils_cog.create_applemaps_query(gym.latitude, gym.longitude)
+            location_str = f'[Google]({gym.maps_url}) | [Waze]({waze_link}) | [Apple]({apple_link})'
+            name_text = f"{gym.name}"
+            if not region:
+                name_text += f" ({gym.region.capitalize()})"
+            length_count += len(name_text) + len(location_str)
+            embed.add_field(name=name_text, value=f"{location_str}", inline=False)
+        embeds.append(embed)
+        for e in embeds:
+            await ctx.send(embed=e)
 
     async def match_prompt(self, channel, author_id, name, locations):
         # note: the following logic assumes json constraints -- no duplicates in source data

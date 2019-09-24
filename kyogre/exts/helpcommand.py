@@ -23,7 +23,8 @@ class MyHelpCommand(commands.DefaultHelpCommand):
                 "bot_admin": {"commands": ["configure", "save", "exit", "restart", "welcome", "outputlog"]},
                 "debug": ["outputlog"],
                 "location management": ["loc changeregion", "loc extoggle", "loc add", "loc addnote",
-                                        "loc deletelocation", "loc convert", "location_match_test"]
+                                        "loc deletelocation", "loc convert", "location_match_test"],
+                "locationmatching": ["ex_gyms", "gyminfo", "pokestopinfo"]
                 }
 
     def __init__(self, guild_dict):
