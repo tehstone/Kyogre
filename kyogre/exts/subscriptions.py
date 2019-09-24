@@ -873,7 +873,9 @@ class Subscriptions(commands.Cog):
         else:
             role_name = utils.sanitize_name(f"{notification_type} {pokemon_names} {location}".title())
         # starting to hit rate limit for role creation so explicitly mentioning all trainers in the meantime
-        return await self.notify_all_async(new_channel, outbound_dict)
+        await self.notify_all_async(new_channel, outbound_dict)
+        faves_cog = self.bot.cogs.get('Faves')
+        return faves_cog.get_report_points(pokemon_list, notification_type)
         #return await self.generate_role_notification_async(role_name, new_channel, outbound_dict)
 
     @staticmethod

@@ -63,8 +63,8 @@ class Social(commands.Cog):
         if pkb is not None:
             embed.add_field(name="Pokebattler", value=f"{pkb}")
         embed.add_field(name="Badges earned", value=f"{badge_str}")
-        stats_str = f"Raid Reports: {raids}\nEgg Reports: {eggs}\nWild Reports: {wilds}\n" \
-            f"Research Reports: {research}\nRaids Joined: {joined}\n"
+        stats_str = f"Raid Reports: {raids}\nEgg Reports: {eggs}\nWild Points: {wilds}\n" \
+            f"Research Points: {research}\nRaids Joined: {joined}\n"
         embed.add_field(name="Kyogre Stats", value=stats_str)
         embed.set_footer(text='Do "!set profile" to get your profile set up!')
         await ctx.send(embed=embed)
@@ -94,7 +94,7 @@ class Social(commands.Cog):
         leaderboard = {}
         rank = 1
         field_value = ""
-        typelist = ["total", "raids", "eggs", "exraids", "wilds", "research", "joined"]
+        typelist = ["total", "raids", "eggs", "exraids", "wild", "research", "joined"]
         board_type = board_type.lower()
         regions = list(self.bot.guild_dict[guild.id]['configure_dict']['regions']['info'].keys())
         if board_type not in typelist:
@@ -131,7 +131,7 @@ class Social(commands.Cog):
                 research += trainers[trainer].setdefault('research_reports', 0)
                 joined += trainers[trainer].setdefault('joined', 0)
                 total_reports = raids + wilds + exraids + eggs + research + joined
-                trainer_stats = {'trainer': trainer, 'total': total_reports, 'raids': raids, 'wilds': wilds,
+                trainer_stats = {'trainer': trainer, 'total': total_reports, 'raids': raids, 'wild': wilds,
                                  'research': research, 'exraids': exraids, 'eggs': eggs, 'joined': joined}
                 if trainer_stats[board_type] > 0 and user:
                     if trainer in leaderboard:
@@ -157,9 +157,9 @@ class Social(commands.Cog):
                 if self.bot.guild_dict[guild.id]['configure_dict']['exraid']['enabled']:
                     field_value += "EX Raids: **{exraids}** | ".format(exraids=trainer['exraids'])
                 if self.bot.guild_dict[guild.id]['configure_dict']['wild']['enabled']:
-                    field_value += "Wilds: **{wilds}** | ".format(wilds=trainer['wilds'])
+                    field_value += "Wild Points: **{wilds}** | ".format(wilds=trainer['wild'])
                 if self.bot.guild_dict[guild.id]['configure_dict']['research']['enabled']:
-                    field_value += "Research: **{research}** | ".format(research=trainer['research'])
+                    field_value += "Research Points: **{research}** | ".format(research=trainer['research'])
                 if self.bot.guild_dict[guild.id]['configure_dict']['raid']['enabled']:
                     field_value += "Raids Joined: **{joined}** | ".format(joined=trainer['joined'])
                 if board_type == 'total':
@@ -170,6 +170,9 @@ class Social(commands.Cog):
                     if board_type == 'joined':
                         description += f"{rank}. **{user.display_name}** - " \
                                        f"Raids {board_type.title()}: **{trainer[board_type]}**\n"
+                    elif board_type == 'wild' or board_type == 'research':
+                        description += f"{rank}. **{user.display_name}** - " \
+                                       f"{board_type.title()} Points: **{trainer[board_type]}**\n"
                     else:
                         description += f"{rank}. **{user.display_name}** - " \
                                        f"{board_type.title()} Reported: **{trainer[board_type]}**\n"

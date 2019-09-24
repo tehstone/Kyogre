@@ -93,15 +93,30 @@ class Faves(commands.Cog):
         return result.where(SubscriptionTable.type << sub_type)
 
     def _update_top_subs_table(self, out_results):
-        # First clear out previous entries
         try:
+            # First clear out previous entries
             TopSubsTable.delete().execute()
             data = []
+            # Build data set from new entries
             for key in out_results.keys():
                 [data.append((i[0], key, i[1])) for i in out_results[key]]
-            TopSubsTable.insert_many(data, fields=[TopSubsTable.pokemon, TopSubsTable.type, TopSubsTable.count]).execute()
+            # Push data to db
+            TopSubsTable.insert_many(data, fields=[TopSubsTable.pokemon, TopSubsTable.type, TopSubsTable.count])\
+                .execute()
         except Exception as e:
             self.bot.logger.info(f"Failed to update Top Subs Table with error: {e}")
+
+    @staticmethod
+    def get_report_points(pokemon_list, report_type):
+        pokemon_list = [p.name.capitalize() for p in pokemon_list]
+        points = 1
+        result = (TopSubsTable
+                  .select(TopSubsTable.pokemon, TopSubsTable.count)
+                  .where(TopSubsTable.type == report_type.lower())
+                  .where(TopSubsTable.pokemon << pokemon_list))
+        for r in result:
+            points += round(r.count/5)
+        return points
 
 
 def setup(bot):

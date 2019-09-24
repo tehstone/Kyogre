@@ -190,11 +190,7 @@ class ResearchCommands(commands.Cog):
             research_embed.description = "Ask {author} if my directions aren't perfect!".format(author=author.name)
             research_embed.url = loc_url
             confirmation = await channel.send(research_msg, embed=research_embed)
-            await asyncio.sleep(0.25)
-            await confirmation.add_reaction('\u270f')
-            await asyncio.sleep(0.25)
-            await confirmation.add_reaction('🚫')
-            await asyncio.sleep(0.25)
+            await utilities_cog.reaction_delay(confirmation, ['\u270f', '🚫'])
             research_dict = copy.deepcopy(self.bot.guild_dict[guild.id].get('questreport_dict', {}))
             research_dict[confirmation.id] = {
                 'regions': regions,
@@ -211,12 +207,6 @@ class ResearchCommands(commands.Cog):
                 'reward': reward
             }
             self.bot.guild_dict[guild.id]['questreport_dict'] = research_dict
-            research_reports = self.bot.guild_dict[ctx.guild.id]\
-                                   .setdefault('trainers', {})\
-                                   .setdefault(regions[0], {})\
-                                   .setdefault(author.id, {})\
-                                   .setdefault('research_reports', 0) + 1
-            self.bot.guild_dict[ctx.guild.id]['trainers'][regions[0]][author.id]['research_reports'] = research_reports
             listmgmt_cog = self.bot.cogs.get('ListManagement')
             await listmgmt_cog.update_listing_channels(guild, 'research', edit=False, regions=regions)
             subscriptions_cog = self.bot.cogs.get('Subscriptions')
@@ -227,12 +217,19 @@ class ResearchCommands(commands.Cog):
                 pkmn = reward.rsplit(maxsplit=1)[0]
                 research_details = {'pokemon': [Pokemon.get_pokemon(self.bot, p) for p in re.split(r'\s*,\s*', pkmn)],
                                     'location': location, 'regions': regions}
-                await subscriptions_cog.send_notifications_async('research', research_details,
-                                                                 send_channel, [message.author.id])
+                points = await subscriptions_cog.send_notifications_async('research', research_details,
+                                                                          send_channel, [message.author.id])
             elif reward.split(' ')[0].isdigit() and 'stardust' not in reward.lower():
                 item = ' '.join(reward.split(' ')[1:])
                 research_details = {'item': item, 'location': location, 'regions': regions}
-                await subscriptions_cog.send_notifications_async('item', research_details, send_channel, [author.id])
+                points = await subscriptions_cog.send_notifications_async('item', research_details,
+                                                                          send_channel, [author.id])
+            research_reports = self.bot.guild_dict[ctx.guild.id]\
+                                   .setdefault('trainers', {})\
+                                   .setdefault(regions[0], {})\
+                                   .setdefault(author.id, {})\
+                                   .setdefault('research_reports', 0) + points
+            self.bot.guild_dict[ctx.guild.id]['trainers'][regions[0]][author.id]['research_reports'] = research_reports
             await self._add_db_research_report(ctx, confirmation)
         else:
             research_embed.clear_fields()

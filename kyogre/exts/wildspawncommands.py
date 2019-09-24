@@ -121,12 +121,6 @@ class WildSpawnCommands(commands.Cog):
             'omw': []
         }
         self.bot.guild_dict[guild.id]['wildreport_dict'] = wild_dict
-        wild_reports = self.bot.guild_dict[guild.id]\
-                           .setdefault('trainers', {})\
-                           .setdefault(channel_regions[0], {})\
-                           .setdefault(author.id, {})\
-                           .setdefault('wild_reports', 0) + 1
-        self.bot.guild_dict[guild.id]['trainers'][channel_regions[0]][author.id]['wild_reports'] = wild_reports
         wild_details = {'pokemon': pkmn, 'perfect': is_perfect, 'location': wild_details, 'regions': channel_regions}
         self.bot.event_loop.create_task(self.wild_expiry_check(wildreportmsg))
         listmgmt_cog = self.bot.cogs.get('ListManagement')
@@ -135,7 +129,13 @@ class WildSpawnCommands(commands.Cog):
         send_channel = subscriptions_cog.get_region_list_channel(guild, channel_regions[0], 'wild')
         if send_channel is None:
             send_channel = message.channel
-        await subscriptions_cog.send_notifications_async('wild', wild_details, send_channel, [message.author.id])
+        points = await subscriptions_cog.send_notifications_async('wild', wild_details, send_channel, [message.author.id])
+        wild_reports = self.bot.guild_dict[guild.id] \
+                           .setdefault('trainers', {}) \
+                           .setdefault(channel_regions[0], {}) \
+                           .setdefault(author.id, {}) \
+                           .setdefault('wild_reports', 0) + points
+        self.bot.guild_dict[guild.id]['trainers'][channel_regions[0]][author.id]['wild_reports'] = wild_reports
         await self._add_db_sighting_report(ctx, wildreportmsg)
 
     async def wild_expiry_check(self, message):
