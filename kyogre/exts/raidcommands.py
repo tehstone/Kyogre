@@ -1050,7 +1050,8 @@ class RaidCommands(commands.Cog):
         await listmgmt_cog.update_listing_channels(guild, 'raid', edit=False, regions=regions)
         await asyncio.sleep(1)
         self.bot.event_loop.create_task(self.expiry_check(raid_channel))
-        await self._update_db_raid_report(guild, raid_channel)
+        updated_time = round(time.time())
+        await self._update_db_raid_report(guild, raid_channel, updated_time)
         await self.add_db_raid_action(raid_channel, "hatch", action_time)
 
     async def _add_db_raid_report(self, ctx, raid_channel):
@@ -2160,7 +2161,8 @@ class RaidCommands(commands.Cog):
             new_embed.set_field_at(embed_indices['gym'], name=gym_embed.name, value=gym_embed_value, inline=True)
             await raid_message.edit(embed=new_embed)
             await ctx.channel.send("Weather set to {}!".format(weather.lower()))
-            return await self._update_db_raid_report(ctx, ctx.channel)
+            updated_time = round(time.time())
+            return await self._update_db_raid_report(ctx, ctx.channel, updated_time)
 
     async def expiry_check(self, channel):
         self.bot.logger.info('Expiry_Check - ' + channel.name)
