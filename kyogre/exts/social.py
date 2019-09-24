@@ -85,7 +85,7 @@ class Social(commands.Cog):
                 .setdefault(user.id, {}).get('joined', 0)
         return [raids, eggs, wilds, research, joined]
 
-    @commands.command()
+    @commands.command(name='leaderboard', aliases=['lb', 'board', 'leader'])
     async def leaderboard(self, ctx, board_type="total", region=None):
         """**Usage**: `!leaderboard [type] [region]`
         Accepted types: raids, eggs, wilds, research, joined
@@ -169,7 +169,7 @@ class Social(commands.Cog):
                 else:
                     if board_type == 'joined':
                         description += f"{rank}. **{user.display_name}** - " \
-                                       f"{board_type.title()}: **{trainer[board_type]}**\n"
+                                       f"Raids {board_type.title()}: **{trainer[board_type]}**\n"
                     else:
                         description += f"{rank}. **{user.display_name}** - " \
                                        f"{board_type.title()} Reported: **{trainer[board_type]}**\n"
