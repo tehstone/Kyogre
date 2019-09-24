@@ -346,10 +346,12 @@ class KyogreBot(commands.AutoShardedBot):
 
     async def _update_subs_leaderboard(self):
         await self.wait_until_ready()
+        sleep_time = 3600
         while not self.is_closed():
             guilddict_chtemp = copy.deepcopy(self.guild_dict)
             # for every server in save data
             for guildid in guilddict_chtemp.keys():
+                self.logger.info(f"Updating subscription leaderboard for guild with id: {guildid}")
                 guild = self.get_guild(guildid)
                 message_id = guilddict_chtemp[guildid]['configure_dict'].get('subscriptions', {}).get(
                     'leaderboard_message', 0)
@@ -361,7 +363,7 @@ class KyogreBot(commands.AutoShardedBot):
                     try:
                         message = await channel.fetch_message(message_id)
                     except discord.errors.NotFound:
-                        pass
+                        self.logger.info(f"Could not find previous leaderboard message with id: {message_id}")
                     try:
                         faves_cog = self.cogs.get('Faves')
                         content = await faves_cog.build_top_sub_lists(guild)
@@ -370,9 +372,14 @@ class KyogreBot(commands.AutoShardedBot):
                             guilddict_chtemp[guildid]['configure_dict']['subscriptions']['leaderboard_message'] = new_msg.id
                         else:
                             await message.edit(content=content)
-                    except AttributeError:
-                        pass
-            self.guild_dict = guilddict_chtemp
-            sleep_time = guilddict_chtemp[guildid]['configure_dict'].get('subscriptions', {}).get(
+                        self.logger.info("Subscription leaderboard update complete.")
+                    except (AttributeError, Exception) as e:
+                        self.logger.info(f"Failed to update top subs leaderboard with error: {e}")
+                # this is a bug. sleep time is stored per guild but the sleep and do work loop is for all guilds
+                # should spawn separate loops per guild but that's low-pri until there is actually an instance
+                # running on multiple guilds.
+                sleep_time = guilddict_chtemp[guildid]['configure_dict'].get('subscriptions', {}).get(
                     'leaderboard_refresh_seconds', 3600)
+            self.guild_dict = guilddict_chtemp
+
             await asyncio.sleep(sleep_time)

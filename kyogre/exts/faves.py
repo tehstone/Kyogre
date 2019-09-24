@@ -49,6 +49,8 @@ class Faves(commands.Cog):
         # sort and limit the outgoing
         out_results['research'] = sorted(out_results['research'].items(), key=lambda t: t[1], reverse=True)[:limit]
         out_results['wild'] = sorted(out_results['wild'].items(), key=lambda t: t[1], reverse=True)[:limit]
+        # Update the top subs table used to count personal stats when a report is made
+        self._update_top_subs_table(out_results)
         # build the final leaderboard message
         leaderboard_str = '**The following lists are the most popular Subscriptions per type**\n'
         leaderboard_str += self._build_category_list(out_results, 'wild', '\n**Wild Spawns**\n')
@@ -89,6 +91,17 @@ class Faves(commands.Cog):
         if sub_type is None or sub_type[0].lower() == 'all':
             return result
         return result.where(SubscriptionTable.type << sub_type)
+
+    def _update_top_subs_table(self, out_results):
+        # First clear out previous entries
+        try:
+            TopSubsTable.delete().execute()
+            data = []
+            for key in out_results.keys():
+                [data.append((i[0], key, i[1])) for i in out_results[key]]
+            TopSubsTable.insert_many(data, fields=[TopSubsTable.pokemon, TopSubsTable.type, TopSubsTable.count]).execute()
+        except Exception as e:
+            self.bot.logger.info(f"Failed to update Top Subs Table with error: {e}")
 
 
 def setup(bot):

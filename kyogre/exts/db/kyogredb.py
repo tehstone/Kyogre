@@ -23,7 +23,7 @@ class KyogreDB:
             LocationNoteTable, LocationRegionRelation, LocationTable, LureTable, LureTypeRelation, LureTypeTable,
             PokemonTable, PokestopTable, QuestTable, RaidActionTable, RaidBossRelation, RaidTable, RegionTable,
             ResearchTable, RewardTable, SightingTable, SilphcardTable, SubscriptionTable, TeamTable, TradeTable,
-            TrainerReportRelation, TrainerTable
+            TrainerReportRelation, TrainerTable, TopSubsTable
         ])
         cls.init()
         cls._migrator = SqliteMigrator(cls._db)
@@ -383,6 +383,12 @@ class SubscriptionTable(BaseModel):
 
     class Meta:
         constraints = [SQL('UNIQUE(trainer, type, target, specific)')]
+
+
+class TopSubsTable(BaseModel):
+    pokemon = TextField(index=True)
+    type = TextField()
+    count = IntegerField()
 
 
 class TradeTable(BaseModel):
