@@ -50,9 +50,20 @@ class Faves(commands.Cog):
         out_results['research'] = sorted(out_results['research'].items(), key=lambda t: t[1], reverse=True)[:limit]
         out_results['wild'] = sorted(out_results['wild'].items(), key=lambda t: t[1], reverse=True)[:limit]
         # build the final leaderboard message
-        leaderboard_str = '**Top Subscriptions per type**\n'
+        leaderboard_str = '**The following lists are the most popular Subscriptions per type**\n'
         leaderboard_str += self._build_category_list(out_results, 'wild', '\n**Wild Spawns**\n')
         leaderboard_str += self._build_category_list(out_results, 'research', '\n**Research Rewards**\n')
+        sub_channel_ids = self.bot.guild_dict[guild.id]['configure_dict']\
+            .get('subscriptions', {}).get('report_channels', [])
+        if len(sub_channel_ids) > 0:
+            channel_str = ''
+            for channel_id in sub_channel_ids:
+                sub_channel = guild.get_channel(channel_id)
+                channel_str += f" {sub_channel.mention}"
+            leaderboard_str += "\nIf you'd like to set up notifications for the Pokemon you're hoping to catch "
+            leaderboard_str += f"you can set up subscriptions of your own in {channel_str}."
+            leaderboard_str += "\nComing soon: Reporting things from this list will count for extra points towards "
+            leaderboard_str += "your personal leaderboard scores!"
         return leaderboard_str
 
     @staticmethod
