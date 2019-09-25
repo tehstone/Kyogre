@@ -425,7 +425,7 @@ class RaidCommands(commands.Cog):
             'egglevel': str(level) if not raid_report else '0',
             'moveset': 0,
             'weather': weather,
-            'gym': gym,
+            'gym': gym.id,
             'reporter': author.id,
             'hatching': False,
             'short': None
@@ -777,6 +777,7 @@ class RaidCommands(commands.Cog):
             return
         action_time = round(time.time())
         listmgmt_cog = self.bot.cogs.get('ListManagement')
+        location_matching_cog = self.bot.cogs.get('LocationMatching')
         eggdetails = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
         egglevel = eggdetails['egglevel']
         if egglevel == "0":
@@ -790,7 +791,8 @@ class RaidCommands(commands.Cog):
         egg_address = eggdetails['address']
         weather = eggdetails.get('weather', None)
         try:
-            gym = eggdetails['gym']
+            gym_id = eggdetails['gym']
+            gym = location_matching_cog.get_gym_by_id(guild.id, gym_id)
         except:
             gym = None
         try:
@@ -935,7 +937,7 @@ class RaidCommands(commands.Cog):
         await raid_channel.send(content="Trainers{trainer}: The raid egg has just hatched into a {pokemon} raid!"
                                 .format(trainer=trainers, pokemon=entered_raid.title()), embed=raid_embed)
         raid_details = {'pokemon': pkmn, 'tier': pkmn.raid_level,
-                        'ex-eligible': False if eggdetails['gym'] is None else eggdetails['gym'].ex_eligible,
+                        'ex-eligible': False if gym is None else gym.ex_eligible,
                         'location': eggdetails['address'], 'regions': eggdetails['regions'],
                         'hatching': True}
         new_status = None
@@ -1033,7 +1035,7 @@ class RaidCommands(commands.Cog):
             'ctrsmessage': ctrsmessage_id,
             'weather': weather,
             'moveset': 0,
-            'gym': gym,
+            'gym': gym.id,
             'reporter': reporter,
             'last_status': new_status.id if new_status is not None else None,
             'short': short_id
@@ -1060,7 +1062,9 @@ class RaidCommands(commands.Cog):
         guild = channel.guild
         author = message.author
         raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
-        gym = raid_dict['gym']
+        gym_id = raid_dict['gym']
+        location_matching_cog = self.bot.cogs.get('LocationMatching')
+        gym = location_matching_cog.get_gym_by_id(guild.id, gym_id)
         created = round(message.created_at.timestamp())
         level, pokemon, hatch_time, expire_time, weather = None, None, None, None, None
         if 'egglevel' in raid_dict and raid_dict['egglevel'] != '0':
@@ -1123,7 +1127,9 @@ class RaidCommands(commands.Cog):
                     report.hatch_time = round(raid_dict['exp']) - 2700
         report.save()
         if report_relation is not None:
-            gym = raid_dict['gym']
+            gym_id = raid_dict['gym']
+            location_matching_cog = self.bot.cogs.get('LocationMatching')
+            gym = location_matching_cog.get_gym_by_id(guild.id, gym_id)
             if gym is None:
                 return
             report_relation.location_id = gym.id
@@ -1216,7 +1222,13 @@ class RaidCommands(commands.Cog):
             # ignore meetups
             if report.get('meetup', {}):
                 return False
-            return report.get('gym', None) and report['gym'].name.lower() == location.name.lower()
+            gym_id = report['gym']
+            location_matching_cog = self.bot.cogs.get('LocationMatching')
+            gym = location_matching_cog.get_gym_by_id(guild.id, gym_id)
+            if gym is None:
+                return False
+            name_matches = gym.name.lower() == location.name.lower()
+            return report.get('gym', None) and name_matches
         return [channel_id for channel_id, report in report_dict.items() if matches_existing(report)]
 
     async def print_raid_timer(self, channel):

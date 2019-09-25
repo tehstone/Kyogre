@@ -135,7 +135,9 @@ class ListManagement(commands.Cog):
             boss = Pokemon.get_pokemon(self.bot, rc_d[raid].get('pokemon', ''))
             if not t_emoji and boss:
                 t_emoji = str(boss.raid_level) + '\u20e3'
-            gym = rc_d[raid].get('gym', None)
+            location_matching_cog = self.bot.cogs.get('LocationMatching')
+            gym_id = rc_d[raid].get('gym', None)
+            gym = location_matching_cog.get_gym_by_id(guild.id, gym_id)
             gym_note = ''
             if gym:
                 ex_eligibility = ' *EX-Eligible* ' if gym.ex_eligible else ''
@@ -160,9 +162,9 @@ class ListManagement(commands.Cog):
                           f' | **Trainer Count**: {total_count}\n'
             else:
                 channel_name = rchan.name.replace('_', ': ').replace('-', ' ').title()
-                map_url = rc_d[raid]['gym'].maps_url
+                map_url = gym.maps_url
                 try:
-                    map_url = rc_d[raid]['gym'].maps_url
+                    map_url = gym.maps_url
                 except:
                     pass
                 output += f'\t{t_emoji} **{channel_name}** {ex_eligibility}\n{expirytext}' \

@@ -63,7 +63,7 @@ async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid
         pass
     raid_dict['raidmessage'] = oldraidmsg.id
     raid_dict['raidreport'] = oldreportmsg.id
-    raid_dict['gym'] = gym
+    raid_dict['gym'] = gym.id
     raid_dict['address'] = gym.name
     raid_dict['regions'] = regions
     guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = raid_dict

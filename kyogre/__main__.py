@@ -77,7 +77,6 @@ async def message_cleanup(loop=True):
                     if report_dict_dict[report_dict][reportid].get('exp', 0) <= time.time():
                         report_channel = Kyogre.get_channel(report_dict_dict[report_dict][reportid]
                                                             .get('reportchannel'))
-                        print(f"report chan: {report_channel.id}")
                         if report_channel:
                             user_report = report_dict_dict[report_dict][reportid].get('reportmessage', None)
                             if user_report:
@@ -169,49 +168,116 @@ async def on_ready():
             if guild.id not in guild_dict:
                 guild_dict[guild.id] = {
                     'configure_dict': {
-                        'welcome': {'enabled': False, 'welcomechan': '', 'welcomemsg': ''},
-                        'want': {'enabled': False, 'report_channels': []},
-                        'raid': {'enabled': False, 'report_channels': {}, 'categories': 'same', 'category_dict': {}},
-                        'exraid': {'enabled': False, 'report_channels': {}, 'categories': 'same',
-                                   'category_dict': {}, 'permissions': 'everyone'},
-                        'wild': {'enabled': False, 'report_channels': {}},
-                        'lure': {'enabled': False, 'report_channels': {}},
-                        'counters': {'enabled': False, 'auto_levels': []},
-                        'research': {'enabled': False, 'report_channels': {}},
-                        'archive': {'enabled': False, 'category': 'same', 'list': None},
-                        'invite': {'enabled': False},
-                        'team': {'enabled': False},
-                        'settings': {'offset': 0, 'regional': None, 'done': False,
-                                     'prefix': None, 'config_sessions': {}}
-                    },
-                    'wildreport_dict:': {},
+                                'welcome': {'enabled': False, 'welcomechan': '', 'welcomemsg': ''},
+                                'raid': {'enabled': False, 'report_channels': {}, 'categories': 'same',
+                                         'category_dict': {}, 'raid_channels': {},
+                                         'listings': {'enabled': False, 'channels': {}}, 'short_output': {}},
+                                'counters': {'enabled': False, 'auto_levels': []},
+                                'wild': {'enabled': False, 'report_channels': {},
+                                         'listings': {'enabled': False, 'channels': {}}},
+                                'research': {'enabled': False, 'report_channels': {},
+                                             'listings': {'enabled': False, 'channels': {}}},
+                                'archive': {'enabled': False, 'category': 'same', 'list': None},
+                                'invite': {'enabled': False},
+                                'team': {'enabled': False},
+                                'settings': {'offset': 0, 'regional': None, 'done': False, 'prefix': None,
+                                             'config_sessions': {}, 'invasion_minutes': 30, 'lure_minutes': 30},
+                                'trade': {'enabled': False, 'report_channels': []},
+                                'regions': {'enabled': False, 'command_channels': [], 'info': {}, 'notify_channel': None},
+                                'meetup': {'enabled': False},
+                                'subscriptions': {'enabled': False, 'report_channels': [], 'leaderboard_refresh_seconds': 720,
+                                                  'leaderboard_message': None, 'leaderboard_channel': None,
+                                                  'leaderboard_limit': 5},
+                                'pvp': {'enabled': False, 'report_channels': []},
+                                'join': {'enabled': False},
+                                'lure': {'enabled': False, 'report_channels': {},
+                                         'listings': {'enabled': False, 'channels': {}}},
+                                'invite_tracking': {'enabled': False, 'destination': None, 'invite_counts': {}},
+                                'quick_badge': {'listen_channels': [], 'pokenav_channel': None, 'badge_channel': None,
+                                                'badges': {}, '40_role': None, '40_listen_channels': []},
+                                'takeover': {'enabled': False, 'report_channels': {},
+                                             'listings': {'enabled': False, 'channels': {}}}},
+                    'wildreport_dict': {},
                     'questreport_dict': {},
                     'raidchannel_dict': {},
+                    'pvp_dict': {},
+                    'raid_notice_dict': {},
+                    'trade_dict': {},
                     'trainers': {}
                 }
             else:
                 guild_dict[guild.id]['configure_dict'].setdefault('trade', {})
+                guild_dict[guild.id]['configure_dict'].setdefault('regions',
+                                                                  {'enabled': False, 'command_channels': [], 'info': {},
+                                                                   'notify_channel': None})
+                guild_dict[guild.id]['configure_dict'].setdefault('meetup', {'enabled': False})
+                guild_dict[guild.id]['configure_dict'].setdefault('subscriptions',
+                                                                  {'enabled': False, 'report_channels': [],
+                                                                   'leaderboard_refresh_seconds': 720,
+                                                                   'leaderboard_message': None,
+                                                                   'leaderboard_channel': None, 'leaderboard_limit': 5})
+                guild_dict[guild.id]['configure_dict'].setdefault('pvp', {'enabled': False, 'report_channels': []})
+                guild_dict[guild.id]['configure_dict'].setdefault('join', {'enabled': False})
+                guild_dict[guild.id]['configure_dict'].setdefault('lure', {'enabled': False, 'report_channels': {},
+                                                                           'listings': {'enabled': False,
+                                                                                        'channels': {}}})
+                guild_dict[guild.id]['configure_dict'].setdefault('invite_tracking',
+                                                                  {'enabled': False, 'destination': None,
+                                                                   'invite_counts': {}})
+                guild_dict[guild.id]['configure_dict'].setdefault('quick_badge',
+                                                                  {'listen_channels': [], 'pokenav_channel': None,
+                                                                   'badge_channel': None, 'badges': {}, '40_role': None,
+                                                                   '40_listen_channels': []})
+                guild_dict[guild.id]['configure_dict'].setdefault('takeover', {'enabled': False, 'report_channels': {},
+                                                                               'listings': {'enabled': True,
+                                                                                            'channels': {}}})
+                guild_dict[guild.id].setdefault('pvp_dict', {})
+                guild_dict[guild.id].setdefault('raid_notice_dict', {})
+                guild_dict[guild.id].setdefault('trade_dict', {})
+                try:
+                    trainers = guild_dict[guild.id]['configure_dict']['trainers']
+                    guild_dict[guild.id]['trainers'] = trainers
+                    del guild_dict[guild.id]['configure_dict']['trainers']
+                except KeyError:
+                    guild_dict[guild.id].setdefault('trainers', {})
         except KeyError:
             guild_dict[guild.id] = {
                 'configure_dict': {
-                    'welcome': {'enabled': False, 'welcomechan': '', 'welcomemsg': ''},
-                    'want': {'enabled': False, 'report_channels': []},
-                    'raid': {'enabled': False, 'report_channels': {}, 'categories': 'same', 'category_dict': {}},
-                    'exraid': {'enabled': False, 'report_channels': {}, 'categories': 'same',
-                               'category_dict': {}, 'permissions': 'everyone'},
-                    'wild': {'enabled': False, 'report_channels': {}},
-                    'lure': {'enabled': False, 'report_channels': {}},
-                    'counters': {'enabled': False, 'auto_levels': []},
-                    'research': {'enabled': False, 'report_channels': {}},
-                    'archive': {'enabled': False, 'category': 'same', 'list': None},
-                    'invite': {'enabled': False},
-                    'team': {'enabled': False},
-                    'settings': {'offset': 0, 'regional': None, 'done': False,
-                                 'prefix': None, 'config_sessions': {}}
-                },
-                'wildreport_dict:': {},
+                        'welcome': {'enabled': False, 'welcomechan': '', 'welcomemsg': ''},
+                        'raid': {'enabled': False, 'report_channels': {}, 'categories': 'same',
+                                 'category_dict': {}, 'raid_channels': {},
+                                 'listings': {'enabled': False, 'channels': {}}, 'short_output': {}},
+                        'counters': {'enabled': False, 'auto_levels': []},
+                        'wild': {'enabled': False, 'report_channels': {},
+                                 'listings': {'enabled': False, 'channels': {}}},
+                        'research': {'enabled': False, 'report_channels': {},
+                                     'listings': {'enabled': False, 'channels': {}}},
+                        'archive': {'enabled': False, 'category': 'same', 'list': None},
+                        'invite': {'enabled': False},
+                        'team': {'enabled': False},
+                        'settings': {'offset': 0, 'regional': None, 'done': False, 'prefix': None,
+                                     'config_sessions': {}, 'invasion_minutes': 30, 'lure_minutes': 30},
+                        'trade': {'enabled': False, 'report_channels': []},
+                        'regions': {'enabled': False, 'command_channels': [], 'info': {}, 'notify_channel': None},
+                        'meetup': {'enabled': False},
+                        'subscriptions': {'enabled': False, 'report_channels': [], 'leaderboard_refresh_seconds': 720,
+                                          'leaderboard_message': None, 'leaderboard_channel': None,
+                                          'leaderboard_limit': 5},
+                        'pvp': {'enabled': False, 'report_channels': []},
+                        'join': {'enabled': False},
+                        'lure': {'enabled': False, 'report_channels': {},
+                                 'listings': {'enabled': False, 'channels': {}}},
+                        'invite_tracking': {'enabled': False, 'destination': None, 'invite_counts': {}},
+                        'quick_badge': {'listen_channels': [], 'pokenav_channel': None, 'badge_channel': None,
+                                        'badges': {}, '40_role': None, '40_listen_channels': []},
+                        'takeover': {'enabled': False, 'report_channels': {},
+                                     'listings': {'enabled': False, 'channels': {}}}},
+                'wildreport_dict': {},
                 'questreport_dict': {},
                 'raidchannel_dict': {},
+                'pvp_dict': {},
+                'raid_notice_dict': {},
+                'trade_dict': {},
                 'trainers': {}
             }
         owners.append(guild.owner)
@@ -220,28 +286,6 @@ async def on_ready():
     await _print(Kyogre.owner, "{server_count} servers connected.\n{member_count} members found."
                  .format(server_count=guilds, member_count=users))
     await maint_start(Kyogre)
-
-
-## TODO: UPDATE THIS:
-"""
-'configure_dict':{
-            'welcome': {'enabled':False,'welcomechan':'','welcomemsg':''},
-            'want': {'enabled':False, 'report_channels': []},
-            'raid': {'enabled':False, 'report_channels': {}, 'categories':'same','category_dict':{}},
-            'exraid': {'enabled':False, 'report_channels': {}, 'categories':'same','category_dict':{}, 'permissions':'everyone'},
-            'counters': {'enabled':False, 'auto_levels': []},
-            'wild': {'enabled':False, 'report_channels': {}},
-            'research': {'enabled':False, 'report_channels': {}},
-            'archive': {'enabled':False, 'category':'same','list':None},
-            'invite': {'enabled':False},
-            'team':{'enabled':False},
-            'settings':{'offset':0,'regional':None,'done':False,'prefix':None,'config_sessions':{}}
-        },
-        'wildreport_dict:':{},
-        'questreport_dict':{},
-        'raidchannel_dict':{},
-        'trainers':{}
-"""
 
 
 try:
