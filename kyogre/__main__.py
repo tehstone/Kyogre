@@ -125,7 +125,7 @@ async def message_cleanup(loop=True):
         except Exception as err:
             logger.info('message_cleanup - SAVING FAILED' + str(err))
         logger.info('message_cleanup ------ END ------')
-        await asyncio.sleep(30)
+        await asyncio.sleep(600)
         continue
 
 
