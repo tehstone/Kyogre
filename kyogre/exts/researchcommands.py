@@ -213,6 +213,7 @@ class ResearchCommands(commands.Cog):
             send_channel = subscriptions_cog.get_region_list_channel(guild, regions[0], 'research')
             if send_channel is None:
                 send_channel = channel
+            points = 1
             if 'encounter' in reward.lower():
                 pkmn = reward.rsplit(maxsplit=1)[0]
                 research_details = {'pokemon': [Pokemon.get_pokemon(self.bot, p) for p in re.split(r'\s*,\s*', pkmn)],
@@ -275,6 +276,7 @@ class ResearchCommands(commands.Cog):
         report_relation.save()
 
     async def _cancel_db_research_report(self, message):
+        print("in cancel")
         try:
             report_relation = TrainerReportRelation.get(TrainerReportRelation.message == message.id)
         except Exception as e:

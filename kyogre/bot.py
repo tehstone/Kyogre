@@ -100,7 +100,6 @@ class KyogreBot(commands.AutoShardedBot):
             else:
                 if 'debug' in sys.argv[1:]:
                     print(f'Loaded {ext} extension.')
-        self.sub_leaderboard_task = self.loop.create_task(self._update_subs_leaderboard())
 
     class RenameUnpickler(pickle.Unpickler):
         def find_class(self, module, name):
@@ -344,7 +343,7 @@ class KyogreBot(commands.AutoShardedBot):
                 logs[message.id] = {'author_id': author.id, 'author_str': str(author),'author_avy':author.avatar_url,'author_nick':author.nick,'color_int':author.color.value,'content': message.clean_content,'created_at':message.created_at}
                 self.guild_dict[guild.id]['raidchannel_dict'][channel.id]['logs'] = logs
 
-    async def _update_subs_leaderboard(self):
+    async def update_subs_leaderboard(self):
         await self.wait_until_ready()
         sleep_time = 3600
         while not self.is_closed():

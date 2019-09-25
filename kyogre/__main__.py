@@ -58,7 +58,8 @@ async def guild_cleanup(loop=True):
 async def message_cleanup(loop=True):
     while not Kyogre.is_closed():
         logger.info('message_cleanup ------ BEGIN ------')
-        guilddict_temp = copy.deepcopy(guild_dict)
+        guild_dict = Kyogre.guild_dict
+        guilddict_temp = copy.deepcopy(Kyogre.guild_dict)
         update_ids = set()
         guild_id = None
         for guildid in guilddict_temp.keys():
@@ -76,6 +77,7 @@ async def message_cleanup(loop=True):
                     if report_dict_dict[report_dict][reportid].get('exp', 0) <= time.time():
                         report_channel = Kyogre.get_channel(report_dict_dict[report_dict][reportid]
                                                             .get('reportchannel'))
+                        print(f"report chan: {report_channel.id}")
                         if report_channel:
                             user_report = report_dict_dict[report_dict][reportid].get('reportmessage', None)
                             if user_report:
@@ -123,7 +125,7 @@ async def message_cleanup(loop=True):
         except Exception as err:
             logger.info('message_cleanup - SAVING FAILED' + str(err))
         logger.info('message_cleanup ------ END ------')
-        await asyncio.sleep(600)
+        await asyncio.sleep(30)
         continue
 
 
@@ -141,6 +143,7 @@ async def maint_start(bot):
         raids_cog = bot.get_cog("RaidCommands")
         tasks.append(event_loop.create_task(raids_cog.channel_cleanup()))
         tasks.append(event_loop.create_task(message_cleanup()))
+        tasks.append(event_loop.create_task(bot.update_subs_leaderboard()))
         logger.info('Maintenance Tasks Started')
     except KeyboardInterrupt:
         [task.cancel() for task in tasks]

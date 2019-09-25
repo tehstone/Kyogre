@@ -242,7 +242,7 @@ class LocationManagement(commands.Cog):
             return await message.add_reaction(self.bot.success_react)
 
     @_loc.command(name="addnote", aliases=["an"])
-    @commands.has_permissions(manage_guild=True)
+    @commands.has_permissions(manage_nicknames=True)
     async def _loc_addnote(self, ctx, *, info):
         """**Usage**: `!loc addnote type (stop/gym), name, note`
         **Alias**: `an`
@@ -250,35 +250,9 @@ class LocationManagement(commands.Cog):
         If the location already has a note, it will be replaced with the new note."""
         channel = ctx.channel
         message = ctx.message
-        author = message.author
         guild = ctx.guild
-        info = [x.strip() for x in info.split(',')]
-        stop, gym, name = None, None, None
-        if len(info) < 3:
-            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, "
-                                      f"error: Insufficient info: {info}.")
-            await channel.send(embed=discord.Embed(
-                colour=discord.Colour.red(),
-                description=f"Please provide (comma separated) the location type (stop or gym), "
-                            f"name of the Pokestop or gym, and the note you would like to add."),
-                delete_after=12)
-            return await message.add_reaction(self.bot.failed_react)
-        if info[0].lower() == "stop":
-            stops = self._get_stops(ctx.guild.id, None)
-            stop = await self._location_match_prompt(channel, author.id, info[1], stops)
-            if stop is not None:
-                name = stop.name
-        elif info[0].lower() == "gym":
-            gyms = self._get_gyms(ctx.guild.id, None)
-            gym = await self._location_match_prompt(channel, author.id, info[1], gyms)
-            if gym is not None:
-                name = gym.name
+        name = await self._note_helper(ctx, info)
         if name is None:
-            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, "
-                                      f"error: No {info[0]} found with name: {info[1]}.")
-            await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
-                                                   description=f"No {info[0]} found with name {info[1]}."),
-                               delete_after=12)
             return await message.add_reaction(self.bot.failed_react)
         location_note = ','.join(info[2:])
         try:
@@ -300,6 +274,69 @@ class LocationManagement(commands.Cog):
                                                    description=f"Failed to add note to {name}."),
                                delete_after=12)
             return await message.add_reaction(self.bot.failed_react)
+
+    @_loc.command(name="removenote", aliases=["rn", "dn"])
+    @commands.has_permissions(manage_roles=True)
+    async def _loc_removenote(self, ctx, *, info):
+        """**Usage**: `!loc removenote type (stop/gym), name`
+        **Alias**: `rn`, `dn`
+        Remove any existing note provided from the location provided."""
+        channel = ctx.channel
+        message = ctx.message
+        guild = ctx.guild
+        name = await self._note_helper(ctx, info)
+        if name is None:
+            return await message.add_reaction(self.bot.failed_react)
+        try:
+            locationresult = (LocationTable
+                              .get((LocationTable.guild == guild.id) &
+                                   (LocationTable.name == name)))
+            current_note = LocationNoteTable.get(location_id=locationresult.id)
+            current_note.delete_instance()
+            await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
+                                                   description=f"Successfully removed note from {name}."),
+                               delete_after=12)
+            return await message.add_reaction(self.bot.success_react)
+
+        except:
+            await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
+                                                   description=f"Failed to remove note from {name}."),
+                               delete_after=12)
+        return await message.add_reaction(self.bot.failed_react)
+
+    async def _note_helper(self, ctx, info):
+        channel = ctx.channel
+        message = ctx.message
+        author = message.author
+        info = [x.strip() for x in info.split(',')]
+        stop, gym, name = None, None, None
+        if len(info) < 2:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, "
+                                      f"error: Insufficient info: {info}.")
+            await channel.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description=f"Please provide (comma separated) the location type (stop or gym), "
+                            f"name of the Pokestop or gym, and the note you would like to add."),
+                delete_after=12)
+            return None
+        if info[0].lower() == "stop":
+            stops = self._get_stops(ctx.guild.id, None)
+            stop = await self._location_match_prompt(channel, author.id, info[1], stops)
+            if stop is not None:
+                name = stop.name
+        elif info[0].lower() == "gym":
+            gyms = self._get_gyms(ctx.guild.id, None)
+            gym = await self._location_match_prompt(channel, author.id, info[1], gyms)
+            if gym is not None:
+                name = gym.name
+        if name is None:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, "
+                                      f"error: No {info[0]} found with name: {info[1]}.")
+            await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
+                                                   description=f"No {info[0]} found with name {info[1]}."),
+                               delete_after=12)
+            return None
+        return name
 
     @staticmethod
     async def delete_location(ctx, location_type, name):
