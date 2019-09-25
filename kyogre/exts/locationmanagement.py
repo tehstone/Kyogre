@@ -285,8 +285,11 @@ class LocationManagement(commands.Cog):
             locationresult = (LocationTable
                               .get((LocationTable.guild == guild.id) &
                                    (LocationTable.name == name)))
-            current_note = LocationNoteTable.get(location_id=locationresult.id)
-            current_note.delete_instance()
+            try:
+                current_note = LocationNoteTable.get(location_id=locationresult.id)
+                current_note.delete_instance()
+            except:
+                pass
             LocationNoteTable.create(location_id=locationresult.id, note=location_note)
             await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
                                                    description=f"Successfully added note to {name}."),
