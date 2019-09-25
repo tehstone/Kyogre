@@ -73,14 +73,14 @@ sudo apt-get install git
 
 ## **`Required Python Packages`**
 
-Linux:
 Copy the `requirements.txt` file from this repo to a local directory and install the listed requirements.
 ```bash
 python3 -m pip install -r requirements.txt
 ```
 
 Then Install APSW:
-```pip install --user https://github.com/rogerbinns/apsw/releases/download/3.27.2-r1/apsw-3.27.2-r1.zip \
+```
+pip install --user https://github.com/rogerbinns/apsw/releases/download/3.27.2-r1/apsw-3.27.2-r1.zip \
 --global-option=fetch --global-option=--version --global-option=3.27.2 --global-option=--all \
 --global-option=build --global-option=--enable-all-extensions
 ```
