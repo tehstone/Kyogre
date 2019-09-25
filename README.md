@@ -73,22 +73,20 @@ sudo apt-get install git
 
 ## **`Required Python Packages`**
 
-Linux:
+Copy the `requirements.txt` file from this repo to a local directory and install the listed requirements.
 ```bash
-python3 -m pip install "requests>=2.18.4" "hastebin.py>=0.2" "python-dateutil>=2.6.1" "fuzzywuzzy>=0.15.1" "dateparser>=0.6.0"
+python3 -m pip install -r requirements.txt
 ```
 
-## **`Optional Python Packages`**
-
-`python-Levenshtein` is an optional package that increases the speed of fuzzy matching strings, which we use for matching up pokemon names, gym names and possibly other things in future. It also removes the `Using slow pure-python SequenceMatcher` warning emitted from the `fuzzywuzzy` python package, which can otherwise be ignored.
-
-```bash
-python3 -m pip install python-Levenshtein
+Then Install APSW:
+```
+pip install --user https://github.com/rogerbinns/apsw/releases/download/3.27.2-r1/apsw-3.27.2-r1.zip \
+--global-option=fetch --global-option=--version --global-option=3.27.2 --global-option=--all \
+--global-option=build --global-option=--enable-all-extensions
 ```
 
-The above may not be supported on all systems. You can sometimes find a suitable wheel [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#python-levenshtein) to install with, or you may have to look around for details suitable for your specific system.
 
-## **`Meowth`**
+## **`Kyogre`**
 
 1. Create a Bot user in the [Discord Developers panel](https://discordapp.com/developers/applications/me):
    - Click `New App`
@@ -122,7 +120,7 @@ The above may not be supported on all systems. You can sometimes find a suitable
 1. Run the launcher from the command prompt or terminal window:  
    `python3 launcher.py`
 
-   If successful, it should send "Meowth! That's right!" as well as basic info on startup.
+   If successful, it should send "Starting up..." as well as basic info on startup.
 
 1. Simply type `!configure` in your server to start the configuration process as normal.
 
@@ -130,22 +128,22 @@ The above may not be supported on all systems. You can sometimes find a suitable
 ### Arguments
 ```
   --help, -h           Show the help message
-  --auto-restart, -r   Auto-Restarts Meowth in case of a crash.
+  --auto-restart, -r   Auto-Restarts Kyogre in case of a crash.
   --debug, -d          Prevents output being sent to Discord DM, as restarting
                        could occur often.
 ```
 
-### Launch Meowth normally
+### Launch Kyogre normally
 ```bash
 python3 launcher.py
 ```
 
-### Launch Meowth in debug mode if working on code changes
+### Launch Kyogre in debug mode if working on code changes
 ```bash
 python3 launcher.py -d
 ```
 
-### Launch Meowth with Auto-Restart
+### Launch Kyogre with Auto-Restart
 ```bash
 python3 launcher.py -r
 ```
