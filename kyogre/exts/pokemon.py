@@ -289,7 +289,7 @@ class Pokemon():
         """
         types_eff = {}
         for t, v in self.type_effects.items():
-            if round(v, 3) >= 1:
+            if round(v, 3) > 1:
                 types_eff[t] = v
         return types_eff
 
@@ -300,7 +300,7 @@ class Pokemon():
         """
         types_eff = {}
         for t, v in self.type_effects.items():
-            if round(v, 3) <= -1:
+            if round(v, 3) < -1:
                 types_eff[t] = v
         return types_eff
 
