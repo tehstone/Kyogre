@@ -1,5 +1,6 @@
 boss_cp_chart = {
 	"deoxys": "**CP Range:** 1,372-1,474\n **Boosted:** 1,716-1,842",
+	"giratina": "**CP Range:** 1,848-1931\n **Boosted:** 2,310-2,414",
 	"palkia": "**CP Range:** 2,190-2,280\n **Boosted:** 2,737-2,850",
 	"marowak": "**CP Range:** 988-1,014\n **Boosted:** 1,235-1,311",
 	"togetic": "**CP Range:** 917-976\n **Boosted:** 1,147-1,220",
