@@ -1,9 +1,12 @@
 import json
 import re
+import requests
+from bs4 import BeautifulSoup
 from discord.ext import commands
 
 from kyogre import checks
 from kyogre.exts.pokemon import Pokemon
+
 
 class RaidDataHandler(commands.Cog):
     """Raid Data Loading and Saving Test Cog."""
@@ -15,7 +18,8 @@ class RaidDataHandler(commands.Cog):
     def __local_check(self, ctx):
         return checks.is_owner_check(ctx) or checks.is_dev_check(ctx)
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, aliases=['rd'])
+    @commands.has_permissions(manage_roles=True)
     async def raiddata(self, ctx, level=None):
         """Show all raid Pokemon, showing only the raid level if provided."""
         data = []
@@ -140,6 +144,9 @@ class RaidDataHandler(commands.Cog):
 
         Example: !raiddata replace 3 Mr Mime, Jynx, Alolan Raichu
         """
+        return await self._replace_rd(ctx, level, raid_pokemon)
+
+    async def _replace_rd(self, ctx, level, raid_pokemon):
         if level not in self.raid_info['raid_eggs'].keys():
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Invalid raid level.")
             return await ctx.send("Invalid raid level specified.")
@@ -168,6 +175,9 @@ class RaidDataHandler(commands.Cog):
 
     @raiddata.command(name='save', aliases=['commit'])
     async def save_rd(self, ctx):
+        return await self._save_rd(ctx)
+
+    async def _save_rd(self, ctx):
         """Saves the current raid data state to the json file."""
         for pkmn_lvl in self.raid_info['raid_eggs']:
             data = self.raid_info['raid_eggs'][pkmn_lvl]["pokemon"]
@@ -176,7 +186,58 @@ class RaidDataHandler(commands.Cog):
 
         with open(ctx.bot.raid_json_path, 'w') as fd:
             json.dump(self.raid_info, fd, indent=4)
-        await ctx.message.add_reaction('\u2705')
+        return await ctx.message.add_reaction('\u2705')
+
+    @raiddata.command(name='populate', aliases=['pop'])
+    async def populate_rd_from_tsr(self, ctx):
+        def walk_siblings(sib):
+            try:
+                # We've encountered another level header. Exit this loop.
+                if sib.attrs["class"] == ['raid-boss-tier-wrap']:
+                    return False
+            except:
+                pass
+            boss = None
+            try:
+                boss = sib.find('div', attrs={'class': 'pokemonOption'})
+            except:
+                pass
+            if boss:
+                poke = boss.attrs['data-pokemon-slug']
+                if '-' in poke:
+                    poke = poke.replace('alola', 'alolan')
+                    poke_split = poke.split('-')[::-1]
+                    poke = ' '.join(poke_split)
+                return poke
+
+        task_page = "https://thesilphroad.com/raid-bosses"
+        await ctx.send(f"Connecting to <{task_page}> to update raid boss list.")
+        page = requests.get(task_page)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        # This will pull all tier headers to walk through.
+        # The headers are at the same hierarchy level as the actual raids
+        # so walking through siblings will encounter both.
+        tiers = soup.findAll('div', attrs={'class': 'raid-boss-tier-wrap'})
+        for tier in tiers:
+            tier_str = tier.find('h4')
+            if 'EX' in tier_str.string:
+                level = 'EX'
+            else:
+                level = tier_str.string.split(' ')[1]
+            raid_pokemon = []
+            for sibling in tier.next_siblings:
+                result = walk_siblings(sibling)
+                if result:
+                    raid_pokemon.append(result)
+                # If result is false, it means we encountered a header.
+                # Break the inner loop and save the current Pokemon list
+                # to the current level.
+                if result == False:
+                    break
+            await self._replace_rd(ctx, level, ', '.join(raid_pokemon))
+        await self._save_rd(ctx)
+        await ctx.send("Finished updating raid boss list.")
+
 
 def setup(bot):
     bot.add_cog(RaidDataHandler(bot))

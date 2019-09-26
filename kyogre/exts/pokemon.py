@@ -73,7 +73,8 @@ class Pokemon():
         'spring', 'summer', 'autumn', 'winter',
         'standard', 'zen',
         'red', 'blue',
-        'heat', 'wash', 'frost', 'fan', 'mow'
+        'heat', 'wash', 'frost', 'fan', 'mow',
+        'altered', 'origin'
 
     ]
     _stat_forms = [
@@ -102,7 +103,8 @@ class Pokemon():
         'basculin': ['red', 'blue'],
         'darmanitan': ['standard', 'zen'],
         'deerling': ['spring', 'summer', 'autumn', 'winter'],
-        'sawsbuck': ['spring', 'summer', 'autumn', 'winter']
+        'sawsbuck': ['spring', 'summer', 'autumn', 'winter'],
+        'giratina': ['altered', 'origin']
     }
 
     def __init__(self, bot, pkmn, guild=None, **attribs):
