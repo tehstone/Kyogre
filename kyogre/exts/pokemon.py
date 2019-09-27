@@ -137,6 +137,14 @@ class Pokemon():
     def get_pkmn_dict():
         return {r['name'].lower(): r for r in PokemonTable.select().where(PokemonTable.released).dicts()}
 
+    @staticmethod
+    def get_pkmn_dict_all_by_name():
+        return {r['name'].lower(): r for r in PokemonTable.select().dicts()}
+
+    @staticmethod
+    def get_pkmn_dict_all_by_id():
+        return {r['id']: r for r in PokemonTable.select().dicts()}
+
     @property
     def name(self):
         # name without cosmetic modifiers (for identifying substantive differences)
@@ -427,6 +435,7 @@ class Pokemon():
                 if mon:
                     raidlist.append(mon.name.lower())
         return raidlist
+
 
 def setup(bot):
     bot.add_cog(Pokedex(bot))

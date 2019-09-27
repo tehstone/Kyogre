@@ -17,6 +17,7 @@ import discord
 from discord.ext import commands
 
 from kyogre import checks, utils
+from kyogre.exts.db.kyogredb import PokemonTable
 from kyogre.exts.pokemon import Pokemon
 
 
@@ -579,6 +580,45 @@ class AdminCommands(commands.Cog):
         listmgmt_cog = self.bot.cogs.get('ListManagement')
         await listmgmt_cog.update_listing_channels(ctx.guild, list_type, edit=True, regions=regions)
         await ctx.message.add_reaction('\u2705')
+
+    @commands.command(name="mark_released", aliases=["mr"], hidden=True)
+    @commands.has_permissions(manage_guild=True)
+    async def _mark_released(self, ctx, pokemon):
+        return await self._mark_helper(ctx, pokemon, "released")
+
+    @commands.command(name="mark_shiny", aliases=["ms"], hidden=True)
+    @commands.has_permissions(manage_guild=True)
+    async def _mark_shiny(self, ctx, pokemon):
+        return await self._mark_helper(ctx, pokemon, "shiny")
+
+    async def _mark_helper(self, ctx, pokemon, attr):
+        all_by_name = Pokemon.get_pkmn_dict_all_by_name()
+        poke_instance = None
+        try:
+            pokemon = int(pokemon)
+            poke_instance = PokemonTable[pokemon]
+        except (ValueError, IndexError, Exception):
+            try:
+                poke_instance = PokemonTable[all_by_name[pokemon]["id"]]
+            except KeyError:
+                pass
+        if poke_instance:
+            if attr == "shiny":
+                poke_instance.shiny = True
+            elif attr == "released":
+                poke_instance.released = True
+            poke_instance.save()
+        else:
+            await ctx.channel.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description=f"Could not find Pokemon {pokemon}."),
+                delete_after=12)
+            return await ctx.message.add_reaction(self.bot.failed_react)
+        await ctx.channel.send(embed=discord.Embed(
+            colour=discord.Colour.green(),
+            description=f"Successfully marked {pokemon} as {attr}."),
+            delete_after=12)
+        return await ctx.message.add_reaction(self.bot.success_react)
 
 
 def setup(bot):
