@@ -84,7 +84,7 @@ class Utilities(commands.Cog):
         return f'http://maps.apple.com/maps?daddr={lat},{long}'
 
     @staticmethod
-    def create_gmaps_query(lat, long):
+    def create_simple_gmaps_query(lat, long):
         return f'https://www.google.com/maps/search/?api=1&query={lat},{long}'
 
     @staticmethod
