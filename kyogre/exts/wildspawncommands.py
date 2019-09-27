@@ -31,7 +31,7 @@ class WildSpawnCommands(commands.Cog):
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         timestamp = (message.created_at +
                      datetime.timedelta(hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset']))\
-                    .strftime('%I:%M %p (%H:%M)')
+            .strftime('%I:%M %p (%H:%M)')
         if len(content.split()) <= 1:
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient wild report info provided.")
             return await channel.send(
@@ -62,26 +62,37 @@ class WildSpawnCommands(commands.Cog):
             entered_wild, entered_wild, wild_details = content.split(' ', 2)
         else:
             wild_details = re.sub(pkmn.name.lower(), '', content, flags=re.I)
+        coords_regex = r'-*[0-9]+\.[0-9]+,\S*-*[0-9]+\.[0-9]+'
+        matches = re.search(coords_regex, wild_details)
         wild_gmaps_link = None
-        locations = location_matching_cog.get_all(guild.id, channel_regions)
-        location_id = None
-        if locations and not ('http' in wild_details or '/maps' in wild_details):
-            location = await location_matching_cog.match_prompt(channel, author.id, location, locations)
-            if location:
-                wild_gmaps_link = location.maps_url
-                wild_details = location.name
-                location_id = location.id
-        if wild_gmaps_link is None:
-            if 'http' in wild_details or '/maps' in wild_details:
-                wild_gmaps_link = utilities_cog.create_gmaps_query(wild_details, channel, type="wild")
-                wild_details = 'Custom Map Pin'
+        if matches:
+            if ',' in matches[0]:
+                lat, lng = matches[0].split(',')
             else:
-                self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Invalid location provided.")
-                return await channel.send(
-                    embed=discord.Embed(
-                        colour=discord.Colour.red(),
-                        description="Please use the name of an existing pokestop or gym, "
-                                    "or include a valid Google Maps link."))
+                lat, lng = matches[0].split(' ')
+            utils_cog = self.bot.cogs.get('Utilities')
+            wild_gmaps_link = utils_cog.create_gmaps_query(lat, lng)
+            wild_details = 'Custom Map Pin'
+        else:
+            locations = location_matching_cog.get_all(guild.id, channel_regions)
+            location_id = None
+            if locations and not ('http' in wild_details or '/maps' in wild_details):
+                location = await location_matching_cog.match_prompt(channel, author.id, location, locations)
+                if location:
+                    wild_gmaps_link = location.maps_url
+                    wild_details = location.name
+                    location_id = location.id
+            if wild_gmaps_link is None:
+                if 'http' in wild_details or '/maps' in wild_details:
+                    wild_gmaps_link = utilities_cog.create_gmaps_query(wild_details, channel, type="wild")
+                    wild_details = 'Custom Map Pin'
+                else:
+                    self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Invalid location provided.")
+                    return await channel.send(
+                        embed=discord.Embed(
+                            colour=discord.Colour.red(),
+                            description="Please use the name of an existing pokestop or gym, "
+                                        "or include a valid Google Maps link."))
 
         wild_embed = discord.Embed(title='Click here for my directions to the wild {perfect}{pokemon}!'
                                    .format(pokemon=pkmn.full_name,

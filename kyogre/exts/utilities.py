@@ -84,6 +84,10 @@ class Utilities(commands.Cog):
         return f'http://maps.apple.com/maps?daddr={lat},{long}'
 
     @staticmethod
+    def create_gmaps_query(lat, long):
+        return f'https://www.google.com/maps/search/?api=1&query={lat},{long}'
+
+    @staticmethod
     async def reaction_delay(message, reacts, delay=0.25):
         for r in reacts:
             await asyncio.sleep(delay)
