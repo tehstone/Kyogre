@@ -1,8 +1,10 @@
 boss_cp_chart = {
 	"deoxys": "**CP Range:** 1,372-1,474\n **Boosted:** 1,716-1,842",
+	"mewtwo": "**CP Range:** 2,294-2,387\n **Boosted:** 2,868-2,984",
 	"giratina": "**CP Range:** 1,848-1931\n **Boosted:** 2,310-2,414",
 	"palkia": "**CP Range:** 2,190-2,280\n **Boosted:** 2,737-2,850",
-	"marowak": "**CP Range:** 988-1,014\n **Boosted:** 1,235-1,311",
+	"marowak": "**CP Range:** 988-1,048\n **Boosted:** 1,235-1,311",
+	"dragonite": "**CP Range:** 2,079-2,167\n **Boosted:** 2,599-2,709",
 	"togetic": "**CP Range:** 917-976\n **Boosted:** 1,147-1,220",
 	"ursaring": "**CP Range:** 1,604-1,682\n **Boosted:** 2,006-2,103",
 	"tyranitar": "**CP Range:** 2,103-2,191\n **Boosted:** 2,629-2,739",
@@ -31,7 +33,7 @@ boss_cp_chart = {
 	"porygon": "**CP Range:** 924-982\n **Boosted:** 1,155-1,228",
 	"vaporeon": "**CP Range:** 1,699-1,779\n **Boosted:** 2,124-2,225",
 	"raichu": "**CP Range:** 1,238-1,306\n **Boosted:** 1,548-1,633",
-	"gengar": "**CP Range:** 1,566-1,644\n **Boosted:** 1,958-2,056",
+	"gengar": "**CP Range:** 1,566-1,644\n **Boosted:** 1,958-2,055",
 	"espeon": "**CP Range:** 1,730-1,811\n **Boosted:** 2,162-2,264",
 	"arcanine": "**CP Range:** 1,652-1,731\n **Boosted:** 2,066-2,164",
 	"aerodactyl": "**CP Range:** 1,515-1,590\n **Boosted:** 1,894-1,988",
@@ -59,4 +61,5 @@ boss_cp_chart = {
 	"feebas": "**CP Range:** 132-157\n **Boosted:** 165-196",
 	"shinx": "**CP Range:** 458-500\n **Boosted:** 572-625",
 	"buizel": "**CP Range:** 555-602\n **Boosted:** 694-753",
+	"klink": "**CP Range:** 502-546\n **Boosted:** 628-683",
 }
