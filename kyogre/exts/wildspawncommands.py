@@ -71,7 +71,7 @@ class WildSpawnCommands(commands.Cog):
             else:
                 lat, lng = matches[0].split(' ')
             utils_cog = self.bot.cogs.get('Utilities')
-            wild_gmaps_link = utils_cog.create_gmaps_query(lat, lng)
+            wild_gmaps_link = utils_cog.create_simple_gmaps_query(lat, lng)
             wild_details = 'Custom Map Pin'
         else:
             locations = location_matching_cog.get_all(guild.id, channel_regions)
