@@ -57,7 +57,7 @@ On install, ensure the following:
  - `Use Git from the Windows Command Prompt` is selected in the PATH adjustment step.
  - `Checkout as-is, commit Unix-style line endings` is selected in the line ending config step.
  
- ### Linux
+### Linux
 
 First check if it's already installed with:
 ```bash
@@ -70,8 +70,19 @@ For Debian and Ubuntu, it would usually be:
 ```bash
 sudo apt-get install git
 ```
+### Clone this repository
+ 
+After installing Git:
+```bash
+git clone https://github.com/tehstone/Kyogre.git
+```
 
 ## **`Required Python Packages`**
+
+Install pip.
+```bash
+sudo apt-get install python3-pip
+```
 
 Copy the `requirements.txt` file from this repo to a local directory and install the listed requirements.
 ```bash
@@ -79,12 +90,11 @@ python3 -m pip install -r requirements.txt
 ```
 
 Then Install APSW:
-```
-pip install --user https://github.com/rogerbinns/apsw/releases/download/3.27.2-r1/apsw-3.27.2-r1.zip \
+```bash
+python3 -m pip install --user https://github.com/rogerbinns/apsw/releases/download/3.27.2-r1/apsw-3.27.2-r1.zip \
 --global-option=fetch --global-option=--version --global-option=3.27.2 --global-option=--all \
 --global-option=build --global-option=--enable-all-extensions
 ```
-
 
 ## **`Kyogre`**
 
