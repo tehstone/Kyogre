@@ -248,7 +248,8 @@ class ResearchCommands(commands.Cog):
         created = round(message.created_at.timestamp())
         __, __ = GuildTable.get_or_create(snowflake=guild.id)
         __, __ = TrainerTable.get_or_create(snowflake=author.id, guild=guild.id)
-        report = TrainerReportRelation.create(created=created, trainer=author.id,
+        report = TrainerReportRelation.create(guild=ctx.guild.id,
+                                              created=created, trainer=author.id,
                                               location=quest_dict['location_id'], message=message.id)
         try:
             ResearchTable.create(trainer_report=report, quest=quest_dict['quest_id'], reward=quest_dict['reward'])

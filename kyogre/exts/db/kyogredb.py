@@ -236,6 +236,7 @@ class GymTable(BaseModel):
 
 
 class TrainerReportRelation(BaseModel):
+    guild = ForeignKeyField(GuildTable, field=GuildTable.snowflake, backref='reports', index=True)
     id = AutoField()
     created = BigIntegerField(index=True)
     trainer = BigIntegerField(index=True)
@@ -376,6 +377,7 @@ class RaidBossRelation(BaseModel):
 
 
 class SubscriptionTable(BaseModel):
+    guild = ForeignKeyField(GuildTable, field=GuildTable.snowflake, backref='events', index=True)
     trainer = BigIntegerField(index=True)
     type = TextField(index=True)
     target = TextField(index=True)
@@ -386,6 +388,7 @@ class SubscriptionTable(BaseModel):
 
 
 class TopSubsTable(BaseModel):
+    guild = ForeignKeyField(GuildTable, field=GuildTable.snowflake, backref='events', index=True)
     pokemon = TextField(index=True)
     type = TextField()
     count = IntegerField()

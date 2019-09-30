@@ -1086,7 +1086,7 @@ class RaidCommands(commands.Cog):
                 elif raid_dict['type'] == 'raid':
                     expire_time = round(raid_dict['exp'])
                     hatch_time = round(raid_dict['exp']) - 2700
-        report = TrainerReportRelation.create(created=created, trainer=author.id, location=gym.id)
+        report = TrainerReportRelation.create(guild=ctx.guild.id, created=created, trainer=author.id, location=gym.id)
         try:
             RaidTable.create(trainer_report=report, level=level, pokemon=pokemon, hatch_time=hatch_time,
                              expire_time=expire_time, channel=raid_channel.id, weather=weather)

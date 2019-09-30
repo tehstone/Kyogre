@@ -29,7 +29,7 @@ class Faves(commands.Cog):
                        'wild': {}}
         # get the count of all subs for these 3 categories
         for sub_type in ['research', 'wild', 'pokemon']:
-            results[sub_type] = self._get_top_subs_per_type([sub_type])
+            results[sub_type] = self._get_top_subs_per_type(guild.id, [sub_type])
         # preload the outgoing results with research and wild counts
         for sub_type in ['research', 'wild']:
             for r in results[sub_type]:
@@ -50,7 +50,7 @@ class Faves(commands.Cog):
         out_results['research'] = sorted(out_results['research'].items(), key=lambda t: t[1], reverse=True)[:limit]
         out_results['wild'] = sorted(out_results['wild'].items(), key=lambda t: t[1], reverse=True)[:limit]
         # Update the top subs table used to count personal stats when a report is made
-        self._update_top_subs_table(out_results)
+        self._update_top_subs_table(guild.id, out_results)
         # build the final leaderboard message
         leaderboard_str = '**The following lists are the most popular Subscriptions per type**\n'
         leaderboard_str += self._build_category_list(out_results, 'wild', '\n**Wild Spawns**\n')
@@ -81,9 +81,10 @@ class Faves(commands.Cog):
         return leaderboard_str
 
     @staticmethod
-    def _get_top_subs_per_type(sub_type=None, count=0):
+    def _get_top_subs_per_type(guild_id, sub_type=None, count=0):
         result = (SubscriptionTable
                   .select(SubscriptionTable.target, fn.Count(SubscriptionTable.target).alias('count'))
+                  .where(SubscriptionTable.guild_id == guild_id)
                   .group_by(SubscriptionTable.target)
                   .order_by(SQL('count').desc())
                   .limit(count)
@@ -92,26 +93,28 @@ class Faves(commands.Cog):
             return result
         return result.where(SubscriptionTable.type << sub_type)
 
-    def _update_top_subs_table(self, out_results):
+    def _update_top_subs_table(self, guild_id, out_results):
         try:
             # First clear out previous entries
-            TopSubsTable.delete().execute()
+            TopSubsTable.delete().where(TopSubsTable.guild_id == guild_id).execute()
             data = []
             # Build data set from new entries
             for key in out_results.keys():
-                [data.append((i[0], key, i[1])) for i in out_results[key]]
+                [data.append((guild_id, i[0], key, i[1])) for i in out_results[key]]
             # Push data to db
-            TopSubsTable.insert_many(data, fields=[TopSubsTable.pokemon, TopSubsTable.type, TopSubsTable.count])\
+            TopSubsTable.insert_many(data, fields=[TopSubsTable.guild_id, TopSubsTable.pokemon,
+                                                   TopSubsTable.type, TopSubsTable.count])\
                 .execute()
         except Exception as e:
             self.bot.logger.info(f"Failed to update Top Subs Table with error: {e}")
 
     @staticmethod
-    def get_report_points(pokemon_list, report_type):
+    def get_report_points(guild_id, pokemon_list, report_type):
         pokemon_list = [p.name.capitalize() for p in pokemon_list]
         points = 1
         result = (TopSubsTable
                   .select(TopSubsTable.pokemon, TopSubsTable.count)
+                  .where(TopSubsTable.guild_id == guild_id)
                   .where(TopSubsTable.type == report_type.lower())
                   .where(TopSubsTable.pokemon << pokemon_list))
         for r in result:

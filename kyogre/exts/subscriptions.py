@@ -331,7 +331,8 @@ class Subscriptions(commands.Cog):
             if len(sub) > 3:
                 spec = sub[3]
                 try:
-                    result, __ = SubscriptionTable.get_or_create(trainer=trainer, type=s_type, target=s_target)
+                    result, __ = SubscriptionTable.get_or_create(guild_id=ctx.guild.id, trainer=trainer,
+                                                                 type=s_type, target=s_target)
                     current_gym_ids = result.specific
                     split_ids = []
                     if current_gym_ids:
@@ -352,7 +353,7 @@ class Subscriptions(commands.Cog):
                     error_list.append(s_entry)
             else:
                 try:
-                    SubscriptionTable.create(trainer=trainer, type=s_type, target=s_target)
+                    SubscriptionTable.create(guild_id=ctx.guild.id, trainer=trainer, type=s_type, target=s_target)
                     sub_list.append(s_entry)
                 except IntegrityError:
                     existing_list.append(s_entry)
@@ -430,7 +431,8 @@ class Subscriptions(commands.Cog):
             if target == 'all':
                 try:
                     remove_count = SubscriptionTable.delete()\
-                        .where((SubscriptionTable.trainer << trainer_query)).execute()
+                        .where((SubscriptionTable.trainer << trainer_query) &
+                               (SubscriptionTable.guild_id == ctx.guild.id)).execute()
                     message = f'I removed your {remove_count} subscriptions!'
                 except:
                     message = 'I was unable to remove your subscriptions!'
@@ -466,7 +468,8 @@ class Subscriptions(commands.Cog):
             if len(sub) > 3:
                 spec = sub[3]
                 try:
-                    result, __ = SubscriptionTable.get_or_create(trainer=trainer, type='gym', target=s_target)
+                    result, __ = SubscriptionTable.get_or_create(guild_id=ctx.guild.id, trainer=trainer,
+                                                                 type='gym', target=s_target)
                     current_gym_ids = result.specific
                     split_ids = []
                     if current_gym_ids:
@@ -491,16 +494,19 @@ class Subscriptions(commands.Cog):
                     if s_type == 'all':
                         remove_count += SubscriptionTable.delete().where(
                             (SubscriptionTable.trainer << trainer_query) &
-                            (SubscriptionTable.target == s_target)).execute()
+                            (SubscriptionTable.target == s_target) &
+                            (SubscriptionTable.guild_id == ctx.guild.id)).execute()
                     elif s_target == 'all':
                         remove_count += SubscriptionTable.delete().where(
                             (SubscriptionTable.trainer << trainer_query) &
-                            (SubscriptionTable.type == s_type)).execute()
+                            (SubscriptionTable.type == s_type) &
+                            (SubscriptionTable.guild_id == ctx.guild.id)).execute()
                     else:
                         remove_count += SubscriptionTable.delete().where(
                             (SubscriptionTable.trainer << trainer_query) &
                             (SubscriptionTable.type == s_type) &
-                            (SubscriptionTable.target == s_target)).execute()
+                            (SubscriptionTable.target == s_target) &
+                            (SubscriptionTable.guild_id == ctx.guild.id)).execute()
                     if remove_count > 0:
                         remove_list.append(s_entry)
                     else:
@@ -585,7 +591,8 @@ class Subscriptions(commands.Cog):
                    .select(SubscriptionTable.type, SubscriptionTable.target, SubscriptionTable.specific)
                    .join(TrainerTable, on=(SubscriptionTable.trainer == TrainerTable.snowflake))
                    .where(SubscriptionTable.trainer == ctx.author.id)
-                   .where(TrainerTable.guild == ctx.guild.id))
+                   .where(TrainerTable.guild == ctx.guild.id)
+                   .where(SubscriptionTable.guild_id == ctx.guild.id))
         if len(types) > 0:
             results = results.where(SubscriptionTable.type << types)
         results = results.execute()
@@ -682,7 +689,8 @@ class Subscriptions(commands.Cog):
                        .select(SubscriptionTable.type, SubscriptionTable.target)
                        .join(TrainerTable, on=(SubscriptionTable.trainer == TrainerTable.snowflake))
                        .where(SubscriptionTable.trainer == trainerid)
-                       .where(TrainerTable.guild == ctx.guild.id))
+                       .where(TrainerTable.guild == ctx.guild.id)
+                       .where(SubscriptionTable.guild_id == ctx.guild.id))
 
             results = results.execute()
             subscription_msg = ''
@@ -743,7 +751,8 @@ class Subscriptions(commands.Cog):
                        .where((SubscriptionTable.type == notification_type) |
                               (SubscriptionTable.type == 'pokemon') |
                               (SubscriptionTable.type == 'gym'))
-                       .where(TrainerTable.guild == guild.id)).execute()
+                       .where(TrainerTable.guild == guild.id)
+                       .where(SubscriptionTable.guild_id == guild.id)).execute()
         except:
             return
         # group targets by trainer
@@ -875,7 +884,7 @@ class Subscriptions(commands.Cog):
         # starting to hit rate limit for role creation so explicitly mentioning all trainers in the meantime
         await self.notify_all_async(new_channel, outbound_dict)
         faves_cog = self.bot.cogs.get('Faves')
-        return faves_cog.get_report_points(pokemon_list, notification_type)
+        return faves_cog.get_report_points(guild.id, pokemon_list, notification_type)
         #return await self.generate_role_notification_async(role_name, new_channel, outbound_dict)
 
     @staticmethod

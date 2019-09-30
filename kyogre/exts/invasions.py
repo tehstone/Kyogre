@@ -63,7 +63,8 @@ class Invasions(commands.Cog):
                 img_url = pkmn.img_url
                 img_url = img_url.replace('007_', '007normal_')
                 img_url = img_url.replace('025_', '025normal_')
-        report = TrainerReportRelation.create(created=report_time_int, trainer=author.id, location=stop.id)
+        report = TrainerReportRelation.create(guild=ctx.guild.id,
+                                              created=report_time_int, trainer=author.id, location=stop.id)
         invasion = InvasionTable.create(trainer_report=report, pokemon_number=pkmnid)
         desc = f"**Pokestop**: {stop.name}"
         if pokemon_name is None:

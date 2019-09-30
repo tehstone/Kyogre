@@ -55,7 +55,8 @@ class LureCommands(commands.Cog):
                     embed=discord.Embed(colour=discord.Colour.red(),
                                         description="Unable to find that Pokestop. "
                                                     "Please check the name and try again!"))
-        report = TrainerReportRelation.create(created=report_time_int, trainer=author.id, location=stop.id)
+        report = TrainerReportRelation.create(guild=ctx.guild.id,
+                                              created=report_time_int, trainer=author.id, location=stop.id)
         lure = LureTable.create(trainer_report=report)
         LureTypeRelation.create(lure=lure, type=luretype)
         lure_embed = discord.Embed(

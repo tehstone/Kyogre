@@ -234,7 +234,8 @@ class WildSpawnCommands(commands.Cog):
         created = round(message.created_at.timestamp())
         __, __ = GuildTable.get_or_create(snowflake=guild.id)
         __, __ = TrainerTable.get_or_create(snowflake=author.id, guild=guild.id)
-        report = TrainerReportRelation.create(created=created, trainer=author.id,
+        report = TrainerReportRelation.create(guild=ctx.guild.id,
+                                              created=created, trainer=author.id,
                                               location=wild_dict['location_id'], message=message.id)
         try:
             SightingTable.create(trainer_report=report, pokemon=wild_dict['pokemon_id'])
