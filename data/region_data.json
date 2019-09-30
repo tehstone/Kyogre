@@ -1,10 +1,6 @@
 [
     {
-        "name": "renton",
-        "guild": "521087630885126187"
-    },
-    {
-        "name": "tukwila",
-        "guild": "521087630885126187"
+        "name": "region_name",
+        "guild": "guild_id"
     }
 ]

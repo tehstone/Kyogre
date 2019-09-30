@@ -251,10 +251,9 @@ class LocationManagement(commands.Cog):
         channel = ctx.channel
         message = ctx.message
         guild = ctx.guild
-        name = await self._note_helper(ctx, info)
+        name, location_note = await self._note_helper(ctx, info)
         if name is None:
             return await message.add_reaction(self.bot.failed_react)
-        location_note = ','.join(info[2:])
         try:
             locationresult = (LocationTable
                               .get((LocationTable.guild == guild.id) &
@@ -284,7 +283,7 @@ class LocationManagement(commands.Cog):
         channel = ctx.channel
         message = ctx.message
         guild = ctx.guild
-        name = await self._note_helper(ctx, info)
+        name, note = await self._note_helper(ctx, info)
         if name is None:
             return await message.add_reaction(self.bot.failed_react)
         try:
@@ -336,7 +335,8 @@ class LocationManagement(commands.Cog):
                                                    description=f"No {info[0]} found with name {info[1]}."),
                                delete_after=12)
             return None
-        return name
+        location_note = ', '.join(info[2:])
+        return name, location_note
 
     @staticmethod
     async def delete_location(ctx, location_type, name):
