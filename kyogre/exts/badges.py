@@ -57,7 +57,8 @@ class Badges(commands.Cog):
                 if info[3].lower() == 'false' or info[3].lower() == 'no':
                     create_in_pokenav = False
         try:
-            new_badge, __ = BadgeTable.get_or_create(name=badge_name, description=badge_desc,
+            new_badge, __ = BadgeTable.get_or_create(guild=ctx.guild.id,
+                                                     name=badge_name, description=badge_desc,
                                                      emoji=badge_emoji.id, active=True)
             if new_badge:
                 send_emoji = self.bot.get_emoji(badge_emoji.id)
@@ -89,21 +90,18 @@ class Badges(commands.Cog):
         Available badges are listed with the `avb` command, unavailable badges are only displayed for trainers who have
         earned them.
         """
-        updated = BadgeTable.update(active=~BadgeTable.active).where(BadgeTable.id == badge_id).execute()
-        result = BadgeTable.select(BadgeTable.name, BadgeTable.active).where(BadgeTable.id == badge_id)
-        if updated == 0:
-            message = "No badge found by that id."
+        badge_to_update = BadgeTable.get(BadgeTable.id == badge_id)
+        if badge_to_update.guild_id != ctx.guild.id:
+            message = f"No badge found with id {badge_id} found on this server."
             colour = discord.Colour.red()
             reaction = self.bot.failed_react
-        elif updated == 1:
-            av = "available" if result[0].active else "unavailable"
-            message = f"**{result[0].name}** is now *{av}*."
+        else:
+            badge_to_update.active = not badge_to_update.active
+            badge_to_update.save()
+            av = "available" if badge_to_update.active else "unavailable"
+            message = f"**{badge_to_update.name}** is now *{av}*."
             colour = discord.Colour.green()
             reaction = self.bot.success_react
-        else:
-            message = "Something went wrong."
-            colour = discord.Colour.red()
-            reaction = self.bot.failed_react
         await ctx.message.add_reaction(reaction)
         await ctx.send(embed=discord.Embed(colour=colour, description=message))
 
@@ -120,6 +118,7 @@ class Badges(commands.Cog):
             self.bot.logger.error(f"Failed to pull badge assignment count for badge: {badge_id}")
             count = 0
         result = (BadgeTable.select(BadgeTable.id,
+                                    BadgeTable.guild,
                                     BadgeTable.name,
                                     BadgeTable.description,
                                     BadgeTable.emoji,
@@ -134,10 +133,13 @@ class Badges(commands.Cog):
         send_emoji = self.bot.get_emoji(badge.emoji)
         title = f"(*#{badge.id}*) {badge.name}"
         message = f"{badge.description}"
-        if badge.active:
-            footer = "This badge is currently available."
+        if badge.guild != ctx.guild.id:
+            footer = "This badge is awarded on a different server."
         else:
-            footer = "This badge is not currently available."
+            if badge.active:
+                footer = "This badge is currently available."
+            else:
+                footer = "This badge is not currently available."
         embed = discord.Embed(colour=self.bot.user.colour, title=title, description=message)
         embed.add_field(name=self.bot.empty_str, value=count_str)
         embed.set_footer(text=footer)
@@ -162,7 +164,11 @@ class Badges(commands.Cog):
         colour = discord.Colour.red()
         reaction = self.bot.failed_react
         if badge_to_give:
-            reaction, embed = await self.try_grant_badge(badge_to_give, ctx.guild.id, member.id, badge_id)
+            if badge_to_give.guild.snowflake != ctx.guild.id:
+                embed = discord.Embed(colour=colour,
+                                      description=f"No badge with id {badge_id} found on this server.")
+            else:
+                reaction, embed = await self.try_grant_badge(badge_to_give, ctx.guild.id, member.id, badge_id)
         else:
             embed = discord.Embed(colour=colour, description="Could not find a badge with that name.")
         await ctx.message.add_reaction(reaction)
@@ -174,8 +180,8 @@ class Badges(commands.Cog):
         colour = discord.Colour.red()
         reaction = self.bot.failed_react
         try:
-            guild_obj, __ = GuildTable.get_or_create(snowflake=guild_id)
-            trainer_obj, __ = TrainerTable.get_or_create(snowflake=member.id, guild=guild_id)
+            __, __ = GuildTable.get_or_create(snowflake=guild_id)
+            __, __ = TrainerTable.get_or_create(snowflake=member.id, guild=guild_id)
             new_badge, created = BadgeAssignmentTable.get_or_create(trainer=member.id, badge=badge_id)
             if new_badge:
                 if created:
@@ -207,10 +213,14 @@ class Badges(commands.Cog):
             return await ctx.send("Must provide a badge id and Role name.", delete_after=10)
         badge_to_give = BadgeTable.get(BadgeTable.id == badge_id)
         if badge_to_give:
+            if badge_to_give.guild.snowflake != ctx.guild.id:
+                await ctx.message.add_reaction(self.bot.failed_react)
+                return await ctx.channel.send(embed=discord.Embed(
+                    colour=discord.Colour.red(), description=f"No badge with id {badge_id} found on this server."))
             try:
                 trainer_ids = []
                 errored = []
-                guild_obj, __ = GuildTable.get_or_create(snowflake=ctx.guild.id)
+                __, __ = GuildTable.get_or_create(snowflake=ctx.guild.id)
                 for trainer in role.members:
                     try:
                         trainer_obj, __ = TrainerTable.get_or_create(snowflake=trainer.id, guild=ctx.guild.id)
@@ -233,10 +243,9 @@ class Badges(commands.Cog):
                 await ctx.message.add_reaction(self.bot.failed_react)
                 await ctx.message.add_reaction(self.bot.success_react)
                 return await ctx.channel.send(embed=discord.Embed(colour=colour, description=message), delete_after=12)
-            colour = discord.Colour.green()
-            message = f"Successfully granted badge to {count} trainers."
             await ctx.message.add_reaction(self.bot.success_react)
-            return await ctx.channel.send(embed=discord.Embed(colour=colour, description=message))
+            return await ctx.channel.send(embed=discord.Embed(
+                colour=discord.Colour.green(), description=f"Successfully granted badge to {count} trainers."))
 
     @commands.command(name="available_badges", aliases=['avb'])
     async def _available(self, ctx):
@@ -257,7 +266,8 @@ class Badges(commands.Cog):
                           BadgeTable.name,
                           BadgeTable.description,
                           BadgeTable.emoji,
-                          BadgeTable.active))
+                          BadgeTable.active)
+                  .where(BadgeTable.guild == ctx.guild.id))
         result = result.objects(Badge)
         if available:
             result = [r for r in result if r.active]
@@ -270,6 +280,9 @@ class Badges(commands.Cog):
                     name += " - *retired*"
             fields.append((name, f"\t\t{r.description}"))
         chunked_fields = list(utils.list_chunker(fields, 20))
+        if len(chunked_fields) < 1:
+            return await ctx.send(embed=discord.Embed(title="No badges found for this server.",
+                                                      colour=discord.Colour.purple()))
         for sub_list in chunked_fields:
             embed = discord.Embed(title=title, colour=discord.Colour.purple())
             for field in sub_list:
@@ -282,7 +295,7 @@ class Badges(commands.Cog):
         Shows all badges earned by whomever sent the command or for the user provided."""
         if not user:
             user = ctx.message.author
-        badges = self.get_badges(user.id)
+        badges = self.get_badges(ctx.guild.id, user.id)
         embed = discord.Embed(title=f"{user.display_name} has earned {len(badges)} badges", colour=user.colour)
         description = ''
         for b in badges:
@@ -291,15 +304,17 @@ class Badges(commands.Cog):
         embed.description = description
         await ctx.send(embed=embed)
 
-    def get_badge_emojis(self, user):
+    def get_badge_emojis(self, guild_id, user):
         result = (BadgeTable
                   .select(BadgeTable.emoji)
                   .join(BadgeAssignmentTable, on=(BadgeTable.id == BadgeAssignmentTable.badge_id))
-                  .where(BadgeAssignmentTable.trainer == user))
+                  .where((BadgeAssignmentTable.trainer == user) &
+                         (BadgeTable.guild_id == guild_id)))
         return [self.bot.get_emoji(r.emoji) for r in result]
 
     @staticmethod
-    def get_badges(user):
+    def get_badges(guild_id, user):
+        print(guild_id)
         result = (BadgeTable
                   .select(BadgeTable.id,
                           BadgeTable.name,
@@ -307,7 +322,8 @@ class Badges(commands.Cog):
                           BadgeTable.emoji,
                           BadgeTable.active)
                   .join(BadgeAssignmentTable, on=(BadgeTable.id == BadgeAssignmentTable.badge_id))
-                  .where(BadgeAssignmentTable.trainer == user))
+                  .where((BadgeAssignmentTable.trainer == user) &
+                         (BadgeTable.guild_id == guild_id)))
         return result.objects(Badge)
 
 

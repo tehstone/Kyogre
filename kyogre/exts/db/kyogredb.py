@@ -418,6 +418,7 @@ class EventTable(BaseModel):
 
 
 class BadgeTable(BaseModel):
+    guild = ForeignKeyField(GuildTable, field=GuildTable.snowflake, backref='badges', index=True)
     name = TextField(index=True)
     description = TextField()
     emoji = BigIntegerField(index=True)

@@ -44,7 +44,7 @@ class Social(commands.Cog):
             team_url = f"https://github.com/tehstone/Kyogre/blob/master/images/teams/{team.lower()}.png?raw=true"
         raids, eggs, wilds, research, joined = await self._get_profile_counts(ctx, user)
         badge_cog = self.bot.cogs.get('Badges')
-        badges = badge_cog.get_badge_emojis(user.id)
+        badges = badge_cog.get_badge_emojis(ctx.guild.id, user.id)
         badge_str = self.bot.empty_str
         badges = utils.list_chunker(badges, 4)
         for c in badges:
