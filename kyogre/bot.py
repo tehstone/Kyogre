@@ -292,7 +292,9 @@ class KyogreBot(commands.AutoShardedBot):
             'raidchannel_dict': {},
             'pvp_dict': {},
             'raid_notice_dict': {},
-            'trade_dict': {}
+            'trade_dict': {},
+            'trainers': {},
+            'trainer_names': {}
         }
         await owner.send("I'm Kyogre, a Discord helper bot for Pokemon Go communities, and someone has invited me to your server! Type **!help** to see a list of things I can do, and type **!configure** in any channel of your server to begin!")
 

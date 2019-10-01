@@ -267,6 +267,27 @@ class Social(commands.Cog):
                     return
         await ctx.send("This server's report stats have been reset!")
 
+    @commands.command(name='whois', aliases=['who'])
+    async def _who_is(self, ctx, trainer):
+        trainer_names_copy = copy.deepcopy(self.bot.guild_dict[ctx.guild.id].setdefault('trainer_names', {}))
+        trainer_list = []
+        for k in trainer_names_copy.keys():
+            if trainer == k:
+                user = ctx.guild.get_member(trainer_names_copy[k])
+                return await ctx.send(f"You're probably looking for {user.mention}")
+            trainer_list.append(k)
+        matches = utils.get_match(trainer_list, trainer, isPartial=True, limit=5)
+        if not isinstance(matches, list):
+            matches = [matches]
+        if len(matches) < 2:
+            if matches[0][0] is None:
+                return await ctx.send("No trainers found with a name similar to that")
+            return await ctx.send(f"You might be looking for {matches[0][0]}")
+        else:
+            match_names = [m[0] for m in matches]
+            return await ctx.send(f"You might be looking for {' or '.join(match_names)}")
+
+
 
 def setup(bot):
     bot.add_cog(Social(bot))

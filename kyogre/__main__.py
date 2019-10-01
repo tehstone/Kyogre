@@ -203,7 +203,8 @@ async def on_ready():
                     'pvp_dict': {},
                     'raid_notice_dict': {},
                     'trade_dict': {},
-                    'trainers': {}
+                    'trainers': {},
+                    'trainer_names': {}
                 }
             else:
                 guild_dict[guild.id]['configure_dict'].setdefault('trade', {})
@@ -240,6 +241,7 @@ async def on_ready():
                     del guild_dict[guild.id]['configure_dict']['trainers']
                 except KeyError:
                     guild_dict[guild.id].setdefault('trainers', {})
+                guild_dict[guild.id].setdefault('trainer_names', {})
         except KeyError:
             guild_dict[guild.id] = {
                 'configure_dict': {
@@ -278,7 +280,8 @@ async def on_ready():
                 'pvp_dict': {},
                 'raid_notice_dict': {},
                 'trade_dict': {},
-                'trainers': {}
+                'trainers': {},
+                'trainer_names': {}
             }
         owners.append(guild.owner)
     help_cog = Kyogre.cogs.get('HelpCommand')

@@ -229,6 +229,7 @@ class SetCommands(commands.Cog):
             return await ctx.send(embed)
         trainer_dict_copy = copy.deepcopy(self.bot.guild_dict[ctx.guild.id].setdefault('trainers', {})
                                           .setdefault('info', {}).setdefault(ctx.author.id, {}))
+        trainer_names_copy = copy.deepcopy(self.bot.guild_dict[ctx.guild.id].setdefault('trainer_names', {}))
         team_role_names = [r.lower() for r in self.bot.team_color_map.keys()]
         for step in self.profile_steps:
             if step['td_key'] == 'team':
@@ -253,6 +254,12 @@ class SetCommands(commands.Cog):
                 self.bot.help_logger.info(f"{ctx.author.name} took to long on profile step: {step['prompt']}.")
                 return await ctx.author.send("You took too long to reply, profile setup cancelled.")
             if response.lower() == 'clear':
+                if step['td_key'] == 'trainername':
+                    t_name = trainer_dict_copy.get('trainername', '')
+                    try:
+                        del trainer_names_copy[t_name]
+                    except KeyError:
+                        pass
                 trainer_dict_copy[step['td_key']] = None
             elif response.lower() == 'skip':
                 continue
@@ -283,9 +290,17 @@ class SetCommands(commands.Cog):
                         team_role = discord.utils.get(ctx.guild.roles, name=response.lower())
                         if team_role is not None:
                             await ctx.author.add_roles(team_role)
+                if step['td_key'] == 'trainername':
+                    t_name = trainer_dict_copy.get('trainername', '')
+                    try:
+                        del trainer_names_copy[t_name]
+                    except KeyError:
+                        pass
+                    trainer_names_copy[response] = ctx.author.id
                 trainer_dict_copy[step['td_key']] = response
         await ctx.author.send("Great, your profile is all set!")
         self.bot.guild_dict[ctx.guild.id]['trainers']['info'][ctx.author.id] = trainer_dict_copy
+        self.bot.guild_dict[ctx.guild.id]['trainer_names'] = trainer_names_copy
         return await ctx.invoke(self.bot.get_command('profile'), user=ctx.author)
     
     async def _profile_step(self, ctx, step):
