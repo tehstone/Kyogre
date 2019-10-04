@@ -198,7 +198,8 @@ def custom_error_handling(bot, logger):
             return
         channel = ctx.channel
         prefix = ctx.prefix.replace(ctx.bot.user.mention, '@' + ctx.bot.user.name)
-        bot.help_logger.info(f"User: {ctx.author.name}, channel: {channel}, error: {error.__class__.__name__}")
+        bot.help_logger.info(f"Command: {ctx.command} | User: {ctx.author.name} | channel: {channel} | error: {error.__class__.__name__}")
+        bot.help_logger.info(f"Full message: {ctx.message.content}.")
         try:
             bot.help_logger.info(f"Original error: {error.original}")
         except AttributeError:

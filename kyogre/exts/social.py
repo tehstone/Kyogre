@@ -27,6 +27,7 @@ class Social(commands.Cog):
         pkb = str(pokebattlerid) if pokebattlerid else None
         xp = trainer_info.get('xp', 0)
         try:
+            xp = xp.replace(',', '')
             xp = int(xp)
         except (ValueError, TypeError):
             xp = 0

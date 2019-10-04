@@ -156,7 +156,6 @@ class RegionTable(BaseModel):
                             guild, __ = GuildTable.get_or_create(snowflake=guild_id)
                             RegionTable.create(name=region['name'], area=None, guild=guild)
                 except Exception as e:
-                    import pdb; pdb.set_trace()
                     print(e)
     
     class Meta:
@@ -268,7 +267,6 @@ class QuestTable(BaseModel):
                     QuestTable.create(name=name, reward_pool=pool)
                     parse_reward_pool(pool)
                 except Exception as e:
-                    import pdb; pdb.set_trace()
                     print(e)
 
 

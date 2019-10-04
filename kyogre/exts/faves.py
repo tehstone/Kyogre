@@ -1,7 +1,13 @@
+import os
+import requests
+import shutil
+import time
+
+import discord
 from discord.ext import commands
 
 from kyogre.exts.db.kyogredb import *
-
+from kyogre import testident
 
 class Faves(commands.Cog):
 
@@ -120,6 +126,74 @@ class Faves(commands.Cog):
         for r in result:
             points += round(r.count/5)
         return points
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.channel.id not in [530460439591518218, 629456197501583381] \
+                or not self.bot.cloud_vision_enabled \
+                or len(message.attachments) < 1 \
+                or ((message.attachments[0].height is None) and
+                    (message.attachments[0].width is None)):
+            return
+        await self._process_message_attachments(message)
+
+    async def _process_message_attachments(self, message):
+        # TODO Determine if it's worth handling multiple attachments and refactor to accomodate
+        file = self._save_image(message.attachments[0])
+        if file is None:
+            return
+        tier = self._determine_raid(file)
+        await message.channel.send(tier)
+        if tier.startswith("none"):
+            self._cleanup_file(file, "screenshots/not_raid")
+        else:
+            self._cleanup_file(file, f"screenshots/{tier[4]}")
+        # if tier == 0:
+        #     self._cleanup_file(file, "screenshots/not_raid")
+        #     return await message.add_reaction(self.bot.failed_react)
+        # raid_info = await self._call_cloud(file)
+        # if raid_info["gym"] is None:
+        #     self._cleanup_file(file, "screenshots/gcvapi_failed")
+        #     return await message.channel.send(
+        #         embed=discord.Embed(
+        #             colour=discord.Colour.red(),
+        #             description="Could not determine gym name from screenshot, unable to create raid channel. "
+        #                         "Please report using the command instead: `!r <boss/tier> <gym name> <time>`"))
+        #     pass
+        # Determine current time based on raid_info["phone"] or just use current time
+        # Determine hatch time based on raid_info["egg"] or use default
+
+    def _save_image(self, attachment):
+        url = attachment.url
+        __, file_extension = os.path.splitext(attachment.filename)
+        if not url.startswith('https://cdn.discordapp.com/attachments'):
+            return None
+        r = requests.get(url, stream=True)
+        filename = f"{attachment.id}{file_extension}"
+        filepath = os.path.join('screenshots', filename)
+        with open(filepath, 'wb') as out_file:
+            shutil.copyfileobj(r.raw, out_file)
+        self.bot.saved_files[filename] = {"time": round(time.time()), "fullpath": filepath}
+        return filepath
+
+    def _determine_raid(self, file):
+        # here we call the ident code which will return probabilities for
+        # each tier, and none.
+        # If None is the highest probability: return 0
+        # Else return tier with highest probability
+        return testident.determine_tier(file)
+
+    async def _call_cloud(self, file):
+        # Hook into cloud api call and process data returned into correct format
+        # {"phone": "3:10", "egg": "0:45:47", "gym": ""}
+        # The three keys here are required, any and all can be None
+        return {"phone": "3:10", "egg": "0:45:47", "gym": None}
+
+    @staticmethod
+    def _cleanup_file(file, dst):
+        filename = os.path.split(file)[1]
+        dest = os.path.join(dst, filename)
+        shutil.move(file, dest)
 
 
 def setup(bot):
