@@ -1,4 +1,4 @@
-FROM python:3.7.2-stretch
+FROM python:3.6.9-stretch
 
 # Set working directory
 RUN mkdir /src

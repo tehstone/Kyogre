@@ -130,7 +130,7 @@ class Faves(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.channel.id not in [530460439591518218, 629456197501583381] \
-                or not self.bot.cloud_vision_enabled \
+                or not self.bot.vision_api_enabled \
                 or len(message.attachments) < 1 \
                 or ((message.attachments[0].height is None) and
                     (message.attachments[0].width is None)):

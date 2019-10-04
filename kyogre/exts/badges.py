@@ -326,6 +326,22 @@ class Badges(commands.Cog):
                          (BadgeTable.guild_id == guild_id)))
         return result.objects(Badge)
 
+    @commands.command(name="badge_leader", aliases=['bl'])
+    async def badge_leader(self, ctx):
+        result = (BadgeAssignmentTable
+                  .select(BadgeAssignmentTable.trainer, fn.Count(BadgeAssignmentTable.trainer).alias('count'))
+                  .join(BadgeTable, on=(BadgeTable.id == BadgeAssignmentTable.badge_id))
+                  .where(BadgeTable.guild_id == ctx.guild.id)
+                  .group_by(BadgeAssignmentTable.trainer)
+                  .order_by(SQL('count').desc())
+                  .limit(10)
+                  )
+        output=""
+        for r in result:
+            trainer = ctx.guild.get_member(r.trainer)
+            output += f"{trainer.display_name} {r.count}\n"
+        await ctx.send(output)
+
 
 def setup(bot):
     bot.add_cog(Badges(bot))

@@ -91,7 +91,7 @@ class KyogreBot(commands.AutoShardedBot):
         self.team_color_map = {'Mystic': discord.Colour.blue(),
                                'Valor': discord.Colour.red(),
                                'Instinct': discord.Colour.from_rgb(255, 255, 0)}
-        self.cloud_vision_enabled = True
+        self.vision_api_enabled = True
         self.saved_files = {}
 
         for ext in default_exts:
@@ -132,6 +132,12 @@ class KyogreBot(commands.AutoShardedBot):
         # Load configuration
         with open('config.json', 'r') as fd:
             self.config = json.load(fd)
+        # Load Cloud Vision key
+        key_file_path = self.config["vision_api_key"]
+        if key_file_path is not None and len(key_file_path) > 1:
+            cwd = os.getcwd()
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(cwd, key_file_path)
+            self.vision_api_enabled = True
         # Set up message catalog access
         # Load raid info
         raid_path_source = os.path.join('data', 'raid_info.json')
@@ -144,8 +150,15 @@ class KyogreBot(commands.AutoShardedBot):
             self.type_list = json.load(fd)
         return raid_path_source
 
-    def _setup_folders(self):
-        pass
+    @staticmethod
+    def _setup_folders():
+        screenshot_dirs = ['./screenshots', './screenshots/1',
+                           './screenshots/2', './screenshots/3',
+                           './screenshots/4', './screenshots/5',
+                           './screenshots/gcvapi_failed', './screenshots/not_raid']
+        for sdir in screenshot_dirs:
+            if not os.path.exists(sdir):
+                os.makedirs(sdir)
 
     async def on_message(self, message):
         if message.type == discord.MessageType.pins_add and message.author == self.user:
