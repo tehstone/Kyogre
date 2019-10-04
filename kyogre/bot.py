@@ -103,6 +103,8 @@ class KyogreBot(commands.AutoShardedBot):
                 if 'debug' in sys.argv[1:]:
                     print(f'Loaded {ext} extension.')
 
+        self._setup_folders()
+
     class RenameUnpickler(pickle.Unpickler):
         def find_class(self, module, name):
             module = module.replace("meowth", "kyogre")
@@ -141,6 +143,9 @@ class KyogreBot(commands.AutoShardedBot):
         with open(os.path.join('data', 'type_list.json'), 'r') as fd:
             self.type_list = json.load(fd)
         return raid_path_source
+
+    def _setup_folders(self):
+        pass
 
     async def on_message(self, message):
         if message.type == discord.MessageType.pins_add and message.author == self.user:
