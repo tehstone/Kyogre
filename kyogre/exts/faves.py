@@ -146,8 +146,15 @@ class Faves(commands.Cog):
         await message.channel.send(tier)
         if tier.startswith("none"):
             self._cleanup_file(file, "screenshots/not_raid")
-        else:
+        elif tier.startswith("tier"):
             self._cleanup_file(file, f"screenshots/{tier[4]}")
+        else:
+            end_pos = tier.find(',')
+            sub_path = tier[1:end_pos]
+            out_path = os.path.join("screenshots", sub_path)
+            if not os.path.exists(out_path):
+                os.makedirs(out_path)
+            self._cleanup_file(file, out_path)
         # if tier == 0:
         #     self._cleanup_file(file, "screenshots/not_raid")
         #     return await message.add_reaction(self.bot.failed_react)
