@@ -93,7 +93,7 @@ class KyogreBot(commands.AutoShardedBot):
         self.team_color_map = {'Mystic': discord.Colour.blue(),
                                'Valor': discord.Colour.red(),
                                'Instinct': discord.Colour.from_rgb(255, 255, 0)}
-        self.vision_api_enabled = True
+        self.vision_api_enabled = False
         self.saved_files = {}
 
         for ext in default_exts:

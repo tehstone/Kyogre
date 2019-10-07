@@ -620,6 +620,18 @@ class AdminCommands(commands.Cog):
             delete_after=12)
         return await ctx.message.add_reaction(self.bot.success_react)
 
+    @commands.command(name='cloud_enable', aliases=['ecloud'])
+    @checks.is_owner()
+    async def _enable_cloud_vision(self, ctx):
+        self.bot.vision_api_enabled = True
+        await self.bot.owner.send("Cloud API calls enabled globally.")
+
+    @commands.command(name='cloud_disable', aliases=['dcloud'])
+    @checks.is_owner()
+    async def _disable_cloud_vision(self, ctx):
+        self.bot.vision_api_enabled = False
+        await self.bot.owner.send("Cloud API calls disabled globally.")
+
 
 def setup(bot):
     bot.add_cog(AdminCommands(bot))

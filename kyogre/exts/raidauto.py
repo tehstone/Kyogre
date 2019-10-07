@@ -106,8 +106,7 @@ class RaidAuto(commands.Cog):
             file = self._cleanup_file(file, out_path)
             raid_info["type"] = "raid"
             raid_info["boss"] = tier
-        raid_info = dict(await self._fake_cloud(), **raid_info)
-        # raid_info = dict(await self._call_cloud(file), **raid_info)
+        raid_info = dict(await self._call_cloud(file), **raid_info)
         if raid_info["gym"] is None:
             # self._cleanup_file(file, "screenshots/gcvapi_failed")
             return await message.channel.send(
@@ -149,179 +148,55 @@ class RaidAuto(commands.Cog):
         # Hook into cloud api call and process data returned into correct format
         # {"phone": "3:10", "egg": "45", "gym": ""}
         # The three keys here are required, any and all can be None
-        cloud = False
-        if cloud:
-            with open(file, "rb") as image_file:
-                content = image_file.read()
-            client = vision.ImageAnnotatorClient()
-            image = vision.types.Image(content=content)
-            response = client.text_detection(image=image)
-            texts = response.text_annotations
+        with open(file, "rb") as image_file:
+            content = image_file.read()
+        client = vision.ImageAnnotatorClient()
+        image = vision.types.Image(content=content)
+        response = client.text_detection(image=image)
+        texts = response.text_annotations
 
-            phone_time, egg_time = None, None
-            gym_name = []
-            text = texts[0]
-            # match phone time display of form 5:23 or 13:23
-            p_time_regex = re.compile(r'1*[0-9]{1}:[0-5]{1}[0-9]{1}')
-            # match hatch/expire countdown of form 0:11:28
-            e_time_regex = re.compile(r'[0-1]{1}:[0-5]{1}[0-9]{1}:[0-5]{1}[0-9]{1}')
-            cp_regex = re.compile(r'[0-9]{5,6}')
-            batt_regex = re.compile(r'^[0-9]{1,3}%*$')
-            search_gym = True
-            self.bot.gcv_logger.info(text.description)
-            for line in text.description.split('\n'):
-                if 'LTE' in line or len(line) < 2:
-                    continue
-                e_search = e_time_regex.search(line)
-                if e_search:
-                    egg_all = e_search[0]
-                    egg_split = egg_all.split(':')
-                    egg_time = str(int(60*egg_split[0]) + int(egg_split[1]))
-                    break
-                p_search = p_time_regex.search(line)
-                if p_search:
-                    phone_time = p_search[0]
-                    continue
-                if line == 'EX RAID GYM':
-                    continue
-                cp_search = cp_regex.search(line)
-                if cp_search:
-                    search_gym = False
-                    continue
-                batt_search = batt_regex.search(line)
-                if batt_search:
-                    continue
-                if search_gym:
-                    line = re.sub(r"\b[a-zA-Z0-9]{1,2}\b", "", line)
-                    gym_name.append(line)
-            gym = None
-            if len(gym_name) > 1:
-                gym = ' '.join(gym_name)
-            self.bot.gcv_logger.info(f"Read gym as: {gym}. Read phone time as: {phone_time}. "
-                                     f"Read egg time as: {egg_time}")
-            return {"phone": phone_time, "egg": egg_time, "gym": gym}
-        gyms = ["Petrovitsky Park",
-"Cedar River Trail",
-"Black Bear",
-"Echo Quarry Trail",
-"MUGS BUGS",
-"VMC Shrubbery",
-"NW Life Church",
-"Fairwood Water Tower",
-"Cedar Grove Road Natural Area",
-"Community Park Entrance",
-"Rainier Christian Center",
-"Mor Water Fountain",
-"Lake Youngs Trailhead Park",
-"Black River Forest / Springbrook Trail",
-"The Grotto, Floor Mosaic",
-"Starbucks Rainier Beach",
-"Starbucks Landing Target",
-"Starbucks Renton Highlands",
-"Starbucks DT Renton Safeway",
-"Renton Sign",
-"Starbucks Benson Fred Meyer",
-"Skyway Water Tower east",
-"Skyway Water Tower west",
-"Wat Lao Mixayaram",
-"Skyway Park Bowl",
-"King County Fireman Statue",
-"Skyway Outdoor Cinema Mural",
-"Renton Library Turtle",
-"Renton Technical College Trans",
-"Hazen Water Tower",
-"Renton Diamond Jubilee",
-"Dog And Pony Alehouse",
-"Coulon Park",
-"Coulon Park Dedication Plaque",
-"Union Plaque at Renton Technical College",
-"Sprint Renton Highlands",
-"St. Matthew's Lutheran Church",
-"Nishiwaki Lane",
-"Seed of Abraham Pentecostal",
-"Community Garden",
-"Renton Landing",
-"Highlands Newcastle Trail Marker",
-"Renton Uhaul Space Needle",
-"Mt.Olivet Cemetery",
-"Tucker Lee Wales Memorial",
-"Ann Chism Dedicated Bench",
-"Church of Nazarene",
-"Coalfield Park",
-"First Ukrainian Pentecostal Church",
-"Windsor Hill Park Playground",
-"Kiwanis Park",
-"Highland Community Church",
-"Renton Highlands Post Office",
-"Heritage Park, Renton",
-"Standing Stones @ The Landing",
-"Rogers and Post Memorial",
-"Manzanita",
-"Gene Coulon Memorial Beach Park",
-"In Loving Memory; Paula & Cameron Hackman",
-"Bethlehem Lutheran Church",
-"Interface",
-"Lord of Life Lutheran Church",
-"Sculpture at Bristol Waterfront",
-"Thomas Teasdale Park",
-"Woodside Skagit Park",
-"Untitled Mural by Bonnie Branson 1989",
-"Pilgrim Rest Baptist Church",
-"Edward Aliment Memorial Bench",
-"Fairwood Library",
-"Henry Moses Honoring Pole",
-"8-Bit Arcade-Bar",
-"Dragon Sentinels",
-"Who's Who Cedar River Style",
-"US Post Office, 116th Ave Southeast, Renton",
-"The Owls are not What They Seem",
-"Cedar River Trail Public Gazebo",
-"City View Church",
-"Life Community Church",
-"Burnett Linear Park",
-"The Salvation Army Renton Corps",
-"Philip Arnold Park - Tapeworm Trail",
-"King County Park",
-"Highland Estates Community Park",
-"Cedar River Trail and Dog Park Entry Sign",
-"Woodside Commons Park",
-"Squiggle Chomp Pole",
-"Ron Regis Park",
-"Renton Library",
-"Old Mine Cart",
-"Jimmy Mac's Roadhouse",
-"Uwajimaya Glass Mural",
-"Kingdom Hall of Jehovah's Witnesses",
-"East Renton Community Church Park",
-"The Duwamish People - Doug Kyes",
-"Renton Community Center",
-"Chateau De Ville Fountain",
-"Renton Brown Bear",
-"United Christian Church",
-"Raccoon Tree",
-"Fairwood Community United Methodist Church",
-"Philip Arnold Park",
-"Cedar River Trail Etiquette",
-"Victoria Park",
-"Orca of Oakesdale",
-"Weeping Angel",
-"Cascade Park",
-"Renton Civic Theatre",
-"Skykomish Park",
-"Central School - 1892",
-"Living Water Statue",
-"Minter's Earlington Greenhouse",
-"Cavanaugh Pond Natural Area",
-"Maple Hills Park Pool",
-"Heritage Estates Playgrounds",
-"renton foursquare celebration church",
-"saint andrew presbyterian church",
-"seattle car and manufacturing - 1908",
-"The B&W"]
-        i = random.randint(0, len(gyms) - 1)
-        gym = gyms[i]
-        egg = str(random.randint(10, 40))
-        return {"phone": time.strftime("%H:%M"), "egg": egg, "gym": gym}
+        phone_time, egg_time = None, None
+        gym_name = []
+        text = texts[0]
+        # match phone time display of form 5:23 or 13:23
+        p_time_regex = re.compile(r'1*[0-9]{1}:[0-5]{1}[0-9]{1}')
+        # match hatch/expire countdown of form 0:11:28
+        e_time_regex = re.compile(r'[0-1]{1}:[0-5]{1}[0-9]{1}:[0-5]{1}[0-9]{1}')
+        cp_regex = re.compile(r'[0-9]{5,6}')
+        batt_regex = re.compile(r'^[0-9]{1,3}%*$')
+        search_gym = True
+        self.bot.gcv_logger.info(text.description)
+        for line in text.description.split('\n'):
+            if 'LTE' in line or len(line) < 2:
+                continue
+            e_search = e_time_regex.search(line)
+            if e_search:
+                egg_all = e_search[0]
+                egg_split = egg_all.split(':')
+                egg_time = str(int(60*egg_split[0]) + int(egg_split[1]))
+                break
+            p_search = p_time_regex.search(line)
+            if p_search:
+                phone_time = p_search[0]
+                continue
+            if line == 'EX RAID GYM':
+                continue
+            cp_search = cp_regex.search(line)
+            if cp_search:
+                search_gym = False
+                continue
+            batt_search = batt_regex.search(line)
+            if batt_search:
+                continue
+            if search_gym:
+                line = re.sub(r"\b[a-zA-Z0-9]{1,2}\b", "", line)
+                gym_name.append(line)
+        gym = None
+        if len(gym_name) > 1:
+            gym = ' '.join(gym_name)
+        self.bot.gcv_logger.info(f"Read gym as: {gym}. Read phone time as: {phone_time}. "
+                                 f"Read egg time as: {egg_time}")
+        return {"phone": phone_time, "egg": egg_time, "gym": gym}
 
     async def _fake_cloud(self):
         text = '''Q A A9
