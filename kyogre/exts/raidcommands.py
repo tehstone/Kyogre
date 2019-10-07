@@ -69,7 +69,7 @@ class RaidCommands(commands.Cog):
                         colour=discord.Colour.red(),
                         description='**!raid assume** is not allowed for this level egg.'))
                 if not self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['active']:
-                    await self._eggtoraid(ctx, raid_split[1].lower(), channel, author)
+                    await self.egg_to_raid(ctx, raid_split[1].lower(), channel, author)
                     return
                 else:
                     await self._eggassume(" ".join(raid_split), channel, author)
@@ -172,9 +172,9 @@ class RaidCommands(commands.Cog):
         else:
             new_content = ' '.join(content.split()[len(raid_pokemon.full_name.split()):])
         if fromegg:
-            return await self._eggtoraid(ctx, raid_pokemon.full_name.lower(), channel, author)
+            return await self.egg_to_raid(ctx, raid_pokemon.full_name.lower(), channel, author)
         if eggtoraid:
-            return await self._eggtoraid(ctx, new_content.lower(), channel, author)
+            return await self.egg_to_raid(ctx, new_content.lower(), channel, author)
         raid_split = new_content.strip().split()
         if len(raid_split) == 0:
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel},"
@@ -320,7 +320,7 @@ class RaidCommands(commands.Cog):
                 description='Give more details when reporting! Usage: **!raid <pokemon name> <location>**'))
         return await self.finish_raid_report(ctx, raid_details, None, egg_level, weather, raidexp)
 
-    async def finish_raid_report(self, ctx, raid_details, raid_pokemon, level, weather, raidexp):
+    async def finish_raid_report(self, ctx, raid_details, raid_pokemon, level, weather, raidexp, auto=False):
         message = ctx.message
         channel = message.channel
         guild = channel.guild
@@ -379,7 +379,7 @@ class RaidCommands(commands.Cog):
                     location = raid_dict_entry.get('address', 'unknown gym')
                     if not enabled:
                         await channel.send(f"The egg at {location} has hatched into a {raid_pokemon.name} raid!")
-                    return await self._eggtoraid(ctx, raid_pokemon.name.lower(), raid_channel)
+                    return await self.egg_to_raid(ctx, raid_pokemon.name.lower(), raid_channel)
 
             raid_details = gym.name
             raid_gmaps_link = gym.maps_url
@@ -565,6 +565,9 @@ class RaidCommands(commands.Cog):
             await raid_channel.send(content='Hey {member}, if you can, set the time left on the raid using '
                                             '**!timerset <minutes>** so others can check it with **!timer**.'
                                     .format(member=author.mention))
+        if auto:
+            await raid_channel.send("This raid was auto-generated from a screenshot so the information may "
+                                    "not be completely accurate.")
         await listmgmt_cog.update_listing_channels(guild, 'raid', edit=False, regions=gym_regions)
         subscriptions_cog = self.bot.cogs.get('Subscriptions')
         if enabled:
@@ -770,7 +773,7 @@ class RaidCommands(commands.Cog):
         self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = eggdetails
         return
 
-    async def _eggtoraid(self, ctx, entered_raid, raid_channel, author=None):
+    async def egg_to_raid(self, ctx, entered_raid, raid_channel, author=None):
         guild = raid_channel.guild
         pkmn = Pokemon.get_pokemon(self.bot, entered_raid)
         if not pkmn:
@@ -1772,7 +1775,7 @@ class RaidCommands(commands.Cog):
                 if not alreadyexpired:
                     pkmn = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id].get('pokemon', None)
                     if pkmn:
-                        await self._eggtoraid(None, pkmn.lower(), channel)
+                        await self.egg_to_raid(None, pkmn.lower(), channel)
                         return
                     maybe_list = []
                     trainer_dict = copy.deepcopy(
@@ -2197,7 +2200,7 @@ class RaidCommands(commands.Cog):
                         if start and self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['type'] == 'egg':
                             if start < now:
                                 pokemon = self.bot.raid_info['raid_eggs']['EX']['pokemon'][0]
-                                await self._eggtoraid(None, pokemon.lower(), channel, author=None)
+                                await self.egg_to_raid(None, pokemon.lower(), channel, author=None)
                         if end and end < now:
                             self.bot.event_loop.create_task(self.bot.expire_channel(channel))
                             try:
@@ -2232,7 +2235,7 @@ class RaidCommands(commands.Cog):
                                             self.bot.logger.info(
                                                 'Expire_Channel - Channel Removal From Active Raid Failed - '
                                                 'Not in List - ' + channel.name)
-                                        await self._eggtoraid(None, pokemon.lower(), channel, author=None)
+                                        await self.egg_to_raid(None, pokemon.lower(), channel, author=None)
                                         break
                                 self.bot.event_loop.create_task(self.expire_channel(channel))
                                 try:
@@ -2338,7 +2341,7 @@ class RaidCommands(commands.Cog):
             author_id = raid_dict.get('reporter', None)
             if author_id is not None:
                 author = guild.get_member(author_id)
-            await self._eggtoraid(ctx, newraid.lower(), channel, author=author)
+            await self.egg_to_raid(ctx, newraid.lower(), channel, author=author)
 
     @commands.Cog.listener()
     @checks.good_standing()
@@ -2430,7 +2433,6 @@ class RaidCommands(commands.Cog):
         except AttributeError:
             return
         updated_time = round(time.time())
-        raids_cog = self.bot.cogs.get('RaidCommands')
         raid_dict = guild_dict[guild.id].setdefault('raidchannel_dict', {})
         config_dict = guild_dict[guild.id]['configure_dict']
         utils_cog = self.bot.cogs.get('Utilities')
@@ -2483,7 +2485,7 @@ class RaidCommands(commands.Cog):
                                 f"User: {user.name}, channel: {channel}, error: Couldn't find gym with name: {gymmsg.clean_content}")
                         else:
                             location = gym.name
-                            raid_channel_ids = raids_cog.get_existing_raid(guild, gym)
+                            raid_channel_ids = self.get_existing_raid(guild, gym)
                             if raid_channel_ids:
                                 raid_channel = self.bot.get_channel(raid_channel_ids[0])
                                 if guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]:
@@ -2518,7 +2520,7 @@ class RaidCommands(commands.Cog):
                     await timemsg.delete()
                 raidexp = await utils.time_to_minute_count(guild_dict, raid_channel, timemsg.clean_content)
                 if raidexp is not False:
-                    await raids_cog._timerset(raid_channel, raidexp)
+                    await self._timerset(raid_channel, raidexp)
                 await listmgmt_cog.update_listing_channels(guild, "raid", edit=True, regions=regions)
                 await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
                                                        description="Raid hatch / expire time updated"))
@@ -2538,9 +2540,9 @@ class RaidCommands(commands.Cog):
                 elif bossmsg.clean_content.lower() == "cancel":
                     error = "cancelled the report"
                     await bossmsg.delete()
-                await raids_cog.changeraid_internal(None, guild, raid_channel, bossmsg.clean_content)
+                await self.changeraid_internal(None, guild, raid_channel, bossmsg.clean_content)
                 if not bossmsg.clean_content.isdigit():
-                    await raids_cog._timerset(raid_channel, 45)
+                    await self._timerset(raid_channel, 45)
                 await listmgmt_cog.update_listing_channels(guild, "raid", edit=True, regions=regions)
                 await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
                                                        description="Raid Tier / Boss updated"))

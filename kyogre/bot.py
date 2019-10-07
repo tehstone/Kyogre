@@ -5,7 +5,7 @@ import os
 import pickle
 import sys
 
-from kyogre.logs import init_loggers, init_help_logger, init_user_logger
+from kyogre.logs import init_loggers, init_gcv_logger, init_help_logger, init_user_logger
 from kyogre.errors import custom_error_handling
 
 import discord
@@ -33,6 +33,7 @@ default_exts = ['admincommands',
                 'pvp',
                 'questrewardmanagement',
                 'quickbadge',
+                'raidauto',
                 'raidavailable',
                 'raidcommands',
                 'raiddatahandler',
@@ -76,6 +77,7 @@ class KyogreBot(commands.AutoShardedBot):
         self.logger = init_loggers()
         self.help_logger = init_help_logger()
         self.user_logger = init_user_logger()
+        self.gcv_logger = init_gcv_logger()
         custom_error_handling(self, self.logger)
         self.guild_dict = {}
         self._load_data()

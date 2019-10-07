@@ -23,14 +23,15 @@ def get_match(word_list: list, word: str, score_cutoff: int = 60, isPartial: boo
     if isPartial:
         scorer = fuzz.partial_ratio
     if limit == 1:
-        result = process.extractOne(word, word_list, 
-            scorer=scorer, score_cutoff=score_cutoff)  
+        result = process.extractOne(word, word_list,
+                                    scorer=scorer, score_cutoff=score_cutoff)
     else:
-        result = process.extractBests(word, word_list, 
-            scorer=scorer, score_cutoff=score_cutoff, limit=limit)
+        result = process.extractBests(word, word_list,
+                                      scorer=scorer, score_cutoff=score_cutoff, limit=limit)
     if not result:
         return (None, None)
     return result
+
 
 def colour(*args):
     """Returns a discord Colour object.
@@ -55,6 +56,7 @@ def colour(*args):
     else:
         return discord.Colour.lighter_grey()
 
+
 def make_embed(msg_type='', title=None, icon=None, content=None,
                msg_colour=None, guild=None, title_url=None,
                thumbnail='', image='', fields=None, footer=None,
@@ -67,25 +69,25 @@ def make_embed(msg_type='', title=None, icon=None, content=None,
     """
 
     embed_types = {
-        'error':{
-            'icon':'https://i.imgur.com/juhq2uJ.png',
-            'colour':'red'
+        'error': {
+            'icon': 'https://i.imgur.com/juhq2uJ.png',
+            'colour': 'red'
         },
-        'warning':{
-            'icon':'https://i.imgur.com/4JuaNt9.png',
-            'colour':'gold'
+        'warning': {
+            'icon': 'https://i.imgur.com/4JuaNt9.png',
+            'colour': 'gold'
         },
-        'info':{
-            'icon':'https://i.imgur.com/wzryVaS.png',
-            'colour':'blue'
+        'info': {
+            'icon': 'https://i.imgur.com/wzryVaS.png',
+            'colour': 'blue'
         },
-        'success':{
-            'icon':'https://i.imgur.com/ZTKc3mr.png',
-            'colour':'green'
+        'success': {
+            'icon': 'https://i.imgur.com/ZTKc3mr.png',
+            'colour': 'green'
         },
-        'help':{
-            'icon':'https://i.imgur.com/kTTIZzR.png',
-            'colour':'blue'
+        'help': {
+            'icon': 'https://i.imgur.com/kTTIZzR.png',
+            'colour': 'blue'
         }
     }
     if msg_type in embed_types.keys():
@@ -115,35 +117,42 @@ def make_embed(msg_type='', title=None, icon=None, content=None,
                 value = value[1]
             embed.add_field(name=key, value=value, inline=ilf)
     if footer:
-        footer = {'text':footer}
+        footer = {'text': footer}
         if footer_icon:
             footer['icon_url'] = footer_icon
         embed.set_footer(**footer)
     return embed
 
+
 def bold(msg: str):
     """Format to bold markdown text"""
     return f'**{msg}**'
+
 
 def italics(msg: str):
     """Format to italics markdown text"""
     return f'*{msg}*'
 
+
 def bolditalics(msg: str):
     """Format to bold italics markdown text"""
     return f'***{msg}***'
+
 
 def code(msg: str):
     """Format to markdown code block"""
     return f'```{msg}```'
 
+
 def pycode(msg: str):
     """Format to code block with python code highlighting"""
     return f'```py\n{msg}```'
 
+
 def ilcode(msg: str):
     """Format to inline markdown code"""
     return f'`{msg}`'
+
 
 def convert_to_bool(argument):
     lowered = argument.lower()
@@ -154,6 +163,7 @@ def convert_to_bool(argument):
     else:
         return None
 
+
 def sanitize_channel_name(name):
     """Converts a given string into a compatible discord channel name."""
     # Remove all characters other than alphanumerics,
@@ -162,6 +172,7 @@ def sanitize_channel_name(name):
     # Replace spaces with dashes
     ret = ret.replace(' ', '-')
     return ret
+
 
 async def get_raid_help(prefix, avatar, user=None):
     helpembed = discord.Embed(colour=discord.Colour.lighter_grey())
@@ -206,29 +217,34 @@ async def get_raid_help(prefix, avatar, user=None):
         return helpembed
     await user.send(embed=helpembed)
 
+
 def get_level(bot, pkmn):
     for level, pkmn_list in bot.raid_info['raid_eggs'].items():
         if pkmn.lower() in pkmn_list["pokemon"]:
             return level
 
+
 def get_effectiveness(type_eff):
-        if type_eff == 1:
-            return 1.4
-        if type_eff == -1:
-            return 0.714
-        if type_eff == -2:
-            return 0.51
-        return 1
+    if type_eff == 1:
+        return 1.4
+    if type_eff == -1:
+        return 0.714
+    if type_eff == -2:
+        return 0.51
+    return 1
 
 
 async def simple_ask(Kyogre, message, destination, user_list=None, *, react_list=['✅', '❌']):
     if user_list and not isinstance(user_list, list):
         user_list = [user_list]
+
     def check(reaction, user):
         if user_list and isinstance(user_list, list):
             return (user.id in user_list) and (reaction.message.id == message.id) and (reaction.emoji in react_list)
         elif not user_list:
-            return (user.id != message.guild.me.id) and (reaction.message.id == message.id) and (reaction.emoji in react_list)
+            return (user.id != message.guild.me.id) and (reaction.message.id == message.id) and (
+                        reaction.emoji in react_list)
+
     for r in react_list:
         await asyncio.sleep(0.25)
         try:
@@ -240,17 +256,21 @@ async def simple_ask(Kyogre, message, destination, user_list=None, *, react_list
         return reaction, user
     except asyncio.TimeoutError:
         await message.clear_reactions()
-        return  
+        return
+
 
 async def ask(bot, message, user_list=None, timeout=60, *, react_list=['✅', '❌'], multiple=False):
     finish_multiple = '👍'
     if user_list and not isinstance(user_list, list):
         user_list = [user_list]
+
     def check(reaction, user):
         if user_list and isinstance(user_list, list):
             return (user.id in user_list) and (reaction.message.id == message.id) and (reaction.emoji in react_list)
         elif not user_list:
-            return (user.id != message.author.id) and (reaction.message.id == message.id) and (reaction.emoji in react_list)
+            return (user.id != message.author.id) and (reaction.message.id == message.id) and (
+                        reaction.emoji in react_list)
+
     for r in react_list:
         await asyncio.sleep(0.25)
         await message.add_reaction(r)
@@ -258,9 +278,9 @@ async def ask(bot, message, user_list=None, timeout=60, *, react_list=['✅', '�
         reactions = []
         while True:
             done, pending = await asyncio.wait([
-                    bot.wait_for('reaction_add', check=check),
-                    bot.wait_for('reaction_remove', check=check)
-                ], timeout=timeout,
+                bot.wait_for('reaction_add', check=check),
+                bot.wait_for('reaction_remove', check=check)
+            ], timeout=timeout,
                 return_when=asyncio.FIRST_COMPLETED)
             for future in pending:
                 future.cancel()
@@ -280,16 +300,18 @@ async def ask(bot, message, user_list=None, timeout=60, *, react_list=['✅', '�
                         return reaction, user
             except:
                 pass
-           
+
     except asyncio.TimeoutError:
         await message.delete()
         return
 
-async def ask_list(bot, prompt, destination, choices_list, options_emoji_list=None, user_list=None, *, allow_edit=False, multiple=False):
+
+async def ask_list(bot, prompt, destination, choices_list, options_emoji_list=None, user_list=None, *, allow_edit=False,
+                   multiple=False):
     if not choices_list:
         return None
     if not options_emoji_list:
-        options_emoji_list = [str(i)+'\u20e3' for i in range(10)]
+        options_emoji_list = [str(i) + '\u20e3' for i in range(10)]
     if not isinstance(user_list, list):
         user_list = [user_list]
     next_emoji = '➡'
@@ -298,22 +320,22 @@ async def ask_list(bot, prompt, destination, choices_list, options_emoji_list=No
     edit_emoji_text = '✏️'
     cancel_emoji = '❌'
     finish_multiple = '👍'
-    num_pages = (len(choices_list) - 1) // len(options_emoji_list)    
+    num_pages = (len(choices_list) - 1) // len(options_emoji_list)
     for offset in range(num_pages + 1):
         list_embed = discord.Embed(colour=destination.guild.me.colour)
         other_options = []
         emojified_options = []
         current_start = offset * len(options_emoji_list)
         current_options_emoji = options_emoji_list
-        current_choices = choices_list[current_start:current_start+len(options_emoji_list)]
+        current_choices = choices_list[current_start:current_start + len(options_emoji_list)]
         try:
             if len(current_choices) < len(current_options_emoji):
                 current_options_emoji = current_options_emoji[:len(current_choices)]
             for i, name in enumerate(current_choices):
                 emojified_options.append(f"{current_options_emoji[i]}: {name}")
-            prompt+='\n\n**Please wait until all reaction emoji are added before selecting any!**\n\n'
+            prompt += '\n\n**Please wait until all reaction emoji are added before selecting any!**\n\n'
             list_embed.add_field(name=prompt, value='\n'.join(emojified_options), inline=False)
-            embed_footer="Choose the reaction corresponding to the desired entry above."
+            embed_footer = "Choose the reaction corresponding to the desired entry above."
             if offset != num_pages:
                 other_options.append(next_emoji)
                 embed_footer += f" Select {next_emoji_text} to see more options."
@@ -340,26 +362,29 @@ async def ask_list(bot, prompt, destination, choices_list, options_emoji_list=No
             for r in reaction:
                 if r.emoji == cancel_emoji:
                     return None
-                reactions.append(choices_list[current_start+current_options_emoji.index(r.emoji)])
+                reactions.append(choices_list[current_start + current_options_emoji.index(r.emoji)])
             return reactions
         else:
             if reaction.emoji in current_options_emoji:
-                return choices_list[current_start+current_options_emoji.index(reaction.emoji)]
+                return choices_list[current_start + current_options_emoji.index(reaction.emoji)]
         if reaction.emoji == edit_emoji:
             break
         if reaction.emoji == cancel_emoji:
-            return None    
+            return None
+
     def check(message):
         if user_list:
             return (message.author.id in user_list)
         else:
             return (message.author.id != message.guild.me.id)
+
     try:
         await destination.send("What's the custom value?")
         message = await bot.wait_for('message', check=check, timeout=60)
         return message.content
     except Exception:
         return None
+
 
 async def letter_case(iterable, find, *, limits=None):
     servercase_list = []
@@ -376,6 +401,7 @@ async def letter_case(iterable, find, *, limits=None):
     else:
         return None
 
+
 async def sleep_and_cleanup(messages, sleep_time):
     await asyncio.sleep(sleep_time)
     for message in messages:
@@ -383,6 +409,7 @@ async def sleep_and_cleanup(messages, sleep_time):
             await message.delete()
         except:
             pass
+
 
 def do_template(message, author, guild):
     not_found = []
@@ -426,9 +453,11 @@ def do_template(message, author, guild):
             if (not role):
                 not_found.append(full_match)
             return role.mention if role else full_match
+
     template_pattern = '(?i){(@|#|&|<)([^{}]+)}|{(user|server)}|<*:([a-zA-Z0-9]+):[0-9]*>*'
     msg = re.sub(template_pattern, template_replace, message)
     return (msg, not_found)
+
 
 # Convert an arbitrary string into something which
 # is acceptable as a Discord channel name.
@@ -440,6 +469,7 @@ def sanitize_name(name):
     # Replace spaces with dashes
     ret = ret.replace(' ', '-')
     return ret
+
 
 # Given a list of types, return a
 # space-separated string of their type IDs,
@@ -454,8 +484,9 @@ def types_to_str(guild, type_list, config):
             x2 = 'x2'
         # Append to string
         ret += (parse_emoji(guild,
-                config['type_id_dict'][p_type]) + x2) + ' '
+                            config['type_id_dict'][p_type]) + x2) + ' '
     return ret
+
 
 # Given a string, if it fits the pattern :emoji name:,
 # and <emoji_name> is in the server's emoji list, then
@@ -469,10 +500,12 @@ def parse_emoji(guild, emoji_string):
             emoji_string = '<:{0}:{1}>'.format(emoji.name, emoji.id)
     return emoji_string
 
-def simple_gmaps_query(lat,lng):
+
+def simple_gmaps_query(lat, lng):
     return f'https://www.google.com/maps/search/?api=1&query={lat},{lng}'
 
-async def time_to_minute_count(guild_dict, channel, timestr, error=True):
+
+async def time_to_minute_count(guild_dict, channel, timestr, error=True, now=None):
     if 'am' in timestr.lower():
         timestr = timestr.strip('am')
     if 'pm' in timestr.lower():
@@ -482,8 +515,12 @@ async def time_to_minute_count(guild_dict, channel, timestr, error=True):
     if timestr.isdigit():
         timestr = timestr[:-2] + ':' + timestr[-2:]
     if ':' in timestr:
-        now = datetime.datetime.utcnow() + datetime.timedelta(
-            hours=guild_dict[channel.guild.id]['configure_dict']['settings']['offset'])
+        if now:
+            now = now + datetime.timedelta(
+                hours=guild_dict[channel.guild.id]['configure_dict']['settings']['offset'])
+        else:
+            now = datetime.datetime.utcnow() + datetime.timedelta(
+                hours=guild_dict[channel.guild.id]['configure_dict']['settings']['offset'])
         start = dateparser.parse(timestr, settings={'PREFER_DATES_FROM': 'future'})
         start = start.replace(month=now.month, day=now.day, year=now.year)
         timediff = relativedelta(start, now)
@@ -506,27 +543,37 @@ async def time_to_minute_count(guild_dict, channel, timestr, error=True):
         return False
 
 
+def parse_time_str(offset, timestr):
+    now = datetime.datetime.utcnow() + datetime.timedelta(hours=offset)
+    start = dateparser.parse(timestr, settings={'PREFER_DATES_FROM': 'future'})
+    start = start.replace(month=now.month, day=now.day, year=now.year)
+    timediff = relativedelta(start, now)
+    if timediff.hours <= -10:
+        start = start + datetime.timedelta(hours=12)
+    return start
+
+
 async def prompt_match_result(Kyogre, channel, author_id, target, result_list):
-        if not isinstance(result_list, list):
-            result_list = [result_list]
-        if not result_list or result_list[0] is None or result_list[0][0] is None:
-            return None
-        # quick check if a full match exists
-        exact_match = [match for match, score in result_list if match.lower() == target.lower()]
-        if len(exact_match) == 1:
-            return exact_match[0]
-        # reminder: partial, exact matches have 100 score, that's why this check exists
-        perfect_scores = [match for match, score in result_list if score == 100]
-        if len(perfect_scores) != 1:
-            # one or more imperfect candidates only, ask user which to use
-            sorted_result = sorted(result_list, key=lambda t: t[1], reverse=True)
-            choices_list = [match for match, score in sorted_result]
-            prompt = "Didn't find an exact match for '{0}'. {1} potential matches found.".format(target, len(result_list))
-            match = await ask_list(Kyogre, prompt, channel, choices_list, user_list=author_id)
-        else:
-            # found a solitary best match
-            match = perfect_scores[0]
-        return match
+    if not isinstance(result_list, list):
+        result_list = [result_list]
+    if not result_list or result_list[0] is None or result_list[0][0] is None:
+        return None
+    # quick check if a full match exists
+    exact_match = [match for match, score in result_list if match.lower() == target.lower()]
+    if len(exact_match) == 1:
+        return exact_match[0]
+    # reminder: partial, exact matches have 100 score, that's why this check exists
+    perfect_scores = [match for match, score in result_list if score == 100]
+    if len(perfect_scores) != 1:
+        # one or more imperfect candidates only, ask user which to use
+        sorted_result = sorted(result_list, key=lambda t: t[1], reverse=True)
+        choices_list = [match for match, score in sorted_result]
+        prompt = "Didn't find an exact match for '{0}'. {1} potential matches found.".format(target, len(result_list))
+        match = await ask_list(Kyogre, prompt, channel, choices_list, user_list=author_id)
+    else:
+        # found a solitary best match
+        match = perfect_scores[0]
+    return match
 
 
 async def reaction_delay(message, reacts, delay=0.25):

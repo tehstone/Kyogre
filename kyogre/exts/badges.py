@@ -336,11 +336,13 @@ class Badges(commands.Cog):
                   .order_by(SQL('count').desc())
                   .limit(10)
                   )
-        output=""
+        output = ""
         for r in result:
             trainer = ctx.guild.get_member(r.trainer)
             output += f"{trainer.display_name} {r.count}\n"
-        await ctx.send(output)
+        embed = discord.Embed(title=f"Here are the top 10 badge earners on this server", colour=discord.Colour.purple())
+        embed.description = output
+        await ctx.send(embed=embed)
 
 
 def setup(bot):

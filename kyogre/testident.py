@@ -38,8 +38,8 @@ def determine_tier(file):
         labels = label_image.load_labels(label_file)
     except FileNotFoundError:
         return "none"
-    output = ''
+    output = []
     for i in top_k:
         if results[i] > .01:
-            output += f"{labels[i]}, {results[i]}\n"
+            output.append((labels[i], round(results[i], 2)))
     return output
