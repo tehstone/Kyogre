@@ -505,7 +505,13 @@ def simple_gmaps_query(lat, lng):
     return f'https://www.google.com/maps/search/?api=1&query={lat},{lng}'
 
 
-async def time_to_minute_count(guild_dict, channel, timestr, error=True, now=None):
+async def time_to_minute_count(guild_dict, channel, timestr, error=True, current=None):
+    if current and timestr.isdigit():
+        now = datetime.datetime.utcnow() + datetime.timedelta(
+            hours=guild_dict[channel.guild.id]['configure_dict']['settings']['offset'])
+        current = current + datetime.timedelta(minutes=int(timestr))
+        timediff = relativedelta(current, now)
+        return (timediff.hours * 60) + timediff.minutes + 1
     if 'am' in timestr.lower():
         timestr = timestr.strip('am')
     if 'pm' in timestr.lower():
@@ -515,12 +521,8 @@ async def time_to_minute_count(guild_dict, channel, timestr, error=True, now=Non
     if timestr.isdigit():
         timestr = timestr[:-2] + ':' + timestr[-2:]
     if ':' in timestr:
-        if now:
-            now = now + datetime.timedelta(
-                hours=guild_dict[channel.guild.id]['configure_dict']['settings']['offset'])
-        else:
-            now = datetime.datetime.utcnow() + datetime.timedelta(
-                hours=guild_dict[channel.guild.id]['configure_dict']['settings']['offset'])
+        now = datetime.datetime.utcnow() + datetime.timedelta(
+            hours=guild_dict[channel.guild.id]['configure_dict']['settings']['offset'])
         start = dateparser.parse(timestr, settings={'PREFER_DATES_FROM': 'future'})
         start = start.replace(month=now.month, day=now.day, year=now.year)
         timediff = relativedelta(start, now)

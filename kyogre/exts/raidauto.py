@@ -4,6 +4,7 @@ import re
 import requests
 import shutil
 import time
+from PIL import Image
 
 import discord
 from discord.ext import commands
@@ -14,9 +15,11 @@ from kyogre import testident, utils, checks
 from kyogre.context import Context
 from kyogre.exts.pokemon import Pokemon
 
+
 class RaidAuto(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.hashes = {}
 
     async def create_raid(self, ctx, raid_info):
         guild = ctx.guild
@@ -26,11 +29,15 @@ class RaidAuto(commands.Cog):
         # Determine current time based on raid_info["phone"] or just use current time
         if raid_info["phone"]:
             offset = self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset']
-            now = utils.parse_time_str(offset, raid_info["phone"])
+            start = utils.parse_time_str(offset, raid_info["phone"])
         # Determine hatch time based on raid_info["egg"] or use default
         if raid_info["egg"]:
-            raidexp = await utils.time_to_minute_count(self.bot.guild_dict, channel, raid_info["egg"], now)
-            pass
+            raidexp = await utils.time_to_minute_count(self.bot.guild_dict, channel, raid_info["egg"], current=start)
+        if raidexp < 0 and raid_info['type'] == 'raid':
+            self.bot.gcv_logger.info(f"{ctx.author} posted an expired raid.")
+            return await ctx.channel.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description=f"This raid has already expired. Please do not post expired raids."))
         # Determine region
         utils_cog = self.bot.cogs.get('Utilities')
         regions = utils_cog.get_channel_regions(channel, 'raid')
@@ -86,9 +93,16 @@ class RaidAuto(commands.Cog):
 
     async def _process_message_attachments(self, ctx, message):
         # TODO Determine if it's worth handling multiple attachments and refactor to accommodate
-        file = self._save_image(message.attachments[0])
+        a = message.attachments[0]
+        file = self._save_image(a)
         if file is None:
             return
+        if self.already_scanned(file):
+            return await ctx.channel.send(
+                embed=discord.Embed(
+                    colour=discord.Colour.red(),
+                    description="This image has already been scanned. If a raid was not created previously from this "
+                                "image, please report using the command instead:\n `!r <boss/tier> <gym name> <time>`"))
         self.bot.gcv_logger.info(file)
         tier = self._determine_raid(file)
         raid_info = {}
@@ -107,6 +121,7 @@ class RaidAuto(commands.Cog):
             raid_info["type"] = "raid"
             raid_info["boss"] = tier
         raid_info = dict(await self._call_cloud(file), **raid_info)
+        # raid_info = dict(await self._fake_cloud(), **raid_info)
         if raid_info["gym"] is None:
             # self._cleanup_file(file, "screenshots/gcvapi_failed")
             return await message.channel.send(
@@ -129,6 +144,37 @@ class RaidAuto(commands.Cog):
             shutil.copyfileobj(r.raw, out_file)
         self.bot.saved_files[filename] = {"time": round(time.time()), "fullpath": filepath}
         return filepath
+
+    @staticmethod
+    def dhash(image, hash_size=32):
+        image = image.convert('L').resize(
+            (hash_size + 1, hash_size),
+            Image.ANTIALIAS,
+        )
+        difference = []
+        for row in range(0, hash_size):
+            for col in range(0, hash_size):
+                pixel_left = image.getpixel((col, row))
+                pixel_right = image.getpixel((col + 1, row))
+                difference.append(pixel_left > pixel_right)
+        decimal_value = 0
+        hex_string = []
+        for index, value in enumerate(difference):
+            if value:
+                decimal_value += 2 ** (index % 8)
+            if (index % 8) == 7:
+                hex_string.append(hex(decimal_value)[2:].rjust(2, '0'))
+                decimal_value = 0
+        return ''.join(hex_string)
+
+    def already_scanned(self, file):
+        image = Image.open(file)
+        im_hash = self.dhash(image)
+        if im_hash in self.hashes:
+            return True
+        else:
+            self.hashes[im_hash] = 1
+            return False
 
     def _determine_raid(self, file):
         tier = testident.determine_tier(file)
@@ -199,15 +245,17 @@ class RaidAuto(commands.Cog):
         return {"phone": phone_time, "egg": egg_time, "gym": gym}
 
     async def _fake_cloud(self):
-        text = '''Q A A9
-86%
-06:25
-B-BiT
-8-Bit Arcade-Bar
-0:54:48
-Walk closer to interact with this Gym.
-X
-n.'''
+        text = '''06:33 E M Q A A
+38%
+EX RAID GYM
+AFA
+Burnett Linear Park
+28769
+Absol
+CP
+СР.
+0:30:21
+Walk closer to interact with this Gym.'''
         phone_time, egg_time = None, None
         gym_name = []
         # match phone time display of form 5:23 or 13:23
