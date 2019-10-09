@@ -1,3 +1,4 @@
+import datetime
 import os
 import random
 import re
@@ -13,6 +14,7 @@ import google.cloud.vision as vision
 
 from kyogre import testident, utils, checks
 from kyogre.context import Context
+from kyogre.exts.db.kyogredb import APIUsageTable, GuildTable, TrainerTable, fn
 from kyogre.exts.pokemon import Pokemon
 
 
@@ -103,6 +105,13 @@ class RaidAuto(commands.Cog):
                     colour=discord.Colour.red(),
                     description="This image has already been scanned. If a raid was not created previously from this "
                                 "image, please report using the command instead:\n `!r <boss/tier> <gym name> <time>`"))
+        usage = await self._get_usage(ctx)
+        if usage > self.bot.api_usage_limit:
+            return await ctx.channel.send(
+                embed=discord.Embed(
+                    colour=discord.Colour.red(),
+                    description="You have used your maximum number of reports via screenshot allowed this month, "
+                                "please report using the command instead:\n `!r <boss/tier> <gym name> <time>`"))
         self.bot.gcv_logger.info(file)
         tier = self._determine_raid(file)
         raid_info = {}
@@ -122,6 +131,7 @@ class RaidAuto(commands.Cog):
             raid_info["boss"] = tier
         raid_info = dict(await self._call_cloud(file), **raid_info)
         # raid_info = dict(await self._fake_cloud(), **raid_info)
+        self._count_usage(ctx)
         if raid_info["gym"] is None:
             # self._cleanup_file(file, "screenshots/gcvapi_failed")
             return await message.channel.send(
@@ -245,7 +255,7 @@ class RaidAuto(commands.Cog):
         return {"phone": phone_time, "egg": egg_time, "gym": gym}
 
     async def _fake_cloud(self):
-        text = '''06:33 E M Q A A
+        text = '''10:10 E M Q A A
 38%
 EX RAID GYM
 AFA
@@ -296,6 +306,25 @@ Walk closer to interact with this Gym.'''
         self.bot.gcv_logger.info(f"Read gym as: {gym}. Read phone time as: {phone_time}. "
                                  f"Read egg time as: {egg_time}")
         return {"phone": phone_time, "egg": egg_time, "gym": gym}
+
+    @staticmethod
+    def _count_usage(ctx):
+        __, __ = GuildTable.get_or_create(snowflake=ctx.guild.id)
+        trainer, __ = TrainerTable.get_or_create(snowflake=ctx.author.id, guild=ctx.guild.id)
+        now = round(time.time())
+        APIUsageTable.create(trainer=trainer, date=now)
+
+    @staticmethod
+    async def _get_usage(ctx):
+        month_start = round(datetime.datetime.today().replace(day=1, hour=0, minute=0).timestamp())
+        usage = (APIUsageTable.select(fn.Count(APIUsageTable.trainer).alias('count'))
+                 .join(TrainerTable)
+                 .where((TrainerTable.snowflake == ctx.author.id) &
+                        (APIUsageTable.date > month_start))
+                 )
+        if len(usage) < 1:
+            return 0
+        return usage[0].count
 
     @staticmethod
     def _cleanup_file(file, dst):

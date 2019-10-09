@@ -1,3 +1,4 @@
+import datetime
 import json
 from peewee import Proxy, chunked
 from playhouse.apsw_ext import *
@@ -23,7 +24,7 @@ class KyogreDB:
             LocationNoteTable, LocationRegionRelation, LocationTable, LureTable, LureTypeRelation, LureTypeTable,
             PokemonTable, PokestopTable, QuestTable, RaidActionTable, RaidBossRelation, RaidTable, RegionTable,
             ResearchTable, RewardTable, SightingTable, SilphcardTable, SubscriptionTable, TeamTable, TradeTable,
-            TrainerReportRelation, TrainerTable, TopSubsTable
+            TrainerReportRelation, TrainerTable, TopSubsTable, APIUsageTable
         ])
         cls.init()
         cls._migrator = SqliteMigrator(cls._db)
@@ -435,3 +436,8 @@ class BadgeAssignmentTable(BaseModel):
 
     class Meta:
         constraints = [SQL('UNIQUE(trainer, badge_id)')]
+
+
+class APIUsageTable(BaseModel):
+    trainer = ForeignKeyField(TrainerTable, field=TrainerTable.id, backref='APIUsage', index=True)
+    date = DateField(formats='%Y-%m-%d', default=datetime.datetime.now)
