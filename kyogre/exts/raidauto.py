@@ -81,8 +81,9 @@ class RaidAuto(commands.Cog):
                 or message.author == self.bot.user:
             return
         if message.channel.id in [629456197501583381]:
-            file = self._save_image(message.attachments[0])
+            file = self._image_pre_check(message)
             tier = self._determine_raid(file)
+            await self._build_raid_info(tier, file)
             return await message.channel.send(tier)
         if not checks.check_raidreport(ctx) and not checks.check_raidchannel(ctx):
             return
@@ -96,10 +97,9 @@ class RaidAuto(commands.Cog):
     async def _process_message_attachments(self, ctx, message):
         # TODO Determine if it's worth handling multiple attachments and refactor to accommodate
         a = message.attachments[0]
-        file = self._save_image(a)
-        if file is None:
-            return
+        file = await self._image_pre_check(message)
         if self.already_scanned(file):
+            os.remove(file)
             return await ctx.channel.send(
                 embed=discord.Embed(
                     colour=discord.Colour.red(),
@@ -114,21 +114,9 @@ class RaidAuto(commands.Cog):
                                 "please report using the command instead:\n `!r <boss/tier> <gym name> <time>`"))
         self.bot.gcv_logger.info(file)
         tier = self._determine_raid(file)
-        raid_info = {}
-        if tier == "0":
-            self._cleanup_file(file, "screenshots/not_raid")
+        raid_info, file = await self._build_raid_info(tier, file)
+        if not raid_info:
             return await message.add_reaction(self.bot.failed_react)
-        elif tier.isdigit():
-            file = self._cleanup_file(file, f"screenshots/{tier}")
-            raid_info["type"] = "egg"
-            raid_info["level"] = f"{tier}"
-        else:
-            out_path = os.path.join("screenshots", tier)
-            if not os.path.exists(out_path):
-                os.makedirs(out_path)
-            file = self._cleanup_file(file, out_path)
-            raid_info["type"] = "raid"
-            raid_info["boss"] = tier
         raid_info = dict(await self._call_cloud(file), **raid_info)
         # raid_info = dict(await self._fake_cloud(), **raid_info)
         self._count_usage(ctx)
@@ -142,6 +130,33 @@ class RaidAuto(commands.Cog):
             pass
         return await self.create_raid(ctx, raid_info)
 
+    async def _image_pre_check(self, message):
+        file = self._save_image(message.attachments[0])
+        img = Image.open(file)
+        img = self.exif_transpose(img)
+        filesize = os.stat(file).st_size
+        img = self._check_resize(img, filesize)
+        img.save(file)
+        return file
+
+    async def _build_raid_info(self, tier, file):
+        raid_info = {}
+        if tier == "0":
+            self._cleanup_file(file, "screenshots/not_raid")
+            return None, None
+        elif tier.isdigit():
+            file = self._cleanup_file(file, f"screenshots/{tier}")
+            raid_info["type"] = "egg"
+            raid_info["level"] = f"{tier}"
+        else:
+            out_path = os.path.join("screenshots", tier)
+            if not os.path.exists(out_path):
+                os.makedirs(out_path)
+            file = self._cleanup_file(file, out_path)
+            raid_info["type"] = "raid"
+            raid_info["boss"] = tier
+        return raid_info, file
+
     def _save_image(self, attachment):
         url = attachment.url
         __, file_extension = os.path.splitext(attachment.filename)
@@ -154,6 +169,54 @@ class RaidAuto(commands.Cog):
             shutil.copyfileobj(r.raw, out_file)
         self.bot.saved_files[filename] = {"time": round(time.time()), "fullpath": filepath}
         return filepath
+
+    @staticmethod
+    def _check_resize(image, filesize):
+        if filesize > 2500000:
+            factor = 1.1
+            if filesize > 5000000:
+                factor = 1.4
+            width, height = image.size
+            width = int(width/factor)
+            height = int(height/factor)
+            image = image.resize((width, height))
+        return image
+
+    @staticmethod
+    def exif_transpose(img):
+        if not img:
+            return img
+        exif_orientation_tag = 274
+        # Check for EXIF data (only present on some files)
+        if hasattr(img, "_getexif") and isinstance(img._getexif(), dict) and exif_orientation_tag in img._getexif():
+            exif_data = img._getexif()
+            orientation = exif_data[exif_orientation_tag]
+            # Handle EXIF Orientation
+            if orientation == 1:
+                # Normal image - nothing to do!
+                pass
+            elif orientation == 2:
+                # Mirrored left to right
+                img = img.transpose(Image.FLIP_LEFT_RIGHT)
+            elif orientation == 3:
+                # Rotated 180 degrees
+                img = img.rotate(180)
+            elif orientation == 4:
+                # Mirrored top to bottom
+                img = img.rotate(180).transpose(Image.FLIP_LEFT_RIGHT)
+            elif orientation == 5:
+                # Mirrored along top-left diagonal
+                img = img.rotate(-90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+            elif orientation == 6:
+                # Rotated 90 degrees
+                img = img.rotate(-90, expand=True)
+            elif orientation == 7:
+                # Mirrored along top-right diagonal
+                img = img.rotate(90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+            elif orientation == 8:
+                # Rotated 270 degrees
+                img = img.rotate(90, expand=True)
+        return img
 
     @staticmethod
     def dhash(image, hash_size=32):
