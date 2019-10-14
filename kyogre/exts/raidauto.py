@@ -156,8 +156,8 @@ orm rhe""",
                     (message.attachments[0].width is None))\
                 or message.author == self.bot.user:
             return
-        if message.channel.id in [628670877826940951]:
-            file = self._image_pre_check(message)
+        if message.channel.id in [629456197501583381, 530460439591518218, 449571161613926420, 628670877826940951]:
+            file = await self._image_pre_check(message, ctx)
             return await ctx.send(await self.newtest(ctx, file))
         return
         # if not checks.check_raidreport(ctx) and not checks.check_raidchannel(ctx):
@@ -205,8 +205,8 @@ orm rhe""",
             pass
         return await self.create_raid(ctx, raid_info)
 
-    def _image_pre_check(self, message):
-        file = self._save_image(message.attachments[0])
+    async def _image_pre_check(self, message, ctx):
+        file = await self._save_image(message.attachments[0], ctx)
         img = Image.open(file)
         img = self.exif_transpose(img)
         filesize = os.stat(file).st_size
@@ -232,18 +232,13 @@ orm rhe""",
             raid_info["boss"] = tier
         return raid_info, file
 
-    def _save_image(self, attachment):
-        url = attachment.url
+    async def _save_image(self, attachment, ctx):
         __, file_extension = os.path.splitext(attachment.filename)
-        if not url.startswith('https://cdn.discordapp.com/attachments'):
-            return None
-        r = requests.get(url, stream=True)
         filename = f"{attachment.id}{file_extension}"
         #### TODO revert path
-        filepath = os.path.join('screenshotsz', filename)
+        filepath = os.path.join('screenshots', filename)
         with open(filepath, 'wb') as out_file:
-            shutil.copyfileobj(r.raw, out_file)
-        self.bot.saved_files[filename] = {"time": round(time.time()), "fullpath": filepath}
+            await attachment.save(out_file)
         return filepath
 
     @staticmethod
@@ -482,6 +477,7 @@ Walk closer to interact with this Gym.
 
     async def newtest(self, ctx, file):
         image_info = await image_scan.read_photo_async(file, self.bot.gcv_logger)
+
         # {'egg': egg_time, 'expire': expire_time, 'phone': phone_time, 'names': gym_name_options}
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         gyms = location_matching_cog.get_gyms(ctx.guild.id)
@@ -499,6 +495,13 @@ Walk closer to interact with this Gym.
             if image_info['boss'] and not image_info['egg_time']:
                 if not image_info['expire_time']:
                     image_info['expire_time'] = 'Unknown'
+                    self.bot.gcv_logger.info(f"result_egg: {image_info['egg_time']} "
+                                             f"result_expire: {image_info['expire_time']} "
+                                             f"result_boss: {image_info['boss']} "
+                                             f"result_gym: {image_info['names']} "
+                                             f"matched gym: {gym.name}"
+                                             f"result_phone: {image_info['phone_time']} "
+                                             f"total runtime: {image_info['runtime']}")
                 return f"{image_info['boss']} raid at {gym.name}. Expires in {image_info['expire_time']}, current time: {image_info['phone_time']}"
             else:
                 tiers = testident.determine_tier(file)
@@ -506,6 +509,13 @@ Walk closer to interact with this Gym.
                     if tier[0].startswith("tier"):
                         if not image_info['egg_time']:
                             image_info['egg_time'] = 'Unknown'
+                        self.bot.gcv_logger.info(f"result_egg: {image_info['egg_time']} "
+                                                 f"result_expire: {image_info['expire_time']} "
+                                                 f"tier: {tier[0][4]} "
+                                                 f"result_gym: {image_info['names']} "
+                                                 f"matched gym: {gym.name}"
+                                                 f"result_phone: {image_info['phone_time']} "
+                                                 f"total runtime: {image_info['runtime']}")
                         return f"Level {tier[0][4]} egg at {gym.name}. Hatches in {image_info['egg_time']}, current time: {image_info['phone_time']}"
                 return "none"
             # if False:

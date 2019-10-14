@@ -9,7 +9,8 @@ RUN apt-get update -qq \
 && apt-get -y install apt-utils  \
 && apt-get -y install wget \
 && apt-get -y install gcc \
-&& apt-get -y install git
+&& apt-get -y install git \
+&& apt-get -y install libsm6 libxext6 libxrender-dev
 
 RUN apt-get install -qq tesseract-ocr libtesseract-dev libleptonica-dev
 
