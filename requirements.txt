@@ -16,3 +16,5 @@ tensorflow-estimator==1.14.0
 numpy==1.17.2
 google-cloud-vision==0.39
 Pillow==6.2.0
+opencv-python==4.1.1.26
+pytesseract==0.3.0
