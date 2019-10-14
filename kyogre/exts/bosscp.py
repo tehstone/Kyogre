@@ -84,5 +84,6 @@ raid_cp_chart = {2873: "Shinx",
                  20453: "Togetic",
                  28590: "Houndoom",
                  28769: "Absol",
-                 38326: "Giratina"
+                 38326: "Giratina",
+                 53623: "Darkrai"
                  }
