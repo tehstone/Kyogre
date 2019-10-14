@@ -248,6 +248,7 @@ class Badges(commands.Cog):
                 colour=discord.Colour.green(), description=f"Successfully granted badge to {count} trainers."))
 
     @commands.command(name="available_badges", aliases=['avb'])
+    @commands.has_permissions(manage_guild=True)
     async def _available(self, ctx):
         """**Usage**: `!available_badges/avb`
         Lists all badges that are currently available."""
