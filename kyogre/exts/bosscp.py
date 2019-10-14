@@ -3,6 +3,7 @@ boss_cp_chart = {
     "mewtwo": "**CP Range:** 2,294-2,387\n **Boosted:** 2,868-2,984",
     "giratina": "**CP Range:** 1,848-1931\n **Boosted:** 2,310-2,414",
     "palkia": "**CP Range:** 2,190-2,280\n **Boosted:** 2,737-2,850",
+    "darkrai": "**CP Range:** 2,048-2,136\n **Boosted:** 2,560-2,671",
     "marowak": "**CP Range:** 988-1,048\n **Boosted:** 1,235-1,311",
     "dragonite": "**CP Range:** 2,079-2,167\n **Boosted:** 2,599-2,709",
     "togetic": "**CP Range:** 917-976\n **Boosted:** 1,147-1,220",
@@ -83,5 +84,6 @@ raid_cp_chart = {2873: "Shinx",
                  20453: "Togetic",
                  28590: "Houndoom",
                  28769: "Absol",
-                 38326: "Giratina"
+                 38326: "Giratina",
+                 53623: "Darkrai"
                  }
