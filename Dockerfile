@@ -1,4 +1,4 @@
-FROM 3.6.9-slim-buster
+FROM python:3.6.9-slim-buster
 
 # Set working directory
 RUN mkdir /src
