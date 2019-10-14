@@ -28,6 +28,9 @@ class Social(commands.Cog):
         xp = trainer_info.get('xp', 0)
         try:
             xp = xp.replace(',', '')
+        except AttributeError:
+            pass
+        try:
             xp = int(xp)
         except (ValueError, TypeError):
             xp = 0
