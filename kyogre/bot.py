@@ -80,6 +80,8 @@ class KyogreBot(commands.AutoShardedBot):
         self.gcv_logger = init_gcv_logger()
         custom_error_handling(self, self.logger)
         self.guild_dict = {}
+        self.vision_api_enabled = False
+        self.api_usage_limit = 20
         self._load_data()
         self.raid_json_path = self._load_config()
         self.active_raids = []
@@ -93,7 +95,6 @@ class KyogreBot(commands.AutoShardedBot):
         self.team_color_map = {'Mystic': discord.Colour.blue(),
                                'Valor': discord.Colour.red(),
                                'Instinct': discord.Colour.from_rgb(255, 255, 0)}
-        self.vision_api_enabled = False
         self.saved_files = {}
 
         for ext in default_exts:
@@ -140,6 +141,12 @@ class KyogreBot(commands.AutoShardedBot):
             cwd = os.getcwd()
             os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(cwd, key_file_path)
             self.vision_api_enabled = True
+        cloud_key = self.config["vision_api_enabled"]
+        if cloud_key is not None:
+            self.vision_api_enabled = cloud_key
+        limit_key = self.config["api_usage_limit"]
+        if limit_key is not None:
+            self.api_usage_limit = limit_key
         # Set up message catalog access
         # Load raid info
         raid_path_source = os.path.join('data', 'raid_info.json')

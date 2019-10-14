@@ -1,6 +1,9 @@
+import datetime
 import os
 import random
 import re
+from operator import itemgetter
+
 import requests
 import shutil
 import time
@@ -11,8 +14,9 @@ from discord.ext import commands
 
 import google.cloud.vision as vision
 
-from kyogre import testident, utils, checks
+from kyogre import image_scan, testident, utils, checks
 from kyogre.context import Context
+from kyogre.exts.db.kyogredb import APIUsageTable, GuildTable, TrainerTable, fn
 from kyogre.exts.pokemon import Pokemon
 
 
@@ -20,6 +24,80 @@ class RaidAuto(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.hashes = {}
+        self.test_data = ["""EX RAID CG
+
+=* Burnett Linear Park O
+
+<< oe |
+
+, a WO am OY a Ve |""",
+"""EX RAID C
+
+=< Burnett Linear Park O
+
+a, be
+7 ww. |""",
+"""* Renton Civic Theatre So
+
+oo I I
+q a, wa) | we""",
+""". Renton Civic Theatre O
+
+SUI
+yw. av a *""",
+"""EX RAID C
+Untitled Mural by
+toy ata (=) ©""",
+"""EX RAID C
+Untitled Mural by 5
+Bonnie Branson 1989
+
+0 NO ee Le Ca""",
+"""EX RAID C
+
+Tee CS
+ae)
+
+| a oe Le _""",
+"""EX RAID C
+
+pre 1900s O
+a""",
+"""' Wat Lao Mixayaram O
+
+VSUve""",
+"""\ . Wat Lao Mixayaram O
+
+AAA""",
+"""4.
+Renton Library O
+
+y eRe)
+> fle AF A Ff""",
+"""Renton Library So
+
+© ee)
+| a a a""",
+"""ar ;
+aT aren S
+y
+
+Roadhouse
+
+Ue &
+or rh""",
+"""aan S
+
+Roadhouse
+
+ty
+orm rhe""",
+"""Renton Brown Bear O""",
+"""Renton Brown Bear So""",
+""") 8-Bit Arcade-Bar So""",
+""") 8-Bit Arcade-Bar O""",
+"""yeah ea So""",
+"""yea hea O"""]
 
     async def create_raid(self, ctx, raid_info):
         guild = ctx.guild
@@ -78,37 +156,69 @@ class RaidAuto(commands.Cog):
                     (message.attachments[0].width is None))\
                 or message.author == self.bot.user:
             return
-        if message.channel.id in [629456197501583381]:
-            file = self._save_image(message.attachments[0])
-            tier = self._determine_raid(file)
-            return await message.channel.send(tier)
-        if not checks.check_raidreport(ctx) and not checks.check_raidchannel(ctx):
-            return
-        if not self.bot.vision_api_enabled:
-            return await ctx.send(embed=discord.Embed(
-                    colour=discord.Colour.red(),
-                    description="Screenshot reporting is not enabled at this time. "
-                                "Please report with the command instead."))
-        await self._process_message_attachments(ctx, message)
+        if message.channel.id in [629456197501583381, 530460439591518218, 449571161613926420, 628670877826940951]:
+            file = await self._image_pre_check(message, ctx)
+            return await ctx.send(await self.newtest(ctx, file))
+        return
+        # if not checks.check_raidreport(ctx) and not checks.check_raidchannel(ctx):
+        #     return
+        # if not self.bot.vision_api_enabled:
+        #     return await ctx.send(embed=discord.Embed(
+        #             colour=discord.Colour.red(),
+        #             description="Screenshot reporting is not enabled at this time. "
+        #                         "Please report with the command instead:\n `!r <boss/tier> <gym name> <time>`"))
+        # await self._process_message_attachments(ctx, message)
 
     async def _process_message_attachments(self, ctx, message):
         # TODO Determine if it's worth handling multiple attachments and refactor to accommodate
         a = message.attachments[0]
-        file = self._save_image(a)
-        if file is None:
-            return
+        file = self._image_pre_check(message)
         if self.already_scanned(file):
+            os.remove(file)
             return await ctx.channel.send(
                 embed=discord.Embed(
                     colour=discord.Colour.red(),
                     description="This image has already been scanned. If a raid was not created previously from this "
                                 "image, please report using the command instead:\n `!r <boss/tier> <gym name> <time>`"))
+        usage = await self._get_usage(ctx)
+        if usage > self.bot.api_usage_limit:
+            return await ctx.channel.send(
+                embed=discord.Embed(
+                    colour=discord.Colour.red(),
+                    description="You have used your maximum number of reports via screenshot allowed this month, "
+                                "please report using the command instead:\n `!r <boss/tier> <gym name> <time>`"))
         self.bot.gcv_logger.info(file)
         tier = self._determine_raid(file)
+        raid_info, file = await self._build_raid_info(tier, file)
+        if not raid_info:
+            return await message.add_reaction(self.bot.failed_react)
+        # raid_info = dict(await self._call_cloud(file), **raid_info)
+        raid_info = dict(await self._fake_cloud(), **raid_info)
+        self._count_usage(ctx)
+        if raid_info["gym"] is None:
+            # self._cleanup_file(file, "screenshots/gcvapi_failed")
+            return await message.channel.send(
+                embed=discord.Embed(
+                    colour=discord.Colour.red(),
+                    description="Could not determine gym name from screenshot, unable to create raid channel. "
+                                "Please report using the command instead: `!r <boss/tier> <gym name> <time>`"))
+            pass
+        return await self.create_raid(ctx, raid_info)
+
+    async def _image_pre_check(self, message, ctx):
+        file = await self._save_image(message.attachments[0], ctx)
+        img = Image.open(file)
+        img = self.exif_transpose(img)
+        filesize = os.stat(file).st_size
+        img = self._check_resize(img, filesize)
+        img.save(file)
+        return file
+
+    async def _build_raid_info(self, tier, file):
         raid_info = {}
         if tier == "0":
             self._cleanup_file(file, "screenshots/not_raid")
-            return await message.add_reaction(self.bot.failed_react)
+            return None, None
         elif tier.isdigit():
             file = self._cleanup_file(file, f"screenshots/{tier}")
             raid_info["type"] = "egg"
@@ -120,30 +230,64 @@ class RaidAuto(commands.Cog):
             file = self._cleanup_file(file, out_path)
             raid_info["type"] = "raid"
             raid_info["boss"] = tier
-        raid_info = dict(await self._call_cloud(file), **raid_info)
-        # raid_info = dict(await self._fake_cloud(), **raid_info)
-        if raid_info["gym"] is None:
-            # self._cleanup_file(file, "screenshots/gcvapi_failed")
-            return await message.channel.send(
-                embed=discord.Embed(
-                    colour=discord.Colour.red(),
-                    description="Could not determine gym name from screenshot, unable to create raid channel. "
-                                "Please report using the command instead: `!r <boss/tier> <gym name> <time>`"))
-            pass
-        return await self.create_raid(ctx, raid_info)
+        return raid_info, file
 
-    def _save_image(self, attachment):
-        url = attachment.url
+    async def _save_image(self, attachment, ctx):
         __, file_extension = os.path.splitext(attachment.filename)
-        if not url.startswith('https://cdn.discordapp.com/attachments'):
-            return None
-        r = requests.get(url, stream=True)
         filename = f"{attachment.id}{file_extension}"
+        #### TODO revert path
         filepath = os.path.join('screenshots', filename)
         with open(filepath, 'wb') as out_file:
-            shutil.copyfileobj(r.raw, out_file)
-        self.bot.saved_files[filename] = {"time": round(time.time()), "fullpath": filepath}
+            await attachment.save(out_file)
         return filepath
+
+    @staticmethod
+    def _check_resize(image, filesize):
+        if filesize > 2500000:
+            factor = 1.05
+            if filesize > 5000000:
+                factor = 1.2
+            width, height = image.size
+            width = int(width/factor)
+            height = int(height/factor)
+            image = image.resize((width, height))
+        return image
+
+    @staticmethod
+    def exif_transpose(img):
+        if not img:
+            return img
+        exif_orientation_tag = 274
+        # Check for EXIF data (only present on some files)
+        if hasattr(img, "_getexif") and isinstance(img._getexif(), dict) and exif_orientation_tag in img._getexif():
+            exif_data = img._getexif()
+            orientation = exif_data[exif_orientation_tag]
+            # Handle EXIF Orientation
+            if orientation == 1:
+                # Normal image - nothing to do!
+                pass
+            elif orientation == 2:
+                # Mirrored left to right
+                img = img.transpose(Image.FLIP_LEFT_RIGHT)
+            elif orientation == 3:
+                # Rotated 180 degrees
+                img = img.rotate(180)
+            elif orientation == 4:
+                # Mirrored top to bottom
+                img = img.rotate(180).transpose(Image.FLIP_LEFT_RIGHT)
+            elif orientation == 5:
+                # Mirrored along top-left diagonal
+                img = img.rotate(-90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+            elif orientation == 6:
+                # Rotated 90 degrees
+                img = img.rotate(-90, expand=True)
+            elif orientation == 7:
+                # Mirrored along top-right diagonal
+                img = img.rotate(90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+            elif orientation == 8:
+                # Rotated 270 degrees
+                img = img.rotate(90, expand=True)
+        return img
 
     @staticmethod
     def dhash(image, hash_size=32):
@@ -259,17 +403,15 @@ class RaidAuto(commands.Cog):
         return {"phone": phone_time, "egg": egg_time, "gym": gym}
 
     async def _fake_cloud(self):
-        text = '''06:33 E M Q A A
-38%
-EX RAID GYM
-AFA
-Burnett Linear Park
-28769
-Absol
-CP
-СР.
-0:30:21
-Walk closer to interact with this Gym.'''
+        text = '''6:421
+.lLTE
+Renton Diamond
+Jubilee
+3472
+RVtor
+0:43:54
+Walk closer to interact with this Gym.
+'''
         phone_time, egg_time = None, None
         gym_name = []
         # match phone time display of form 5:23 or 13:23
@@ -312,11 +454,122 @@ Walk closer to interact with this Gym.'''
         return {"phone": phone_time, "egg": egg_time, "gym": gym}
 
     @staticmethod
+    def _count_usage(ctx):
+        __, __ = GuildTable.get_or_create(snowflake=ctx.guild.id)
+        trainer, __ = TrainerTable.get_or_create(snowflake=ctx.author.id, guild=ctx.guild.id)
+        now = round(time.time())
+        APIUsageTable.create(trainer=trainer, date=now)
+
+    @staticmethod
+    async def _get_usage(ctx):
+        month_start = round(datetime.datetime.today().replace(day=1, hour=0, minute=0).timestamp())
+        usage = (APIUsageTable.select(fn.Count(APIUsageTable.trainer).alias('count'))
+                 .join(TrainerTable)
+                 .where((TrainerTable.snowflake == ctx.author.id) &
+                        (APIUsageTable.date > month_start))
+                 )
+        if len(usage) < 1:
+            return 0
+        return usage[0].count
+
+    @staticmethod
     def _cleanup_file(file, dst):
         filename = os.path.split(file)[1]
         dest = os.path.join(dst, filename)
         shutil.move(file, dest)
         return dest
+
+    @commands.command(name="test_gym_ident", aliases=['tgi'])
+    async def test_gym_ident(self, ctx):
+        location_matching_cog = self.bot.cogs.get('LocationMatching')
+        gyms = location_matching_cog.get_gyms(ctx.guild.id)
+        for name in self.test_data:
+            result = location_matching_cog.location_match(name, gyms)
+            results = [(match.name, score) for match, score in result]
+            print(f"scanned: {name}\nproduced: {results}")
+        pass
+
+    async def newtest(self, ctx, file):
+        image_info = await image_scan.read_photo_async(file, self.bot.gcv_logger)
+
+        # {'egg': egg_time, 'expire': expire_time, 'phone': phone_time, 'names': gym_name_options}
+        location_matching_cog = self.bot.cogs.get('LocationMatching')
+        gyms = location_matching_cog.get_gyms(ctx.guild.id)
+        gym = None
+        for name in image_info['names']:
+            result = location_matching_cog.location_match(name.strip(), gyms, is_partial=False)
+            results = [(match.name, score) for match, score in result]
+            results = sorted(results, key=itemgetter(1), reverse=True)
+            if len(results) > 0:
+                gym = next((l for l in gyms if l.name == results[0][0]), None)
+                break
+        if not image_info['phone_time']:
+            image_info['phone_time'] = 'Unknown'
+        if gym:
+            if image_info['boss'] and not image_info['egg_time']:
+                if not image_info['expire_time']:
+                    image_info['expire_time'] = 'Unknown'
+                    self.bot.gcv_logger.info(f"result_egg: {image_info['egg_time']} "
+                                             f"result_expire: {image_info['expire_time']} "
+                                             f"result_boss: {image_info['boss']} "
+                                             f"result_gym: {image_info['names']} "
+                                             f"matched gym: {gym.name}"
+                                             f"result_phone: {image_info['phone_time']} "
+                                             f"total runtime: {image_info['runtime']}")
+                return f"{image_info['boss']} raid at {gym.name}. Expires in {image_info['expire_time']}, current time: {image_info['phone_time']}"
+            else:
+                tiers = testident.determine_tier(file)
+                for tier in tiers:
+                    if tier[0].startswith("tier"):
+                        if not image_info['egg_time']:
+                            image_info['egg_time'] = 'Unknown'
+                        self.bot.gcv_logger.info(f"result_egg: {image_info['egg_time']} "
+                                                 f"result_expire: {image_info['expire_time']} "
+                                                 f"tier: {tier[0][4]} "
+                                                 f"result_gym: {image_info['names']} "
+                                                 f"matched gym: {gym.name}"
+                                                 f"result_phone: {image_info['phone_time']} "
+                                                 f"total runtime: {image_info['runtime']}")
+                        return f"Level {tier[0][4]} egg at {gym.name}. Hatches in {image_info['egg_time']}, current time: {image_info['phone_time']}"
+                return "none"
+            # if False:
+            #     tiers = [t[0] for t in tiers]
+            #     if image_info['egg_time']:
+            #         for tier in tiers:
+            #             if tier.startswith("tier"):
+            #                 #make channel
+            #                 return f"Level {tier[4]} egg at {gym.name}. Hatches in {image_info['egg_time']}, current time: {image_info['phone_time']}"
+            #     pokes = []
+            #     first, first_none = True, False
+            #     if image_info['boss']:
+            #         pokemon = Pokemon.get_pokemon(self.bot, image_info['boss'])
+            #         pokes.append(pokemon)
+            #     else:
+            #         for tier in tiers:
+            #             if first and tier.startswith("none"):
+            #                 first_none = True
+            #             first = False
+            #             if not tier.startswith("none") and not tier.startswith("tier"):
+            #                 pokemon = tier[1:]
+            #                 if pokemon.startswith('a-'):
+            #                     pokemon = 'alolan ' + pokemon[2:]
+            #                 pokemon = Pokemon.get_pokemon(self.bot, pokemon)
+            #                 if pokemon.is_raid:
+            #                     pokes.append(pokemon)
+            #     if len(pokes) < 1:
+            #         return f"found: {gym.name} but no egg or pokemon identified"
+            #     if image_info['expire_time']:
+            #         # make channel
+            #         return f"{pokes[0]} raid at {gym.name}. Expires in {image_info['expire_time']}, current time: {image_info['phone_time']}"
+            #         pass
+            #     if not first_none:
+            #         # make channel
+            #         return f"{pokes[0]} raid at {gym.name}. Current time: {image_info['phone_time']}"
+            #         pass
+        else:
+            # error of some kind
+            return "Unable to determine gym name"
+            pass
 
 
 def setup(bot):

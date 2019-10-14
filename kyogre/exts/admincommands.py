@@ -127,6 +127,11 @@ class AdminCommands(commands.Cog):
 
     async def save(self, guildid):
         try:
+            with open('config.json', 'w') as fd:
+                json.dump(self.bot.config, fd, indent=4)
+        except Exception as e:
+            self.bot.logger.error(f"Failed to save config. Error: {str(e)}")
+        try:
             with tempfile.NamedTemporaryFile('wb', dir=os.path.dirname(os.path.join('data', 'serverdict')),
                                              delete=False) as tf:
                 pickle.dump(self.bot.guild_dict, tf, 4)
@@ -624,13 +629,17 @@ class AdminCommands(commands.Cog):
     @checks.is_owner()
     async def _enable_cloud_vision(self, ctx):
         self.bot.vision_api_enabled = True
+        self.bot.config["vision_api_enabled"] = True
         await self.bot.owner.send("Cloud API calls enabled globally.")
+        await ctx.message.delete()
 
     @commands.command(name='cloud_disable', aliases=['dcloud'])
     @checks.is_owner()
     async def _disable_cloud_vision(self, ctx):
         self.bot.vision_api_enabled = False
+        self.bot.config["vision_api_enabled"] = False
         await self.bot.owner.send("Cloud API calls disabled globally.")
+        await ctx.message.delete()
 
 
 def setup(bot):

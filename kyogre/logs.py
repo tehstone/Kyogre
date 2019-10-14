@@ -80,7 +80,7 @@ def init_user_logger():
 
 
 def init_gcv_logger():
-    logger = logging.getLogger("user")
+    logger = logging.getLogger("gcv")
 
     kyogre_format = logging.Formatter(
         '%(asctime)s: %(message)s',
