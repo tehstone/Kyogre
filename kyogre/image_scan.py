@@ -92,7 +92,7 @@ def check_egg_time(image):
     minx = round(width * .25)
     egg_time_crop = image[miny:maxy, minx:maxx]
     regex = r'[0-9]{1}:[0-9]{2}:[0-9]{2}'
-    result = check_val_range(egg_time_crop, [0, 70], regex)
+    result = check_val_range(egg_time_crop, [0, 70, 10, 80], regex)
     return result
 
 
@@ -105,7 +105,7 @@ def check_expire_time(image):
     minx = round(width * .7)
     expire_time_crop = image[miny:maxy, minx:maxx]
     regex = r'[0-9]{1}:[0-9]{2}:[0-9]{2}'
-    result = check_val_range(expire_time_crop, [0, 70], regex)
+    result = check_val_range(expire_time_crop, [0, 70, 10], regex)
     return result
 
 
@@ -205,10 +205,8 @@ async def read_photo_async(file, logger):
             pool, functools.partial(check_gym_name, image=image))
         result_phone = await loop.run_in_executor(
             pool, functools.partial(check_phone_time, image=image))
-    logger.info(f"result_egg: {result_egg} result_expire: {result_expire} result_boss: {result_boss} "
-                f"result_gym: {result_gym} result_phone: {result_phone} total runtime: {time.time()-start}")
     return {'egg_time': result_egg, 'expire_time': result_expire, 'boss': result_boss,
-            'phone_time': result_phone, 'names': result_gym}
+            'phone_time': result_phone, 'names': result_gym, 'runtime': time.time()-start}
 
 def read_photo(file, logger):
     start = time.time()

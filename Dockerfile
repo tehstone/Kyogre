@@ -1,3 +1,7 @@
+FROM ubuntu:16.04
+RUN apt-get update -qq
+RUN apt-get install -qq tesseract-ocr libtesseract-dev libleptonica-dev
+
 FROM python:3.6.9-stretch
 
 # Set working directory
