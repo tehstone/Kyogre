@@ -1,12 +1,12 @@
-FROM ubuntu:16.04
-RUN apt-get update -qq
-RUN apt-get install -qq tesseract-ocr libtesseract-dev libleptonica-dev
-
-FROM python:3.6.9-stretch
+FROM 3.6.9-slim-buster
 
 # Set working directory
 RUN mkdir /src
 WORKDIR /src
+
+RUN apt-get update -qq
+RUN apt-get install -qq tesseract-ocr libtesseract-dev libleptonica-dev
+
 
 # Install dumb-init
 RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.1/dumb-init_1.2.1_amd64
