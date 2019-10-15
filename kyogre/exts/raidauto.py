@@ -158,7 +158,7 @@ orm rhe""",
             return
         if message.channel.id in [629456197501583381, 530460439591518218, 449571161613926420, 628670877826940951]:
             file = await self._image_pre_check(message, ctx)
-            return await ctx.send(await self.newtest(ctx, file))
+            return await self.newtest(ctx, file)
         return
         # if not checks.check_raidreport(ctx) and not checks.check_raidchannel(ctx):
         #     return
@@ -206,7 +206,7 @@ orm rhe""",
         return await self.create_raid(ctx, raid_info)
 
     async def _image_pre_check(self, message, ctx):
-        file = await self._save_image(message.attachments[0], ctx)
+        file = await self._save_image(message.attachments[0])
         img = Image.open(file)
         img = self.exif_transpose(img)
         filesize = os.stat(file).st_size
@@ -232,10 +232,9 @@ orm rhe""",
             raid_info["boss"] = tier
         return raid_info, file
 
-    async def _save_image(self, attachment, ctx):
+    async def _save_image(self, attachment):
         __, file_extension = os.path.splitext(attachment.filename)
         filename = f"{attachment.id}{file_extension}"
-        #### TODO revert path
         filepath = os.path.join('screenshots', filename)
         with open(filepath, 'wb') as out_file:
             await attachment.save(out_file)
@@ -482,42 +481,66 @@ Walk closer to interact with this Gym.
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         gyms = location_matching_cog.get_gyms(ctx.guild.id)
         gym = None
+        possible_gyms = []
         for name in image_info['names']:
             result = location_matching_cog.location_match(name.strip(), gyms, is_partial=False)
             results = [(match.name, score) for match, score in result]
+            self.bot.gcv_logger.info(results)
             results = sorted(results, key=itemgetter(1), reverse=True)
-            if len(results) > 0:
-                gym = next((l for l in gyms if l.name == results[0][0]), None)
-                break
+            for r in results:
+                if not gym and r[1] == 100:
+                    gym = next((l for l in gyms if l.name == r[0]), None)
+                else:
+                    possible_gyms.append(r)
+        if not gym:
+            for name in image_info['names']:
+                result = location_matching_cog.location_match(name.strip(), gyms)
+                results = [(match.name, score) for match, score in result]
+                results = sorted(results, key=itemgetter(1), reverse=True)
+                for r in results:
+                    if not gym and r[1] == 100:
+                        gym = next((l for l in gyms if l.name == r[0]), None)
+                    else:
+                        possible_gyms.append(r)
+        if len(possible_gyms) > 0:
+            possible_gyms = sorted(possible_gyms, key=itemgetter(1), reverse=True)
+            possible_gyms = [g[0] for g in possible_gyms]
+
         if not image_info['phone_time']:
             image_info['phone_time'] = 'Unknown'
         if gym:
-            if image_info['boss'] and not image_info['egg_time']:
-                if not image_info['expire_time']:
-                    image_info['expire_time'] = 'Unknown'
-                    self.bot.gcv_logger.info(f"result_egg: {image_info['egg_time']} "
-                                             f"result_expire: {image_info['expire_time']} "
-                                             f"result_boss: {image_info['boss']} "
-                                             f"result_gym: {image_info['names']} "
-                                             f"matched gym: {gym.name}"
-                                             f"result_phone: {image_info['phone_time']} "
-                                             f"total runtime: {image_info['runtime']}")
-                return f"{image_info['boss']} raid at {gym.name}. Expires in {image_info['expire_time']}, current time: {image_info['phone_time']}"
-            else:
-                tiers = testident.determine_tier(file)
-                for tier in tiers:
-                    if tier[0].startswith("tier"):
-                        if not image_info['egg_time']:
-                            image_info['egg_time'] = 'Unknown'
-                        self.bot.gcv_logger.info(f"result_egg: {image_info['egg_time']} "
-                                                 f"result_expire: {image_info['expire_time']} "
-                                                 f"tier: {tier[0][4]} "
-                                                 f"result_gym: {image_info['names']} "
-                                                 f"matched gym: {gym.name}"
-                                                 f"result_phone: {image_info['phone_time']} "
-                                                 f"total runtime: {image_info['runtime']}")
-                        return f"Level {tier[0][4]} egg at {gym.name}. Hatches in {image_info['egg_time']}, current time: {image_info['phone_time']}"
-                return "none"
+            gym_str = gym.name
+        else:
+            gym_str = '\n'.join(possible_gyms)
+        if len(gym_str) < 1:
+            gym_str = '\n'.join(image_info['names'])
+        tier_str = '?'
+        if image_info['egg_time'] and not image_info['boss']:
+            tiers = testident.determine_tier(file)
+            for tier in tiers:
+                if tier[0].startswith("tier"):
+                    tier_str = tier[0][4]
+                    break
+        embed = discord.embeds.Embed(title="Image Scan Results", color=discord.colour.Color.blue())
+        embed.add_field(name='Gym Name', value=gym_str, inline=False)
+        if tier_str != '?':
+            embed.add_field(name='Tier', value=tier_str, inline=False)
+        elif image_info['boss']:
+            embed.add_field(name='Boss', value=image_info['boss'].capitalize(), inline=False)
+        embed.add_field(name='Phone Time', value=image_info['phone_time'], inline=False)
+        if image_info['egg_time']:
+            embed.add_field(name='Time Until Hatch', value=image_info['egg_time'], inline=False)
+        if image_info['expire_time']:
+            embed.add_field(name='Time Remaining', value=image_info['expire_time'], inline=False)
+        self.bot.gcv_logger.info(f"result_egg: {image_info['egg_time']} "
+                                 f"result_expire: {image_info['expire_time']} "
+                                 f"result_boss: {image_info['boss']} "
+                                 f"tier: {tier_str} "
+                                 f"result_gym: {image_info['names']} "
+                                 f"gym: {gym_str} "
+                                 f"result_phone: {image_info['phone_time']} "
+                                 f"total runtime: {image_info['runtime']}")
+        return await ctx.send(embed=embed)
             # if False:
             #     tiers = [t[0] for t in tiers]
             #     if image_info['egg_time']:
@@ -552,10 +575,6 @@ Walk closer to interact with this Gym.
             #         # make channel
             #         return f"{pokes[0]} raid at {gym.name}. Current time: {image_info['phone_time']}"
             #         pass
-        else:
-            # error of some kind
-            return "Unable to determine gym name"
-            pass
 
 
 def setup(bot):
