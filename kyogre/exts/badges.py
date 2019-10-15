@@ -118,22 +118,22 @@ class Badges(commands.Cog):
             self.bot.logger.error(f"Failed to pull badge assignment count for badge: {badge_id}")
             count = 0
         result = (BadgeTable.select(BadgeTable.id,
-                                    BadgeTable.guild,
+                                    BadgeTable.guild_id,
                                     BadgeTable.name,
                                     BadgeTable.description,
                                     BadgeTable.emoji,
                                     BadgeTable.active).where(BadgeTable.id == badge_id))
         if count == 1:
-            count_str = f"{count} trainer has earned this badge."
+            count_str = f"*{count}* trainer has earned this badge."
         elif count > 1:
-            count_str = f"{count} trainers have earned this badge."
+            count_str = f"*{count}* trainers have earned this badge."
         else:
             count_str = "No one has earned this badge yet!"
         badge = result[0]
         send_emoji = self.bot.get_emoji(badge.emoji)
         title = f"(*#{badge.id}*) {badge.name}"
         message = f"{badge.description}"
-        if badge.guild != ctx.guild.id:
+        if badge.guild_id != ctx.guild.id:
             footer = "This badge is awarded on a different server."
         else:
             if badge.active:
@@ -248,6 +248,7 @@ class Badges(commands.Cog):
                 colour=discord.Colour.green(), description=f"Successfully granted badge to {count} trainers."))
 
     @commands.command(name="available_badges", aliases=['avb'])
+    @commands.has_permissions(manage_guild=True)
     async def _available(self, ctx):
         """**Usage**: `!available_badges/avb`
         Lists all badges that are currently available."""
@@ -339,7 +340,7 @@ class Badges(commands.Cog):
         output = ""
         for r in result:
             trainer = ctx.guild.get_member(r.trainer)
-            output += f"{trainer.display_name} {r.count}\n"
+            output += f"**{trainer.display_name}** - {r.count} badges.\n"
         embed = discord.Embed(title=f"Here are the top 10 badge earners on this server", colour=discord.Colour.purple())
         embed.description = output
         await ctx.send(embed=embed)

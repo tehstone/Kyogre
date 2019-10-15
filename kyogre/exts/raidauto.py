@@ -320,8 +320,22 @@ orm rhe""",
             return False
 
     def _determine_raid(self, file):
-        tier = testident.determine_tier(file)
+        original = Image.open(file)
+        width, height = original.size
+        left = width / 6
+        top = height / 4
+        right = 5 * width / 6
+        bottom = 4 * height / 5
+        cropped_file = original.crop((left, top, right, bottom))
+        out_path, filename = os.path.split(file)
+        out_filename = os.path.join(out_path, "c"+filename)
+        cropped_file.save(out_filename)
+        tier = testident.determine_tier(out_filename)
         self.bot.gcv_logger.info(tier)
+        try:
+            os.remove(out_filename)
+        except OSError:
+            self.bot.gcv_logger.info(f"Failed to remove cropped photo {out_filename}")
         tier = tier[0]
         if tier[0].startswith("none"):
             return "0"
