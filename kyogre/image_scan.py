@@ -9,7 +9,7 @@ from os import listdir
 from os.path import isfile, join
 from kyogre import utils
 
-boss_list = ['shinx', 'drifloon', 'patrat', 'klink', 'alolan exeggutor', 'misdreavus', 'sneasel', 'sableye', 'mawile', 'alolan raichu', 'machamp', 'gengar', 'granbull', 'piloswine', 'alolan marowak', 'dragonite', 'togetic', 'houndoom', 'absol', 'giratina', 'mewtwo']
+boss_list = ['shinx', 'drifloon', 'patrat', 'klink', 'alolan exeggutor', 'misdreavus', 'sneasel', 'sableye', 'mawile', 'alolan raichu', 'machamp', 'gengar', 'granbull', 'piloswine', 'alolan marowak', 'dragonite', 'togetic', 'houndoom', 'absol', 'giratina', 'mewtwo', 'marowak', 'raichu', 'exeggutor']
 raid_cp_chart = {"2873": "Shinx",
                  "3151": "Drifloon",
                  "2596": "Patrat",
@@ -163,24 +163,31 @@ def check_boss_cp(image):
     gym_name_crop = image[miny:maxy, minx:maxx]
     gym_name_crop = cv2.bitwise_not(gym_name_crop)
     vals = [30, 40, 20]
+    # This doesn't fully handle Alolan forms
+    # For example, in one particular screenshot of an Alolan Marowak no boss was ever identified.
+    # The img_text contained 'Marowak' but fuzzy match threshold was too high for that to match
+    # Cut off can't be lower or else other issues arise (houndoom instead of absol for example)
+    # Additionally, no match was ever made on the CP value as it never got a clear read.
+    # Likely need to refactor this so that if an alolan species is read in, additional scans are made
+    # To try and pick up the CP and make sure we have the right form
     for t in vals:
         thresh = cv2.threshold(gym_name_crop, t, 255, cv2.THRESH_BINARY)[1]
         thresh = cv2.GaussianBlur(thresh, (5, 5), 0)
         img_text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 4')
         img_text = [s for s in list(filter(None, img_text.split())) if len(s) > 3]
         if len(img_text) > 1:
-            match = utils.get_match(boss_list, img_text[1])
+            match = utils.get_match(boss_list, img_text[1], score_cutoff=70)
             if match and match[0]:
                 return match[0]
         if len(img_text) > 0:
-            match = utils.get_match(list(raid_cp_list), img_text[0])
+            match = utils.get_match(list(raid_cp_list), img_text[0], score_cutoff=70)
             if match and match[0]:
                 return raid_cp_chart[match[0]]
         for i in img_text:
-            match = utils.get_match(boss_list, i)
+            match = utils.get_match(boss_list, i, score_cutoff=70)
             if match and match[0]:
                 return match[0]
-            match = utils.get_match(list(raid_cp_list), i)
+            match = utils.get_match(list(raid_cp_list), i, score_cutoff=70)
             if match and match[0]:
                 return raid_cp_chart[match[0]]
     return None
@@ -194,19 +201,33 @@ async def read_photo_async(file, logger):
         dim = (round(width * 2), round(height * 2))
         image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
     loop = asyncio.get_event_loop()
-    with concurrent.futures.ThreadPoolExecutor() as pool:
-        result_egg = await loop.run_in_executor(
-            pool, functools.partial(check_egg_time, image=image))
-        result_expire = await loop.run_in_executor(
-            pool, functools.partial(check_expire_time, image=image))
-        result_boss = await loop.run_in_executor(
-            pool, functools.partial(check_boss_cp, image=image))
+    result_egg, result_expire, result_boss, result_phone, result_gym = None, None, None, None, None
+    with concurrent.futures.ProcessPoolExecutor(max_workers=5) as pool:
+        result_egg, result_expire, result_boss, result_phone = None, None, None, None
         result_gym = await loop.run_in_executor(
             pool, functools.partial(check_gym_name, image=image))
-        result_phone = await loop.run_in_executor(
-            pool, functools.partial(check_phone_time, image=image))
+        # If we don't have a gym, no point in checking anything else
+        if result_gym:
+            result_egg = await loop.run_in_executor(
+                pool, functools.partial(check_egg_time, image=image))
+            # Only check for expire time and boss if no egg time found
+            # May make sense to reverse this. Tough call.
+            if not result_egg:
+                result_boss = await loop.run_in_executor(
+                    pool, functools.partial(check_boss_cp, image=image))
+                # If we don't find a boss, don't look for expire time
+                if result_boss:
+                    result_expire = await loop.run_in_executor(
+                        pool, functools.partial(check_expire_time, image=image))
+            # If we don't find an egg time or a boss, we don't need the phone's time
+            # Even if it's picked up as an egg later, the time won't be correct without egg time
+            if result_egg or result_boss:
+                result_phone = await loop.run_in_executor(
+                    pool, functools.partial(check_phone_time, image=image))
+
     return {'egg_time': result_egg, 'expire_time': result_expire, 'boss': result_boss,
-            'phone_time': result_phone, 'names': result_gym, 'runtime': time.time()-start}
+            'phone_time': result_phone, 'names': result_gym, 'runtime': time.time() - start}
+
 
 def read_photo(file, logger):
     start = time.time()
@@ -240,3 +261,4 @@ def read_photo(file, logger):
     logger.info(time_str)
     return {'egg_time': egg_time, 'expire_time': expire_time, 'boss': boss,
             'phone_time': phone_time, 'names': gym_name_options}
+

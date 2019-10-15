@@ -495,7 +495,7 @@ Walk closer to interact with this Gym.
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         gyms = location_matching_cog.get_gyms(ctx.guild.id)
         gym = None
-        possible_gyms = []
+        possible_gyms = {}
         for name in image_info['names']:
             result = location_matching_cog.location_match(name.strip(), gyms, is_partial=False)
             results = [(match.name, score) for match, score in result]
@@ -505,7 +505,10 @@ Walk closer to interact with this Gym.
                 if not gym and r[1] == 100:
                     gym = next((l for l in gyms if l.name == r[0]), None)
                 else:
-                    possible_gyms.append(r)
+                    if r[0] in possible_gyms:
+                        possible_gyms[r[0]] += 1
+                    else:
+                        possible_gyms[r[0]] = 1
         if not gym:
             for name in image_info['names']:
                 result = location_matching_cog.location_match(name.strip(), gyms)
@@ -515,10 +518,19 @@ Walk closer to interact with this Gym.
                     if not gym and r[1] == 100:
                         gym = next((l for l in gyms if l.name == r[0]), None)
                     else:
-                        possible_gyms.append(r)
-        if len(possible_gyms) > 0:
-            possible_gyms = sorted(possible_gyms, key=itemgetter(1), reverse=True)
-            possible_gyms = [g[0] for g in possible_gyms]
+                        if r[0] in possible_gyms:
+                            possible_gyms[r[0]] += 1
+                        else:
+                            possible_gyms[r[0]] = 1
+        if possible_gyms:
+            pgk = list(possible_gyms.keys())
+            if len(pgk) == 1:
+                gym = next((l for l in gyms if l.name == pgk[0]), None)
+            else:
+                possible_gyms = [f"Option {i}: {g[0]}" for i, g in
+                                 enumerate(sorted(possible_gyms.items(),
+                                                  key=itemgetter(1),
+                                                  reverse=True))][:min(3, len(possible_gyms))]
 
         if not image_info['phone_time']:
             image_info['phone_time'] = 'Unknown'
