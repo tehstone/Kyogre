@@ -74,10 +74,50 @@ class RaidAuto(commands.Cog):
             await raid_cog.finish_raid_report(ctx, raid_info["gym"], None, raid_info["tier"],
                                               None, raidexp, auto=True)
         else:
-            raid_pokemon = Pokemon.get_pokemon(self.bot, raid_info["boss"])
+            pokemon_name = raid_info['boss']
+            if pokemon_name in Pokemon.get_alolans_list():
+                raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon_name)
+                if not raid_pokemon.is_raid():
+                    raid_pokemon = Pokemon.get_pokemon(self.bot, "alolan" + pokemon_name)
+            else:
+                raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon_name)
+            if not raid_pokemon.is_raid():
+                error_desc = f'The Pokemon {raid_pokemon.name} does not currently appear in raids.'
+                return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=error_desc))
             await raid_cog.finish_raid_report(ctx, raid_info["gym"], raid_pokemon, raid_pokemon.raid_level,
                                               None, raidexp, auto=True)
-        pass
+
+    @commands.command(name='add_scan_listen_channel', aliases=['aslc'])
+    async def _add_scan_listen_channel(self, ctx, channel):
+        listen_channels = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings'] \
+            .setdefault('scan_listen_channels', [])
+        utilities_cog = self.bot.cogs.get('Utilities')
+        aslc_channel = await utilities_cog.get_channel_by_name_or_id(ctx, channel)
+        if aslc_channel is None:
+            await ctx.channel.send('No channel found by that name or id, please try again.', delete_after=10)
+            return await ctx.message.add_reaction(self.bot.failed_react)
+        if aslc_channel.id in listen_channels:
+            await ctx.channel.send('Channel already listed as a listen channel.', delete_after=10)
+            return await ctx.message.add_reaction(self.bot.failed_react)
+        listen_channels.append(aslc_channel.id)
+        await ctx.channel.send(f'Added channel {aslc_channel.mention} to listen channel list.', delete_after=10)
+        return await ctx.message.add_reaction(self.bot.success_react)
+
+    @commands.command(name='remove_scan_listen_channel', aliases=['rslc'])
+    async def _remove_scan_listen_channel(self, ctx, channel):
+        listen_channels = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings'] \
+            .setdefault('scan_listen_channels', [])
+        utilities_cog = self.bot.cogs.get('Utilities')
+        aslc_channel = await utilities_cog.get_channel_by_name_or_id(ctx, channel)
+        if aslc_channel is None:
+            await ctx.channel.send('No channel found by that name or id, please try again.', delete_after=10)
+            return await ctx.message.add_reaction(self.bot.failed_react)
+        if aslc_channel.id not in listen_channels:
+            await ctx.channel.send('Channel not listed as a listen channel.', delete_after=10)
+            return await ctx.message.add_reaction(self.bot.failed_react)
+        listen_channels.remove(aslc_channel.id)
+        await ctx.channel.send(f'Removed channel {aslc_channel.mention} from listen channel list.', delete_after=10)
+        return await ctx.message.add_reaction(self.bot.success_react)
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -87,8 +127,10 @@ class RaidAuto(commands.Cog):
                     (message.attachments[0].width is None))\
                 or message.author == self.bot.user:
             return
-        await message.add_reaction('🤔')
-        if message.channel.id in [629456197501583381, 530460439591518218, 449571161613926420, 628670877826940951]:
+        listen_channels = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']\
+            .setdefault('scan_listen_channels', [])
+        if message.channel.id in listen_channels:
+            await message.add_reaction('🤔')
             file = await self._image_pre_check(message)
             start = time.time()
             await self.scan_test(ctx, file)
@@ -96,6 +138,7 @@ class RaidAuto(commands.Cog):
             return
         if not checks.check_raidreport(ctx) and not checks.check_raidchannel(ctx):
             return
+        await message.add_reaction('🤔')
         await self._process_message_attachments(ctx, message)
 
     async def _process_message_attachments(self, ctx, message):

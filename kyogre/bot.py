@@ -135,18 +135,6 @@ class KyogreBot(commands.AutoShardedBot):
         # Load configuration
         with open('config.json', 'r') as fd:
             self.config = json.load(fd)
-        # Load Cloud Vision key
-        key_file_path = self.config["vision_api_key"]
-        if key_file_path is not None and len(key_file_path) > 1:
-            cwd = os.getcwd()
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(cwd, key_file_path)
-            self.vision_api_enabled = True
-        cloud_key = self.config["vision_api_enabled"]
-        if cloud_key is not None:
-            self.vision_api_enabled = cloud_key
-        limit_key = self.config["api_usage_limit"]
-        if limit_key is not None:
-            self.api_usage_limit = limit_key
         # Set up message catalog access
         # Load raid info
         raid_path_source = os.path.join('data', 'raid_info.json')

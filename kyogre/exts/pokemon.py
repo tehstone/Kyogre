@@ -62,6 +62,10 @@ class Pokemon():
 
     __slots__ = ('species', 'id', 'types', 'bot', 'guild', 'pkmn_list',
                  'pb_raid', 'weather', 'moveset', 'form', 'shiny', 'alolan', 'legendary', 'mythical')
+
+    _alolans_list = ['rattata', 'raticate', 'vulpix', 'ninetails', 'sandshrew', 'sandslash', 'grimer', 'muk',
+                     'meowth', 'persian', 'diglett', 'dugtrio', 'geodude', 'graveler', 'golem', 'exeggutor',
+                     'marowak', 'raichu']
     
     _form_list = [
         'normal', 'sunny', 'rainy', 'snowy', 'sunglasses',
@@ -426,6 +430,10 @@ class Pokemon():
     @staticmethod
     def get_forms_list():
         return Pokemon._form_list
+
+    @staticmethod
+    def get_alolans_list():
+        return Pokemon._alolans_list
 
     @staticmethod
     def get_raidlist(bot):
