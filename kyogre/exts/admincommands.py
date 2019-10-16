@@ -250,6 +250,8 @@ class AdminCommands(commands.Cog):
             await ctx.send(file=discord.File(logfile, filename=f'help_log{int(time.time())}.txt'))
         with open(os.path.join('logs', 'kyogre_user.log'), 'rb') as logfile:
             await ctx.send(file=discord.File(logfile, filename=f'user_log{int(time.time())}.txt'))
+        with open(os.path.join('logs', 'gcv_api.log'), 'rb') as logfile:
+            await ctx.send(file=discord.File(logfile, filename=f'scan_log{int(time.time())}.txt'))
 
     @commands.command(aliases=['say'])
     @commands.has_permissions(manage_guild=True)

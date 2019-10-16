@@ -161,10 +161,10 @@ class KyogreBot(commands.AutoShardedBot):
 
     @staticmethod
     def _setup_folders():
-        screenshot_dirs = ['./screenshots', './screenshots/1',
-                           './screenshots/2', './screenshots/3',
-                           './screenshots/4', './screenshots/5',
-                           './screenshots/gcvapi_failed', './screenshots/not_raid']
+        screenshot_dirs = ['screenshots', 'screenshots/1',
+                           'screenshots/2', 'screenshots/3',
+                           'screenshots/4', 'screenshots/5',
+                           'screenshots/gcvapi_failed', 'screenshots/not_raid']
         for sdir in screenshot_dirs:
             if not os.path.exists(sdir):
                 os.makedirs(sdir)
