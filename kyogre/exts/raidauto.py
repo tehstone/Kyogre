@@ -74,18 +74,23 @@ class RaidAuto(commands.Cog):
             await raid_cog.finish_raid_report(ctx, raid_info["gym"], None, raid_info["tier"],
                                               None, raidexp, auto=True)
         else:
+            report_channel = None
+            listmgmt_cog = self.bot.cogs.get('ListManagement')
+            reporting_channels = await listmgmt_cog.get_region_reporting_channels(guild, regions[0])
+            if len(reporting_channels) > 0:
+                report_channel = guild.get_channel(reporting_channels[0])
             pokemon_name = raid_info['boss']
             if pokemon_name in Pokemon.get_alolans_list():
                 raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon_name)
-                if not raid_pokemon.is_raid():
+                if not raid_pokemon.is_raid:
                     raid_pokemon = Pokemon.get_pokemon(self.bot, "alolan" + pokemon_name)
             else:
                 raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon_name)
-            if not raid_pokemon.is_raid():
+            if not raid_pokemon.is_raid:
                 error_desc = f'The Pokemon {raid_pokemon.name} does not currently appear in raids.'
                 return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=error_desc))
             await raid_cog.finish_raid_report(ctx, raid_info["gym"], raid_pokemon, raid_pokemon.raid_level,
-                                              None, raidexp, auto=True)
+                                              None, raidexp, auto=True, report_channel=report_channel)
 
     @commands.command(name='add_scan_listen_channel', aliases=['aslc'])
     async def _add_scan_listen_channel(self, ctx, channel):
@@ -167,7 +172,7 @@ class RaidAuto(commands.Cog):
             tier = self._determine_tier(tiers)
             raid_info['type'] = 'egg'
             raid_info['tier'] = tier
-            if tier == 0:
+            if tier == "0":
                 return await message.channel.send(
                     embed=discord.Embed(
                         colour=discord.Colour.red(),
@@ -181,7 +186,7 @@ class RaidAuto(commands.Cog):
             timev = raid_info['egg_time']
         elif raid_info['expire_time']:
             timev = raid_info['expire_time']
-        if time:
+        if timev:
             time_split = timev.split(':')
             timev = str(60*int(time_split[0]) + int(time_split[1]))
             raid_info['exp'] = timev
@@ -298,10 +303,9 @@ class RaidAuto(commands.Cog):
     @staticmethod
     def _determine_tier(tiers):
         tier = tiers[0]
-        if tier[0].startswith("none"):
-            return "0"
-        elif tier[0].startswith("tier"):
+        if tier[0].startswith("tier"):
             return str(tier[0][4])
+        return "0"
 
     @staticmethod
     def _count_usage(ctx):

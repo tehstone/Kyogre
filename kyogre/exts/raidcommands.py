@@ -320,9 +320,13 @@ class RaidCommands(commands.Cog):
                 description='Give more details when reporting! Usage: **!raid <pokemon name> <location>**'))
         return await self.finish_raid_report(ctx, raid_details, None, egg_level, weather, raidexp)
 
-    async def finish_raid_report(self, ctx, raid_details, raid_pokemon, level, weather, raidexp, auto=False):
+    async def finish_raid_report(self, ctx, raid_details, raid_pokemon, level, weather, raidexp,
+                                 auto=False, report_channel=None):
         message = ctx.message
-        channel = message.channel
+        if report_channel:
+            channel = report_channel
+        else:
+            channel = ctx.channel
         guild = channel.guild
         author = message.author
         timestamp = (message.created_at + datetime.timedelta(
@@ -494,7 +498,7 @@ class RaidCommands(commands.Cog):
             else:
                 if level:
                     send_level = int(level)
-            if send_level >= 4:
+            if send_level >= 5:
                 short_output_channel = self.bot.get_channel(short_output_channel_id)
                 short_message = await short_output_channel.send(f"Raid Reported: {raid_channel.mention}")
                 raid_dict['short'] = short_message.id
