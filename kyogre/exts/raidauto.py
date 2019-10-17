@@ -136,10 +136,11 @@ class RaidAuto(commands.Cog):
             .setdefault('scan_listen_channels', [])
         if message.channel.id in listen_channels:
             await message.add_reaction('🤔')
-            file = await self._image_pre_check(message)
-            start = time.time()
-            await self.scan_test(ctx, file)
-            self.bot.gcv_logger.info(f"test scan: {time.time()-start}")
+            for attachment in message.attachments:
+                file = await self._image_pre_check(attachment)
+                start = time.time()
+                await self.scan_test(ctx, file)
+                self.bot.gcv_logger.info(f"test scan: {time.time()-start}")
             return
         if not checks.check_raidreport(ctx) and not checks.check_raidchannel(ctx):
             return
@@ -149,7 +150,7 @@ class RaidAuto(commands.Cog):
     async def _process_message_attachments(self, ctx, message):
         # TODO Determine if it's worth handling multiple attachments and refactor to accommodate
         start = time.time()
-        file = await self._image_pre_check(message)
+        file = await self._image_pre_check(message.attachments[0])
         if self.already_scanned(file):
             os.remove(file)
             return await ctx.channel.send(
@@ -167,8 +168,11 @@ class RaidAuto(commands.Cog):
                     colour=discord.Colour.red(),
                     description="Could not determine gym name from screenshot, unable to create raid channel. "
                                 "Please report using the command instead: `!r <boss/tier> <gym name> <time>`"))
+        c_file = None
         if raid_info['egg_time'] and not raid_info['boss']:
-            tiers = testident.determine_tier(file)
+            c_file = self._crop_tier(file)
+            tiers = testident.determine_tier(c_file)
+            self.bot.gcv_logger.info(tiers)
             tier = self._determine_tier(tiers)
             raid_info['type'] = 'egg'
             raid_info['tier'] = tier
@@ -192,10 +196,12 @@ class RaidAuto(commands.Cog):
             raid_info['exp'] = timev
         self.bot.gcv_logger.info(raid_info)
         self.bot.gcv_logger.info(f"real scan: {time.time() - start}")
-        return await self.create_raid(ctx, raid_info)
+        await self.create_raid(ctx, raid_info)
+        if c_file:
+            os.remove(c_file)
 
-    async def _image_pre_check(self, message):
-        file = await _save_image(message.attachments[0])
+    async def _image_pre_check(self, attachment):
+        file = await _save_image(attachment)
         img = Image.open(file)
         img = self.exif_transpose(img)
         filesize = os.stat(file).st_size
@@ -302,10 +308,12 @@ class RaidAuto(commands.Cog):
 
     @staticmethod
     def _determine_tier(tiers):
-        tier = tiers[0]
-        if tier[0].startswith("tier"):
-            return str(tier[0][4])
-        return "0"
+        tier_str = "0"
+        for tier in tiers:
+            if tier[0].startswith("tier"):
+                tier_str = tier[0][4]
+                break
+        return tier_str
 
     @staticmethod
     def _count_usage(ctx):
@@ -332,6 +340,21 @@ class RaidAuto(commands.Cog):
         dest = os.path.join(dst, filename)
         shutil.move(file, dest)
         return dest
+
+    @staticmethod
+    def _crop_tier(file):
+        filename, file_extension = os.path.splitext(file)
+        filename += '_c'
+        original = Image.open(file)
+        width, height = original.size
+        left = width / 6
+        top = height / 5
+        right = 5 * width / 6
+        bottom = 4 * height / 5
+        cropped_example = original.crop((left, top, right, bottom))
+        out_path = filename + file_extension
+        cropped_example.save(out_path)
+        return out_path
 
     @commands.command(name="test_gym_ident", aliases=['tgi'])
     async def test_gym_ident(self, ctx):
@@ -412,12 +435,11 @@ class RaidAuto(commands.Cog):
         if len(gym_str) < 1:
             gym_str = '\n'.join(image_info['names'])
         tier_str = '?'
+        c_file = None
         if image_info['egg_time'] and not image_info['boss']:
-            tiers = testident.determine_tier(file)
-            for tier in tiers:
-                if tier[0].startswith("tier"):
-                    tier_str = tier[0][4]
-                    break
+            c_file = self._crop_tier(file)
+            tiers = testident.determine_tier(c_file)
+            tier_str = self._determine_tier(tiers)
         embed = discord.embeds.Embed(title="Image Scan Results", color=discord.colour.Color.blue())
         embed.add_field(name='Gym Name', value=gym_str, inline=False)
         if tier_str != '?':
@@ -437,7 +459,9 @@ class RaidAuto(commands.Cog):
                                  f"gym: {gym_str} "
                                  f"result_phone: {image_info['phone_time']} "
                                  f"total runtime: {image_info['runtime']}")
-        return await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
+        if c_file:
+            os.remove(c_file)
 
 
 def setup(bot):
