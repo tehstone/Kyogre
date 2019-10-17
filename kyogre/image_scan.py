@@ -193,48 +193,27 @@ def check_boss_cp(image):
 
 async def read_photo_async(file, logger):
     start = time.time()
-    split = time.time()
     image = cv2.imread(file, 0)
     height, width = image.shape
     if height < 400 or width < 200:
         dim = (round(width * 2), round(height * 2))
         image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
-    time_str = f"{file} scan: {time.time() - split} "
-    loop = asyncio.get_event_loop()
-    result_egg, result_expire, result_boss, result_phone, result_gym = None, None, None, None, None
-    with concurrent.futures.ProcessPoolExecutor(max_workers=5) as pool:
-        result_egg, result_expire, result_boss, result_phone = None, None, None, None
-        result_gym = await loop.run_in_executor(
-            pool, functools.partial(check_gym_name, image=image))
-        time_str += f"gym: {time.time() - split} "
-        split = time.time()
-        # If we don't have a gym, no point in checking anything else
-        if result_gym:
-            result_egg = await loop.run_in_executor(
-                pool, functools.partial(check_egg_time, image=image))
-            time_str += f"egg: {time.time() - split} "
-            split = time.time()
-            # Only check for expire time and boss if no egg time found
-            # May make sense to reverse this. Tough call.
-            if not result_egg:
-                result_boss = await loop.run_in_executor(
-                    pool, functools.partial(check_boss_cp, image=image))
-                time_str += f"boss: {time.time() - split} "
-                split = time.time()
-                # If we don't find a boss, don't look for expire time
-                if result_boss:
-                    result_expire = await loop.run_in_executor(
-                        pool, functools.partial(check_expire_time, image=image))
-                    time_str += f"expire: {time.time() - split} "
-                    split = time.time()
-            # If we don't find an egg time or a boss, we don't need the phone's time
-            # Even if it's picked up as an egg later, the time won't be correct without egg time
-            if result_egg or result_boss:
-                result_phone = await loop.run_in_executor(
-                    pool, functools.partial(check_phone_time, image=image))
-                time_str += f"phone: {time.time() - split} "
-    logger.info(time_str)
-
+    result_gym = check_gym_name(image)
+    result_egg, result_expire, result_boss, result_phone = None, None, None, None
+    # If we don't have a gym, no point in checking anything else
+    if result_gym:
+        result_egg = check_egg_time(image)
+        # Only check for expire time and boss if no egg time found
+        # May make sense to reverse this. Tough call.
+        if not result_egg:
+            result_boss = check_boss_cp(image)
+            # If we don't find a boss, don't look for expire time
+            if result_boss:
+                result_expire = check_expire_time(image)
+        # If we don't find an egg time or a boss, we don't need the phone's time
+        # Even if it's picked up as an egg later, the time won't be correct without egg time
+        if result_egg or result_boss:
+            result_phone = check_phone_time(image)
     return {'egg_time': result_egg, 'expire_time': result_expire, 'boss': result_boss,
             'phone_time': result_phone, 'names': result_gym, 'runtime': time.time() - start}
 
