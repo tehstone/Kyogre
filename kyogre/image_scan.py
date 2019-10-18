@@ -7,9 +7,23 @@ import re
 import time
 from kyogre import utils
 
-boss_list = ['shinx', 'drifloon', 'patrat', 'klink', 'alolan exeggutor', 'misdreavus', 'sneasel', 'sableye', 'mawile', 'alolan raichu', 'machamp', 'gengar', 'granbull', 'piloswine', 'alolan marowak', 'dragonite', 'togetic', 'houndoom', 'absol', 'giratina', 'mewtwo', 'marowak', 'raichu', 'exeggutor']
+boss_list = ['Bulbasaur','Charmander','Squirtle','Misdreavus','Drifloon','Klink','Sneasel','Sableye','Mawile','Yamask','Alolan Raichu','Gengar','Granbull','Sharpedo','Skuntank','Alolan Marowak','Umbreon','Houndoom','Tyranitar','Absol','Darkrai','Raichu','Marowak']
+# Need to import base attack and stamina and  calculate these
+# Raid CP Formula: ((attack+15)*math.sqrt(defense+15)*math.sqrt(stamina))/10
+"""
+Raid Level    Stamina
+Level 1    600
+Level 2    1800
+Level 3    3600
+Level 4    9000
+Level 5    15000
+Level 6    22500 * NEED TO CONFIRM - this was back calculated from formula above with Darkrai's CP
+"""
 raid_cp_chart = {"2873": "Shinx",
+                 "3113": "Squirtle",
                  "3151": "Drifloon",
+                 "3334": "Charmander",
+                 "3656": "Bulbasaur",
                  "2596": "Patrat",
                  "3227": "Klink",
                  "13472": "Alolan Exeggutor",
@@ -17,17 +31,23 @@ raid_cp_chart = {"2873": "Shinx",
                  "10981": "Sneasel",
                  "8132": "Sableye",
                  "9008": "Mawile",
+                 "5825": "Yamask",
+                 "15324": "Sharpedo",
                  "16848": "Alolan Raichu",
                  "19707": "Machamp",
                  "21207": "Gengar",
                  "16457": "Granbull",
                  "14546": "Piloswine",
+                 "14476": "Skuntank",
                  "21385": "Alolan Marowak",
+                 "21360": "Umbreon",
                  "38490": "Dragonite",
+                 "65675": "Tyranitar",
                  "20453": "Togetic",
                  "28590": "Houndoom",
                  "28769": "Absol",
-                 "38326": "Altered Giratina"
+                 "38326": "Altered Giratina",
+                 "65675": "Darkrai"
                  }
 raid_cp_list = raid_cp_chart.keys()
 
