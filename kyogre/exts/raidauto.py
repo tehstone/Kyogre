@@ -163,6 +163,7 @@ class RaidAuto(commands.Cog):
         regions = utils_cog.get_channel_regions(ctx.channel, 'raid')
         raid_info = await self._scan_wrapper(ctx, file, regions)
         if raid_info["gym"] is None:
+            self.bot.gcv_logger.info(raid_info)
             return await message.channel.send(
                 embed=discord.Embed(
                     colour=discord.Colour.red(),
@@ -177,6 +178,7 @@ class RaidAuto(commands.Cog):
             raid_info['type'] = 'egg'
             raid_info['tier'] = tier
             if tier == "0":
+                self.bot.gcv_logger.info(raid_info)
                 return await message.channel.send(
                     embed=discord.Embed(
                         colour=discord.Colour.red(),
@@ -411,7 +413,7 @@ class RaidAuto(commands.Cog):
             if len(pgk) == 1:
                 gym = next((l for l in gyms if l.name == pgk[0]), None)
             else:
-                possible_gyms = [f"Option {i}: {g[0]}" for i, g in
+                possible_gyms = [g[0] for i, g in
                                  enumerate(sorted(possible_gyms.items(),
                                                   key=itemgetter(1),
                                                   reverse=True))][:min(3, len(possible_gyms))]

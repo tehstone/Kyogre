@@ -1,9 +1,11 @@
+import math
 from discord.ext import commands
 import discord
 from string import ascii_lowercase
 
 from kyogre import utils
 from kyogre.exts.db.kyogredb import PokemonTable
+from kyogre.exts.bosscp import cp_multipliers
 
 from discord.ext.commands import CommandError
 
@@ -61,7 +63,8 @@ class Pokemon():
     """
 
     __slots__ = ('species', 'id', 'types', 'bot', 'guild', 'pkmn_list',
-                 'pb_raid', 'weather', 'moveset', 'form', 'shiny', 'alolan', 'legendary', 'mythical')
+                 'pb_raid', 'weather', 'moveset', 'form', 'shiny', 'alolan', 'legendary', 'mythical',
+                 'base_attack', 'base_defense', 'base_stamina')
 
     _alolans_list = ['rattata', 'raticate', 'vulpix', 'ninetails', 'sandshrew', 'sandslash', 'grimer', 'muk',
                      'meowth', 'persian', 'diglett', 'dugtrio', 'geodude', 'graveler', 'golem', 'exeggutor',
@@ -111,6 +114,8 @@ class Pokemon():
         'giratina': ['altered', 'origin']
     }
 
+    _raid_stamina = {1: 600, 2: 1800, 3: 3600, 4: 9000, 5: 15000, 6: 22500}
+
     def __init__(self, bot, pkmn, guild=None, **attribs):
         self.bot = bot
         self.guild = guild
@@ -133,6 +138,9 @@ class Pokemon():
             self.types = p_obj['types']['alolan']
         else:
             self.types = p_obj['types']['default']
+        self.base_attack = attribs.get('attack', None)
+        self.base_defense = attribs.get('defense', None)
+        self.base_stamina = attribs.get('stamina', None)
 
     def __str__(self):
         return self.name
@@ -356,7 +364,30 @@ class Pokemon():
             else:
                 type_eff_dict['low'].append(t)
         return type_eff_dict
-    
+
+    def get_cp_by_level(self, level, atk=15, dfn=15, sta=15):
+        mult = cp_multipliers[level]
+        attack = self.base_attack + atk
+        defense = self.base_defense + dfn
+        stamina = self.base_stamina + sta
+        return int((attack * math.sqrt(defense) * math.sqrt(stamina) * mult * mult) / 10)
+
+    def get_raid_cp_range(self, boosted=False):
+        if boosted:
+            level = 25
+        else:
+            level = 20
+        min_cp = self.get_cp_by_level(level, 10, 10, 10)
+        max_cp = self.get_cp_by_level(level, 15, 15, 15)
+        return min_cp, max_cp
+
+    @property
+    def get_boss_cp(self):
+        if not self.is_raid:
+            return None
+        stamina = self._raid_stamina[self.raid_level]
+        return int(((self.base_attack + 15) * math.sqrt(self.base_defense + 15) * math.sqrt(stamina)) / 10)
+
     @classmethod
     def find_obj(cls, pkmn):
         if pkmn.isdigit():

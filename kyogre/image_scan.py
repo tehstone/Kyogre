@@ -109,7 +109,7 @@ def check_egg_time(image):
     maxx = round(width * .75)
     minx = round(width * .25)
     egg_time_crop = image[miny:maxy, minx:maxx]
-    regex = r'[0-9]{1}:[0-9]{2}:[0-9]{2}'
+    regex = r'[0-1]{1}:[0-9]{2}:[0-9]{2}'
     result = check_val_range(egg_time_crop, [0, 70, 10, 80], regex)
     return result
 
