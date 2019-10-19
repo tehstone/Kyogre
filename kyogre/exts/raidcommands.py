@@ -444,11 +444,11 @@ class RaidCommands(commands.Cog):
         raid_embed.add_field(name='Directions',
                              value=f'[Google]({raid_gmaps_link}) | [Waze]({waze_link}) | [Apple]({apple_link})',
                              inline=False)
-        cp_range = ''
         if raid_report:
             if enabled:
-                if str(raid_pokemon).lower() in boss_cp_chart:
-                    cp_range = boss_cp_chart[str(raid_pokemon).lower()]
+                min_cp, max_cp = raid_pokemon.get_raid_cp_range(False)
+                bmin_cp, bmax_cp = raid_pokemon.get_raid_cp_range(True)
+                cp_range = f"**CP Range:** {min_cp}-{max_cp}\n **Boosted:** {bmin_cp}-{bmax_cp}"
                 weak_str = utils.types_to_str(guild, raid_pokemon.weak_against.keys(), self.bot.config)
                 raid_embed.add_field(name='**Details:**', value='**{pokemon}** ({pokemonnumber}) {type}{cprange}'
                                      .format(pokemon=str(raid_pokemon),
@@ -717,9 +717,9 @@ class RaidCommands(commands.Cog):
                                  value=oldembed.fields[embed_indices["directions"]].value, inline=True)
             raid_embed.add_field(name=oldembed.fields[embed_indices["gym"]].name,
                                  value=oldembed.fields[embed_indices["gym"]].value, inline=True)
-            cp_range = ''
-            if raid_pokemon.name.lower() in boss_cp_chart:
-                cp_range = boss_cp_chart[raid_pokemon.name.lower()]
+            min_cp, max_cp = raid_pokemon.get_raid_cp_range(False)
+            bmin_cp, bmax_cp = raid_pokemon.get_raid_cp_range(True)
+            cp_range = f"**CP Range:** {min_cp}-{max_cp}\n **Boosted:** {bmin_cp}-{bmax_cp}"
             raid_embed.add_field(name='**Details:**', value='**{pokemon}** ({pokemonnumber}) {type}{cprange}'
                                  .format(pokemon=raid_pokemon.name, pokemonnumber=str(raid_pokemon.id),
                                          type=utils.types_to_str(guild, raid_pokemon.types, self.bot.config),
@@ -902,9 +902,9 @@ class RaidCommands(commands.Cog):
         raid_channel_name = utils.sanitize_name(pkmn.name.lower() + '_' + egg_address)[:32]
         embed_indices = await embed_utils.get_embed_field_indices(oldembed)
         raid_embed = discord.Embed(colour=guild.me.colour)
-        cp_range = ''
-        if pkmn.name.lower() in boss_cp_chart:
-            cp_range = boss_cp_chart[pkmn.name.lower()]
+        min_cp, max_cp = pkmn.get_raid_cp_range(False)
+        bmin_cp, bmax_cp = pkmn.get_raid_cp_range(True)
+        cp_range = f"**CP Range:** {min_cp}-{max_cp}\n **Boosted:** {bmin_cp}-{bmax_cp}"
         raid_embed.add_field(name='**Details:**', value='**{pokemon}** ({pokemonnumber}) {type}{cprange}'
                              .format(pokemon=pkmn.name, pokemonnumber=str(pkmn.id),
                                      type=utils.types_to_str(guild, pkmn.types, self.bot.config),

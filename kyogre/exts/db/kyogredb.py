@@ -112,6 +112,9 @@ class PokemonTable(BaseModel):
     alolan = BooleanField()
     types = JSONField()
     released = BooleanField(index=True)
+    attack = IntegerField()
+    defense = IntegerField()
+    stamina = IntegerField()
 
     @classmethod
     def reload_default(cls):

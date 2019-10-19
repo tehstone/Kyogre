@@ -138,9 +138,10 @@ class Pokemon():
             self.types = p_obj['types']['alolan']
         else:
             self.types = p_obj['types']['default']
-        self.base_attack = attribs.get('attack', None)
-        self.base_defense = attribs.get('defense', None)
-        self.base_stamina = attribs.get('stamina', None)
+        print(p_obj)
+        self.base_attack = p_obj.get('attack', None)
+        self.base_defense = p_obj.get('defense', None)
+        self.base_stamina = p_obj.get('stamina', None)
 
     def __str__(self):
         return self.name
@@ -373,6 +374,8 @@ class Pokemon():
         return int((attack * math.sqrt(defense) * math.sqrt(stamina) * mult * mult) / 10)
 
     def get_raid_cp_range(self, boosted=False):
+        if not self.is_raid:
+            return None
         if boosted:
             level = 25
         else:
