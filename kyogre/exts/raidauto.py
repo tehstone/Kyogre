@@ -170,8 +170,10 @@ class RaidAuto(commands.Cog):
         raid_info = await self._scan_wrapper(ctx, file, regions)
         if raid_info["gym"] is None:
             if not raid_info['egg_time'] and not raid_info['boss'] and not raid_info['expire_time']:
+                self._cleanup_file(file, f"screenshots/not_raid")
                 return await ctx.message.clear_reactions()
             self.bot.gcv_logger.info(raid_info)
+            self._cleanup_file(file, f"screenshots/no_gym")
             return await message.channel.send(
                 embed=discord.Embed(
                     colour=discord.Colour.red(),
@@ -189,6 +191,7 @@ class RaidAuto(commands.Cog):
                 tier = self._determine_tier(tiers)
             if tier == "0":
                 self.bot.gcv_logger.info(raid_info)
+                self._cleanup_file(file, f"screenshots/no_tier")
                 return await message.channel.send(
                     embed=discord.Embed(
                         colour=discord.Colour.red(),
@@ -196,6 +199,7 @@ class RaidAuto(commands.Cog):
                                      "raid channel. If you're trying to report a raid, please use the command instead: "
                                      "`!r <boss/tier> <gym name> <time>`")))
             raid_info['tier'] = tier
+            self._cleanup_file(file, f"screenshots/{tier}")
         if raid_info['expire_time'] or raid_info['boss']:
             raid_info['type'] = 'raid'
         timev = None
@@ -210,6 +214,7 @@ class RaidAuto(commands.Cog):
         self.bot.gcv_logger.info(raid_info)
         self.bot.gcv_logger.info(f"real scan: {time.time() - start}")
         await self.create_raid(ctx, raid_info)
+        self._cleanup_file(file, f"screenshots/boss")
         if c_file:
             os.remove(c_file)
 
@@ -349,10 +354,13 @@ class RaidAuto(commands.Cog):
 
     @staticmethod
     def _cleanup_file(file, dst):
-        filename = os.path.split(file)[1]
-        dest = os.path.join(dst, filename)
-        shutil.move(file, dest)
-        return dest
+        try:
+            filename = os.path.split(file)[1]
+            dest = os.path.join(dst, filename)
+            shutil.move(file, dest)
+            return dest
+        except:
+            return file
 
     @staticmethod
     def _crop_tier(file):
