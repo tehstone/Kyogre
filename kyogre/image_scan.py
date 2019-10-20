@@ -129,7 +129,7 @@ def check_egg_tier(image):
                                                lang='eng', config='--psm 7 --oem 0 -c tessedit_char_whitelist=@Q®©')
         tier = img_text.replace(' ', '')
         if len(tier) > 0:
-            return len(tier)
+            return str(len(tier))
     return None
 
 
@@ -230,7 +230,7 @@ def check_boss_cp(image, bot):
     return None
 
 
-async def read_photo_async(file, bot):
+async def read_photo_async(file, bot, logger):
     start = time.time()
     image = cv2.imread(file, 0)
     height, width = image.shape
@@ -252,8 +252,8 @@ async def read_photo_async(file, bot):
         else:
             try:
                 result_tier = check_egg_tier(image)
-            except:
-                pass
+            except Exception as e:
+                logger.info(f"Could not read egg tier from text. Error: {e}")
         # If we don't find an egg time or a boss, we don't need the phone's time
         # Even if it's picked up as an egg later, the time won't be correct without egg time
         if result_egg or result_boss:
