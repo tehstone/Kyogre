@@ -249,8 +249,11 @@ async def read_photo_async(file, bot):
             # If we don't find a boss, don't look for expire time
             if result_boss:
                 result_expire = check_expire_time(image)
-        # else:
-        #     result_tier = check_egg_tier(image)
+        else:
+            try:
+                result_tier = check_egg_tier(image)
+            except:
+                pass
         # If we don't find an egg time or a boss, we don't need the phone's time
         # Even if it's picked up as an egg later, the time won't be correct without egg time
         if result_egg or result_boss:
