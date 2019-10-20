@@ -126,7 +126,8 @@ def check_egg_tier(image):
         thresh = cv2.threshold(gym_name_crop, th, 255, cv2.THRESH_BINARY)[1]
         thresh = cv2.GaussianBlur(thresh, (5, 5), 0)
         img_text = pytesseract.image_to_string(thresh,
-                                               lang='eng', config='--psm 7 --oem 0 -c tessedit_char_whitelist=@Q®©')
+                                               lang='eng', config='--psm 7 --oem 0 -c tessedit_char_whitelist=@Q®© '
+                                                                  '--tessdata-dir "/usr/local/share/tessdata/"')
         tier = img_text.replace(' ', '')
         if len(tier) > 0:
             return str(len(tier))
