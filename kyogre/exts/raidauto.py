@@ -39,7 +39,7 @@ class RaidAuto(commands.Cog):
             offset = self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset']
             start = utils.parse_time_str(offset, raid_info["phone_time"])
         # Determine hatch time based on raid_info["egg"] or use default
-        if raid_info['exp']:
+        if raid_info.get('exp', None):
             raidexp = await utils.time_to_minute_count(self.bot.guild_dict, channel, raid_info["exp"],
                                                        current=start)
         if raidexp < 0 and raid_info['type'] == 'raid':
@@ -67,7 +67,9 @@ class RaidAuto(commands.Cog):
                                         embed=discord.Embed(
                                             colour=discord.Colour.red(),
                                             description=f"A raid has already been reported for {gym.name}"))
-                return await raid_cog.egg_to_raid(ctx, raid_info['boss'], self.bot.get_channel(raid_channel_ids[0]))
+                raid_pokemon = self._check_alolan(raid_info['boss'])
+                await raid_cog.egg_to_raid(ctx, raid_pokemon, self.bot.get_channel(raid_channel_ids[0]))
+                return await ctx.message.add_reaction(self.bot.success_react)
             except KeyError:
                 pass
         if raid_info['type'] == 'egg':
@@ -80,17 +82,21 @@ class RaidAuto(commands.Cog):
             if len(reporting_channels) > 0:
                 report_channel = guild.get_channel(reporting_channels[0])
             pokemon_name = raid_info['boss']
-            if pokemon_name in Pokemon.get_alolans_list():
-                raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon_name)
-                if not raid_pokemon.is_raid:
-                    raid_pokemon = Pokemon.get_pokemon(self.bot, "alolan" + pokemon_name)
-            else:
-                raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon_name)
+            raid_pokemon = self._check_alolan(pokemon_name)
             if not raid_pokemon.is_raid:
                 error_desc = f'The Pokemon {raid_pokemon.name} does not currently appear in raids.'
                 return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=error_desc))
             await raid_cog.finish_raid_report(ctx, raid_info["gym"], raid_pokemon, raid_pokemon.raid_level,
                                               None, raidexp, auto=True, report_channel=report_channel)
+
+    def _check_alolan(self, pokemon_name):
+        if pokemon_name in Pokemon.get_alolans_list():
+            raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon_name)
+            if not raid_pokemon.is_raid:
+                raid_pokemon = Pokemon.get_pokemon(self.bot, "alolan" + pokemon_name)
+        else:
+            raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon_name)
+        return raid_pokemon
 
     @commands.command(name='add_scan_listen_channel', aliases=['aslc'])
     async def _add_scan_listen_channel(self, ctx, channel):
@@ -163,6 +169,8 @@ class RaidAuto(commands.Cog):
         regions = utils_cog.get_channel_regions(ctx.channel, 'raid')
         raid_info = await self._scan_wrapper(ctx, file, regions)
         if raid_info["gym"] is None:
+            if not raid_info['egg_time'] and not raid_info['boss'] and not raid_info['expire_time']:
+                return await ctx.message.clear_reactions()
             self.bot.gcv_logger.info(raid_info)
             return await message.channel.send(
                 embed=discord.Embed(
@@ -171,12 +179,14 @@ class RaidAuto(commands.Cog):
                                 "Please report using the command instead: `!r <boss/tier> <gym name> <time>`"))
         c_file = None
         if raid_info['egg_time'] and not raid_info['boss']:
-            c_file = self._crop_tier(file)
-            tiers = testident.determine_tier(c_file)
-            self.bot.gcv_logger.info(tiers)
-            tier = self._determine_tier(tiers)
             raid_info['type'] = 'egg'
-            raid_info['tier'] = tier
+            if raid_info['s_tier']:
+                tier = raid_info['s_tier']
+            else:
+                c_file = self._crop_tier(file)
+                tiers = testident.determine_tier(c_file)
+                self.bot.gcv_logger.info(tiers)
+                tier = self._determine_tier(tiers)
             if tier == "0":
                 self.bot.gcv_logger.info(raid_info)
                 return await message.channel.send(
@@ -185,6 +195,7 @@ class RaidAuto(commands.Cog):
                         description=("Could not determine raid boss or egg level from screenshot, unable to create "
                                      "raid channel. If you're trying to report a raid, please use the command instead: "
                                      "`!r <boss/tier> <gym name> <time>`")))
+            raid_info['tier'] = tier
         if raid_info['expire_time'] or raid_info['boss']:
             raid_info['type'] = 'raid'
         timev = None
@@ -369,7 +380,7 @@ class RaidAuto(commands.Cog):
         pass
 
     async def _scan_wrapper(self, ctx, file, region=None):
-        image_info = await image_scan.read_photo_async(file, self.bot.gcv_logger)
+        image_info = await image_scan.read_photo_async(file, self.bot)
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         gyms = location_matching_cog.get_gyms(ctx.guild.id, region)
         gym = None
@@ -436,12 +447,17 @@ class RaidAuto(commands.Cog):
             gym_str = ''
         if len(gym_str) < 1:
             gym_str = '\n'.join(image_info['names'])
+        if len(gym_str) < 1:
+            gym_str = 'No Matches.'
         tier_str = '?'
         c_file = None
         if image_info['egg_time'] and not image_info['boss']:
-            c_file = self._crop_tier(file)
-            tiers = testident.determine_tier(c_file)
-            tier_str = self._determine_tier(tiers)
+            if image_info['s_tier']:
+                tier_str = image_info['s_tier']
+            else:
+                c_file = self._crop_tier(file)
+                tiers = testident.determine_tier(c_file)
+                tier_str = self._determine_tier(tiers)
         embed = discord.embeds.Embed(title="Image Scan Results", color=discord.colour.Color.blue())
         embed.add_field(name='Gym Name', value=gym_str, inline=False)
         if tier_str != '?':

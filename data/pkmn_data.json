@@ -3464,7 +3464,7 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 236,
@@ -4263,7 +4263,7 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 291,
@@ -4278,7 +4278,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 292,
@@ -4293,7 +4293,7 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 293,
@@ -5362,7 +5362,7 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 367,
@@ -5376,7 +5376,7 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 368,
@@ -5390,7 +5390,7 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 369,
@@ -5637,7 +5637,7 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 386,
@@ -5941,7 +5941,7 @@
                 "Poison"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 407,
@@ -5956,7 +5956,7 @@
                 "Poison"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 408,
@@ -5970,7 +5970,7 @@
                 "Rock"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 409,
@@ -5984,7 +5984,7 @@
                 "Rock"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 410,
@@ -5999,7 +5999,7 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 411,
@@ -6014,7 +6014,7 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 412,
@@ -6028,7 +6028,7 @@
                 "Bug"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 413,
@@ -6043,7 +6043,7 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 414,
@@ -6058,7 +6058,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 415,
@@ -6073,7 +6073,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 416,
@@ -6088,7 +6088,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 417,
@@ -6130,7 +6130,7 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 420,
@@ -6144,7 +6144,7 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 421,
@@ -6158,7 +6158,7 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 422,
@@ -6172,7 +6172,7 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 423,
@@ -6187,7 +6187,7 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 424,
@@ -6201,7 +6201,7 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 425,
@@ -6216,7 +6216,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 426,
@@ -6231,7 +6231,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 427,
@@ -6273,7 +6273,7 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 430,
@@ -6288,7 +6288,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 431,
@@ -6302,7 +6302,7 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 432,
@@ -6316,7 +6316,7 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 433,
@@ -6330,7 +6330,7 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 434,
@@ -6345,7 +6345,7 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 435,
@@ -6360,7 +6360,7 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 436,
@@ -6375,7 +6375,7 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 437,
@@ -6390,7 +6390,7 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 438,
@@ -6404,7 +6404,7 @@
                 "Rock"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 439,
@@ -6419,7 +6419,7 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 440,
@@ -6433,7 +6433,7 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 441,
@@ -6463,7 +6463,7 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 443,
@@ -6478,7 +6478,7 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 444,
@@ -6493,7 +6493,7 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 445,
@@ -6508,7 +6508,7 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 446,
@@ -6522,7 +6522,7 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 447,
@@ -6565,7 +6565,7 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 450,
@@ -6579,7 +6579,7 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 451,
@@ -6594,7 +6594,7 @@
                 "Bug"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 452,
@@ -6609,7 +6609,7 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 453,
@@ -6624,7 +6624,7 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 454,
@@ -6639,7 +6639,7 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 455,
@@ -6667,7 +6667,7 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 457,
@@ -6681,7 +6681,7 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 458,
@@ -6696,7 +6696,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 459,
@@ -6711,7 +6711,7 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 460,
@@ -6726,7 +6726,7 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 461,
@@ -6741,7 +6741,7 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 462,
@@ -6756,7 +6756,7 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 463,
@@ -6770,7 +6770,7 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 464,
@@ -6785,7 +6785,7 @@
                 "Rock"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 465,
@@ -6799,7 +6799,7 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 466,
@@ -6813,7 +6813,7 @@
                 "Electric"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 467,
@@ -6827,7 +6827,7 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 468,
@@ -6842,7 +6842,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 469,
@@ -6857,7 +6857,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 470,
@@ -6871,7 +6871,7 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 471,
@@ -6885,7 +6885,7 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 472,
@@ -6900,7 +6900,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 473,
@@ -6915,7 +6915,7 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 474,
@@ -6929,7 +6929,7 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 475,
@@ -6944,7 +6944,7 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 476,
@@ -6959,7 +6959,7 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 477,
@@ -6973,7 +6973,7 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 478,
@@ -6988,7 +6988,7 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 479,
@@ -7017,7 +7017,7 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 481,
@@ -7031,7 +7031,7 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 482,
@@ -7045,7 +7045,7 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 483,
@@ -7060,7 +7060,7 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 484,
@@ -7075,7 +7075,7 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 485,
@@ -7119,7 +7119,7 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 488,
@@ -7133,7 +7133,7 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 489,
@@ -7175,7 +7175,7 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 492,
@@ -7232,7 +7232,7 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 496,
@@ -7246,7 +7246,7 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 497,
@@ -7260,7 +7260,7 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 498,
@@ -7274,7 +7274,7 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 499,
@@ -7289,7 +7289,7 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 500,
@@ -7304,7 +7304,7 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 501,
@@ -7318,7 +7318,7 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 502,
@@ -7332,7 +7332,7 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 503,
@@ -7346,7 +7346,7 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 504,
@@ -7360,7 +7360,7 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 505,
@@ -7374,7 +7374,7 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 506,
@@ -7388,7 +7388,7 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 507,
@@ -7402,7 +7402,7 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 508,
@@ -7416,7 +7416,7 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 509,
@@ -7430,7 +7430,7 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 510,
@@ -7444,7 +7444,7 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 511,
@@ -7458,7 +7458,7 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 512,
@@ -7472,7 +7472,7 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 513,
@@ -7486,7 +7486,7 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 514,
@@ -7500,7 +7500,7 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 515,
@@ -7514,7 +7514,7 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 516,
@@ -7528,7 +7528,7 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 517,
@@ -7571,7 +7571,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 520,
@@ -7586,7 +7586,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 521,
@@ -7601,7 +7601,7 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 522,
@@ -7615,7 +7615,7 @@
                 "Electric"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 523,
@@ -7629,7 +7629,7 @@
                 "Electric"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 524,
@@ -7715,7 +7715,7 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 530,
@@ -7730,7 +7730,7 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 531,
@@ -8196,7 +8196,7 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 563,
@@ -8210,7 +8210,7 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 564,
@@ -8599,7 +8599,7 @@
                 "Poison"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 591,
@@ -8614,7 +8614,7 @@
                 "Poison"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 592,
@@ -8703,7 +8703,7 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 598,
@@ -8718,7 +8718,7 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 599,
@@ -8732,7 +8732,7 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 600,
@@ -8746,7 +8746,7 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 601,
@@ -8760,7 +8760,7 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 602,
@@ -8845,7 +8845,7 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 608,
@@ -8860,7 +8860,7 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 609,
@@ -8875,7 +8875,7 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 610,
@@ -9059,7 +9059,7 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 623,
@@ -9074,7 +9074,7 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 624,
@@ -9207,7 +9207,7 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 633,
@@ -9222,7 +9222,7 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": true
     },
     {
         "id": 634,
@@ -11770,6 +11770,33 @@
             ]
         },
         "released": false
-    }
-    
+    },
+    {
+        "id": 808,
+        "name": "meltan",
+        "legendary": false,
+        "mythical": true,
+        "shiny": true,
+        "alolan": false,
+        "types": {
+            "default": [
+                "Steel"
+            ]
+        },
+        "released": true
+    },
+    {
+        "id": 809,
+        "name": "melmetal",
+        "legendary": false,
+        "mythical": true,
+        "shiny": true,
+        "alolan": false,
+        "types": {
+            "default": [
+                "Steel"
+            ]
+        },
+        "released": true
+    }    
 ]
