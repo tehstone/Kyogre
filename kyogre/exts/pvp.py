@@ -13,7 +13,6 @@ from kyogre import utils, checks
 class PvP(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.guild_dict = bot.guild_dict
 
     @commands.group(name="pvp", case_insensitive=True)
     @checks.allowpvp()
@@ -38,13 +37,13 @@ class PvP(commands.Cog):
         expiration_minutes = False
         if exptime:
             if exptime.isdigit():
-                expiration_minutes = await utils.time_to_minute_count(self.guild_dict, channel, exptime)
+                expiration_minutes = await utils.time_to_minute_count(self.bot.guild_dict, channel, exptime)
         time_err = "No expiration time provided, your PvP session will remain active for 30 minutes"
         if expiration_minutes is False:
             time_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.orange(), description=time_err))
             expiration_minutes = 30
 
-        now = datetime.datetime.utcnow() + datetime.timedelta(hours=self.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+        now = datetime.datetime.utcnow() + datetime.timedelta(hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
         expire = now + datetime.timedelta(minutes=expiration_minutes)
 
         league_text = ""
@@ -82,15 +81,15 @@ class PvP(commands.Cog):
         await pvp_msg.add_reaction('🚫')
         
         expiremsg = '**{trainer} is no longer available for PvP!**'.format(trainer=trainer.display_name)
-        pvp_dict = copy.deepcopy(self.guild_dict[guild.id].get('pvp_dict',{}))
+        pvp_dict = copy.deepcopy(self.bot.guild_dict[guild.id].get('pvp_dict', {}))
         pvp_dict[pvp_msg.id] = {
-            'exp':time.time() + (expiration_minutes * 60),
-            'expedit': {"content":"","embedcontent":expiremsg},
-            'reportmessage':message.id,
-            'reportchannel':channel.id,
-            'reportauthor':trainer.id,
+            'exp': time.time() + (expiration_minutes * 60),
+            'expedit': {"content": "", "embedcontent": expiremsg},
+            'reportmessage': message.id,
+            'reportchannel': channel.id,
+            'reportauthor': trainer.id,
         }
-        self.guild_dict[guild.id]['pvp_dict'] = pvp_dict
+        self.bot.guild_dict[guild.id]['pvp_dict'] = pvp_dict
         await self._send_pvp_notification_async(ctx)
         self.bot.event_loop.create_task(self.pvp_expiry_check(pvp_msg))
         if time_msg is not None:
@@ -102,7 +101,7 @@ class PvP(commands.Cog):
         channel = message.channel
         guild = message.guild
         trainer = guild.get_member(message.author.id)
-        trainer_info_dict = self.guild_dict[guild.id]['trainers'].setdefault('info', {})
+        trainer_info_dict = self.bot.guild_dict[guild.id]['trainers'].setdefault('info', {})
         friends = trainer_info_dict.setdefault(message.author.id, {}).setdefault('friends', [])
         outbound_dict = {}
         tag_msg = f'**{trainer.display_name}** wants to battle! Who will challenge them?!'
@@ -126,7 +125,7 @@ class PvP(commands.Cog):
         channel = message.channel
         guild = message.guild
         trainer = message.author
-        trainer_dict = copy.deepcopy(self.guild_dict[guild.id]['trainers'])
+        trainer_dict = copy.deepcopy(self.bot.guild_dict[guild.id]['trainers'])
         trainer_info_dict = trainer_dict.setdefault('info', {})
         friend_list = set([r for r in re.split(r',*\s+', friends.strip()) if r])
         if len(friend_list) < 1:
@@ -165,7 +164,7 @@ class PvP(commands.Cog):
         if len(friend_list_success) > 0:
             success_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Successfully added the following friends:\n\
                 {', '.join(friend_list_success)}"))
-            self.guild_dict[guild.id]['trainers'] = trainer_dict
+            self.bot.guild_dict[guild.id]['trainers'] = trainer_dict
             await message.add_reaction('✅')
         return await utils.sleep_and_cleanup([failed_msg, exist_msg, success_msg], 10)
 
@@ -179,7 +178,7 @@ class PvP(commands.Cog):
         channel = message.channel
         guild = message.guild
         trainer = message.author
-        trainer_dict = copy.deepcopy(self.guild_dict[guild.id]['trainers'])
+        trainer_dict = copy.deepcopy(self.bot.guild_dict[guild.id]['trainers'])
         trainer_info_dict = trainer_dict.setdefault('info', {})
         friend_list = set([r for r in re.split(r',*\s+', friends.strip()) if r])
         if len(friend_list) < 1:
@@ -219,7 +218,7 @@ class PvP(commands.Cog):
         if len(friend_list_success) > 0:
             success_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=f"Successfully removed the following friends:\n\
                 {', '.join(friend_list_success)}"))
-            self.guild_dict[guild.id]['trainers'] = trainer_dict
+            self.bot.guild_dict[guild.id]['trainers'] = trainer_dict
             await message.add_reaction('✅')
         return await utils.sleep_and_cleanup([failed_msg, notexist_msg, success_msg], 10)
 
@@ -234,7 +233,7 @@ class PvP(commands.Cog):
             await asyncio.sleep(0.5)
             while True:
                 try:
-                    if self.guild_dict[guild.id]['pvp_dict'][message.id]['exp'] <= time.time():
+                    if self.bot.guild_dict[guild.id]['pvp_dict'][message.id]['exp'] <= time.time():
                         await self.expire_pvp(message)
                         break
                 except KeyError:
@@ -249,7 +248,7 @@ class PvP(commands.Cog):
             self.bot.active_pvp.remove(message)
         except ValueError:
             pass
-        pvp_dict = self.guild_dict[guild.id]['pvp_dict']
+        pvp_dict = self.bot.guild_dict[guild.id]['pvp_dict']
         try:
             await message.edit(content=pvp_dict[message.id]['expedit']['content'],
                                embed=discord.Embed(description=pvp_dict[message.id]['expedit']['embedcontent'],
@@ -262,12 +261,11 @@ class PvP(commands.Cog):
             await user_message.delete()
         except (discord.errors.NotFound, discord.errors.Forbidden, discord.errors.HTTPException):
             pass
-        del self.guild_dict[guild.id]['pvp_dict'][message.id]
+        del self.bot.guild_dict[guild.id]['pvp_dict'][message.id]
 
     @commands.Cog.listener()
     @checks.good_standing()
     async def on_raw_reaction_add(self, payload):
-        guild_dict = self.bot.guild_dict
         channel = self.bot.get_channel(payload.channel_id)
         try:
             message = await channel.fetch_message(payload.message_id)
@@ -278,7 +276,7 @@ class PvP(commands.Cog):
             user = guild.get_member(payload.user_id)
         except AttributeError:
             return
-        pvp_dict = guild_dict[guild.id].setdefault('pvp_dict', {})
+        pvp_dict = self.bot.guild_dict[guild.id].setdefault('pvp_dict', {})
         if message.id in pvp_dict and user.id != self.bot.user.id:
             trainer = pvp_dict[message.id]['reportauthor']
             if str(payload.emoji) == '🚫':

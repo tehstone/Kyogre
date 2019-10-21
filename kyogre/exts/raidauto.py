@@ -160,6 +160,9 @@ class RaidAuto(commands.Cog):
             file = await self._image_pre_check(a)
             if self.already_scanned(file):
                 os.remove(file)
+                clean_list = self.bot.guild_dict[ctx.guild.id]['configure_dict'].setdefault('channel_auto_clean', [])
+                if ctx.channel.id in clean_list:
+                    await ctx.message.delete()
                 return await ctx.channel.send(
                     embed=discord.Embed(
                         colour=discord.Colour.red(),

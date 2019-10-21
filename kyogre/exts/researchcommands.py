@@ -232,6 +232,9 @@ class ResearchCommands(commands.Cog):
                                    .setdefault('research_reports', 0) + points
             self.bot.guild_dict[ctx.guild.id]['trainers'][regions[0]][author.id]['research_reports'] = research_reports
             await self._add_db_research_report(ctx, confirmation)
+            clean_list = self.bot.guild_dict[ctx.guild.id]['configure_dict'].setdefault('channel_auto_clean', [])
+            if ctx.channel.id in clean_list:
+                await ctx.message.delete()
         else:
             research_embed.clear_fields()
             research_embed.add_field(name='**Research Report Cancelled**',
@@ -239,6 +242,7 @@ class ResearchCommands(commands.Cog):
                                            "Retry when you're ready.".format(error=error), inline=False)
             confirmation = await channel.send(embed=research_embed)
             return await utils.sleep_and_cleanup([message, confirmation], 10)
+
 
     async def _add_db_research_report(self, ctx, message):
         channel = ctx.channel
