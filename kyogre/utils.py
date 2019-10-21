@@ -614,6 +614,15 @@ def can_manage(user, config):
     return False
 
 
+def can_edit_reports(user, config):
+    can_edit = False
+    for role in user.roles:
+        if role.permissions.manage_nicknames:
+            can_edit = True
+            break
+    return can_edit or can_manage(user, config)
+
+
 def list_chunker(in_list, n):
     for i in range(0, len(in_list), n):
         yield in_list[i:i + n]

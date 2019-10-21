@@ -138,7 +138,6 @@ class Pokemon():
             self.types = p_obj['types']['alolan']
         else:
             self.types = p_obj['types']['default']
-        print(p_obj)
         self.base_attack = p_obj.get('attack', None)
         self.base_defense = p_obj.get('defense', None)
         self.base_stamina = p_obj.get('stamina', None)

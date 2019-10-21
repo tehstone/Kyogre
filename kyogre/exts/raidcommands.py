@@ -460,8 +460,7 @@ class RaidCommands(commands.Cog):
                 raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**')
                 raid_embed.add_field(name='**Expires:**', value='Set with **!timerset**')
             raid_img_url = raid_pokemon.img_url
-            msg = entity_updates.build_raid_report_message(self.bot, gym, 'raid', raid_pokemon.name, '0',
-                                                           raidexp, raid_channel, self.bot.guild_dict)
+            msg = entity_updates.build_raid_report_message(self.bot, raid_channel, raid_dict)
         else:
             if enabled:
                 if len(egg_info['pokemon']) > 1:
@@ -477,8 +476,7 @@ class RaidCommands(commands.Cog):
                 raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**', inline=True)
             raid_img_url = 'https://raw.githubusercontent.com/klords/Kyogre/master/images/eggs/{}?cache=0'\
                 .format(str(egg_img))
-            msg = entity_updates.build_raid_report_message(self.bot, gym, 'egg', '', level, raidexp,
-                                                           raid_channel, self.bot.guild_dict)
+            msg = entity_updates.build_raid_report_message(self.bot, raid_channel, raid_dict)
         if enabled:
             raid_embed.set_footer(text='Reported by {author} - {timestamp}'
                                   .format(author=author.display_name, timestamp=timestamp),
@@ -841,8 +839,9 @@ class RaidCommands(commands.Cog):
             await raid_channel.send(embed=discord.Embed(
                 colour=discord.Colour.red(),
                 description=f'The Pokemon {pkmn.full_name} does not appear in raids!'))
-            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel},"
-                                      f" error: {pkmn.name} reported, but not in raid data.")
+            if ctx.author:
+                self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel},"
+                                          f" error: {pkmn.name} reported, but not in raid data.")
             return
         if (egglevel.isdigit() and int(egglevel) > 0) or egglevel == 'EX':
             raidexp = eggdetails['exp'] + 60 * self.bot.raid_info['raid_eggs'][str(egglevel)]['raidtime']
@@ -1411,6 +1410,7 @@ class RaidCommands(commands.Cog):
         raidmsg = await raidchannel.fetch_message(raid_dict['raidmessage'])
         reportmsg = await report_channel.fetch_message(raid_dict['raidreport'])
         for message in [raidmsg, reportmsg]:
+            content = entity_updates.build_raid_report_message(self.bot, raidchannel, raid_dict)
             embed = message.embeds[0]
             embed_indices = await embed_utils.get_embed_field_indices(embed)
             if raid_dict['type'] == "raid":
@@ -1424,7 +1424,7 @@ class RaidCommands(commands.Cog):
                 embed.add_field(name='**Expires:**' if exp_type == 'expires' else '**Hatches:**', value=endtime)
             if message == raidmsg:
                 try:
-                    await message.edit(content=message.content, embed=embed)
+                    await message.edit(content=content, embed=embed)
                 except discord.errors.NotFound:
                     pass
             else:
@@ -1432,7 +1432,7 @@ class RaidCommands(commands.Cog):
                 enabled = utils_cog.raid_channels_enabled(guild, raidchannel)
                 embed = await embed_utils.filter_fields_for_report_embed(embed, embed_indices, enabled)
                 try:
-                    await message.edit(content=message.content, embed=embed)
+                    await message.edit(content=content, embed=embed)
                 except discord.errors.NotFound:
                     pass
                 if raid_dict.get('raidcityreport', None) is not None:
@@ -2325,8 +2325,9 @@ class RaidCommands(commands.Cog):
                 utils_cog = self.bot.cogs.get('Utilities')
                 enabled = utils_cog.raid_channels_enabled(guild, channel)
                 raid_embed = await embed_utils.filter_fields_for_report_embed(raid_embed, embed_indices, enabled)
-                await report_message.edit(new_content=report_message.content, embed=raid_embed,
-                                          content=report_message.content)
+                content = entity_updates.build_raid_report_message(self.bot, channel, raid_dict)
+                await report_message.edit(new_content=content, embed=raid_embed,
+                                          content=content)
                 if raid_dict.get('raidcityreport', None) is not None:
                     report_city_channel = self.bot.get_channel(raid_dict['reportcity'])
                     report_city_msg = await report_city_channel.fetch_message(raid_dict['raidcityreport'])
@@ -2389,7 +2390,8 @@ class RaidCommands(commands.Cog):
         else:
             raid_report = self.get_raid_report(guild, message.id)
         if raid_report is not None:
-            if raid_dict[raid_report].get('reporter', 0) == payload.user_id or utils.can_manage(user, self.bot.config):
+            if raid_dict[raid_report].get('reporter', 0) == payload.user_id or \
+                    utils.can_edit_reports(user, self.bot.config):
                 try:
                     await message.remove_reaction(payload.emoji, user)
                 except:
@@ -2488,7 +2490,6 @@ class RaidCommands(commands.Cog):
                             self.bot.help_logger.info(
                                 f"User: {user.name}, channel: {channel}, error: Couldn't find gym with name: {gymmsg.clean_content}")
                         else:
-                            location = gym.name
                             raid_channel_ids = self.get_existing_raid(guild, gym)
                             if raid_channel_ids:
                                 raid_channel = self.bot.get_channel(raid_channel_ids[0])
@@ -2500,11 +2501,13 @@ class RaidCommands(commands.Cog):
                                     self.bot.help_logger.info(
                                         f"User: {user.name}, channel: {channel}, error: Raid already reported.")
                             else:
+                                raid_dict[rchannel]['gym'] = gym.id
                                 await entity_updates.update_raid_location(self.bot, guild_dict, message,
                                                                           report_channel, raid_channel, gym)
                                 await listmgmt_cog.update_listing_channels(guild, "raid", edit=True, regions=regions)
                                 await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
-                                                                       description="Raid location updated"))
+                                                                       description="Raid location updated"),
+                                                   delete_after=15)
                                 await gymmsg.delete()
                                 await query_msg.delete()
 
@@ -2527,7 +2530,8 @@ class RaidCommands(commands.Cog):
                     await self._timerset(raid_channel, raidexp)
                 await listmgmt_cog.update_listing_channels(guild, "raid", edit=True, regions=regions)
                 await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
-                                                       description="Raid hatch / expire time updated"))
+                                                       description="Raid hatch / expire time updated"),
+                                   delete_after=15)
                 await timewait.delete()
                 await timemsg.delete()
             # Updating boss
@@ -2549,7 +2553,8 @@ class RaidCommands(commands.Cog):
                     await self._timerset(raid_channel, 45)
                 await listmgmt_cog.update_listing_channels(guild, "raid", edit=True, regions=regions)
                 await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
-                                                       description="Raid Tier / Boss updated"))
+                                                       description="Raid Tier / Boss updated"),
+                                   delete_after=15)
                 await bosswait.delete()
                 await bossmsg.delete()
             await self._update_db_raid_report(guild, raid_channel, updated_time)
