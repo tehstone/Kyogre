@@ -77,6 +77,9 @@ class LureCommands(commands.Cog):
             send_channel = message.channel
         await subscriptions_cog.send_notifications_async('lure', details, send_channel, [message.author.id])
         self.bot.event_loop.create_task(self.lure_expiry_check(lurereportmsg, report.id))
+        clean_list = self.bot.guild_dict[ctx.guild.id]['configure_dict'].setdefault('channel_auto_clean', [])
+        if ctx.channel.id in clean_list:
+            await ctx.message.delete()
 
     async def lure_expiry_check(self, message, lure_id):
         self.bot.logger.info('Expiry_Check - ' + message.channel.name)

@@ -588,6 +588,25 @@ class AdminCommands(commands.Cog):
         await listmgmt_cog.update_listing_channels(ctx.guild, list_type, edit=True, regions=regions)
         await ctx.message.add_reaction('\u2705')
 
+    @commands.command(name="toggle_reporting_cleanup", aliases=['trc'])
+    @commands.has_permissions(manage_guild=True)
+    async def _toggle_reporting_cleanup(self, ctx):
+        """Toggles the automatic cleanup of reporting messages.
+        If this setting is enabled, all report messages sent by users
+        will be automatically deleted.
+        This setting is per channel."""
+        channel = ctx.channel
+        clean_list = self.bot.guild_dict[ctx.guild.id]['configure_dict'].setdefault('channel_auto_clean', [])
+        if channel.id in clean_list:
+            clean_list.remove(channel.id)
+            reply = f"Report message cleanup disabled for {channel.mention}"
+        else:
+            clean_list.append(channel.id)
+            reply = f"Report message cleanup enabled for {channel.mention}"
+
+        await ctx.message.delete()
+        return await ctx.send(reply, delete_after=10)
+
     @commands.command(name="mark_released", aliases=["mr"], hidden=True)
     @commands.has_permissions(manage_guild=True)
     async def _mark_released(self, ctx, pokemon):

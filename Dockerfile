@@ -12,7 +12,7 @@ RUN apt-get update -qq \
 && apt-get -y install git \
 && apt-get -y install libsm6 libxext6 libxrender-dev
 
-RUN apt-get install -qq tesseract-ocr libtesseract-dev libleptonica-dev
+RUN apt-get install -qq tesseract-ocr libtesseract-dev libleptonica-dev tesseract-ocr-eng
 
 # Install dumb-init
 RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.1/dumb-init_1.2.1_amd64

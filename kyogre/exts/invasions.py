@@ -95,6 +95,9 @@ class Invasions(commands.Cog):
         await asyncio.sleep(1) # without this the listing update will miss the most recent report
         listmgmt_cog = self.bot.cogs.get('ListManagement')
         await listmgmt_cog.update_listing_channels(guild, 'takeover', edit=False, regions=regions)
+        clean_list = self.bot.guild_dict[ctx.guild.id]['configure_dict'].setdefault('channel_auto_clean', [])
+        if ctx.channel.id in clean_list:
+            await ctx.message.delete()
 
     async def invasion_expiry_check(self, message, invasion_id, author):
         print(invasion_id)

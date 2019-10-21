@@ -114,6 +114,26 @@ def check_egg_time(image):
     return result
 
 
+def check_egg_tier(image):
+    height, width = image.shape
+    maxy = round(height * .37)
+    miny = round(height * .27)
+    maxx = round(width * .78)
+    minx = round(width * .22)
+    gym_name_crop = image[miny:maxy, minx:maxx]
+    vals = [251, 252]
+    for th in vals:
+        thresh = cv2.threshold(gym_name_crop, th, 255, cv2.THRESH_BINARY)[1]
+        thresh = cv2.GaussianBlur(thresh, (5, 5), 0)
+        img_text = pytesseract.image_to_string(thresh,
+                                               lang='eng', config='--psm 7 --oem 0 -c tessedit_char_whitelist=@Q®© '
+                                                                  '--tessdata-dir "/usr/local/share/tessdata/"')
+        tier = img_text.replace(' ', '')
+        if len(tier) > 0:
+            return str(len(tier))
+    return None
+
+
 def check_expire_time(image):
     image = cv2.bitwise_not(image)
     height, width = image.shape
@@ -172,7 +192,7 @@ def _word_length(line):
     return longest
 
 
-def check_boss_cp(image):
+def check_boss_cp(image, bot):
     height, width = image.shape
     maxy = round(height * .32)
     miny = round(height * .15)
@@ -194,7 +214,7 @@ def check_boss_cp(image):
         img_text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 4')
         img_text = [s for s in list(filter(None, img_text.split())) if len(s) > 3]
         if len(img_text) > 1:
-            match = utils.get_match(boss_list, img_text[1], score_cutoff=70)
+            match = utils.get_match(bot.boss_list, img_text[1], score_cutoff=70)
             if match and match[0]:
                 return match[0]
         if len(img_text) > 0:
@@ -202,7 +222,7 @@ def check_boss_cp(image):
             if match and match[0]:
                 return raid_cp_chart[match[0]]
         for i in img_text:
-            match = utils.get_match(boss_list, i, score_cutoff=70)
+            match = utils.get_match(bot.boss_list, i, score_cutoff=70)
             if match and match[0]:
                 return match[0]
             match = utils.get_match(list(raid_cp_list), i, score_cutoff=70)
@@ -211,7 +231,7 @@ def check_boss_cp(image):
     return None
 
 
-async def read_photo_async(file, logger):
+async def read_photo_async(file, bot, logger):
     start = time.time()
     image = cv2.imread(file, 0)
     height, width = image.shape
@@ -219,22 +239,27 @@ async def read_photo_async(file, logger):
         dim = (round(width * 2), round(height * 2))
         image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
     result_gym = check_gym_name(image)
-    result_egg, result_expire, result_boss, result_phone = None, None, None, None
+    result_egg, result_expire, result_boss, result_tier, result_phone = None, None, None, None, None
     # If we don't have a gym, no point in checking anything else
     if result_gym:
         result_egg = check_egg_time(image)
         # Only check for expire time and boss if no egg time found
         # May make sense to reverse this. Tough call.
         if not result_egg:
-            result_boss = check_boss_cp(image)
+            result_boss = check_boss_cp(image, bot)
             # If we don't find a boss, don't look for expire time
             if result_boss:
                 result_expire = check_expire_time(image)
+        else:
+            try:
+                result_tier = check_egg_tier(image)
+            except Exception as e:
+                logger.info(f"Could not read egg tier from text. Error: {e}")
         # If we don't find an egg time or a boss, we don't need the phone's time
         # Even if it's picked up as an egg later, the time won't be correct without egg time
         if result_egg or result_boss:
             result_phone = check_phone_time(image)
-    return {'egg_time': result_egg, 'expire_time': result_expire, 'boss': result_boss,
+    return {'egg_time': result_egg, 'expire_time': result_expire, 'boss': result_boss, 's_tier': result_tier,
             'phone_time': result_phone, 'names': result_gym, 'runtime': time.time() - start}
 
 

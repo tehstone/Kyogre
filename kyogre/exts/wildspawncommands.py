@@ -148,6 +148,9 @@ class WildSpawnCommands(commands.Cog):
                            .setdefault('wild_reports', 0) + points
         self.bot.guild_dict[guild.id]['trainers'][channel_regions[0]][author.id]['wild_reports'] = wild_reports
         await self._add_db_sighting_report(ctx, wildreportmsg)
+        clean_list = self.bot.guild_dict[ctx.guild.id]['configure_dict'].setdefault('channel_auto_clean', [])
+        if ctx.channel.id in clean_list:
+            await ctx.message.delete()
 
     async def wild_expiry_check(self, message):
         self.bot.logger.info('Expiry_Check - ' + message.channel.name)

@@ -5,6 +5,7 @@ import os
 import pickle
 import sys
 
+from kyogre.exts.pokemon import Pokemon
 from kyogre.logs import init_loggers, init_gcv_logger, init_help_logger, init_user_logger
 from kyogre.errors import custom_error_handling
 
@@ -105,7 +106,10 @@ class KyogreBot(commands.AutoShardedBot):
             else:
                 if 'debug' in sys.argv[1:]:
                     print(f'Loaded {ext} extension.')
-
+        self.boss_list = Pokemon.get_raidlist(self)
+        for b in self.boss_list:
+            if b.lower().startswith('alolan'):
+                self.boss_list.append(b.split()[1])
         self._setup_folders()
 
     class RenameUnpickler(pickle.Unpickler):
@@ -152,7 +156,8 @@ class KyogreBot(commands.AutoShardedBot):
         screenshot_dirs = ['screenshots', 'screenshots/1',
                            'screenshots/2', 'screenshots/3',
                            'screenshots/4', 'screenshots/5',
-                           'screenshots/gcvapi_failed', 'screenshots/not_raid']
+                           'screenshots/no_gym', 'screenshots/not_raid',
+                           'screenshots/no_tier', 'screenshots/boss']
         for sdir in screenshot_dirs:
             if not os.path.exists(sdir):
                 os.makedirs(sdir)
