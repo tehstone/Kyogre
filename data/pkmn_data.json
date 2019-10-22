@@ -13,9 +13,9 @@
             ]
         },
         "released": true,
-        "attack": 49,
-        "defense": 49,
-        "stamina": 45
+        "attack": 118,
+        "defense": 111,
+        "stamina": 128
     },
     {
         "id": 2,
@@ -31,9 +31,9 @@
             ]
         },
         "released": true,
-        "attack": 62,
-        "defense": 63,
-        "stamina": 60
+        "attack": 151,
+        "defense": 143,
+        "stamina": 155
     },
     {
         "id": 3,
@@ -49,9 +49,9 @@
             ]
         },
         "released": true,
-        "attack": 82,
-        "defense": 83,
-        "stamina": 80
+        "attack": 198,
+        "defense": 189,
+        "stamina": 190
     },
     {
         "id": 4,
@@ -66,9 +66,9 @@
             ]
         },
         "released": true,
-        "attack": 52,
-        "defense": 43,
-        "stamina": 39
+        "attack": 116,
+        "defense": 93,
+        "stamina": 118
     },
     {
         "id": 5,
@@ -83,9 +83,9 @@
             ]
         },
         "released": true,
-        "attack": 64,
-        "defense": 58,
-        "stamina": 58
+        "attack": 158,
+        "defense": 126,
+        "stamina": 151
     },
     {
         "id": 6,
@@ -101,9 +101,9 @@
             ]
         },
         "released": true,
-        "attack": 84,
-        "defense": 78,
-        "stamina": 78
+        "attack": 223,
+        "defense": 173,
+        "stamina": 186
     },
     {
         "id": 7,
@@ -118,9 +118,9 @@
             ]
         },
         "released": true,
-        "attack": 48,
-        "defense": 65,
-        "stamina": 44
+        "attack": 94,
+        "defense": 121,
+        "stamina": 127
     },
     {
         "id": 8,
@@ -135,9 +135,9 @@
             ]
         },
         "released": true,
-        "attack": 63,
-        "defense": 80,
-        "stamina": 59
+        "attack": 126,
+        "defense": 155,
+        "stamina": 153
     },
     {
         "id": 9,
@@ -152,9 +152,9 @@
             ]
         },
         "released": true,
-        "attack": 83,
-        "defense": 100,
-        "stamina": 79
+        "attack": 171,
+        "defense": 207,
+        "stamina": 188
     },
     {
         "id": 10,
@@ -169,9 +169,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 35,
-        "stamina": 45
+        "attack": 55,
+        "defense": 55,
+        "stamina": 128
     },
     {
         "id": 11,
@@ -186,9 +186,9 @@
             ]
         },
         "released": true,
-        "attack": 20,
-        "defense": 55,
-        "stamina": 50
+        "attack": 45,
+        "defense": 80,
+        "stamina": 137
     },
     {
         "id": 12,
@@ -204,9 +204,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 50,
-        "stamina": 60
+        "attack": 167,
+        "defense": 137,
+        "stamina": 155
     },
     {
         "id": 13,
@@ -222,9 +222,9 @@
             ]
         },
         "released": true,
-        "attack": 35,
-        "defense": 30,
-        "stamina": 40
+        "attack": 63,
+        "defense": 50,
+        "stamina": 120
     },
     {
         "id": 14,
@@ -240,9 +240,9 @@
             ]
         },
         "released": true,
-        "attack": 25,
-        "defense": 50,
-        "stamina": 45
+        "attack": 46,
+        "defense": 75,
+        "stamina": 128
     },
     {
         "id": 15,
@@ -258,9 +258,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 40,
-        "stamina": 65
+        "attack": 169,
+        "defense": 130,
+        "stamina": 163
     },
     {
         "id": 16,
@@ -276,9 +276,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 40,
-        "stamina": 40
+        "attack": 85,
+        "defense": 73,
+        "stamina": 120
     },
     {
         "id": 17,
@@ -294,9 +294,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 55,
-        "stamina": 63
+        "attack": 117,
+        "defense": 105,
+        "stamina": 160
     },
     {
         "id": 18,
@@ -312,9 +312,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 75,
-        "stamina": 83
+        "attack": 166,
+        "defense": 154,
+        "stamina": 195
     },
     {
         "id": 19,
@@ -333,9 +333,9 @@
             ]
         },
         "released": true,
-        "attack": 56,
-        "defense": 35,
-        "stamina": 30
+        "attack": 103,
+        "defense": 70,
+        "stamina": 102
     },
     {
         "id": 20,
@@ -354,9 +354,9 @@
             ]
         },
         "released": true,
-        "attack": 81,
-        "defense": 60,
-        "stamina": 55
+        "attack": 161,
+        "defense": 139,
+        "stamina": 146
     },
     {
         "id": 21,
@@ -372,9 +372,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 30,
-        "stamina": 40
+        "attack": 112,
+        "defense": 60,
+        "stamina": 120
     },
     {
         "id": 22,
@@ -390,9 +390,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 65,
-        "stamina": 65
+        "attack": 182,
+        "defense": 133,
+        "stamina": 163
     },
     {
         "id": 23,
@@ -407,9 +407,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 44,
-        "stamina": 35
+        "attack": 110,
+        "defense": 97,
+        "stamina": 111
     },
     {
         "id": 24,
@@ -424,9 +424,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 69,
-        "stamina": 60
+        "attack": 167,
+        "defense": 153,
+        "stamina": 155
     },
     {
         "id": 25,
@@ -441,9 +441,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 40,
-        "stamina": 35
+        "attack": 112,
+        "defense": 96,
+        "stamina": 111
     },
     {
         "id": 26,
@@ -462,9 +462,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 55,
-        "stamina": 60
+        "attack": 193,
+        "defense": 151,
+        "stamina": 155
     },
     {
         "id": 27,
@@ -483,9 +483,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 85,
-        "stamina": 50
+        "attack": 126,
+        "defense": 120,
+        "stamina": 137
     },
     {
         "id": 28,
@@ -504,9 +504,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 110,
-        "stamina": 75
+        "attack": 182,
+        "defense": 175,
+        "stamina": 181
     },
     {
         "id": 29,
@@ -521,9 +521,9 @@
             ]
         },
         "released": true,
-        "attack": 47,
-        "defense": 52,
-        "stamina": 55
+        "attack": 86,
+        "defense": 89,
+        "stamina": 146
     },
     {
         "id": 30,
@@ -538,9 +538,9 @@
             ]
         },
         "released": true,
-        "attack": 62,
-        "defense": 67,
-        "stamina": 70
+        "attack": 117,
+        "defense": 120,
+        "stamina": 172
     },
     {
         "id": 31,
@@ -556,9 +556,9 @@
             ]
         },
         "released": true,
-        "attack": 92,
-        "defense": 87,
-        "stamina": 90
+        "attack": 180,
+        "defense": 173,
+        "stamina": 207
     },
     {
         "id": 32,
@@ -573,9 +573,9 @@
             ]
         },
         "released": true,
-        "attack": 57,
-        "defense": 40,
-        "stamina": 46
+        "attack": 105,
+        "defense": 76,
+        "stamina": 130
     },
     {
         "id": 33,
@@ -590,9 +590,9 @@
             ]
         },
         "released": true,
-        "attack": 72,
-        "defense": 57,
-        "stamina": 61
+        "attack": 137,
+        "defense": 111,
+        "stamina": 156
     },
     {
         "id": 34,
@@ -608,9 +608,9 @@
             ]
         },
         "released": true,
-        "attack": 102,
-        "defense": 77,
-        "stamina": 81
+        "attack": 204,
+        "defense": 156,
+        "stamina": 191
     },
     {
         "id": 35,
@@ -625,9 +625,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 48,
-        "stamina": 70
+        "attack": 107,
+        "defense": 108,
+        "stamina": 172
     },
     {
         "id": 36,
@@ -642,9 +642,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 73,
-        "stamina": 95
+        "attack": 178,
+        "defense": 162,
+        "stamina": 216
     },
     {
         "id": 37,
@@ -662,9 +662,9 @@
             ]
         },
         "released": true,
-        "attack": 41,
-        "defense": 40,
-        "stamina": 38
+        "attack": 96,
+        "defense": 109,
+        "stamina": 116
     },
     {
         "id": 38,
@@ -682,9 +682,9 @@
             ]
         },
         "released": true,
-        "attack": 76,
-        "defense": 75,
-        "stamina": 73
+        "attack": 169,
+        "defense": 190,
+        "stamina": 177
     },
     {
         "id": 39,
@@ -700,9 +700,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 20,
-        "stamina": 115
+        "attack": 80,
+        "defense": 41,
+        "stamina": 251
     },
     {
         "id": 40,
@@ -718,9 +718,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 45,
-        "stamina": 140
+        "attack": 156,
+        "defense": 90,
+        "stamina": 295
     },
     {
         "id": 41,
@@ -736,9 +736,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 35,
-        "stamina": 40
+        "attack": 83,
+        "defense": 73,
+        "stamina": 120
     },
     {
         "id": 42,
@@ -754,9 +754,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 70,
-        "stamina": 75
+        "attack": 161,
+        "defense": 150,
+        "stamina": 181
     },
     {
         "id": 43,
@@ -772,9 +772,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 55,
-        "stamina": 45
+        "attack": 131,
+        "defense": 112,
+        "stamina": 128
     },
     {
         "id": 44,
@@ -790,9 +790,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 70,
-        "stamina": 60
+        "attack": 153,
+        "defense": 136,
+        "stamina": 155
     },
     {
         "id": 45,
@@ -808,9 +808,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 85,
-        "stamina": 75
+        "attack": 202,
+        "defense": 167,
+        "stamina": 181
     },
     {
         "id": 46,
@@ -826,9 +826,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 55,
-        "stamina": 35
+        "attack": 121,
+        "defense": 99,
+        "stamina": 111
     },
     {
         "id": 47,
@@ -844,9 +844,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 80,
-        "stamina": 60
+        "attack": 165,
+        "defense": 146,
+        "stamina": 155
     },
     {
         "id": 48,
@@ -862,9 +862,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 50,
-        "stamina": 60
+        "attack": 100,
+        "defense": 100,
+        "stamina": 155
     },
     {
         "id": 49,
@@ -880,9 +880,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 60,
-        "stamina": 70
+        "attack": 179,
+        "defense": 143,
+        "stamina": 172
     },
     {
         "id": 50,
@@ -901,9 +901,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 25,
-        "stamina": 10
+        "attack": 109,
+        "defense": 78,
+        "stamina": 67
     },
     {
         "id": 51,
@@ -922,9 +922,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 50,
-        "stamina": 35
+        "attack": 167,
+        "defense": 134,
+        "stamina": 111
     },
     {
         "id": 52,
@@ -942,9 +942,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 35,
-        "stamina": 40
+        "attack": 92,
+        "defense": 78,
+        "stamina": 120
     },
     {
         "id": 53,
@@ -962,9 +962,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 60,
-        "stamina": 65
+        "attack": 150,
+        "defense": 136,
+        "stamina": 163
     },
     {
         "id": 54,
@@ -979,9 +979,9 @@
             ]
         },
         "released": true,
-        "attack": 52,
-        "defense": 48,
-        "stamina": 50
+        "attack": 122,
+        "defense": 95,
+        "stamina": 137
     },
     {
         "id": 55,
@@ -996,9 +996,9 @@
             ]
         },
         "released": true,
-        "attack": 82,
-        "defense": 78,
-        "stamina": 80
+        "attack": 191,
+        "defense": 162,
+        "stamina": 190
     },
     {
         "id": 56,
@@ -1013,9 +1013,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 35,
-        "stamina": 40
+        "attack": 148,
+        "defense": 82,
+        "stamina": 120
     },
     {
         "id": 57,
@@ -1030,9 +1030,9 @@
             ]
         },
         "released": true,
-        "attack": 105,
-        "defense": 60,
-        "stamina": 65
+        "attack": 207,
+        "defense": 138,
+        "stamina": 163
     },
     {
         "id": 58,
@@ -1047,9 +1047,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 45,
-        "stamina": 55
+        "attack": 136,
+        "defense": 93,
+        "stamina": 146
     },
     {
         "id": 59,
@@ -1064,9 +1064,9 @@
             ]
         },
         "released": true,
-        "attack": 110,
-        "defense": 80,
-        "stamina": 90
+        "attack": 227,
+        "defense": 166,
+        "stamina": 207
     },
     {
         "id": 60,
@@ -1081,9 +1081,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 40,
-        "stamina": 40
+        "attack": 101,
+        "defense": 82,
+        "stamina": 120
     },
     {
         "id": 61,
@@ -1098,9 +1098,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 65,
-        "stamina": 65
+        "attack": 130,
+        "defense": 123,
+        "stamina": 163
     },
     {
         "id": 62,
@@ -1116,9 +1116,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 95,
-        "stamina": 90
+        "attack": 182,
+        "defense": 184,
+        "stamina": 207
     },
     {
         "id": 63,
@@ -1133,9 +1133,9 @@
             ]
         },
         "released": true,
-        "attack": 20,
-        "defense": 15,
-        "stamina": 25
+        "attack": 195,
+        "defense": 82,
+        "stamina": 93
     },
     {
         "id": 64,
@@ -1150,9 +1150,9 @@
             ]
         },
         "released": true,
-        "attack": 35,
-        "defense": 30,
-        "stamina": 40
+        "attack": 232,
+        "defense": 117,
+        "stamina": 120
     },
     {
         "id": 65,
@@ -1167,9 +1167,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 45,
-        "stamina": 55
+        "attack": 271,
+        "defense": 167,
+        "stamina": 146
     },
     {
         "id": 66,
@@ -1184,9 +1184,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 50,
-        "stamina": 70
+        "attack": 137,
+        "defense": 82,
+        "stamina": 172
     },
     {
         "id": 67,
@@ -1201,9 +1201,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 70,
-        "stamina": 80
+        "attack": 177,
+        "defense": 125,
+        "stamina": 190
     },
     {
         "id": 68,
@@ -1218,9 +1218,9 @@
             ]
         },
         "released": true,
-        "attack": 130,
-        "defense": 80,
-        "stamina": 90
+        "attack": 234,
+        "defense": 159,
+        "stamina": 207
     },
     {
         "id": 69,
@@ -1236,9 +1236,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 35,
-        "stamina": 50
+        "attack": 139,
+        "defense": 61,
+        "stamina": 137
     },
     {
         "id": 70,
@@ -1254,9 +1254,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 50,
-        "stamina": 65
+        "attack": 172,
+        "defense": 92,
+        "stamina": 163
     },
     {
         "id": 71,
@@ -1272,9 +1272,9 @@
             ]
         },
         "released": true,
-        "attack": 105,
-        "defense": 65,
-        "stamina": 80
+        "attack": 207,
+        "defense": 135,
+        "stamina": 190
     },
     {
         "id": 72,
@@ -1290,9 +1290,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 35,
-        "stamina": 40
+        "attack": 97,
+        "defense": 149,
+        "stamina": 120
     },
     {
         "id": 73,
@@ -1308,9 +1308,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 65,
-        "stamina": 80
+        "attack": 166,
+        "defense": 209,
+        "stamina": 190
     },
     {
         "id": 74,
@@ -1330,9 +1330,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 100,
-        "stamina": 40
+        "attack": 132,
+        "defense": 132,
+        "stamina": 120
     },
     {
         "id": 75,
@@ -1352,9 +1352,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 115,
-        "stamina": 55
+        "attack": 164,
+        "defense": 164,
+        "stamina": 146
     },
     {
         "id": 76,
@@ -1374,9 +1374,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 130,
-        "stamina": 80
+        "attack": 211,
+        "defense": 198,
+        "stamina": 190
     },
     {
         "id": 77,
@@ -1391,9 +1391,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 55,
-        "stamina": 50
+        "attack": 170,
+        "defense": 127,
+        "stamina": 137
     },
     {
         "id": 78,
@@ -1408,9 +1408,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 70,
-        "stamina": 65
+        "attack": 207,
+        "defense": 162,
+        "stamina": 163
     },
     {
         "id": 79,
@@ -1426,9 +1426,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 65,
-        "stamina": 90
+        "attack": 109,
+        "defense": 98,
+        "stamina": 207
     },
     {
         "id": 80,
@@ -1444,9 +1444,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 110,
-        "stamina": 95
+        "attack": 177,
+        "defense": 180,
+        "stamina": 216
     },
     {
         "id": 81,
@@ -1462,9 +1462,9 @@
             ]
         },
         "released": true,
-        "attack": 35,
-        "defense": 70,
-        "stamina": 25
+        "attack": 165,
+        "defense": 121,
+        "stamina": 93
     },
     {
         "id": 82,
@@ -1480,9 +1480,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 95,
-        "stamina": 50
+        "attack": 223,
+        "defense": 169,
+        "stamina": 137
     },
     {
         "id": 83,
@@ -1498,9 +1498,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 55,
-        "stamina": 52
+        "attack": 124,
+        "defense": 115,
+        "stamina": 141
     },
     {
         "id": 84,
@@ -1516,9 +1516,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 45,
-        "stamina": 35
+        "attack": 158,
+        "defense": 83,
+        "stamina": 111
     },
     {
         "id": 85,
@@ -1534,9 +1534,9 @@
             ]
         },
         "released": true,
-        "attack": 110,
-        "defense": 70,
-        "stamina": 60
+        "attack": 218,
+        "defense": 140,
+        "stamina": 155
     },
     {
         "id": 86,
@@ -1551,9 +1551,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 55,
-        "stamina": 65
+        "attack": 85,
+        "defense": 121,
+        "stamina": 163
     },
     {
         "id": 87,
@@ -1569,9 +1569,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 80,
-        "stamina": 90
+        "attack": 139,
+        "defense": 177,
+        "stamina": 207
     },
     {
         "id": 88,
@@ -1590,9 +1590,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 50,
-        "stamina": 80
+        "attack": 135,
+        "defense": 90,
+        "stamina": 190
     },
     {
         "id": 89,
@@ -1611,9 +1611,9 @@
             ]
         },
         "released": true,
-        "attack": 105,
-        "defense": 75,
-        "stamina": 105
+        "attack": 190,
+        "defense": 172,
+        "stamina": 233
     },
     {
         "id": 90,
@@ -1628,9 +1628,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 100,
-        "stamina": 30
+        "attack": 116,
+        "defense": 134,
+        "stamina": 102
     },
     {
         "id": 91,
@@ -1646,9 +1646,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 180,
-        "stamina": 50
+        "attack": 186,
+        "defense": 256,
+        "stamina": 137
     },
     {
         "id": 92,
@@ -1664,9 +1664,9 @@
             ]
         },
         "released": true,
-        "attack": 35,
-        "defense": 30,
-        "stamina": 30
+        "attack": 186,
+        "defense": 67,
+        "stamina": 102
     },
     {
         "id": 93,
@@ -1682,9 +1682,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 45,
-        "stamina": 45
+        "attack": 223,
+        "defense": 107,
+        "stamina": 128
     },
     {
         "id": 94,
@@ -1700,9 +1700,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 60,
-        "stamina": 60
+        "attack": 261,
+        "defense": 149,
+        "stamina": 155
     },
     {
         "id": 95,
@@ -1718,9 +1718,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 160,
-        "stamina": 35
+        "attack": 85,
+        "defense": 232,
+        "stamina": 111
     },
     {
         "id": 96,
@@ -1735,9 +1735,9 @@
             ]
         },
         "released": true,
-        "attack": 48,
-        "defense": 45,
-        "stamina": 60
+        "attack": 89,
+        "defense": 136,
+        "stamina": 155
     },
     {
         "id": 97,
@@ -1752,9 +1752,9 @@
             ]
         },
         "released": true,
-        "attack": 73,
-        "defense": 70,
-        "stamina": 85
+        "attack": 144,
+        "defense": 193,
+        "stamina": 198
     },
     {
         "id": 98,
@@ -1769,9 +1769,9 @@
             ]
         },
         "released": true,
-        "attack": 105,
-        "defense": 90,
-        "stamina": 30
+        "attack": 181,
+        "defense": 124,
+        "stamina": 102
     },
     {
         "id": 99,
@@ -1786,9 +1786,9 @@
             ]
         },
         "released": true,
-        "attack": 130,
-        "defense": 115,
-        "stamina": 55
+        "attack": 240,
+        "defense": 181,
+        "stamina": 146
     },
     {
         "id": 100,
@@ -1803,9 +1803,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 50,
-        "stamina": 40
+        "attack": 109,
+        "defense": 111,
+        "stamina": 120
     },
     {
         "id": 101,
@@ -1820,9 +1820,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 70,
-        "stamina": 60
+        "attack": 173,
+        "defense": 173,
+        "stamina": 155
     },
     {
         "id": 102,
@@ -1838,9 +1838,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 80,
-        "stamina": 60
+        "attack": 107,
+        "defense": 125,
+        "stamina": 155
     },
     {
         "id": 103,
@@ -1860,9 +1860,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 85,
-        "stamina": 95
+        "attack": 233,
+        "defense": 149,
+        "stamina": 216
     },
     {
         "id": 104,
@@ -1877,9 +1877,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 95,
-        "stamina": 50
+        "attack": 90,
+        "defense": 144,
+        "stamina": 137
     },
     {
         "id": 105,
@@ -1898,9 +1898,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 110,
-        "stamina": 60
+        "attack": 144,
+        "defense": 186,
+        "stamina": 155
     },
     {
         "id": 106,
@@ -1915,9 +1915,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 53,
-        "stamina": 50
+        "attack": 224,
+        "defense": 181,
+        "stamina": 137
     },
     {
         "id": 107,
@@ -1932,9 +1932,9 @@
             ]
         },
         "released": true,
-        "attack": 105,
-        "defense": 79,
-        "stamina": 50
+        "attack": 193,
+        "defense": 197,
+        "stamina": 137
     },
     {
         "id": 108,
@@ -1949,9 +1949,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 75,
-        "stamina": 90
+        "attack": 108,
+        "defense": 137,
+        "stamina": 207
     },
     {
         "id": 109,
@@ -1966,9 +1966,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 95,
-        "stamina": 40
+        "attack": 119,
+        "defense": 141,
+        "stamina": 120
     },
     {
         "id": 110,
@@ -1983,9 +1983,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 120,
-        "stamina": 65
+        "attack": 174,
+        "defense": 197,
+        "stamina": 163
     },
     {
         "id": 111,
@@ -2001,9 +2001,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 95,
-        "stamina": 80
+        "attack": 140,
+        "defense": 127,
+        "stamina": 190
     },
     {
         "id": 112,
@@ -2019,9 +2019,9 @@
             ]
         },
         "released": true,
-        "attack": 130,
-        "defense": 120,
-        "stamina": 105
+        "attack": 222,
+        "defense": 171,
+        "stamina": 233
     },
     {
         "id": 113,
@@ -2036,9 +2036,9 @@
             ]
         },
         "released": true,
-        "attack": 5,
-        "defense": 5,
-        "stamina": 250
+        "attack": 60,
+        "defense": 128,
+        "stamina": 487
     },
     {
         "id": 114,
@@ -2053,9 +2053,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 115,
-        "stamina": 65
+        "attack": 183,
+        "defense": 169,
+        "stamina": 163
     },
     {
         "id": 115,
@@ -2070,9 +2070,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 80,
-        "stamina": 105
+        "attack": 181,
+        "defense": 165,
+        "stamina": 233
     },
     {
         "id": 116,
@@ -2087,9 +2087,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 70,
-        "stamina": 30
+        "attack": 129,
+        "defense": 103,
+        "stamina": 102
     },
     {
         "id": 117,
@@ -2104,9 +2104,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 95,
-        "stamina": 55
+        "attack": 187,
+        "defense": 156,
+        "stamina": 146
     },
     {
         "id": 118,
@@ -2121,9 +2121,9 @@
             ]
         },
         "released": true,
-        "attack": 67,
-        "defense": 60,
-        "stamina": 45
+        "attack": 123,
+        "defense": 110,
+        "stamina": 128
     },
     {
         "id": 119,
@@ -2138,9 +2138,9 @@
             ]
         },
         "released": true,
-        "attack": 92,
-        "defense": 65,
-        "stamina": 80
+        "attack": 175,
+        "defense": 147,
+        "stamina": 190
     },
     {
         "id": 120,
@@ -2155,9 +2155,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 55,
-        "stamina": 30
+        "attack": 137,
+        "defense": 112,
+        "stamina": 102
     },
     {
         "id": 121,
@@ -2173,9 +2173,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 85,
-        "stamina": 60
+        "attack": 210,
+        "defense": 184,
+        "stamina": 155
     },
     {
         "id": 122,
@@ -2191,9 +2191,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 65,
-        "stamina": 40
+        "attack": 192,
+        "defense": 205,
+        "stamina": 120
     },
     {
         "id": 123,
@@ -2209,9 +2209,9 @@
             ]
         },
         "released": true,
-        "attack": 110,
-        "defense": 80,
-        "stamina": 70
+        "attack": 218,
+        "defense": 170,
+        "stamina": 172
     },
     {
         "id": 124,
@@ -2227,9 +2227,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 35,
-        "stamina": 65
+        "attack": 223,
+        "defense": 151,
+        "stamina": 163
     },
     {
         "id": 125,
@@ -2244,9 +2244,9 @@
             ]
         },
         "released": true,
-        "attack": 83,
-        "defense": 57,
-        "stamina": 65
+        "attack": 198,
+        "defense": 158,
+        "stamina": 163
     },
     {
         "id": 126,
@@ -2261,9 +2261,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 57,
-        "stamina": 65
+        "attack": 206,
+        "defense": 154,
+        "stamina": 163
     },
     {
         "id": 127,
@@ -2278,9 +2278,9 @@
             ]
         },
         "released": true,
-        "attack": 125,
-        "defense": 100,
-        "stamina": 65
+        "attack": 238,
+        "defense": 182,
+        "stamina": 163
     },
     {
         "id": 128,
@@ -2295,9 +2295,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 95,
-        "stamina": 75
+        "attack": 198,
+        "defense": 183,
+        "stamina": 181
     },
     {
         "id": 129,
@@ -2312,9 +2312,9 @@
             ]
         },
         "released": true,
-        "attack": 10,
-        "defense": 55,
-        "stamina": 20
+        "attack": 29,
+        "defense": 85,
+        "stamina": 85
     },
     {
         "id": 130,
@@ -2330,9 +2330,9 @@
             ]
         },
         "released": true,
-        "attack": 125,
-        "defense": 79,
-        "stamina": 95
+        "attack": 237,
+        "defense": 186,
+        "stamina": 216
     },
     {
         "id": 131,
@@ -2348,9 +2348,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 80,
-        "stamina": 130
+        "attack": 165,
+        "defense": 174,
+        "stamina": 277
     },
     {
         "id": 132,
@@ -2365,9 +2365,9 @@
             ]
         },
         "released": true,
-        "attack": 48,
-        "defense": 48,
-        "stamina": 48
+        "attack": 91,
+        "defense": 91,
+        "stamina": 134
     },
     {
         "id": 133,
@@ -2382,9 +2382,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 50,
-        "stamina": 55
+        "attack": 104,
+        "defense": 114,
+        "stamina": 146
     },
     {
         "id": 134,
@@ -2399,9 +2399,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 60,
-        "stamina": 130
+        "attack": 205,
+        "defense": 161,
+        "stamina": 277
     },
     {
         "id": 135,
@@ -2416,9 +2416,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 60,
-        "stamina": 65
+        "attack": 232,
+        "defense": 182,
+        "stamina": 163
     },
     {
         "id": 136,
@@ -2433,9 +2433,9 @@
             ]
         },
         "released": true,
-        "attack": 130,
-        "defense": 60,
-        "stamina": 65
+        "attack": 246,
+        "defense": 179,
+        "stamina": 163
     },
     {
         "id": 137,
@@ -2450,9 +2450,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 70,
-        "stamina": 65
+        "attack": 153,
+        "defense": 136,
+        "stamina": 163
     },
     {
         "id": 138,
@@ -2468,9 +2468,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 100,
-        "stamina": 35
+        "attack": 155,
+        "defense": 153,
+        "stamina": 111
     },
     {
         "id": 139,
@@ -2486,9 +2486,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 125,
-        "stamina": 70
+        "attack": 207,
+        "defense": 201,
+        "stamina": 172
     },
     {
         "id": 140,
@@ -2504,9 +2504,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 90,
-        "stamina": 30
+        "attack": 148,
+        "defense": 140,
+        "stamina": 102
     },
     {
         "id": 141,
@@ -2522,9 +2522,9 @@
             ]
         },
         "released": true,
-        "attack": 115,
-        "defense": 105,
-        "stamina": 60
+        "attack": 220,
+        "defense": 186,
+        "stamina": 155
     },
     {
         "id": 142,
@@ -2540,9 +2540,9 @@
             ]
         },
         "released": true,
-        "attack": 105,
-        "defense": 65,
-        "stamina": 80
+        "attack": 221,
+        "defense": 159,
+        "stamina": 190
     },
     {
         "id": 143,
@@ -2557,9 +2557,9 @@
             ]
         },
         "released": true,
-        "attack": 110,
-        "defense": 65,
-        "stamina": 160
+        "attack": 190,
+        "defense": 169,
+        "stamina": 330
     },
     {
         "id": 144,
@@ -2575,9 +2575,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 100,
-        "stamina": 90
+        "attack": 192,
+        "defense": 236,
+        "stamina": 207
     },
     {
         "id": 145,
@@ -2593,9 +2593,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 85,
-        "stamina": 90
+        "attack": 253,
+        "defense": 185,
+        "stamina": 207
     },
     {
         "id": 146,
@@ -2611,9 +2611,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 90,
-        "stamina": 90
+        "attack": 251,
+        "defense": 181,
+        "stamina": 207
     },
     {
         "id": 147,
@@ -2628,9 +2628,9 @@
             ]
         },
         "released": true,
-        "attack": 64,
-        "defense": 45,
-        "stamina": 41
+        "attack": 119,
+        "defense": 91,
+        "stamina": 121
     },
     {
         "id": 148,
@@ -2645,9 +2645,9 @@
             ]
         },
         "released": true,
-        "attack": 84,
-        "defense": 65,
-        "stamina": 61
+        "attack": 163,
+        "defense": 135,
+        "stamina": 156
     },
     {
         "id": 149,
@@ -2663,9 +2663,9 @@
             ]
         },
         "released": true,
-        "attack": 134,
-        "defense": 95,
-        "stamina": 91
+        "attack": 263,
+        "defense": 198,
+        "stamina": 209
     },
     {
         "id": 150,
@@ -2680,9 +2680,9 @@
             ]
         },
         "released": true,
-        "attack": 110,
-        "defense": 90,
-        "stamina": 106
+        "attack": 300,
+        "defense": 182,
+        "stamina": 214
     },
     {
         "id": 151,
@@ -2697,9 +2697,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 100,
-        "stamina": 100
+        "attack": 210,
+        "defense": 210,
+        "stamina": 225
     },
     {
         "id": 152,
@@ -2714,9 +2714,9 @@
             ]
         },
         "released": true,
-        "attack": 49,
-        "defense": 65,
-        "stamina": 45
+        "attack": 92,
+        "defense": 122,
+        "stamina": 128
     },
     {
         "id": 153,
@@ -2731,9 +2731,9 @@
             ]
         },
         "released": true,
-        "attack": 62,
-        "defense": 80,
-        "stamina": 60
+        "attack": 122,
+        "defense": 155,
+        "stamina": 155
     },
     {
         "id": 154,
@@ -2748,9 +2748,9 @@
             ]
         },
         "released": true,
-        "attack": 82,
-        "defense": 100,
-        "stamina": 80
+        "attack": 168,
+        "defense": 202,
+        "stamina": 190
     },
     {
         "id": 155,
@@ -2765,9 +2765,9 @@
             ]
         },
         "released": true,
-        "attack": 52,
-        "defense": 43,
-        "stamina": 39
+        "attack": 116,
+        "defense": 93,
+        "stamina": 118
     },
     {
         "id": 156,
@@ -2782,9 +2782,9 @@
             ]
         },
         "released": true,
-        "attack": 64,
-        "defense": 58,
-        "stamina": 58
+        "attack": 158,
+        "defense": 126,
+        "stamina": 151
     },
     {
         "id": 157,
@@ -2799,9 +2799,9 @@
             ]
         },
         "released": true,
-        "attack": 84,
-        "defense": 78,
-        "stamina": 78
+        "attack": 223,
+        "defense": 173,
+        "stamina": 186
     },
     {
         "id": 158,
@@ -2816,9 +2816,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 64,
-        "stamina": 50
+        "attack": 117,
+        "defense": 109,
+        "stamina": 137
     },
     {
         "id": 159,
@@ -2833,9 +2833,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 80,
-        "stamina": 65
+        "attack": 150,
+        "defense": 142,
+        "stamina": 163
     },
     {
         "id": 160,
@@ -2850,9 +2850,9 @@
             ]
         },
         "released": true,
-        "attack": 105,
-        "defense": 100,
-        "stamina": 85
+        "attack": 205,
+        "defense": 188,
+        "stamina": 198
     },
     {
         "id": 161,
@@ -2867,9 +2867,9 @@
             ]
         },
         "released": true,
-        "attack": 46,
-        "defense": 34,
-        "stamina": 35
+        "attack": 79,
+        "defense": 73,
+        "stamina": 111
     },
     {
         "id": 162,
@@ -2884,9 +2884,9 @@
             ]
         },
         "released": true,
-        "attack": 76,
-        "defense": 64,
-        "stamina": 85
+        "attack": 148,
+        "defense": 125,
+        "stamina": 198
     },
     {
         "id": 163,
@@ -2902,9 +2902,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 30,
-        "stamina": 60
+        "attack": 67,
+        "defense": 88,
+        "stamina": 155
     },
     {
         "id": 164,
@@ -2920,9 +2920,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 50,
-        "stamina": 100
+        "attack": 145,
+        "defense": 156,
+        "stamina": 225
     },
     {
         "id": 165,
@@ -2938,9 +2938,9 @@
             ]
         },
         "released": true,
-        "attack": 20,
-        "defense": 30,
-        "stamina": 40
+        "attack": 72,
+        "defense": 118,
+        "stamina": 120
     },
     {
         "id": 166,
@@ -2956,9 +2956,9 @@
             ]
         },
         "released": true,
-        "attack": 35,
-        "defense": 50,
-        "stamina": 55
+        "attack": 107,
+        "defense": 179,
+        "stamina": 146
     },
     {
         "id": 167,
@@ -2974,9 +2974,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 40,
-        "stamina": 40
+        "attack": 105,
+        "defense": 73,
+        "stamina": 120
     },
     {
         "id": 168,
@@ -2992,9 +2992,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 70,
-        "stamina": 70
+        "attack": 161,
+        "defense": 124,
+        "stamina": 172
     },
     {
         "id": 169,
@@ -3010,9 +3010,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 80,
-        "stamina": 85
+        "attack": 194,
+        "defense": 178,
+        "stamina": 198
     },
     {
         "id": 170,
@@ -3028,9 +3028,9 @@
             ]
         },
         "released": true,
-        "attack": 38,
-        "defense": 38,
-        "stamina": 75
+        "attack": 106,
+        "defense": 97,
+        "stamina": 181
     },
     {
         "id": 171,
@@ -3046,9 +3046,9 @@
             ]
         },
         "released": true,
-        "attack": 58,
-        "defense": 58,
-        "stamina": 125
+        "attack": 146,
+        "defense": 137,
+        "stamina": 268
     },
     {
         "id": 172,
@@ -3063,9 +3063,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 15,
-        "stamina": 20
+        "attack": 77,
+        "defense": 53,
+        "stamina": 85
     },
     {
         "id": 173,
@@ -3080,9 +3080,9 @@
             ]
         },
         "released": true,
-        "attack": 25,
-        "defense": 28,
-        "stamina": 50
+        "attack": 75,
+        "defense": 79,
+        "stamina": 137
     },
     {
         "id": 174,
@@ -3098,9 +3098,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 15,
-        "stamina": 90
+        "attack": 69,
+        "defense": 32,
+        "stamina": 207
     },
     {
         "id": 175,
@@ -3115,9 +3115,9 @@
             ]
         },
         "released": true,
-        "attack": 20,
-        "defense": 65,
-        "stamina": 35
+        "attack": 67,
+        "defense": 116,
+        "stamina": 111
     },
     {
         "id": 176,
@@ -3133,9 +3133,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 85,
-        "stamina": 55
+        "attack": 139,
+        "defense": 181,
+        "stamina": 146
     },
     {
         "id": 177,
@@ -3151,9 +3151,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 45,
-        "stamina": 40
+        "attack": 134,
+        "defense": 89,
+        "stamina": 120
     },
     {
         "id": 178,
@@ -3169,9 +3169,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 70,
-        "stamina": 65
+        "attack": 192,
+        "defense": 146,
+        "stamina": 163
     },
     {
         "id": 179,
@@ -3186,9 +3186,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 40,
-        "stamina": 55
+        "attack": 114,
+        "defense": 79,
+        "stamina": 146
     },
     {
         "id": 180,
@@ -3203,9 +3203,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 55,
-        "stamina": 70
+        "attack": 145,
+        "defense": 109,
+        "stamina": 172
     },
     {
         "id": 181,
@@ -3220,9 +3220,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 85,
-        "stamina": 90
+        "attack": 211,
+        "defense": 169,
+        "stamina": 207
     },
     {
         "id": 182,
@@ -3237,9 +3237,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 95,
-        "stamina": 75
+        "attack": 169,
+        "defense": 186,
+        "stamina": 181
     },
     {
         "id": 183,
@@ -3255,9 +3255,9 @@
             ]
         },
         "released": true,
-        "attack": 20,
-        "defense": 50,
-        "stamina": 70
+        "attack": 37,
+        "defense": 93,
+        "stamina": 172
     },
     {
         "id": 184,
@@ -3273,9 +3273,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 80,
-        "stamina": 100
+        "attack": 112,
+        "defense": 152,
+        "stamina": 225
     },
     {
         "id": 185,
@@ -3290,9 +3290,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 115,
-        "stamina": 70
+        "attack": 167,
+        "defense": 176,
+        "stamina": 172
     },
     {
         "id": 186,
@@ -3307,9 +3307,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 75,
-        "stamina": 90
+        "attack": 174,
+        "defense": 179,
+        "stamina": 207
     },
     {
         "id": 187,
@@ -3325,9 +3325,9 @@
             ]
         },
         "released": true,
-        "attack": 35,
-        "defense": 40,
-        "stamina": 35
+        "attack": 67,
+        "defense": 94,
+        "stamina": 111
     },
     {
         "id": 188,
@@ -3343,9 +3343,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 50,
-        "stamina": 55
+        "attack": 91,
+        "defense": 120,
+        "stamina": 146
     },
     {
         "id": 189,
@@ -3361,9 +3361,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 70,
-        "stamina": 75
+        "attack": 118,
+        "defense": 183,
+        "stamina": 181
     },
     {
         "id": 190,
@@ -3378,9 +3378,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 55,
-        "stamina": 55
+        "attack": 136,
+        "defense": 112,
+        "stamina": 146
     },
     {
         "id": 191,
@@ -3395,9 +3395,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 30,
-        "stamina": 30
+        "attack": 55,
+        "defense": 55,
+        "stamina": 102
     },
     {
         "id": 192,
@@ -3412,9 +3412,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 55,
-        "stamina": 75
+        "attack": 185,
+        "defense": 135,
+        "stamina": 181
     },
     {
         "id": 193,
@@ -3430,9 +3430,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 45,
-        "stamina": 65
+        "attack": 154,
+        "defense": 94,
+        "stamina": 163
     },
     {
         "id": 194,
@@ -3448,9 +3448,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 45,
-        "stamina": 55
+        "attack": 75,
+        "defense": 66,
+        "stamina": 146
     },
     {
         "id": 195,
@@ -3466,9 +3466,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 85,
-        "stamina": 95
+        "attack": 152,
+        "defense": 143,
+        "stamina": 216
     },
     {
         "id": 196,
@@ -3483,9 +3483,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 60,
-        "stamina": 65
+        "attack": 261,
+        "defense": 175,
+        "stamina": 163
     },
     {
         "id": 197,
@@ -3500,9 +3500,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 110,
-        "stamina": 95
+        "attack": 126,
+        "defense": 240,
+        "stamina": 216
     },
     {
         "id": 198,
@@ -3518,9 +3518,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 42,
-        "stamina": 60
+        "attack": 175,
+        "defense": 87,
+        "stamina": 155
     },
     {
         "id": 199,
@@ -3536,9 +3536,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 80,
-        "stamina": 95
+        "attack": 177,
+        "defense": 180,
+        "stamina": 216
     },
     {
         "id": 200,
@@ -3553,9 +3553,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 60,
-        "stamina": 60
+        "attack": 167,
+        "defense": 154,
+        "stamina": 155
     },
     {
         "id": 201,
@@ -3570,9 +3570,9 @@
             ]
         },
         "released": true,
-        "attack": 72,
-        "defense": 48,
-        "stamina": 48
+        "attack": 136,
+        "defense": 91,
+        "stamina": 134
     },
     {
         "id": 202,
@@ -3587,9 +3587,9 @@
             ]
         },
         "released": true,
-        "attack": 33,
-        "defense": 58,
-        "stamina": 190
+        "attack": 60,
+        "defense": 106,
+        "stamina": 382
     },
     {
         "id": 203,
@@ -3605,9 +3605,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 65,
-        "stamina": 70
+        "attack": 182,
+        "defense": 133,
+        "stamina": 172
     },
     {
         "id": 204,
@@ -3622,9 +3622,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 90,
-        "stamina": 50
+        "attack": 108,
+        "defense": 122,
+        "stamina": 137
     },
     {
         "id": 205,
@@ -3640,9 +3640,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 140,
-        "stamina": 75
+        "attack": 161,
+        "defense": 205,
+        "stamina": 181
     },
     {
         "id": 206,
@@ -3657,9 +3657,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 70,
-        "stamina": 100
+        "attack": 131,
+        "defense": 128,
+        "stamina": 225
     },
     {
         "id": 207,
@@ -3675,9 +3675,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 105,
-        "stamina": 65
+        "attack": 143,
+        "defense": 184,
+        "stamina": 163
     },
     {
         "id": 208,
@@ -3693,9 +3693,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 200,
-        "stamina": 75
+        "attack": 148,
+        "defense": 272,
+        "stamina": 181
     },
     {
         "id": 209,
@@ -3710,9 +3710,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 50,
-        "stamina": 60
+        "attack": 137,
+        "defense": 85,
+        "stamina": 155
     },
     {
         "id": 210,
@@ -3727,9 +3727,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 75,
-        "stamina": 90
+        "attack": 212,
+        "defense": 131,
+        "stamina": 207
     },
     {
         "id": 211,
@@ -3745,9 +3745,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 85,
-        "stamina": 65
+        "attack": 184,
+        "defense": 138,
+        "stamina": 163
     },
     {
         "id": 212,
@@ -3763,9 +3763,9 @@
             ]
         },
         "released": true,
-        "attack": 130,
-        "defense": 100,
-        "stamina": 70
+        "attack": 236,
+        "defense": 181,
+        "stamina": 172
     },
     {
         "id": 213,
@@ -3781,9 +3781,9 @@
             ]
         },
         "released": true,
-        "attack": 10,
-        "defense": 230,
-        "stamina": 20
+        "attack": 17,
+        "defense": 396,
+        "stamina": 85
     },
     {
         "id": 214,
@@ -3799,9 +3799,9 @@
             ]
         },
         "released": true,
-        "attack": 125,
-        "defense": 75,
-        "stamina": 80
+        "attack": 234,
+        "defense": 179,
+        "stamina": 190
     },
     {
         "id": 215,
@@ -3817,9 +3817,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 55,
-        "stamina": 55
+        "attack": 189,
+        "defense": 146,
+        "stamina": 146
     },
     {
         "id": 216,
@@ -3834,9 +3834,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 50,
-        "stamina": 60
+        "attack": 142,
+        "defense": 93,
+        "stamina": 155
     },
     {
         "id": 217,
@@ -3851,9 +3851,9 @@
             ]
         },
         "released": true,
-        "attack": 130,
-        "defense": 75,
-        "stamina": 90
+        "attack": 236,
+        "defense": 144,
+        "stamina": 207
     },
     {
         "id": 218,
@@ -3868,9 +3868,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 40,
-        "stamina": 40
+        "attack": 118,
+        "defense": 71,
+        "stamina": 120
     },
     {
         "id": 219,
@@ -3886,9 +3886,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 120,
-        "stamina": 60
+        "attack": 139,
+        "defense": 191,
+        "stamina": 137
     },
     {
         "id": 220,
@@ -3904,9 +3904,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 40,
-        "stamina": 50
+        "attack": 90,
+        "defense": 69,
+        "stamina": 137
     },
     {
         "id": 221,
@@ -3922,9 +3922,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 80,
-        "stamina": 100
+        "attack": 181,
+        "defense": 138,
+        "stamina": 225
     },
     {
         "id": 222,
@@ -3940,9 +3940,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 95,
-        "stamina": 65
+        "attack": 118,
+        "defense": 156,
+        "stamina": 146
     },
     {
         "id": 223,
@@ -3957,9 +3957,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 35,
-        "stamina": 35
+        "attack": 127,
+        "defense": 69,
+        "stamina": 111
     },
     {
         "id": 224,
@@ -3974,9 +3974,9 @@
             ]
         },
         "released": true,
-        "attack": 105,
-        "defense": 75,
-        "stamina": 75
+        "attack": 197,
+        "defense": 141,
+        "stamina": 181
     },
     {
         "id": 225,
@@ -3992,9 +3992,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 45,
-        "stamina": 45
+        "attack": 128,
+        "defense": 90,
+        "stamina": 128
     },
     {
         "id": 226,
@@ -4010,9 +4010,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 70,
-        "stamina": 85
+        "attack": 148,
+        "defense": 226,
+        "stamina": 163
     },
     {
         "id": 227,
@@ -4028,9 +4028,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 140,
-        "stamina": 65
+        "attack": 148,
+        "defense": 226,
+        "stamina": 163
     },
     {
         "id": 228,
@@ -4046,9 +4046,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 30,
-        "stamina": 45
+        "attack": 152,
+        "defense": 83,
+        "stamina": 128
     },
     {
         "id": 229,
@@ -4064,9 +4064,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 50,
-        "stamina": 75
+        "attack": 224,
+        "defense": 144,
+        "stamina": 181
     },
     {
         "id": 230,
@@ -4082,9 +4082,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 95,
-        "stamina": 75
+        "attack": 194,
+        "defense": 194,
+        "stamina": 181
     },
     {
         "id": 231,
@@ -4099,9 +4099,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 60,
-        "stamina": 90
+        "attack": 107,
+        "defense": 98,
+        "stamina": 207
     },
     {
         "id": 232,
@@ -4116,9 +4116,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 120,
-        "stamina": 90
+        "attack": 214,
+        "defense": 185,
+        "stamina": 207
     },
     {
         "id": 233,
@@ -4133,9 +4133,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 90,
-        "stamina": 85
+        "attack": 198,
+        "defense": 180,
+        "stamina": 198
     },
     {
         "id": 234,
@@ -4150,9 +4150,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 62,
-        "stamina": 73
+        "attack": 192,
+        "defense": 131,
+        "stamina": 177
     },
     {
         "id": 235,
@@ -4167,9 +4167,9 @@
             ]
         },
         "released": true,
-        "attack": 20,
-        "defense": 35,
-        "stamina": 55
+        "attack": 40,
+        "defense": 83,
+        "stamina": 146
     },
     {
         "id": 236,
@@ -4184,9 +4184,9 @@
             ]
         },
         "released": true,
-        "attack": 35,
-        "defense": 35,
-        "stamina": 35
+        "attack": 64,
+        "defense": 64,
+        "stamina": 111
     },
     {
         "id": 237,
@@ -4201,9 +4201,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 95,
-        "stamina": 50
+        "attack": 173,
+        "defense": 207,
+        "stamina": 137
     },
     {
         "id": 238,
@@ -4219,9 +4219,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 15,
-        "stamina": 45
+        "attack": 153,
+        "defense": 91,
+        "stamina": 128
     },
     {
         "id": 239,
@@ -4236,9 +4236,9 @@
             ]
         },
         "released": true,
-        "attack": 63,
-        "defense": 37,
-        "stamina": 45
+        "attack": 135,
+        "defense": 101,
+        "stamina": 128
     },
     {
         "id": 240,
@@ -4253,9 +4253,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 37,
-        "stamina": 45
+        "attack": 151,
+        "defense": 99,
+        "stamina": 128
     },
     {
         "id": 241,
@@ -4270,9 +4270,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 105,
-        "stamina": 95
+        "attack": 157,
+        "defense": 193,
+        "stamina": 216
     },
     {
         "id": 242,
@@ -4287,9 +4287,9 @@
             ]
         },
         "released": true,
-        "attack": 10,
-        "defense": 10,
-        "stamina": 255
+        "attack": 129,
+        "defense": 169,
+        "stamina": 496
     },
     {
         "id": 243,
@@ -4304,9 +4304,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 75,
-        "stamina": 90
+        "attack": 241,
+        "defense": 195,
+        "stamina": 207
     },
     {
         "id": 244,
@@ -4321,9 +4321,9 @@
             ]
         },
         "released": true,
-        "attack": 115,
-        "defense": 85,
-        "stamina": 115
+        "attack": 235,
+        "defense": 171,
+        "stamina": 251
     },
     {
         "id": 245,
@@ -4338,9 +4338,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 115,
-        "stamina": 100
+        "attack": 180,
+        "defense": 235,
+        "stamina": 225
     },
     {
         "id": 246,
@@ -4356,9 +4356,9 @@
             ]
         },
         "released": true,
-        "attack": 64,
-        "defense": 50,
-        "stamina": 50
+        "attack": 115,
+        "defense": 93,
+        "stamina": 137
     },
     {
         "id": 247,
@@ -4374,9 +4374,9 @@
             ]
         },
         "released": true,
-        "attack": 84,
-        "defense": 70,
-        "stamina": 70
+        "attack": 155,
+        "defense": 133,
+        "stamina": 172
     },
     {
         "id": 248,
@@ -4392,9 +4392,9 @@
             ]
         },
         "released": true,
-        "attack": 134,
-        "defense": 110,
-        "stamina": 100
+        "attack": 251,
+        "defense": 207,
+        "stamina": 225
     },
     {
         "id": 249,
@@ -4410,9 +4410,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 130,
-        "stamina": 106
+        "attack": 193,
+        "defense": 310,
+        "stamina": 235
     },
     {
         "id": 250,
@@ -4428,9 +4428,9 @@
             ]
         },
         "released": true,
-        "attack": 130,
-        "defense": 90,
-        "stamina": 106
+        "attack": 239,
+        "defense": 244,
+        "stamina": 214
     },
     {
         "id": 251,
@@ -4446,9 +4446,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 100,
-        "stamina": 100
+        "attack": 210,
+        "defense": 210,
+        "stamina": 225
     },
     {
         "id": 252,
@@ -4463,9 +4463,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 35,
-        "stamina": 40
+        "attack": 124,
+        "defense": 94,
+        "stamina": 120
     },
     {
         "id": 253,
@@ -4480,9 +4480,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 45,
-        "stamina": 50
+        "attack": 172,
+        "defense": 120,
+        "stamina": 137
     },
     {
         "id": 254,
@@ -4497,9 +4497,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 65,
-        "stamina": 70
+        "attack": 223,
+        "defense": 169,
+        "stamina": 172
     },
     {
         "id": 255,
@@ -4514,9 +4514,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 40,
-        "stamina": 45
+        "attack": 130,
+        "defense": 87,
+        "stamina": 128
     },
     {
         "id": 256,
@@ -4532,9 +4532,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 60,
-        "stamina": 60
+        "attack": 163,
+        "defense": 115,
+        "stamina": 155
     },
     {
         "id": 257,
@@ -4550,9 +4550,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 70,
-        "stamina": 80
+        "attack": 240,
+        "defense": 141,
+        "stamina": 190
     },
     {
         "id": 258,
@@ -4567,9 +4567,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 50,
-        "stamina": 50
+        "attack": 126,
+        "defense": 93,
+        "stamina": 137
     },
     {
         "id": 259,
@@ -4585,9 +4585,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 70,
-        "stamina": 70
+        "attack": 156,
+        "defense": 133,
+        "stamina": 172
     },
     {
         "id": 260,
@@ -4603,9 +4603,9 @@
             ]
         },
         "released": true,
-        "attack": 110,
-        "defense": 90,
-        "stamina": 100
+        "attack": 208,
+        "defense": 175,
+        "stamina": 225
     },
     {
         "id": 261,
@@ -4620,9 +4620,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 35,
-        "stamina": 35
+        "attack": 96,
+        "defense": 61,
+        "stamina": 111
     },
     {
         "id": 262,
@@ -4637,9 +4637,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 70,
-        "stamina": 70
+        "attack": 171,
+        "defense": 132,
+        "stamina": 172
     },
     {
         "id": 263,
@@ -4654,9 +4654,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 41,
-        "stamina": 38
+        "attack": 58,
+        "defense": 80,
+        "stamina": 116
     },
     {
         "id": 264,
@@ -4671,9 +4671,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 61,
-        "stamina": 78
+        "attack": 142,
+        "defense": 128,
+        "stamina": 186
     },
     {
         "id": 265,
@@ -4688,9 +4688,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 35,
-        "stamina": 45
+        "attack": 75,
+        "defense": 59,
+        "stamina": 128
     },
     {
         "id": 266,
@@ -4705,9 +4705,9 @@
             ]
         },
         "released": true,
-        "attack": 35,
-        "defense": 55,
-        "stamina": 50
+        "attack": 60,
+        "defense": 77,
+        "stamina": 137
     },
     {
         "id": 267,
@@ -4723,9 +4723,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 50,
-        "stamina": 60
+        "attack": 189,
+        "defense": 98,
+        "stamina": 155
     },
     {
         "id": 268,
@@ -4740,9 +4740,9 @@
             ]
         },
         "released": true,
-        "attack": 35,
-        "defense": 55,
-        "stamina": 50
+        "attack": 60,
+        "defense": 77,
+        "stamina": 137
     },
     {
         "id": 269,
@@ -4758,9 +4758,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 70,
-        "stamina": 60
+        "attack": 98,
+        "defense": 162,
+        "stamina": 155
     },
     {
         "id": 270,
@@ -4776,9 +4776,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 30,
-        "stamina": 40
+        "attack": 71,
+        "defense": 77,
+        "stamina": 120
     },
     {
         "id": 271,
@@ -4794,9 +4794,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 50,
-        "stamina": 60
+        "attack": 112,
+        "defense": 119,
+        "stamina": 155
     },
     {
         "id": 272,
@@ -4812,9 +4812,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 70,
-        "stamina": 80
+        "attack": 173,
+        "defense": 176,
+        "stamina": 190
     },
     {
         "id": 273,
@@ -4829,9 +4829,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 50,
-        "stamina": 40
+        "attack": 71,
+        "defense": 77,
+        "stamina": 120
     },
     {
         "id": 274,
@@ -4847,9 +4847,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 40,
-        "stamina": 70
+        "attack": 134,
+        "defense": 78,
+        "stamina": 172
     },
     {
         "id": 275,
@@ -4865,9 +4865,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 60,
-        "stamina": 90
+        "attack": 200,
+        "defense": 121,
+        "stamina": 207
     },
     {
         "id": 276,
@@ -4883,9 +4883,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 30,
-        "stamina": 40
+        "attack": 106,
+        "defense": 61,
+        "stamina": 120
     },
     {
         "id": 277,
@@ -4901,9 +4901,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 60,
-        "stamina": 60
+        "attack": 185,
+        "defense": 124,
+        "stamina": 155
     },
     {
         "id": 278,
@@ -4919,9 +4919,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 30,
-        "stamina": 40
+        "attack": 106,
+        "defense": 61,
+        "stamina": 120
     },
     {
         "id": 279,
@@ -4937,9 +4937,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 100,
-        "stamina": 60
+        "attack": 175,
+        "defense": 174,
+        "stamina": 155
     },
     {
         "id": 280,
@@ -4955,9 +4955,9 @@
             ]
         },
         "released": true,
-        "attack": 25,
-        "defense": 25,
-        "stamina": 28
+        "attack": 79,
+        "defense": 59,
+        "stamina": 99
     },
     {
         "id": 281,
@@ -4973,9 +4973,9 @@
             ]
         },
         "released": true,
-        "attack": 35,
-        "defense": 35,
-        "stamina": 38
+        "attack": 117,
+        "defense": 90,
+        "stamina": 116
     },
     {
         "id": 282,
@@ -4991,9 +4991,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 65,
-        "stamina": 68
+        "attack": 237,
+        "defense": 195,
+        "stamina": 169
     },
     {
         "id": 283,
@@ -5009,9 +5009,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 32,
-        "stamina": 40
+        "attack": 93,
+        "defense": 87,
+        "stamina": 120
     },
     {
         "id": 284,
@@ -5027,9 +5027,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 62,
-        "stamina": 70
+        "attack": 192,
+        "defense": 150,
+        "stamina": 172
     },
     {
         "id": 285,
@@ -5044,9 +5044,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 60,
-        "stamina": 60
+        "attack": 74,
+        "defense": 110,
+        "stamina": 155
     },
     {
         "id": 286,
@@ -5062,9 +5062,9 @@
             ]
         },
         "released": true,
-        "attack": 130,
-        "defense": 80,
-        "stamina": 60
+        "attack": 241,
+        "defense": 144,
+        "stamina": 155
     },
     {
         "id": 287,
@@ -5079,9 +5079,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 60,
-        "stamina": 60
+        "attack": 104,
+        "defense": 92,
+        "stamina": 155
     },
     {
         "id": 288,
@@ -5096,9 +5096,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 80,
-        "stamina": 80
+        "attack": 159,
+        "defense": 145,
+        "stamina": 190
     },
     {
         "id": 289,
@@ -5113,9 +5113,9 @@
             ]
         },
         "released": true,
-        "attack": 160,
-        "defense": 100,
-        "stamina": 150
+        "attack": 290,
+        "defense": 166,
+        "stamina": 284
     },
     {
         "id": 290,
@@ -5131,9 +5131,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 90,
-        "stamina": 31
+        "attack": 80,
+        "defense": 126,
+        "stamina": 104
     },
     {
         "id": 291,
@@ -5149,9 +5149,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 45,
-        "stamina": 61
+        "attack": 199,
+        "defense": 112,
+        "stamina": 156
     },
     {
         "id": 292,
@@ -5167,8 +5167,8 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 45,
+        "attack": 153,
+        "defense": 73,
         "stamina": 1
     },
     {
@@ -5184,9 +5184,9 @@
             ]
         },
         "released": true,
-        "attack": 51,
-        "defense": 23,
-        "stamina": 64
+        "attack": 92,
+        "defense": 42,
+        "stamina": 162
     },
     {
         "id": 294,
@@ -5201,9 +5201,9 @@
             ]
         },
         "released": true,
-        "attack": 71,
-        "defense": 43,
-        "stamina": 84
+        "attack": 134,
+        "defense": 81,
+        "stamina": 197
     },
     {
         "id": 295,
@@ -5218,9 +5218,9 @@
             ]
         },
         "released": true,
-        "attack": 91,
-        "defense": 63,
-        "stamina": 104
+        "attack": 179,
+        "defense": 137,
+        "stamina": 232
     },
     {
         "id": 296,
@@ -5235,9 +5235,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 30,
-        "stamina": 72
+        "attack": 99,
+        "defense": 54,
+        "stamina": 176
     },
     {
         "id": 297,
@@ -5252,9 +5252,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 60,
-        "stamina": 144
+        "attack": 209,
+        "defense": 114,
+        "stamina": 302
     },
     {
         "id": 298,
@@ -5270,9 +5270,9 @@
             ]
         },
         "released": true,
-        "attack": 20,
-        "defense": 40,
-        "stamina": 50
+        "attack": 36,
+        "defense": 71,
+        "stamina": 137
     },
     {
         "id": 299,
@@ -5287,9 +5287,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 135,
-        "stamina": 30
+        "attack": 82,
+        "defense": 215,
+        "stamina": 102
     },
     {
         "id": 300,
@@ -5304,9 +5304,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 45,
-        "stamina": 50
+        "attack": 84,
+        "defense": 79,
+        "stamina": 137
     },
     {
         "id": 301,
@@ -5321,9 +5321,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 65,
-        "stamina": 70
+        "attack": 132,
+        "defense": 127,
+        "stamina": 172
     },
     {
         "id": 302,
@@ -5339,9 +5339,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 75,
-        "stamina": 50
+        "attack": 141,
+        "defense": 136,
+        "stamina": 137
     },
     {
         "id": 303,
@@ -5357,9 +5357,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 85,
-        "stamina": 50
+        "attack": 155,
+        "defense": 141,
+        "stamina": 137
     },
     {
         "id": 304,
@@ -5375,9 +5375,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 100,
-        "stamina": 50
+        "attack": 121,
+        "defense": 141,
+        "stamina": 137
     },
     {
         "id": 305,
@@ -5393,9 +5393,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 140,
-        "stamina": 60
+        "attack": 158,
+        "defense": 198,
+        "stamina": 155
     },
     {
         "id": 306,
@@ -5411,9 +5411,9 @@
             ]
         },
         "released": true,
-        "attack": 110,
-        "defense": 180,
-        "stamina": 70
+        "attack": 198,
+        "defense": 257,
+        "stamina": 172
     },
     {
         "id": 307,
@@ -5429,9 +5429,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 55,
-        "stamina": 30
+        "attack": 78,
+        "defense": 107,
+        "stamina": 102
     },
     {
         "id": 308,
@@ -5447,9 +5447,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 75,
-        "stamina": 60
+        "attack": 121,
+        "defense": 152,
+        "stamina": 155
     },
     {
         "id": 309,
@@ -5464,9 +5464,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 40,
-        "stamina": 40
+        "attack": 123,
+        "defense": 78,
+        "stamina": 120
     },
     {
         "id": 310,
@@ -5481,9 +5481,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 60,
-        "stamina": 70
+        "attack": 215,
+        "defense": 127,
+        "stamina": 172
     },
     {
         "id": 311,
@@ -5498,9 +5498,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 40,
-        "stamina": 60
+        "attack": 167,
+        "defense": 129,
+        "stamina": 155
     },
     {
         "id": 312,
@@ -5515,9 +5515,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 50,
-        "stamina": 60
+        "attack": 147,
+        "defense": 150,
+        "stamina": 155
     },
     {
         "id": 313,
@@ -5532,9 +5532,9 @@
             ]
         },
         "released": true,
-        "attack": 73,
-        "defense": 75,
-        "stamina": 65
+        "attack": 143,
+        "defense": 166,
+        "stamina": 163
     },
     {
         "id": 314,
@@ -5549,9 +5549,9 @@
             ]
         },
         "released": true,
-        "attack": 47,
-        "defense": 75,
-        "stamina": 65
+        "attack": 143,
+        "defense": 166,
+        "stamina": 163
     },
     {
         "id": 315,
@@ -5567,9 +5567,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 45,
-        "stamina": 50
+        "attack": 186,
+        "defense": 131,
+        "stamina": 137
     },
     {
         "id": 316,
@@ -5584,9 +5584,9 @@
             ]
         },
         "released": true,
-        "attack": 43,
-        "defense": 53,
-        "stamina": 70
+        "attack": 80,
+        "defense": 99,
+        "stamina": 172
     },
     {
         "id": 317,
@@ -5601,9 +5601,9 @@
             ]
         },
         "released": true,
-        "attack": 73,
-        "defense": 83,
-        "stamina": 100
+        "attack": 140,
+        "defense": 159,
+        "stamina": 225
     },
     {
         "id": 318,
@@ -5619,9 +5619,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 20,
-        "stamina": 45
+        "attack": 171,
+        "defense": 39,
+        "stamina": 128
     },
     {
         "id": 319,
@@ -5637,9 +5637,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 40,
-        "stamina": 70
+        "attack": 243,
+        "defense": 83,
+        "stamina": 172
     },
     {
         "id": 320,
@@ -5654,9 +5654,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 35,
-        "stamina": 130
+        "attack": 136,
+        "defense": 68,
+        "stamina": 277
     },
     {
         "id": 321,
@@ -5671,9 +5671,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 45,
-        "stamina": 170
+        "attack": 175,
+        "defense": 87,
+        "stamina": 347
     },
     {
         "id": 322,
@@ -5689,9 +5689,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 40,
-        "stamina": 60
+        "attack": 119,
+        "defense": 79,
+        "stamina": 155
     },
     {
         "id": 323,
@@ -5707,9 +5707,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 70,
-        "stamina": 70
+        "attack": 194,
+        "defense": 136,
+        "stamina": 172
     },
     {
         "id": 324,
@@ -5724,9 +5724,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 140,
-        "stamina": 70
+        "attack": 151,
+        "defense": 203,
+        "stamina": 172
     },
     {
         "id": 325,
@@ -5741,9 +5741,9 @@
             ]
         },
         "released": true,
-        "attack": 25,
-        "defense": 35,
-        "stamina": 60
+        "attack": 125,
+        "defense": 122,
+        "stamina": 155
     },
     {
         "id": 326,
@@ -5758,9 +5758,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 65,
-        "stamina": 80
+        "attack": 171,
+        "defense": 188,
+        "stamina": 190
     },
     {
         "id": 327,
@@ -5775,9 +5775,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 60,
-        "stamina": 60
+        "attack": 116,
+        "defense": 116,
+        "stamina": 155
     },
     {
         "id": 328,
@@ -5792,9 +5792,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 45,
-        "stamina": 45
+        "attack": 162,
+        "defense": 78,
+        "stamina": 128
     },
     {
         "id": 329,
@@ -5810,9 +5810,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 50,
-        "stamina": 50
+        "attack": 134,
+        "defense": 99,
+        "stamina": 137
     },
     {
         "id": 330,
@@ -5828,9 +5828,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 80,
-        "stamina": 80
+        "attack": 205,
+        "defense": 168,
+        "stamina": 190
     },
     {
         "id": 331,
@@ -5845,9 +5845,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 40,
-        "stamina": 50
+        "attack": 156,
+        "defense": 74,
+        "stamina": 137
     },
     {
         "id": 332,
@@ -5863,9 +5863,9 @@
             ]
         },
         "released": true,
-        "attack": 115,
-        "defense": 60,
-        "stamina": 70
+        "attack": 221,
+        "defense": 115,
+        "stamina": 172
     },
     {
         "id": 333,
@@ -5881,9 +5881,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 60,
-        "stamina": 45
+        "attack": 76,
+        "defense": 132,
+        "stamina": 128
     },
     {
         "id": 334,
@@ -5899,9 +5899,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 90,
-        "stamina": 75
+        "attack": 141,
+        "defense": 201,
+        "stamina": 181
     },
     {
         "id": 335,
@@ -5916,9 +5916,9 @@
             ]
         },
         "released": true,
-        "attack": 115,
-        "defense": 60,
-        "stamina": 73
+        "attack": 222,
+        "defense": 124,
+        "stamina": 177
     },
     {
         "id": 336,
@@ -5933,9 +5933,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 60,
-        "stamina": 73
+        "attack": 196,
+        "defense": 118,
+        "stamina": 177
     },
     {
         "id": 337,
@@ -5951,9 +5951,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 65,
-        "stamina": 90
+        "attack": 178,
+        "defense": 153,
+        "stamina": 207
     },
     {
         "id": 338,
@@ -5969,9 +5969,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 85,
-        "stamina": 90
+        "attack": 178,
+        "defense": 153,
+        "stamina": 207
     },
     {
         "id": 339,
@@ -5987,9 +5987,9 @@
             ]
         },
         "released": true,
-        "attack": 48,
-        "defense": 43,
-        "stamina": 50
+        "attack": 93,
+        "defense": 82,
+        "stamina": 137
     },
     {
         "id": 340,
@@ -6005,9 +6005,9 @@
             ]
         },
         "released": true,
-        "attack": 78,
-        "defense": 73,
-        "stamina": 110
+        "attack": 151,
+        "defense": 141,
+        "stamina": 242
     },
     {
         "id": 341,
@@ -6022,9 +6022,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 65,
-        "stamina": 43
+        "attack": 141,
+        "defense": 99,
+        "stamina": 125
     },
     {
         "id": 342,
@@ -6040,9 +6040,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 85,
-        "stamina": 63
+        "attack": 224,
+        "defense": 142,
+        "stamina": 160
     },
     {
         "id": 343,
@@ -6058,9 +6058,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 55,
-        "stamina": 40
+        "attack": 77,
+        "defense": 124,
+        "stamina": 120
     },
     {
         "id": 344,
@@ -6076,9 +6076,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 105,
-        "stamina": 60
+        "attack": 140,
+        "defense": 229,
+        "stamina": 155
     },
     {
         "id": 345,
@@ -6094,9 +6094,9 @@
             ]
         },
         "released": true,
-        "attack": 41,
-        "defense": 77,
-        "stamina": 66
+        "attack": 105,
+        "defense": 150,
+        "stamina": 165
     },
     {
         "id": 346,
@@ -6112,9 +6112,9 @@
             ]
         },
         "released": true,
-        "attack": 81,
-        "defense": 97,
-        "stamina": 86
+        "attack": 152,
+        "defense": 194,
+        "stamina": 200
     },
     {
         "id": 347,
@@ -6130,9 +6130,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 50,
-        "stamina": 45
+        "attack": 176,
+        "defense": 100,
+        "stamina": 128
     },
     {
         "id": 348,
@@ -6148,9 +6148,9 @@
             ]
         },
         "released": true,
-        "attack": 125,
-        "defense": 100,
-        "stamina": 75
+        "attack": 222,
+        "defense": 174,
+        "stamina": 181
     },
     {
         "id": 349,
@@ -6165,9 +6165,9 @@
             ]
         },
         "released": true,
-        "attack": 15,
-        "defense": 20,
-        "stamina": 20
+        "attack": 29,
+        "defense": 85,
+        "stamina": 85
     },
     {
         "id": 350,
@@ -6182,9 +6182,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 79,
-        "stamina": 95
+        "attack": 192,
+        "defense": 219,
+        "stamina": 216
     },
     {
         "id": 351,
@@ -6199,9 +6199,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 70,
-        "stamina": 70
+        "attack": 139,
+        "defense": 139,
+        "stamina": 172
     },
     {
         "id": 352,
@@ -6216,9 +6216,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 70,
-        "stamina": 60
+        "attack": 161,
+        "defense": 189,
+        "stamina": 155
     },
     {
         "id": 353,
@@ -6233,9 +6233,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 35,
-        "stamina": 44
+        "attack": 138,
+        "defense": 65,
+        "stamina": 127
     },
     {
         "id": 354,
@@ -6250,9 +6250,9 @@
             ]
         },
         "released": true,
-        "attack": 115,
-        "defense": 65,
-        "stamina": 64
+        "attack": 218,
+        "defense": 126,
+        "stamina": 162
     },
     {
         "id": 355,
@@ -6267,9 +6267,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 90,
-        "stamina": 20
+        "attack": 70,
+        "defense": 162,
+        "stamina": 85
     },
     {
         "id": 356,
@@ -6284,9 +6284,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 130,
-        "stamina": 40
+        "attack": 124,
+        "defense": 234,
+        "stamina": 120
     },
     {
         "id": 357,
@@ -6302,9 +6302,9 @@
             ]
         },
         "released": true,
-        "attack": 68,
-        "defense": 83,
-        "stamina": 99
+        "attack": 136,
+        "defense": 163,
+        "stamina": 223
     },
     {
         "id": 358,
@@ -6319,9 +6319,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 80,
-        "stamina": 75
+        "attack": 175,
+        "defense": 170,
+        "stamina": 181
     },
     {
         "id": 359,
@@ -6336,9 +6336,9 @@
             ]
         },
         "released": true,
-        "attack": 130,
-        "defense": 60,
-        "stamina": 65
+        "attack": 246,
+        "defense": 120,
+        "stamina": 163
     },
     {
         "id": 360,
@@ -6353,9 +6353,9 @@
             ]
         },
         "released": true,
-        "attack": 23,
-        "defense": 48,
-        "stamina": 95
+        "attack": 41,
+        "defense": 86,
+        "stamina": 216
     },
     {
         "id": 361,
@@ -6370,9 +6370,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 50,
-        "stamina": 50
+        "attack": 95,
+        "defense": 95,
+        "stamina": 137
     },
     {
         "id": 362,
@@ -6387,9 +6387,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 80,
-        "stamina": 80
+        "attack": 162,
+        "defense": 162,
+        "stamina": 190
     },
     {
         "id": 363,
@@ -6405,9 +6405,9 @@
             ]
         },
         "released": true,
-        "attack": 40,
-        "defense": 50,
-        "stamina": 70
+        "attack": 95,
+        "defense": 90,
+        "stamina": 172
     },
     {
         "id": 364,
@@ -6423,9 +6423,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 70,
-        "stamina": 90
+        "attack": 137,
+        "defense": 132,
+        "stamina": 207
     },
     {
         "id": 365,
@@ -6441,9 +6441,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 90,
-        "stamina": 110
+        "attack": 182,
+        "defense": 176,
+        "stamina": 242
     },
     {
         "id": 366,
@@ -6458,9 +6458,9 @@
             ]
         },
         "released": true,
-        "attack": 64,
-        "defense": 85,
-        "stamina": 35
+        "attack": 133,
+        "defense": 135,
+        "stamina": 111
     },
     {
         "id": 367,
@@ -6475,9 +6475,9 @@
             ]
         },
         "released": true,
-        "attack": 104,
-        "defense": 105,
-        "stamina": 55
+        "attack": 197,
+        "defense": 179,
+        "stamina": 146
     },
     {
         "id": 368,
@@ -6492,9 +6492,9 @@
             ]
         },
         "released": true,
-        "attack": 84,
-        "defense": 105,
-        "stamina": 55
+        "attack": 211,
+        "defense": 179,
+        "stamina": 146
     },
     {
         "id": 369,
@@ -6510,9 +6510,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 130,
-        "stamina": 100
+        "attack": 162,
+        "defense": 203,
+        "stamina": 225
     },
     {
         "id": 370,
@@ -6527,9 +6527,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 55,
-        "stamina": 43
+        "attack": 81,
+        "defense": 128,
+        "stamina": 125
     },
     {
         "id": 371,
@@ -6544,9 +6544,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 60,
-        "stamina": 45
+        "attack": 134,
+        "defense": 93,
+        "stamina": 128
     },
     {
         "id": 372,
@@ -6561,9 +6561,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 100,
-        "stamina": 65
+        "attack": 172,
+        "defense": 155,
+        "stamina": 163
     },
     {
         "id": 373,
@@ -6579,9 +6579,9 @@
             ]
         },
         "released": true,
-        "attack": 135,
-        "defense": 80,
-        "stamina": 95
+        "attack": 277,
+        "defense": 168,
+        "stamina": 216
     },
     {
         "id": 374,
@@ -6597,9 +6597,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 80,
-        "stamina": 40
+        "attack": 96,
+        "defense": 132,
+        "stamina": 120
     },
     {
         "id": 375,
@@ -6615,9 +6615,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 100,
-        "stamina": 60
+        "attack": 138,
+        "defense": 176,
+        "stamina": 155
     },
     {
         "id": 376,
@@ -6633,9 +6633,9 @@
             ]
         },
         "released": true,
-        "attack": 135,
-        "defense": 130,
-        "stamina": 80
+        "attack": 257,
+        "defense": 228,
+        "stamina": 190
     },
     {
         "id": 377,
@@ -6650,9 +6650,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 200,
-        "stamina": 80
+        "attack": 179,
+        "defense": 309,
+        "stamina": 190
     },
     {
         "id": 378,
@@ -6667,9 +6667,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 100,
-        "stamina": 80
+        "attack": 179,
+        "defense": 309,
+        "stamina": 190
     },
     {
         "id": 379,
@@ -6684,9 +6684,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 150,
-        "stamina": 80
+        "attack": 143,
+        "defense": 285,
+        "stamina": 190
     },
     {
         "id": 380,
@@ -6702,9 +6702,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 90,
-        "stamina": 80
+        "attack": 228,
+        "defense": 246,
+        "stamina": 190
     },
     {
         "id": 381,
@@ -6720,9 +6720,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 80,
-        "stamina": 80
+        "attack": 268,
+        "defense": 212,
+        "stamina": 190
     },
     {
         "id": 382,
@@ -6737,9 +6737,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 90,
-        "stamina": 100
+        "attack": 270,
+        "defense": 228,
+        "stamina": 205
     },
     {
         "id": 383,
@@ -6754,9 +6754,9 @@
             ]
         },
         "released": true,
-        "attack": 150,
-        "defense": 140,
-        "stamina": 100
+        "attack": 270,
+        "defense": 228,
+        "stamina": 205
     },
     {
         "id": 384,
@@ -6772,9 +6772,9 @@
             ]
         },
         "released": true,
-        "attack": 150,
-        "defense": 90,
-        "stamina": 105
+        "attack": 284,
+        "defense": 170,
+        "stamina": 213
     },
     {
         "id": 385,
@@ -6790,9 +6790,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 100,
-        "stamina": 100
+        "attack": 210,
+        "defense": 210,
+        "stamina": 225
     },
     {
         "id": 386,
@@ -6808,9 +6808,9 @@
             ]
         },
         "released": true,
-        "attack": 150,
-        "defense": 50,
-        "stamina": 50
+        "attack": 345,
+        "defense": 115,
+        "stamina": 137
     },
     {
         "id": 387,
@@ -6825,9 +6825,9 @@
             ]
         },
         "released": true,
-        "attack": 68,
-        "defense": 64,
-        "stamina": 55
+        "attack": 119,
+        "defense": 110,
+        "stamina": 146
     },
     {
         "id": 388,
@@ -6842,9 +6842,9 @@
             ]
         },
         "released": true,
-        "attack": 89,
-        "defense": 85,
-        "stamina": 75
+        "attack": 157,
+        "defense": 143,
+        "stamina": 181
     },
     {
         "id": 389,
@@ -6860,9 +6860,9 @@
             ]
         },
         "released": true,
-        "attack": 109,
-        "defense": 105,
-        "stamina": 95
+        "attack": 202,
+        "defense": 188,
+        "stamina": 216
     },
     {
         "id": 390,
@@ -6877,9 +6877,9 @@
             ]
         },
         "released": true,
-        "attack": 58,
-        "defense": 44,
-        "stamina": 44
+        "attack": 113,
+        "defense": 86,
+        "stamina": 127
     },
     {
         "id": 391,
@@ -6895,9 +6895,9 @@
             ]
         },
         "released": true,
-        "attack": 78,
-        "defense": 52,
-        "stamina": 64
+        "attack": 158,
+        "defense": 105,
+        "stamina": 162
     },
     {
         "id": 392,
@@ -6913,9 +6913,9 @@
             ]
         },
         "released": true,
-        "attack": 104,
-        "defense": 71,
-        "stamina": 76
+        "attack": 222,
+        "defense": 151,
+        "stamina": 183
     },
     {
         "id": 393,
@@ -6930,9 +6930,9 @@
             ]
         },
         "released": true,
-        "attack": 51,
-        "defense": 53,
-        "stamina": 53
+        "attack": 112,
+        "defense": 102,
+        "stamina": 142
     },
     {
         "id": 394,
@@ -6947,9 +6947,9 @@
             ]
         },
         "released": true,
-        "attack": 66,
-        "defense": 68,
-        "stamina": 64
+        "attack": 150,
+        "defense": 139,
+        "stamina": 162
     },
     {
         "id": 395,
@@ -6965,9 +6965,9 @@
             ]
         },
         "released": true,
-        "attack": 86,
-        "defense": 88,
-        "stamina": 84
+        "attack": 210,
+        "defense": 186,
+        "stamina": 197
     },
     {
         "id": 396,
@@ -6983,9 +6983,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 30,
-        "stamina": 40
+        "attack": 101,
+        "defense": 58,
+        "stamina": 120
     },
     {
         "id": 397,
@@ -7001,9 +7001,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 50,
-        "stamina": 55
+        "attack": 142,
+        "defense": 94,
+        "stamina": 146
     },
     {
         "id": 398,
@@ -7019,9 +7019,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 70,
-        "stamina": 85
+        "attack": 234,
+        "defense": 140,
+        "stamina": 198
     },
     {
         "id": 399,
@@ -7036,9 +7036,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 40,
-        "stamina": 59
+        "attack": 80,
+        "defense": 73,
+        "stamina": 153
     },
     {
         "id": 400,
@@ -7054,9 +7054,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 60,
-        "stamina": 79
+        "attack": 162,
+        "defense": 119,
+        "stamina": 188
     },
     {
         "id": 401,
@@ -7071,9 +7071,9 @@
             ]
         },
         "released": true,
-        "attack": 25,
-        "defense": 41,
-        "stamina": 37
+        "attack": 45,
+        "defense": 74,
+        "stamina": 114
     },
     {
         "id": 402,
@@ -7088,9 +7088,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 51,
-        "stamina": 77
+        "attack": 160,
+        "defense": 100,
+        "stamina": 184
     },
     {
         "id": 403,
@@ -7105,9 +7105,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 34,
-        "stamina": 45
+        "attack": 117,
+        "defense": 64,
+        "stamina": 128
     },
     {
         "id": 404,
@@ -7122,9 +7122,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 49,
-        "stamina": 60
+        "attack": 159,
+        "defense": 95,
+        "stamina": 155
     },
     {
         "id": 405,
@@ -7139,9 +7139,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 79,
-        "stamina": 80
+        "attack": 232,
+        "defense": 156,
+        "stamina": 190
     },
     {
         "id": 406,
@@ -7157,9 +7157,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 35,
-        "stamina": 40
+        "attack": 91,
+        "defense": 109,
+        "stamina": 120
     },
     {
         "id": 407,
@@ -7175,9 +7175,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 65,
-        "stamina": 60
+        "attack": 243,
+        "defense": 185,
+        "stamina": 155
     },
     {
         "id": 408,
@@ -7192,9 +7192,9 @@
             ]
         },
         "released": true,
-        "attack": 125,
-        "defense": 40,
-        "stamina": 67
+        "attack": 218,
+        "defense": 71,
+        "stamina": 167
     },
     {
         "id": 409,
@@ -7209,9 +7209,9 @@
             ]
         },
         "released": true,
-        "attack": 165,
-        "defense": 60,
-        "stamina": 97
+        "attack": 295,
+        "defense": 109,
+        "stamina": 219
     },
     {
         "id": 410,
@@ -7227,9 +7227,9 @@
             ]
         },
         "released": true,
-        "attack": 42,
-        "defense": 118,
-        "stamina": 30
+        "attack": 76,
+        "defense": 195,
+        "stamina": 102
     },
     {
         "id": 411,
@@ -7245,9 +7245,9 @@
             ]
         },
         "released": true,
-        "attack": 52,
-        "defense": 168,
-        "stamina": 60
+        "attack": 94,
+        "defense": 286,
+        "stamina": 155
     },
     {
         "id": 412,
@@ -7262,9 +7262,9 @@
             ]
         },
         "released": true,
-        "attack": 29,
-        "defense": 45,
-        "stamina": 40
+        "attack": 53,
+        "defense": 83,
+        "stamina": 120
     },
     {
         "id": 413,
@@ -7280,9 +7280,9 @@
             ]
         },
         "released": true,
-        "attack": 59,
-        "defense": 85,
-        "stamina": 60
+        "attack": 141,
+        "defense": 180,
+        "stamina": 155
     },
     {
         "id": 414,
@@ -7298,9 +7298,9 @@
             ]
         },
         "released": true,
-        "attack": 94,
-        "defense": 50,
-        "stamina": 70
+        "attack": 185,
+        "defense": 98,
+        "stamina": 172
     },
     {
         "id": 415,
@@ -7316,9 +7316,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 42,
-        "stamina": 30
+        "attack": 59,
+        "defense": 83,
+        "stamina": 102
     },
     {
         "id": 416,
@@ -7334,9 +7334,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 102,
-        "stamina": 70
+        "attack": 149,
+        "defense": 190,
+        "stamina": 172
     },
     {
         "id": 417,
@@ -7351,9 +7351,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 70,
-        "stamina": 60
+        "attack": 94,
+        "defense": 172,
+        "stamina": 155
     },
     {
         "id": 418,
@@ -7368,9 +7368,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 35,
-        "stamina": 55
+        "attack": 132,
+        "defense": 67,
+        "stamina": 146
     },
     {
         "id": 419,
@@ -7385,9 +7385,9 @@
             ]
         },
         "released": true,
-        "attack": 105,
-        "defense": 55,
-        "stamina": 85
+        "attack": 221,
+        "defense": 114,
+        "stamina": 198
     },
     {
         "id": 420,
@@ -7402,9 +7402,9 @@
             ]
         },
         "released": true,
-        "attack": 35,
-        "defense": 45,
-        "stamina": 45
+        "attack": 108,
+        "defense": 92,
+        "stamina": 128
     },
     {
         "id": 421,
@@ -7419,9 +7419,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 70,
-        "stamina": 70
+        "attack": 170,
+        "defense": 153,
+        "stamina": 172
     },
     {
         "id": 422,
@@ -7436,9 +7436,9 @@
             ]
         },
         "released": true,
-        "attack": 48,
-        "defense": 48,
-        "stamina": 76
+        "attack": 103,
+        "defense": 105,
+        "stamina": 183
     },
     {
         "id": 423,
@@ -7454,9 +7454,9 @@
             ]
         },
         "released": true,
-        "attack": 83,
-        "defense": 68,
-        "stamina": 111
+        "attack": 169,
+        "defense": 143,
+        "stamina": 244
     },
     {
         "id": 424,
@@ -7471,9 +7471,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 66,
-        "stamina": 75
+        "attack": 205,
+        "defense": 143,
+        "stamina": 181
     },
     {
         "id": 425,
@@ -7489,9 +7489,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 34,
-        "stamina": 90
+        "attack": 117,
+        "defense": 80,
+        "stamina": 207
     },
     {
         "id": 426,
@@ -7507,9 +7507,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 44,
-        "stamina": 150
+        "attack": 180,
+        "defense": 102,
+        "stamina": 312
     },
     {
         "id": 427,
@@ -7524,9 +7524,9 @@
             ]
         },
         "released": true,
-        "attack": 66,
-        "defense": 44,
-        "stamina": 55
+        "attack": 130,
+        "defense": 105,
+        "stamina": 146
     },
     {
         "id": 428,
@@ -7541,9 +7541,9 @@
             ]
         },
         "released": true,
-        "attack": 76,
-        "defense": 84,
-        "stamina": 65
+        "attack": 156,
+        "defense": 194,
+        "stamina": 163
     },
     {
         "id": 429,
@@ -7558,9 +7558,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 60,
-        "stamina": 60
+        "attack": 211,
+        "defense": 187,
+        "stamina": 155
     },
     {
         "id": 430,
@@ -7576,9 +7576,9 @@
             ]
         },
         "released": true,
-        "attack": 125,
-        "defense": 52,
-        "stamina": 100
+        "attack": 243,
+        "defense": 103,
+        "stamina": 225
     },
     {
         "id": 431,
@@ -7593,9 +7593,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 42,
-        "stamina": 49
+        "attack": 109,
+        "defense": 82,
+        "stamina": 135
     },
     {
         "id": 432,
@@ -7610,9 +7610,9 @@
             ]
         },
         "released": true,
-        "attack": 82,
-        "defense": 64,
-        "stamina": 71
+        "attack": 172,
+        "defense": 133,
+        "stamina": 174
     },
     {
         "id": 433,
@@ -7627,9 +7627,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 50,
-        "stamina": 45
+        "attack": 114,
+        "defense": 94,
+        "stamina": 128
     },
     {
         "id": 434,
@@ -7645,9 +7645,9 @@
             ]
         },
         "released": true,
-        "attack": 63,
-        "defense": 47,
-        "stamina": 63
+        "attack": 121,
+        "defense": 90,
+        "stamina": 160
     },
     {
         "id": 435,
@@ -7663,9 +7663,9 @@
             ]
         },
         "released": true,
-        "attack": 93,
-        "defense": 67,
-        "stamina": 103
+        "attack": 184,
+        "defense": 132,
+        "stamina": 230
     },
     {
         "id": 436,
@@ -7681,9 +7681,9 @@
             ]
         },
         "released": true,
-        "attack": 24,
-        "defense": 86,
-        "stamina": 57
+        "attack": 43,
+        "defense": 154,
+        "stamina": 149
     },
     {
         "id": 437,
@@ -7699,9 +7699,9 @@
             ]
         },
         "released": true,
-        "attack": 89,
-        "defense": 116,
-        "stamina": 67
+        "attack": 161,
+        "defense": 213,
+        "stamina": 167
     },
     {
         "id": 438,
@@ -7716,9 +7716,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 95,
-        "stamina": 50
+        "attack": 124,
+        "defense": 133,
+        "stamina": 137
     },
     {
         "id": 439,
@@ -7734,9 +7734,9 @@
             ]
         },
         "released": true,
-        "attack": 25,
-        "defense": 45,
-        "stamina": 20
+        "attack": 125,
+        "defense": 142,
+        "stamina": 85
     },
     {
         "id": 440,
@@ -7751,9 +7751,9 @@
             ]
         },
         "released": true,
-        "attack": 5,
-        "defense": 5,
-        "stamina": 100
+        "attack": 25,
+        "defense": 77,
+        "stamina": 225
     },
     {
         "id": 441,
@@ -7769,9 +7769,9 @@
             ]
         },
         "released": true,
-        "attack": 65,
-        "defense": 45,
-        "stamina": 76
+        "attack": 183,
+        "defense": 91,
+        "stamina": 183
     },
     {
         "id": 442,
@@ -7787,9 +7787,9 @@
             ]
         },
         "released": true,
-        "attack": 92,
-        "defense": 108,
-        "stamina": 50
+        "attack": 169,
+        "defense": 199,
+        "stamina": 137
     },
     {
         "id": 443,
@@ -7805,9 +7805,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 45,
-        "stamina": 58
+        "attack": 124,
+        "defense": 84,
+        "stamina": 151
     },
     {
         "id": 444,
@@ -7823,9 +7823,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 65,
-        "stamina": 68
+        "attack": 172,
+        "defense": 125,
+        "stamina": 169
     },
     {
         "id": 445,
@@ -7841,9 +7841,9 @@
             ]
         },
         "released": true,
-        "attack": 130,
-        "defense": 95,
-        "stamina": 108
+        "attack": 261,
+        "defense": 193,
+        "stamina": 239
     },
     {
         "id": 446,
@@ -7858,9 +7858,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 40,
-        "stamina": 135
+        "attack": 137,
+        "defense": 117,
+        "stamina": 286
     },
     {
         "id": 447,
@@ -7875,9 +7875,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 40,
-        "stamina": 40
+        "attack": 127,
+        "defense": 78,
+        "stamina": 120
     },
     {
         "id": 448,
@@ -7893,9 +7893,9 @@
             ]
         },
         "released": true,
-        "attack": 110,
-        "defense": 70,
-        "stamina": 70
+        "attack": 236,
+        "defense": 144,
+        "stamina": 172
     },
     {
         "id": 449,
@@ -7910,9 +7910,9 @@
             ]
         },
         "released": true,
-        "attack": 72,
-        "defense": 78,
-        "stamina": 68
+        "attack": 124,
+        "defense": 118,
+        "stamina": 169
     },
     {
         "id": 450,
@@ -7927,9 +7927,9 @@
             ]
         },
         "released": true,
-        "attack": 112,
-        "defense": 118,
-        "stamina": 108
+        "attack": 201,
+        "defense": 191,
+        "stamina": 239
     },
     {
         "id": 451,
@@ -7945,9 +7945,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 90,
-        "stamina": 40
+        "attack": 93,
+        "defense": 151,
+        "stamina": 120
     },
     {
         "id": 452,
@@ -7963,9 +7963,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 110,
-        "stamina": 70
+        "attack": 180,
+        "defense": 202,
+        "stamina": 172
     },
     {
         "id": 453,
@@ -7981,9 +7981,9 @@
             ]
         },
         "released": true,
-        "attack": 61,
-        "defense": 40,
-        "stamina": 48
+        "attack": 116,
+        "defense": 76,
+        "stamina": 134
     },
     {
         "id": 454,
@@ -7999,9 +7999,9 @@
             ]
         },
         "released": true,
-        "attack": 106,
-        "defense": 65,
-        "stamina": 83
+        "attack": 211,
+        "defense": 133,
+        "stamina": 195
     },
     {
         "id": 455,
@@ -8016,9 +8016,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 72,
-        "stamina": 74
+        "attack": 187,
+        "defense": 136,
+        "stamina": 179
     },
     {
         "id": 456,
@@ -8033,9 +8033,9 @@
             ]
         },
         "released": true,
-        "attack": 49,
-        "defense": 56,
-        "stamina": 49
+        "attack": 96,
+        "defense": 116,
+        "stamina": 135
     },
     {
         "id": 457,
@@ -8050,9 +8050,9 @@
             ]
         },
         "released": true,
-        "attack": 69,
-        "defense": 76,
-        "stamina": 69
+        "attack": 142,
+        "defense": 170,
+        "stamina": 170
     },
     {
         "id": 458,
@@ -8068,9 +8068,9 @@
             ]
         },
         "released": true,
-        "attack": 20,
-        "defense": 50,
-        "stamina": 45
+        "attack": 105,
+        "defense": 179,
+        "stamina": 128
     },
     {
         "id": 459,
@@ -8086,9 +8086,9 @@
             ]
         },
         "released": true,
-        "attack": 62,
-        "defense": 50,
-        "stamina": 60
+        "attack": 115,
+        "defense": 105,
+        "stamina": 155
     },
     {
         "id": 460,
@@ -8104,9 +8104,9 @@
             ]
         },
         "released": true,
-        "attack": 92,
-        "defense": 75,
-        "stamina": 90
+        "attack": 178,
+        "defense": 158,
+        "stamina": 207
     },
     {
         "id": 461,
@@ -8122,9 +8122,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 65,
-        "stamina": 70
+        "attack": 243,
+        "defense": 171,
+        "stamina": 172
     },
     {
         "id": 462,
@@ -8140,9 +8140,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 115,
-        "stamina": 70
+        "attack": 238,
+        "defense": 205,
+        "stamina": 172
     },
     {
         "id": 463,
@@ -8157,9 +8157,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 95,
-        "stamina": 110
+        "attack": 161,
+        "defense": 181,
+        "stamina": 242
     },
     {
         "id": 464,
@@ -8175,9 +8175,9 @@
             ]
         },
         "released": true,
-        "attack": 140,
-        "defense": 130,
-        "stamina": 115
+        "attack": 241,
+        "defense": 190,
+        "stamina": 251
     },
     {
         "id": 465,
@@ -8192,9 +8192,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 125,
-        "stamina": 100
+        "attack": 207,
+        "defense": 184,
+        "stamina": 225
     },
     {
         "id": 466,
@@ -8209,9 +8209,9 @@
             ]
         },
         "released": true,
-        "attack": 123,
-        "defense": 67,
-        "stamina": 75
+        "attack": 249,
+        "defense": 163,
+        "stamina": 181
     },
     {
         "id": 467,
@@ -8226,9 +8226,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 67,
-        "stamina": 75
+        "attack": 247,
+        "defense": 172,
+        "stamina": 181
     },
     {
         "id": 468,
@@ -8244,9 +8244,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 95,
-        "stamina": 85
+        "attack": 225,
+        "defense": 217,
+        "stamina": 198
     },
     {
         "id": 469,
@@ -8262,9 +8262,9 @@
             ]
         },
         "released": true,
-        "attack": 76,
-        "defense": 86,
-        "stamina": 86
+        "attack": 231,
+        "defense": 156,
+        "stamina": 200
     },
     {
         "id": 470,
@@ -8279,9 +8279,9 @@
             ]
         },
         "released": true,
-        "attack": 110,
-        "defense": 130,
-        "stamina": 65
+        "attack": 216,
+        "defense": 219,
+        "stamina": 163
     },
     {
         "id": 471,
@@ -8296,9 +8296,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 110,
-        "stamina": 65
+        "attack": 238,
+        "defense": 205,
+        "stamina": 163
     },
     {
         "id": 472,
@@ -8314,9 +8314,9 @@
             ]
         },
         "released": true,
-        "attack": 95,
-        "defense": 125,
-        "stamina": 75
+        "attack": 185,
+        "defense": 222,
+        "stamina": 181
     },
     {
         "id": 473,
@@ -8332,9 +8332,9 @@
             ]
         },
         "released": true,
-        "attack": 130,
-        "defense": 80,
-        "stamina": 110
+        "attack": 247,
+        "defense": 146,
+        "stamina": 242
     },
     {
         "id": 474,
@@ -8349,9 +8349,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 70,
-        "stamina": 85
+        "attack": 264,
+        "defense": 150,
+        "stamina": 198
     },
     {
         "id": 475,
@@ -8367,9 +8367,9 @@
             ]
         },
         "released": true,
-        "attack": 125,
-        "defense": 65,
-        "stamina": 68
+        "attack": 237,
+        "defense": 195,
+        "stamina": 169
     },
     {
         "id": 476,
@@ -8385,9 +8385,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 145,
-        "stamina": 60
+        "attack": 135,
+        "defense": 275,
+        "stamina": 155
     },
     {
         "id": 477,
@@ -8402,9 +8402,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 135,
-        "stamina": 45
+        "attack": 180,
+        "defense": 254,
+        "stamina": 128
     },
     {
         "id": 478,
@@ -8420,9 +8420,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 70,
-        "stamina": 70
+        "attack": 171,
+        "defense": 150,
+        "stamina": 172
     },
     {
         "id": 479,
@@ -8438,9 +8438,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 77,
-        "stamina": 50
+        "attack": 185,
+        "defense": 159,
+        "stamina": 137
     },
     {
         "id": 480,
@@ -8455,9 +8455,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 130,
-        "stamina": 75
+        "attack": 156,
+        "defense": 270,
+        "stamina": 181
     },
     {
         "id": 481,
@@ -8472,9 +8472,9 @@
             ]
         },
         "released": true,
-        "attack": 105,
-        "defense": 105,
-        "stamina": 80
+        "attack": 212,
+        "defense": 212,
+        "stamina": 190
     },
     {
         "id": 482,
@@ -8489,9 +8489,9 @@
             ]
         },
         "released": true,
-        "attack": 125,
-        "defense": 70,
-        "stamina": 75
+        "attack": 270,
+        "defense": 151,
+        "stamina": 181
     },
     {
         "id": 483,
@@ -8507,9 +8507,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 120,
-        "stamina": 100
+        "attack": 275,
+        "defense": 211,
+        "stamina": 205
     },
     {
         "id": 484,
@@ -8525,9 +8525,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 100,
-        "stamina": 90
+        "attack": 280,
+        "defense": 215,
+        "stamina": 189
     },
     {
         "id": 485,
@@ -8543,9 +8543,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 106,
-        "stamina": 91
+        "attack": 251,
+        "defense": 213,
+        "stamina": 209
     },
     {
         "id": 486,
@@ -8560,9 +8560,9 @@
             ]
         },
         "released": true,
-        "attack": 160,
-        "defense": 110,
-        "stamina": 110
+        "attack": 287,
+        "defense": 210,
+        "stamina": 221
     },
     {
         "id": 487,
@@ -8578,9 +8578,9 @@
             ]
         },
         "released": true,
-        "attack": null,
-        "defense": null,
-        "stamina": null
+        "attack": 187,
+        "defense": 225,
+        "stamina": 284
     },
     {
         "id": 488,
@@ -8595,9 +8595,9 @@
             ]
         },
         "released": true,
-        "attack": 70,
-        "defense": 120,
-        "stamina": 120
+        "attack": 152,
+        "defense": 258,
+        "stamina": 260
     },
     {
         "id": 489,
@@ -8612,9 +8612,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 80,
-        "stamina": 80
+        "attack": 162,
+        "defense": 162,
+        "stamina": 190
     },
     {
         "id": 490,
@@ -8629,9 +8629,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 100,
-        "stamina": 100
+        "attack": 210,
+        "defense": 210,
+        "stamina": 225
     },
     {
         "id": 491,
@@ -8646,9 +8646,9 @@
             ]
         },
         "released": true,
-        "attack": 90,
-        "defense": 90,
-        "stamina": 70
+        "attack": 285,
+        "defense": 198,
+        "stamina": 172
     },
     {
         "id": 492,
@@ -8663,9 +8663,9 @@
             ]
         },
         "released": true,
-        "attack": null,
-        "defense": null,
-        "stamina": null
+        "attack": 210,
+        "defense": 210,
+        "stamina": 225
     },
     {
         "id": 493,
@@ -8680,9 +8680,9 @@
             ]
         },
         "released": true,
-        "attack": 120,
-        "defense": 120,
-        "stamina": 120
+        "attack": 238,
+        "defense": 238,
+        "stamina": 237
     },
     {
         "id": 494,
@@ -8698,9 +8698,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 100,
-        "stamina": 100
+        "attack": 210,
+        "defense": 210,
+        "stamina": 225
     },
     {
         "id": 495,
@@ -8715,9 +8715,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 55,
-        "stamina": 45
+        "attack": 88,
+        "defense": 107,
+        "stamina": 128
     },
     {
         "id": 496,
@@ -8732,9 +8732,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 75,
-        "stamina": 60
+        "attack": 122,
+        "defense": 152,
+        "stamina": 155
     },
     {
         "id": 497,
@@ -8749,9 +8749,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 95,
-        "stamina": 75
+        "attack": 161,
+        "defense": 204,
+        "stamina": 181
     },
     {
         "id": 498,
@@ -8766,9 +8766,9 @@
             ]
         },
         "released": true,
-        "attack": 63,
-        "defense": 45,
-        "stamina": 65
+        "attack": 115,
+        "defense": 85,
+        "stamina": 163
     },
     {
         "id": 499,
@@ -8784,9 +8784,9 @@
             ]
         },
         "released": true,
-        "attack": 93,
-        "defense": 55,
-        "stamina": 90
+        "attack": 173,
+        "defense": 106,
+        "stamina": 207
     },
     {
         "id": 500,
@@ -8802,9 +8802,9 @@
             ]
         },
         "released": true,
-        "attack": 123,
-        "defense": 65,
-        "stamina": 110
+        "attack": 235,
+        "defense": 127,
+        "stamina": 242
     },
     {
         "id": 501,
@@ -8819,9 +8819,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 45,
-        "stamina": 55
+        "attack": 117,
+        "defense": 85,
+        "stamina": 146
     },
     {
         "id": 502,
@@ -8836,9 +8836,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 60,
-        "stamina": 75
+        "attack": 159,
+        "defense": 116,
+        "stamina": 181
     },
     {
         "id": 503,
@@ -8853,9 +8853,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 85,
-        "stamina": 95
+        "attack": 212,
+        "defense": 157,
+        "stamina": 216
     },
     {
         "id": 504,
@@ -8870,9 +8870,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 39,
-        "stamina": 45
+        "attack": 98,
+        "defense": 73,
+        "stamina": 128
     },
     {
         "id": 505,
@@ -8887,9 +8887,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 69,
-        "stamina": 60
+        "attack": 165,
+        "defense": 139,
+        "stamina": 155
     },
     {
         "id": 506,
@@ -8904,9 +8904,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 45,
-        "stamina": 45
+        "attack": 107,
+        "defense": 86,
+        "stamina": 128
     },
     {
         "id": 507,
@@ -8921,9 +8921,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 65,
-        "stamina": 65
+        "attack": 145,
+        "defense": 126,
+        "stamina": 163
     },
     {
         "id": 508,
@@ -8938,9 +8938,9 @@
             ]
         },
         "released": true,
-        "attack": 110,
-        "defense": 90,
-        "stamina": 85
+        "attack": 206,
+        "defense": 182,
+        "stamina": 198
     },
     {
         "id": 509,
@@ -8955,9 +8955,9 @@
             ]
         },
         "released": true,
-        "attack": 50,
-        "defense": 37,
-        "stamina": 41
+        "attack": 98,
+        "defense": 73,
+        "stamina": 121
     },
     {
         "id": 510,
@@ -8972,9 +8972,9 @@
             ]
         },
         "released": true,
-        "attack": 88,
-        "defense": 50,
-        "stamina": 64
+        "attack": 187,
+        "defense": 106,
+        "stamina": 162
     },
     {
         "id": 511,
@@ -8989,9 +8989,9 @@
             ]
         },
         "released": true,
-        "attack": 53,
-        "defense": 48,
-        "stamina": 50
+        "attack": 104,
+        "defense": 94,
+        "stamina": 137
     },
     {
         "id": 512,
@@ -9006,9 +9006,9 @@
             ]
         },
         "released": true,
-        "attack": 98,
-        "defense": 63,
-        "stamina": 75
+        "attack": 206,
+        "defense": 133,
+        "stamina": 181
     },
     {
         "id": 513,
@@ -9023,9 +9023,9 @@
             ]
         },
         "released": true,
-        "attack": 53,
-        "defense": 48,
-        "stamina": 50
+        "attack": 104,
+        "defense": 94,
+        "stamina": 137
     },
     {
         "id": 514,
@@ -9040,9 +9040,9 @@
             ]
         },
         "released": true,
-        "attack": 98,
-        "defense": 63,
-        "stamina": 75
+        "attack": 206,
+        "defense": 133,
+        "stamina": 181
     },
     {
         "id": 515,
@@ -9057,9 +9057,9 @@
             ]
         },
         "released": true,
-        "attack": 53,
-        "defense": 48,
-        "stamina": 50
+        "attack": 104,
+        "defense": 94,
+        "stamina": 137
     },
     {
         "id": 516,
@@ -9074,9 +9074,9 @@
             ]
         },
         "released": true,
-        "attack": 98,
-        "defense": 63,
-        "stamina": 75
+        "attack": 206,
+        "defense": 133,
+        "stamina": 181
     },
     {
         "id": 517,
@@ -9091,9 +9091,9 @@
             ]
         },
         "released": true,
-        "attack": 25,
-        "defense": 45,
-        "stamina": 76
+        "attack": 111,
+        "defense": 92,
+        "stamina": 183
     },
     {
         "id": 518,
@@ -9108,9 +9108,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 85,
-        "stamina": 116
+        "attack": 183,
+        "defense": 166,
+        "stamina": 253
     },
     {
         "id": 519,
@@ -9126,9 +9126,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 50,
-        "stamina": 50
+        "attack": 98,
+        "defense": 80,
+        "stamina": 137
     },
     {
         "id": 520,
@@ -9144,9 +9144,9 @@
             ]
         },
         "released": true,
-        "attack": 77,
-        "defense": 62,
-        "stamina": 62
+        "attack": 144,
+        "defense": 107,
+        "stamina": 158
     },
     {
         "id": 521,
@@ -9162,9 +9162,9 @@
             ]
         },
         "released": true,
-        "attack": 115,
-        "defense": 80,
-        "stamina": 80
+        "attack": 226,
+        "defense": 146,
+        "stamina": 190
     },
     {
         "id": 522,
@@ -9179,9 +9179,9 @@
             ]
         },
         "released": true,
-        "attack": 60,
-        "defense": 32,
-        "stamina": 45
+        "attack": 118,
+        "defense": 64,
+        "stamina": 128
     },
     {
         "id": 523,
@@ -9196,9 +9196,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 63,
-        "stamina": 75
+        "attack": 211,
+        "defense": 136,
+        "stamina": 181
     },
     {
         "id": 524,
@@ -9213,9 +9213,9 @@
             ]
         },
         "released": true,
-        "attack": 75,
-        "defense": 85,
-        "stamina": 55
+        "attack": 121,
+        "defense": 110,
+        "stamina": 146
     },
     {
         "id": 525,
@@ -9230,9 +9230,9 @@
             ]
         },
         "released": true,
-        "attack": 105,
-        "defense": 105,
-        "stamina": 70
+        "attack": 174,
+        "defense": 143,
+        "stamina": 172
     },
     {
         "id": 526,
@@ -9247,9 +9247,9 @@
             ]
         },
         "released": true,
-        "attack": 135,
-        "defense": 130,
-        "stamina": 85
+        "attack": 226,
+        "defense": 201,
+        "stamina": 198
     },
     {
         "id": 527,
@@ -9265,9 +9265,9 @@
             ]
         },
         "released": true,
-        "attack": 45,
-        "defense": 43,
-        "stamina": 65
+        "attack": 107,
+        "defense": 85,
+        "stamina": 163
     },
     {
         "id": 528,
@@ -9283,9 +9283,9 @@
             ]
         },
         "released": true,
-        "attack": 57,
-        "defense": 55,
-        "stamina": 67
+        "attack": 161,
+        "defense": 119,
+        "stamina": 167
     },
     {
         "id": 529,
@@ -9300,9 +9300,9 @@
             ]
         },
         "released": true,
-        "attack": 85,
-        "defense": 40,
-        "stamina": 60
+        "attack": 154,
+        "defense": 85,
+        "stamina": 155
     },
     {
         "id": 530,
@@ -9318,9 +9318,9 @@
             ]
         },
         "released": false,
-        "attack": 135,
-        "defense": 60,
-        "stamina": 110
+        "attack": 255,
+        "defense": 129,
+        "stamina": 242
     },
     {
         "id": 531,
@@ -9335,9 +9335,9 @@
             ]
         },
         "released": false,
-        "attack": 60,
-        "defense": 86,
-        "stamina": 103
+        "attack": 114,
+        "defense": 163,
+        "stamina": 230
     },
     {
         "id": 532,
@@ -9352,9 +9352,9 @@
             ]
         },
         "released": false,
-        "attack": 80,
-        "defense": 55,
-        "stamina": 75
+        "attack": 134,
+        "defense": 87,
+        "stamina": 181
     },
     {
         "id": 533,
@@ -9369,9 +9369,9 @@
             ]
         },
         "released": false,
-        "attack": 105,
-        "defense": 85,
-        "stamina": 85
+        "attack": 180,
+        "defense": 134,
+        "stamina": 198
     },
     {
         "id": 534,
@@ -9386,9 +9386,9 @@
             ]
         },
         "released": false,
-        "attack": 140,
-        "defense": 95,
-        "stamina": 105
+        "attack": 243,
+        "defense": 158,
+        "stamina": 233
     },
     {
         "id": 535,
@@ -9403,9 +9403,9 @@
             ]
         },
         "released": false,
-        "attack": 50,
-        "defense": 40,
-        "stamina": 50
+        "attack": 98,
+        "defense": 78,
+        "stamina": 137
     },
     {
         "id": 536,
@@ -9421,9 +9421,9 @@
             ]
         },
         "released": false,
-        "attack": 65,
-        "defense": 55,
-        "stamina": 75
+        "attack": 128,
+        "defense": 109,
+        "stamina": 181
     },
     {
         "id": 537,
@@ -9439,9 +9439,9 @@
             ]
         },
         "released": false,
-        "attack": 95,
-        "defense": 75,
-        "stamina": 105
+        "attack": 188,
+        "defense": 150,
+        "stamina": 233
     },
     {
         "id": 538,
@@ -9456,9 +9456,9 @@
             ]
         },
         "released": false,
-        "attack": 100,
-        "defense": 85,
-        "stamina": 120
+        "attack": 172,
+        "defense": 160,
+        "stamina": 260
     },
     {
         "id": 539,
@@ -9473,9 +9473,9 @@
             ]
         },
         "released": false,
-        "attack": 125,
-        "defense": 75,
-        "stamina": 75
+        "attack": 231,
+        "defense": 153,
+        "stamina": 181
     },
     {
         "id": 540,
@@ -9491,9 +9491,9 @@
             ]
         },
         "released": false,
-        "attack": 53,
-        "defense": 70,
-        "stamina": 45
+        "attack": 96,
+        "defense": 124,
+        "stamina": 128
     },
     {
         "id": 541,
@@ -9509,9 +9509,9 @@
             ]
         },
         "released": false,
-        "attack": 63,
-        "defense": 90,
-        "stamina": 55
+        "attack": 115,
+        "defense": 162,
+        "stamina": 146
     },
     {
         "id": 542,
@@ -9527,9 +9527,9 @@
             ]
         },
         "released": false,
-        "attack": 103,
-        "defense": 80,
-        "stamina": 75
+        "attack": 205,
+        "defense": 165,
+        "stamina": 181
     },
     {
         "id": 543,
@@ -9545,9 +9545,9 @@
             ]
         },
         "released": false,
-        "attack": 45,
-        "defense": 59,
-        "stamina": 30
+        "attack": 83,
+        "defense": 99,
+        "stamina": 102
     },
     {
         "id": 544,
@@ -9563,9 +9563,9 @@
             ]
         },
         "released": false,
-        "attack": 55,
-        "defense": 99,
-        "stamina": 40
+        "attack": 100,
+        "defense": 173,
+        "stamina": 120
     },
     {
         "id": 545,
@@ -9581,9 +9581,9 @@
             ]
         },
         "released": false,
-        "attack": 100,
-        "defense": 89,
-        "stamina": 60
+        "attack": 203,
+        "defense": 175,
+        "stamina": 155
     },
     {
         "id": 546,
@@ -9599,9 +9599,9 @@
             ]
         },
         "released": false,
-        "attack": 27,
-        "defense": 60,
-        "stamina": 40
+        "attack": 71,
+        "defense": 111,
+        "stamina": 120
     },
     {
         "id": 547,
@@ -9617,9 +9617,9 @@
             ]
         },
         "released": false,
-        "attack": 67,
-        "defense": 85,
-        "stamina": 60
+        "attack": 164,
+        "defense": 176,
+        "stamina": 155
     },
     {
         "id": 548,
@@ -9634,9 +9634,9 @@
             ]
         },
         "released": false,
-        "attack": 35,
-        "defense": 50,
-        "stamina": 45
+        "attack": 119,
+        "defense": 91,
+        "stamina": 128
     },
     {
         "id": 549,
@@ -9651,9 +9651,9 @@
             ]
         },
         "released": false,
-        "attack": 60,
-        "defense": 75,
-        "stamina": 70
+        "attack": 214,
+        "defense": 155,
+        "stamina": 172
     },
     {
         "id": 550,
@@ -9668,9 +9668,9 @@
             ]
         },
         "released": false,
-        "attack": 92,
-        "defense": 65,
-        "stamina": 70
+        "attack": 189,
+        "defense": 129,
+        "stamina": 172
     },
     {
         "id": 551,
@@ -9686,9 +9686,9 @@
             ]
         },
         "released": false,
-        "attack": 72,
-        "defense": 35,
-        "stamina": 50
+        "attack": 132,
+        "defense": 69,
+        "stamina": 137
     },
     {
         "id": 552,
@@ -9704,9 +9704,9 @@
             ]
         },
         "released": false,
-        "attack": 82,
-        "defense": 45,
-        "stamina": 60
+        "attack": 155,
+        "defense": 90,
+        "stamina": 155
     },
     {
         "id": 553,
@@ -9722,9 +9722,9 @@
             ]
         },
         "released": false,
-        "attack": 117,
-        "defense": 80,
-        "stamina": 95
+        "attack": 229,
+        "defense": 158,
+        "stamina": 216
     },
     {
         "id": 554,
@@ -9739,9 +9739,9 @@
             ]
         },
         "released": false,
-        "attack": 90,
-        "defense": 45,
-        "stamina": 70
+        "attack": 153,
+        "defense": 86,
+        "stamina": 172
     },
     {
         "id": 555,
@@ -9756,9 +9756,9 @@
             ]
         },
         "released": false,
-        "attack": 140,
-        "defense": 55,
-        "stamina": 105
+        "attack": 263,
+        "defense": 114,
+        "stamina": 233
     },
     {
         "id": 556,
@@ -9773,9 +9773,9 @@
             ]
         },
         "released": false,
-        "attack": 86,
-        "defense": 67,
-        "stamina": 75
+        "attack": 201,
+        "defense": 130,
+        "stamina": 181
     },
     {
         "id": 557,
@@ -9791,9 +9791,9 @@
             ]
         },
         "released": false,
-        "attack": 65,
-        "defense": 85,
-        "stamina": 50
+        "attack": 118,
+        "defense": 128,
+        "stamina": 137
     },
     {
         "id": 558,
@@ -9809,9 +9809,9 @@
             ]
         },
         "released": false,
-        "attack": 105,
-        "defense": 125,
-        "stamina": 70
+        "attack": 188,
+        "defense": 200,
+        "stamina": 172
     },
     {
         "id": 559,
@@ -9827,9 +9827,9 @@
             ]
         },
         "released": false,
-        "attack": 75,
-        "defense": 70,
-        "stamina": 50
+        "attack": 132,
+        "defense": 132,
+        "stamina": 137
     },
     {
         "id": 560,
@@ -9845,9 +9845,9 @@
             ]
         },
         "released": false,
-        "attack": 90,
-        "defense": 115,
-        "stamina": 65
+        "attack": 163,
+        "defense": 222,
+        "stamina": 163
     },
     {
         "id": 561,
@@ -9863,9 +9863,9 @@
             ]
         },
         "released": false,
-        "attack": 58,
-        "defense": 80,
-        "stamina": 72
+        "attack": 204,
+        "defense": 167,
+        "stamina": 176
     },
     {
         "id": 562,
@@ -9880,9 +9880,9 @@
             ]
         },
         "released": true,
-        "attack": 30,
-        "defense": 85,
-        "stamina": 38
+        "attack": 95,
+        "defense": 141,
+        "stamina": 116
     },
     {
         "id": 563,
@@ -9897,9 +9897,9 @@
             ]
         },
         "released": false,
-        "attack": 50,
-        "defense": 145,
-        "stamina": 58
+        "attack": 163,
+        "defense": 237,
+        "stamina": 151
     },
     {
         "id": 564,
@@ -9915,9 +9915,9 @@
             ]
         },
         "released": false,
-        "attack": 78,
-        "defense": 103,
-        "stamina": 54
+        "attack": 134,
+        "defense": 146,
+        "stamina": 144
     },
     {
         "id": 565,
@@ -9933,9 +9933,9 @@
             ]
         },
         "released": false,
-        "attack": 108,
-        "defense": 133,
-        "stamina": 74
+        "attack": 192,
+        "defense": 197,
+        "stamina": 179
     },
     {
         "id": 566,
@@ -9951,9 +9951,9 @@
             ]
         },
         "released": false,
-        "attack": 112,
-        "defense": 45,
-        "stamina": 55
+        "attack": 213,
+        "defense": 89,
+        "stamina": 146
     },
     {
         "id": 567,
@@ -9969,9 +9969,9 @@
             ]
         },
         "released": false,
-        "attack": 140,
-        "defense": 65,
-        "stamina": 75
+        "attack": 292,
+        "defense": 139,
+        "stamina": 181
     },
     {
         "id": 568,
@@ -9986,9 +9986,9 @@
             ]
         },
         "released": false,
-        "attack": 50,
-        "defense": 62,
-        "stamina": 50
+        "attack": 96,
+        "defense": 122,
+        "stamina": 137
     },
     {
         "id": 569,
@@ -10003,9 +10003,9 @@
             ]
         },
         "released": false,
-        "attack": 95,
-        "defense": 82,
-        "stamina": 80
+        "attack": 181,
+        "defense": 164,
+        "stamina": 190
     },
     {
         "id": 570,
@@ -10020,9 +10020,9 @@
             ]
         },
         "released": false,
-        "attack": 65,
-        "defense": 40,
-        "stamina": 40
+        "attack": 153,
+        "defense": 78,
+        "stamina": 120
     },
     {
         "id": 571,
@@ -10037,9 +10037,9 @@
             ]
         },
         "released": false,
-        "attack": 105,
-        "defense": 60,
-        "stamina": 60
+        "attack": 250,
+        "defense": 127,
+        "stamina": 155
     },
     {
         "id": 572,
@@ -10054,9 +10054,9 @@
             ]
         },
         "released": false,
-        "attack": 50,
-        "defense": 40,
-        "stamina": 55
+        "attack": 98,
+        "defense": 80,
+        "stamina": 146
     },
     {
         "id": 573,
@@ -10071,9 +10071,9 @@
             ]
         },
         "released": false,
-        "attack": 95,
-        "defense": 60,
-        "stamina": 75
+        "attack": 198,
+        "defense": 130,
+        "stamina": 181
     },
     {
         "id": 574,
@@ -10088,9 +10088,9 @@
             ]
         },
         "released": false,
-        "attack": 30,
-        "defense": 50,
-        "stamina": 45
+        "attack": 98,
+        "defense": 112,
+        "stamina": 128
     },
     {
         "id": 575,
@@ -10105,9 +10105,9 @@
             ]
         },
         "released": false,
-        "attack": 45,
-        "defense": 70,
-        "stamina": 60
+        "attack": 137,
+        "defense": 153,
+        "stamina": 155
     },
     {
         "id": 576,
@@ -10122,9 +10122,9 @@
             ]
         },
         "released": false,
-        "attack": 55,
-        "defense": 95,
-        "stamina": 70
+        "attack": 176,
+        "defense": 205,
+        "stamina": 172
     },
     {
         "id": 577,
@@ -10139,9 +10139,9 @@
             ]
         },
         "released": false,
-        "attack": 30,
-        "defense": 40,
-        "stamina": 45
+        "attack": 170,
+        "defense": 83,
+        "stamina": 128
     },
     {
         "id": 578,
@@ -10156,9 +10156,9 @@
             ]
         },
         "released": false,
-        "attack": 40,
-        "defense": 50,
-        "stamina": 65
+        "attack": 208,
+        "defense": 103,
+        "stamina": 163
     },
     {
         "id": 579,
@@ -10173,9 +10173,9 @@
             ]
         },
         "released": false,
-        "attack": 65,
-        "defense": 75,
-        "stamina": 110
+        "attack": 214,
+        "defense": 148,
+        "stamina": 242
     },
     {
         "id": 580,
@@ -10191,9 +10191,9 @@
             ]
         },
         "released": false,
-        "attack": 44,
-        "defense": 50,
-        "stamina": 62
+        "attack": 84,
+        "defense": 96,
+        "stamina": 158
     },
     {
         "id": 581,
@@ -10209,9 +10209,9 @@
             ]
         },
         "released": false,
-        "attack": 87,
-        "defense": 63,
-        "stamina": 75
+        "attack": 182,
+        "defense": 132,
+        "stamina": 181
     },
     {
         "id": 582,
@@ -10226,9 +10226,9 @@
             ]
         },
         "released": false,
-        "attack": 50,
-        "defense": 50,
-        "stamina": 36
+        "attack": 118,
+        "defense": 106,
+        "stamina": 113
     },
     {
         "id": 583,
@@ -10243,9 +10243,9 @@
             ]
         },
         "released": false,
-        "attack": 65,
-        "defense": 65,
-        "stamina": 51
+        "attack": 151,
+        "defense": 138,
+        "stamina": 139
     },
     {
         "id": 584,
@@ -10260,9 +10260,9 @@
             ]
         },
         "released": false,
-        "attack": 95,
-        "defense": 85,
-        "stamina": 71
+        "attack": 218,
+        "defense": 184,
+        "stamina": 174
     },
     {
         "id": 585,
@@ -10278,9 +10278,9 @@
             ]
         },
         "released": false,
-        "attack": 60,
-        "defense": 50,
-        "stamina": 60
+        "attack": 115,
+        "defense": 100,
+        "stamina": 155
     },
     {
         "id": 586,
@@ -10296,9 +10296,9 @@
             ]
         },
         "released": false,
-        "attack": 100,
-        "defense": 70,
-        "stamina": 80
+        "attack": 198,
+        "defense": 146,
+        "stamina": 190
     },
     {
         "id": 587,
@@ -10314,9 +10314,9 @@
             ]
         },
         "released": false,
-        "attack": 75,
-        "defense": 60,
-        "stamina": 55
+        "attack": 158,
+        "defense": 127,
+        "stamina": 146
     },
     {
         "id": 588,
@@ -10331,9 +10331,9 @@
             ]
         },
         "released": false,
-        "attack": 75,
-        "defense": 45,
-        "stamina": 50
+        "attack": 137,
+        "defense": 87,
+        "stamina": 137
     },
     {
         "id": 589,
@@ -10349,9 +10349,9 @@
             ]
         },
         "released": false,
-        "attack": 135,
-        "defense": 105,
-        "stamina": 70
+        "attack": 223,
+        "defense": 187,
+        "stamina": 172
     },
     {
         "id": 590,
@@ -10367,9 +10367,9 @@
             ]
         },
         "released": false,
-        "attack": 55,
-        "defense": 45,
-        "stamina": 69
+        "attack": 97,
+        "defense": 91,
+        "stamina": 170
     },
     {
         "id": 591,
@@ -10385,9 +10385,9 @@
             ]
         },
         "released": false,
-        "attack": 85,
-        "defense": 70,
-        "stamina": 114
+        "attack": 155,
+        "defense": 139,
+        "stamina": 249
     },
     {
         "id": 592,
@@ -10403,9 +10403,9 @@
             ]
         },
         "released": false,
-        "attack": 40,
-        "defense": 50,
-        "stamina": 55
+        "attack": 115,
+        "defense": 134,
+        "stamina": 146
     },
     {
         "id": 593,
@@ -10421,9 +10421,9 @@
             ]
         },
         "released": false,
-        "attack": 60,
-        "defense": 70,
-        "stamina": 100
+        "attack": 159,
+        "defense": 178,
+        "stamina": 225
     },
     {
         "id": 594,
@@ -10438,9 +10438,9 @@
             ]
         },
         "released": false,
-        "attack": 75,
-        "defense": 80,
-        "stamina": 165
+        "attack": 138,
+        "defense": 131,
+        "stamina": 338
     },
     {
         "id": 595,
@@ -10456,9 +10456,9 @@
             ]
         },
         "released": false,
-        "attack": 47,
-        "defense": 50,
-        "stamina": 50
+        "attack": 110,
+        "defense": 98,
+        "stamina": 137
     },
     {
         "id": 596,
@@ -10474,9 +10474,9 @@
             ]
         },
         "released": false,
-        "attack": 77,
-        "defense": 60,
-        "stamina": 70
+        "attack": 201,
+        "defense": 128,
+        "stamina": 172
     },
     {
         "id": 597,
@@ -10492,9 +10492,9 @@
             ]
         },
         "released": false,
-        "attack": 50,
-        "defense": 91,
-        "stamina": 44
+        "attack": 82,
+        "defense": 155,
+        "stamina": 127
     },
     {
         "id": 598,
@@ -10510,9 +10510,9 @@
             ]
         },
         "released": false,
-        "attack": 94,
-        "defense": 131,
-        "stamina": 74
+        "attack": 158,
+        "defense": 223,
+        "stamina": 179
     },
     {
         "id": 599,
@@ -10527,9 +10527,9 @@
             ]
         },
         "released": true,
-        "attack": 55,
-        "defense": 70,
-        "stamina": 40
+        "attack": 98,
+        "defense": 121,
+        "stamina": 120
     },
     {
         "id": 600,
@@ -10544,9 +10544,9 @@
             ]
         },
         "released": true,
-        "attack": 80,
-        "defense": 95,
-        "stamina": 60
+        "attack": 150,
+        "defense": 174,
+        "stamina": 155
     },
     {
         "id": 601,
@@ -10561,9 +10561,9 @@
             ]
         },
         "released": true,
-        "attack": 100,
-        "defense": 115,
-        "stamina": 60
+        "attack": 199,
+        "defense": 214,
+        "stamina": 155
     },
     {
         "id": 602,
@@ -10578,9 +10578,9 @@
             ]
         },
         "released": false,
-        "attack": 55,
-        "defense": 40,
-        "stamina": 35
+        "attack": 105,
+        "defense": 78,
+        "stamina": 111
     },
     {
         "id": 603,
@@ -10595,9 +10595,9 @@
             ]
         },
         "released": false,
-        "attack": 85,
-        "defense": 70,
-        "stamina": 65
+        "attack": 156,
+        "defense": 130,
+        "stamina": 163
     },
     {
         "id": 604,
@@ -10612,9 +10612,9 @@
             ]
         },
         "released": false,
-        "attack": 115,
-        "defense": 80,
-        "stamina": 85
+        "attack": 217,
+        "defense": 152,
+        "stamina": 198
     },
     {
         "id": 605,
@@ -10629,9 +10629,9 @@
             ]
         },
         "released": false,
-        "attack": 55,
-        "defense": 55,
-        "stamina": 55
+        "attack": 148,
+        "defense": 100,
+        "stamina": 146
     },
     {
         "id": 606,
@@ -10646,9 +10646,9 @@
             ]
         },
         "released": false,
-        "attack": 75,
-        "defense": 75,
-        "stamina": 75
+        "attack": 221,
+        "defense": 163,
+        "stamina": 181
     },
     {
         "id": 607,
@@ -10664,9 +10664,9 @@
             ]
         },
         "released": false,
-        "attack": 30,
-        "defense": 55,
-        "stamina": 50
+        "attack": 108,
+        "defense": 98,
+        "stamina": 137
     },
     {
         "id": 608,
@@ -10682,9 +10682,9 @@
             ]
         },
         "released": false,
-        "attack": 40,
-        "defense": 60,
-        "stamina": 60
+        "attack": 169,
+        "defense": 115,
+        "stamina": 155
     },
     {
         "id": 609,
@@ -10700,9 +10700,9 @@
             ]
         },
         "released": false,
-        "attack": 55,
-        "defense": 90,
-        "stamina": 60
+        "attack": 271,
+        "defense": 182,
+        "stamina": 155
     },
     {
         "id": 610,
@@ -10717,9 +10717,9 @@
             ]
         },
         "released": false,
-        "attack": 87,
-        "defense": 60,
-        "stamina": 46
+        "attack": 154,
+        "defense": 101,
+        "stamina": 130
     },
     {
         "id": 611,
@@ -10734,9 +10734,9 @@
             ]
         },
         "released": false,
-        "attack": 117,
-        "defense": 70,
-        "stamina": 66
+        "attack": 212,
+        "defense": 123,
+        "stamina": 165
     },
     {
         "id": 612,
@@ -10751,9 +10751,9 @@
             ]
         },
         "released": false,
-        "attack": 147,
-        "defense": 90,
-        "stamina": 76
+        "attack": 284,
+        "defense": 172,
+        "stamina": 183
     },
     {
         "id": 613,
@@ -10768,9 +10768,9 @@
             ]
         },
         "released": false,
-        "attack": 70,
-        "defense": 40,
-        "stamina": 55
+        "attack": 128,
+        "defense": 74,
+        "stamina": 146
     },
     {
         "id": 614,
@@ -10785,9 +10785,9 @@
             ]
         },
         "released": false,
-        "attack": 130,
-        "defense": 80,
-        "stamina": 95
+        "attack": 233,
+        "defense": 152,
+        "stamina": 216
     },
     {
         "id": 615,
@@ -10802,9 +10802,9 @@
             ]
         },
         "released": false,
-        "attack": 50,
-        "defense": 50,
-        "stamina": 80
+        "attack": 190,
+        "defense": 218,
+        "stamina": 190
     },
     {
         "id": 616,
@@ -10819,9 +10819,9 @@
             ]
         },
         "released": false,
-        "attack": 40,
-        "defense": 85,
-        "stamina": 50
+        "attack": 72,
+        "defense": 140,
+        "stamina": 137
     },
     {
         "id": 617,
@@ -10836,9 +10836,9 @@
             ]
         },
         "released": false,
-        "attack": 70,
-        "defense": 40,
-        "stamina": 80
+        "attack": 220,
+        "defense": 120,
+        "stamina": 190
     },
     {
         "id": 618,
@@ -10854,9 +10854,9 @@
             ]
         },
         "released": false,
-        "attack": 66,
-        "defense": 84,
-        "stamina": 109
+        "attack": 144,
+        "defense": 171,
+        "stamina": 240
     },
     {
         "id": 619,
@@ -10871,9 +10871,9 @@
             ]
         },
         "released": false,
-        "attack": 85,
-        "defense": 50,
-        "stamina": 45
+        "attack": 160,
+        "defense": 98,
+        "stamina": 128
     },
     {
         "id": 620,
@@ -10888,9 +10888,9 @@
             ]
         },
         "released": false,
-        "attack": 125,
-        "defense": 60,
-        "stamina": 65
+        "attack": 258,
+        "defense": 127,
+        "stamina": 163
     },
     {
         "id": 621,
@@ -10905,9 +10905,9 @@
             ]
         },
         "released": false,
-        "attack": 120,
-        "defense": 90,
-        "stamina": 77
+        "attack": 213,
+        "defense": 170,
+        "stamina": 184
     },
     {
         "id": 622,
@@ -10923,9 +10923,9 @@
             ]
         },
         "released": false,
-        "attack": 74,
-        "defense": 50,
-        "stamina": 59
+        "attack": 127,
+        "defense": 92,
+        "stamina": 153
     },
     {
         "id": 623,
@@ -10941,9 +10941,9 @@
             ]
         },
         "released": false,
-        "attack": 124,
-        "defense": 80,
-        "stamina": 89
+        "attack": 222,
+        "defense": 154,
+        "stamina": 205
     },
     {
         "id": 624,
@@ -10959,9 +10959,9 @@
             ]
         },
         "released": false,
-        "attack": 85,
-        "defense": 70,
-        "stamina": 45
+        "attack": 154,
+        "defense": 114,
+        "stamina": 128
     },
     {
         "id": 625,
@@ -10977,9 +10977,9 @@
             ]
         },
         "released": false,
-        "attack": 125,
-        "defense": 100,
-        "stamina": 65
+        "attack": 232,
+        "defense": 176,
+        "stamina": 163
     },
     {
         "id": 626,
@@ -10994,9 +10994,9 @@
             ]
         },
         "released": false,
-        "attack": 110,
-        "defense": 95,
-        "stamina": 95
+        "attack": 195,
+        "defense": 182,
+        "stamina": 216
     },
     {
         "id": 627,
@@ -11012,9 +11012,9 @@
             ]
         },
         "released": false,
-        "attack": 83,
-        "defense": 50,
-        "stamina": 70
+        "attack": 150,
+        "defense": 97,
+        "stamina": 172
     },
     {
         "id": 628,
@@ -11030,9 +11030,9 @@
             ]
         },
         "released": false,
-        "attack": 123,
-        "defense": 75,
-        "stamina": 100
+        "attack": 232,
+        "defense": 152,
+        "stamina": 225
     },
     {
         "id": 629,
@@ -11048,9 +11048,9 @@
             ]
         },
         "released": false,
-        "attack": 55,
-        "defense": 75,
-        "stamina": 70
+        "attack": 105,
+        "defense": 139,
+        "stamina": 172
     },
     {
         "id": 630,
@@ -11066,9 +11066,9 @@
             ]
         },
         "released": false,
-        "attack": 65,
-        "defense": 105,
-        "stamina": 110
+        "attack": 129,
+        "defense": 205,
+        "stamina": 242
     },
     {
         "id": 631,
@@ -11083,9 +11083,9 @@
             ]
         },
         "released": true,
-        "attack": 97,
-        "defense": 66,
-        "stamina": 85
+        "attack": 204,
+        "defense": 129,
+        "stamina": 198
     },
     {
         "id": 632,
@@ -11101,9 +11101,9 @@
             ]
         },
         "released": false,
-        "attack": 109,
-        "defense": 112,
-        "stamina": 58
+        "attack": 217,
+        "defense": 188,
+        "stamina": 151
     },
     {
         "id": 633,
@@ -11119,9 +11119,9 @@
             ]
         },
         "released": false,
-        "attack": 65,
-        "defense": 50,
-        "stamina": 52
+        "attack": 116,
+        "defense": 93,
+        "stamina": 141
     },
     {
         "id": 634,
@@ -11137,9 +11137,9 @@
             ]
         },
         "released": false,
-        "attack": 85,
-        "defense": 70,
-        "stamina": 72
+        "attack": 159,
+        "defense": 135,
+        "stamina": 176
     },
     {
         "id": 635,
@@ -11155,9 +11155,9 @@
             ]
         },
         "released": false,
-        "attack": 105,
-        "defense": 90,
-        "stamina": 92
+        "attack": 256,
+        "defense": 188,
+        "stamina": 211
     },
     {
         "id": 636,
@@ -11173,9 +11173,9 @@
             ]
         },
         "released": false,
-        "attack": 85,
-        "defense": 55,
-        "stamina": 55
+        "attack": 156,
+        "defense": 107,
+        "stamina": 146
     },
     {
         "id": 637,
@@ -11191,9 +11191,9 @@
             ]
         },
         "released": false,
-        "attack": 60,
-        "defense": 65,
-        "stamina": 85
+        "attack": 264,
+        "defense": 189,
+        "stamina": 198
     },
     {
         "id": 638,
@@ -11209,9 +11209,9 @@
             ]
         },
         "released": false,
-        "attack": 90,
-        "defense": 129,
-        "stamina": 91
+        "attack": 192,
+        "defense": 229,
+        "stamina": 209
     },
     {
         "id": 639,
@@ -11227,9 +11227,9 @@
             ]
         },
         "released": false,
-        "attack": 129,
-        "defense": 90,
-        "stamina": 91
+        "attack": 260,
+        "defense": 192,
+        "stamina": 209
     },
     {
         "id": 640,
@@ -11245,9 +11245,9 @@
             ]
         },
         "released": false,
-        "attack": 90,
-        "defense": 72,
-        "stamina": 91
+        "attack": 192,
+        "defense": 229,
+        "stamina": 209
     },
     {
         "id": 641,
@@ -11262,9 +11262,9 @@
             ]
         },
         "released": false,
-        "attack": 115,
-        "defense": 70,
-        "stamina": 79
+        "attack": 266,
+        "defense": 164,
+        "stamina": 188
     },
     {
         "id": 642,
@@ -11280,9 +11280,9 @@
             ]
         },
         "released": false,
-        "attack": 115,
-        "defense": 70,
-        "stamina": 79
+        "attack": 266,
+        "defense": 164,
+        "stamina": 188
     },
     {
         "id": 643,
@@ -11298,9 +11298,9 @@
             ]
         },
         "released": false,
-        "attack": 120,
-        "defense": 100,
-        "stamina": 100
+        "attack": 275,
+        "defense": 211,
+        "stamina": 205
     },
     {
         "id": 644,
@@ -11316,9 +11316,9 @@
             ]
         },
         "released": false,
-        "attack": 150,
-        "defense": 120,
-        "stamina": 100
+        "attack": 275,
+        "defense": 211,
+        "stamina": 205
     },
     {
         "id": 645,
@@ -11334,9 +11334,9 @@
             ]
         },
         "released": false,
-        "attack": 125,
-        "defense": 90,
-        "stamina": 89
+        "attack": 261,
+        "defense": 182,
+        "stamina": 205
     },
     {
         "id": 646,
@@ -11352,9 +11352,9 @@
             ]
         },
         "released": false,
-        "attack": 130,
-        "defense": 90,
-        "stamina": 125
+        "attack": 246,
+        "defense": 170,
+        "stamina": 245
     },
     {
         "id": 647,
@@ -11370,9 +11370,9 @@
             ]
         },
         "released": false,
-        "attack": 72,
-        "defense": 90,
-        "stamina": 91
+        "attack": 260,
+        "defense": 192,
+        "stamina": 209
     },
     {
         "id": 648,
@@ -11388,9 +11388,9 @@
             ]
         },
         "released": false,
-        "attack": 77,
-        "defense": 77,
-        "stamina": 100
+        "attack": 250,
+        "defense": 225,
+        "stamina": 225
     },
     {
         "id": 649,
