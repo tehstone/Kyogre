@@ -16,6 +16,7 @@ class RaidAvailable(commands.Cog):
     @commands.command(name="raidavailable", aliases=["rav"], brief="Report that you're actively looking for raids")
     async def _raid_available(self, ctx, exptime=None):
         """**Usage**: `!raidavailable/rav [time]`
+        Must be used in a raid reporting channel.
         Assigns a tag-able role (such as @renton-raids) to you so that others looking for raids can ask for help.
         Tag will remain for 60 minutes by default or for the amount of time you provide. Provide '0' minutes to keep it in effect indefinitely."""
         guild_dict = self.bot.guild_dict
@@ -27,6 +28,10 @@ class RaidAvailable(commands.Cog):
         regions = utils_cog.get_channel_regions(channel, 'raid')
         if len(regions) > 0:
             region = regions[0]
+        else:
+            region_err = "No region associated with this channel, please use this command in a raid reporting channel."
+            await channel.send(embed=discord.Embed(colour=discord.Colour.orange(), description=region_err),
+                               delete_after=10)
         role_to_assign = discord.utils.get(guild.roles, name=region + '-raids')
         for role in trainer.roles:
             if role.name == role_to_assign.name:
@@ -57,8 +62,8 @@ class RaidAvailable(commands.Cog):
         else:
             time_err = "No expiration time provided, you will be notified for raids for the next 60 minutes"
         if expiration_minutes is False:
-            time_msg = await channel.send(embed=discord.Embed(colour=discord.Colour.orange(), description=time_err),
-                                          delete_after=10)
+            await channel.send(embed=discord.Embed(colour=discord.Colour.orange(), description=time_err),
+                               delete_after=10)
             expiration_minutes = 60
 
         now = datetime.datetime.utcnow() + datetime.timedelta(
