@@ -59,7 +59,7 @@ class RaidAuto(commands.Cog):
                                             colour=discord.Colour.red(),
                                             description=f"A raid has already been reported for {gym.name}"))
                 raid_pokemon = self._check_alolan(raid_info['boss'])
-                await raid_cog.egg_to_raid(ctx, raid_pokemon, self.bot.get_channel(raid_channel_ids[0]))
+                await raid_cog.egg_to_raid(ctx, raid_pokemon.name, self.bot.get_channel(raid_channel_ids[0]))
                 return await ctx.message.add_reaction(self.bot.success_react)
             except KeyError:
                 pass
