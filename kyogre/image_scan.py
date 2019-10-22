@@ -159,8 +159,7 @@ def check_gym_name(image):
     for i in vals:
         thresh = cv2.threshold(gym_name_crop, i, 255, cv2.THRESH_BINARY)[1]
         thresh = cv2.GaussianBlur(thresh, (5, 5), 0)
-        img_text = pytesseract.image_to_string(thresh, lang='eng',
-                                               config='--psm 4 tessedit_char_whitelist=:0123456789abcdefghijklmnopqrstuvwxyz')
+        img_text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 4')
         img_text = [s for s in list(filter(None, img_text.split('\n'))) if len(s) > 3]
         possible_text = []
         for line in img_text:
@@ -229,6 +228,37 @@ def check_boss_cp(image, bot):
             if match and match[0]:
                 return raid_cp_chart[match[0]]
     return None
+
+
+async def check_gym_ex(file):
+    image = cv2.imread(file, 0)
+    height, width = image.shape
+    if height < 400 or width < 200:
+        print(f"height: {height} - width: {width}")
+        dim = (round(width*2), round(height*2))
+        image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
+    height, width = image.shape
+    maxy = round(height * .38)
+    miny = round(height * .19)
+    maxx = round(width * .87)
+    minx = round(width * .13)
+    gym_name_crop = image[miny:maxy, minx:maxx]
+    vals = [200, 210]
+    result = {'date': None, 'gym': None, 'location': None}
+    regex = r'(?P<date>[A-Za-z]{3,10} [0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}\s*[APM]{2}\s*[-—]*\s*[0-9]{1,2}:[0-9]{1,' \
+            r'2}\s*[APM]{2})\s+(?P<gym>[\S+ ]+)\s*(?P<location>[A-Za-z ]+[,\.]+ [A-Za-z]+[,\.]+ [A-Za-z ]+) '
+    for i in vals:
+        thresh = cv2.threshold(gym_name_crop, i, 255, cv2.THRESH_BINARY)[1]
+        thresh = cv2.GaussianBlur(thresh, (5, 5), 0)
+        img_text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 4')
+        regex_result = re.search(regex, img_text)
+        if regex_result:
+            results = regex_result.groupdict()
+            result['date'] = results['date']
+            result['gym'] = results['gym']
+            result['location'] = results['location']
+            break
+    return result
 
 
 async def read_photo_async(file, bot, logger):

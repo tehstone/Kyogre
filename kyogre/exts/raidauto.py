@@ -9,19 +9,10 @@ from PIL import Image
 import discord
 from discord.ext import commands
 
-from kyogre import image_scan, testident, utils, checks
+from kyogre import image_scan, testident, utils, checks, image_utils
 from kyogre.context import Context
 from kyogre.exts.db.kyogredb import APIUsageTable, GuildTable, TrainerTable, fn
 from kyogre.exts.pokemon import Pokemon
-
-
-async def _save_image(attachment):
-    __, file_extension = os.path.splitext(attachment.filename)
-    filename = f"{attachment.id}{file_extension}"
-    filepath = os.path.join('screenshots', filename)
-    with open(filepath, 'wb') as out_file:
-        await attachment.save(out_file)
-    return filepath
 
 
 class RaidAuto(commands.Cog):
@@ -143,7 +134,7 @@ class RaidAuto(commands.Cog):
         if message.channel.id in listen_channels:
             await message.add_reaction('🤔')
             for attachment in message.attachments:
-                file = await self._image_pre_check(attachment)
+                file = await image_utils.image_pre_check(attachment)
                 start = time.time()
                 await self.scan_test(ctx, file)
                 self.bot.gcv_logger.info(f"test scan: {time.time()-start}")
@@ -157,7 +148,7 @@ class RaidAuto(commands.Cog):
         # TODO Determine if it's worth handling multiple attachments and refactor to accommodate
         for a in message.attachments:
             start = time.time()
-            file = await self._image_pre_check(a)
+            file = await image_utils.image_pre_check(a)
             if self.already_scanned(file):
                 os.remove(file)
                 clean_list = self.bot.guild_dict[ctx.guild.id]['configure_dict'].setdefault('channel_auto_clean', [])
@@ -237,15 +228,6 @@ class RaidAuto(commands.Cog):
                 tier = s_tier
         return tier
 
-    async def _image_pre_check(self, attachment):
-        file = await _save_image(attachment)
-        img = Image.open(file)
-        img = self.exif_transpose(img)
-        filesize = os.stat(file).st_size
-        img = self._check_resize(img, filesize)
-        img.save(file)
-        return file
-
     async def _build_raid_info(self, tier, file):
         raid_info = {}
         if tier == "0":
@@ -263,54 +245,6 @@ class RaidAuto(commands.Cog):
             raid_info["type"] = "raid"
             raid_info["boss"] = tier
         return raid_info, file
-
-    @staticmethod
-    def _check_resize(image, filesize):
-        if filesize > 2500000:
-            factor = 1.05
-            if filesize > 5000000:
-                factor = 1.2
-            width, height = image.size
-            width = int(width/factor)
-            height = int(height/factor)
-            image = image.resize((width, height))
-        return image
-
-    @staticmethod
-    def exif_transpose(img):
-        if not img:
-            return img
-        exif_orientation_tag = 274
-        # Check for EXIF data (only present on some files)
-        if hasattr(img, "_getexif") and isinstance(img._getexif(), dict) and exif_orientation_tag in img._getexif():
-            exif_data = img._getexif()
-            orientation = exif_data[exif_orientation_tag]
-            # Handle EXIF Orientation
-            if orientation == 1:
-                # Normal image - nothing to do!
-                pass
-            elif orientation == 2:
-                # Mirrored left to right
-                img = img.transpose(Image.FLIP_LEFT_RIGHT)
-            elif orientation == 3:
-                # Rotated 180 degrees
-                img = img.rotate(180)
-            elif orientation == 4:
-                # Mirrored top to bottom
-                img = img.rotate(180).transpose(Image.FLIP_LEFT_RIGHT)
-            elif orientation == 5:
-                # Mirrored along top-left diagonal
-                img = img.rotate(-90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
-            elif orientation == 6:
-                # Rotated 90 degrees
-                img = img.rotate(-90, expand=True)
-            elif orientation == 7:
-                # Mirrored along top-right diagonal
-                img = img.rotate(90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
-            elif orientation == 8:
-                # Rotated 270 degrees
-                img = img.rotate(90, expand=True)
-        return img
 
     @staticmethod
     def dhash(image, hash_size=32):
