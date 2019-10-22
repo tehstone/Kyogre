@@ -113,8 +113,9 @@ def build_raid_report_message(Kyogre, raid_channel, raid_dict):
         msg = 'T{level} egg @ {location}{ex}'.format(ex=" (EX)" if gym.ex_eligible else "", level=level, location=gym.name)
         end_str = "Hatches: "
     if raidexp is not False:
-        now = datetime.datetime.utcnow() + datetime.timedelta(hours=Kyogre.guild_dict[guild.id]['configure_dict']['settings']['offset'])
-        end = now + datetime.timedelta(minutes=raidexp)
+        #now = datetime.datetime.utcnow() + datetime.timedelta(hours=Kyogre.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+        #end = now + datetime.timedelta(minutes=raidexp)
+        end = datetime.datetime.fromtimestamp(raidexp)
         msg += ' {type}{end}.'.format(end=end.strftime('%I:%M %p'), type=end_str)
     if enabled:
         msg += "\nCoordinate in the raid channel: {channel}".format(channel=raid_channel.mention)

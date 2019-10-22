@@ -412,19 +412,23 @@ class RaidCommands(commands.Cog):
             await raid_channel.set_permissions(guild.default_role, overwrite=ow)
         except (discord.errors.Forbidden, discord.errors.HTTPException, discord.errors.InvalidArgument):
             pass
-        exp = raidexp
-        if not raidexp:
-            exp = time.time() + (60 * self.bot.raid_info['raid_eggs'][str(level)]['raidtime'])
+        ctype = 'raid' if raid_report else 'egg'
+        manual = True if raidexp else False
+        hatch, expire = await self._calc_egg_raid_exp_time(ctx, raidexp, ctype, str(level))
+        if raid_report:
+            exp = expire
+        else:
+            exp = hatch
         raid_dict = {
             'regions': gym_regions,
             'reportcity': report_channel.id,
             'trainer_dict': {},
             'exp': exp,
-            'manual_timer': False,
+            'manual_timer': manual,
             'active': True,
             'reportchannel': channel.id,
             'address': raid_details,
-            'type': 'raid' if raid_report else 'egg',
+            'type': ctype,
             'pokemon': raid_pokemon.name.lower() if raid_report else '',
             'egglevel': str(level) if not raid_report else '0',
             'moveset': 0,
@@ -562,7 +566,8 @@ class RaidCommands(commands.Cog):
             raid_dict['ctrs_dict'] = ctrs_dict
         self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = raid_dict
         if raidexp is not False:
-            await self._timerset(raid_channel, raidexp, to_print=False)
+            pass
+        #    await self._timerset(raid_channel, raidexp, to_print=False)
         else:
             await raid_channel.send(content='Hey {member}, if you can, set the time left on the raid using '
                                             '**!timerset <minutes>** so others can check it with **!timer**.'
@@ -1373,6 +1378,25 @@ class RaidCommands(commands.Cog):
     def _timercheck(exp_time, maxtime):
         return exp_time > maxtime
 
+    async def _calc_egg_raid_exp_time(self, ctx, minutes, ctype, level):
+        offset = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset']
+        now = datetime.datetime.utcnow() + datetime.timedelta(hours=offset)
+        eggminutes = self.bot.raid_info['raid_eggs'][level]['hatchtime']
+        raidminutes = self.bot.raid_info['raid_eggs'][level]['raidtime']
+        hatch, expire = None, None
+        if ctype == 'egg':
+            if not minutes:
+                minutes = eggminutes
+            hatch = now + datetime.timedelta(minutes=minutes)
+            expire = hatch + datetime.timedelta(minutes=raidminutes)
+            hatch, expire = hatch.timestamp, expire.timestamp()
+        elif ctype == 'raid':
+            if not minutes:
+                minutes = raidminutes
+            expire = now + datetime.timedelta(minutes=minutes)
+            expire = expire.timestamp()
+        return hatch, expire
+
     async def _timerset(self, raidchannel, exptime, to_print=True, update=False):
         listmgmt_cog = self.bot.cogs.get('ListManagement')
         guild = raidchannel.guild
@@ -1393,7 +1417,8 @@ class RaidCommands(commands.Cog):
         elif raid_dict['type'] == 'egg':
             egglevel = raid_dict['egglevel']
             hatch = end
-            end = hatch + datetime.timedelta(minutes=self.bot.raid_info['raid_eggs'][egglevel]['raidtime'])
+            raid_minutes = self.bot.raid_info['raid_eggs'][egglevel]['raidtime']
+            end = hatch + datetime.timedelta(minutes=raid_minutes)
             topicstr += 'Hatches at {expiry}'.format(expiry=hatch.strftime('%I:%M %p (%H:%M) | '))
             topicstr += 'Ends at {end}'.format(end=end.strftime('%I:%M %p (%H:%M)'))
             endtime = hatch.strftime('%I:%M %p (%H:%M)')
