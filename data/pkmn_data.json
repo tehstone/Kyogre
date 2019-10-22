@@ -12,7 +12,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 49,
+        "defense": 49,
+        "stamina": 45
     },
     {
         "id": 2,
@@ -27,7 +30,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 62,
+        "defense": 63,
+        "stamina": 60
     },
     {
         "id": 3,
@@ -42,7 +48,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 82,
+        "defense": 83,
+        "stamina": 80
     },
     {
         "id": 4,
@@ -56,7 +65,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 52,
+        "defense": 43,
+        "stamina": 39
     },
     {
         "id": 5,
@@ -70,7 +82,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 64,
+        "defense": 58,
+        "stamina": 58
     },
     {
         "id": 6,
@@ -85,7 +100,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 84,
+        "defense": 78,
+        "stamina": 78
     },
     {
         "id": 7,
@@ -99,7 +117,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 48,
+        "defense": 65,
+        "stamina": 44
     },
     {
         "id": 8,
@@ -113,7 +134,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 63,
+        "defense": 80,
+        "stamina": 59
     },
     {
         "id": 9,
@@ -127,7 +151,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 83,
+        "defense": 100,
+        "stamina": 79
     },
     {
         "id": 10,
@@ -141,7 +168,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 35,
+        "stamina": 45
     },
     {
         "id": 11,
@@ -155,7 +185,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 20,
+        "defense": 55,
+        "stamina": 50
     },
     {
         "id": 12,
@@ -170,7 +203,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 50,
+        "stamina": 60
     },
     {
         "id": 13,
@@ -185,7 +221,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 35,
+        "defense": 30,
+        "stamina": 40
     },
     {
         "id": 14,
@@ -200,7 +239,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 25,
+        "defense": 50,
+        "stamina": 45
     },
     {
         "id": 15,
@@ -215,7 +257,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 40,
+        "stamina": 65
     },
     {
         "id": 16,
@@ -230,7 +275,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 40,
+        "stamina": 40
     },
     {
         "id": 17,
@@ -245,7 +293,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 55,
+        "stamina": 63
     },
     {
         "id": 18,
@@ -260,7 +311,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 75,
+        "stamina": 83
     },
     {
         "id": 19,
@@ -278,7 +332,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 56,
+        "defense": 35,
+        "stamina": 30
     },
     {
         "id": 20,
@@ -296,7 +353,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 81,
+        "defense": 60,
+        "stamina": 55
     },
     {
         "id": 21,
@@ -311,7 +371,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 30,
+        "stamina": 40
     },
     {
         "id": 22,
@@ -326,7 +389,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 65,
+        "stamina": 65
     },
     {
         "id": 23,
@@ -340,7 +406,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 44,
+        "stamina": 35
     },
     {
         "id": 24,
@@ -354,7 +423,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 69,
+        "stamina": 60
     },
     {
         "id": 25,
@@ -368,7 +440,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 40,
+        "stamina": 35
     },
     {
         "id": 26,
@@ -386,7 +461,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 55,
+        "stamina": 60
     },
     {
         "id": 27,
@@ -404,7 +482,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 85,
+        "stamina": 50
     },
     {
         "id": 28,
@@ -422,7 +503,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 110,
+        "stamina": 75
     },
     {
         "id": 29,
@@ -436,7 +520,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 47,
+        "defense": 52,
+        "stamina": 55
     },
     {
         "id": 30,
@@ -450,7 +537,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 62,
+        "defense": 67,
+        "stamina": 70
     },
     {
         "id": 31,
@@ -465,7 +555,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 92,
+        "defense": 87,
+        "stamina": 90
     },
     {
         "id": 32,
@@ -479,7 +572,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 57,
+        "defense": 40,
+        "stamina": 46
     },
     {
         "id": 33,
@@ -493,7 +589,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 72,
+        "defense": 57,
+        "stamina": 61
     },
     {
         "id": 34,
@@ -508,7 +607,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 102,
+        "defense": 77,
+        "stamina": 81
     },
     {
         "id": 35,
@@ -522,7 +624,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 48,
+        "stamina": 70
     },
     {
         "id": 36,
@@ -536,7 +641,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 73,
+        "stamina": 95
     },
     {
         "id": 37,
@@ -553,7 +661,10 @@
                 "Ice"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 41,
+        "defense": 40,
+        "stamina": 38
     },
     {
         "id": 38,
@@ -570,7 +681,10 @@
                 "Ice"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 76,
+        "defense": 75,
+        "stamina": 73
     },
     {
         "id": 39,
@@ -585,7 +699,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 20,
+        "stamina": 115
     },
     {
         "id": 40,
@@ -600,7 +717,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 45,
+        "stamina": 140
     },
     {
         "id": 41,
@@ -615,7 +735,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 35,
+        "stamina": 40
     },
     {
         "id": 42,
@@ -630,7 +753,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 70,
+        "stamina": 75
     },
     {
         "id": 43,
@@ -645,7 +771,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 55,
+        "stamina": 45
     },
     {
         "id": 44,
@@ -660,7 +789,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 70,
+        "stamina": 60
     },
     {
         "id": 45,
@@ -675,7 +807,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 85,
+        "stamina": 75
     },
     {
         "id": 46,
@@ -690,7 +825,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 55,
+        "stamina": 35
     },
     {
         "id": 47,
@@ -705,7 +843,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 80,
+        "stamina": 60
     },
     {
         "id": 48,
@@ -720,7 +861,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 50,
+        "stamina": 60
     },
     {
         "id": 49,
@@ -735,7 +879,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 60,
+        "stamina": 70
     },
     {
         "id": 50,
@@ -753,7 +900,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 25,
+        "stamina": 10
     },
     {
         "id": 51,
@@ -771,7 +921,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 50,
+        "stamina": 35
     },
     {
         "id": 52,
@@ -788,7 +941,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 35,
+        "stamina": 40
     },
     {
         "id": 53,
@@ -805,7 +961,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 60,
+        "stamina": 65
     },
     {
         "id": 54,
@@ -819,7 +978,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 52,
+        "defense": 48,
+        "stamina": 50
     },
     {
         "id": 55,
@@ -833,7 +995,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 82,
+        "defense": 78,
+        "stamina": 80
     },
     {
         "id": 56,
@@ -847,7 +1012,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 35,
+        "stamina": 40
     },
     {
         "id": 57,
@@ -861,7 +1029,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 105,
+        "defense": 60,
+        "stamina": 65
     },
     {
         "id": 58,
@@ -875,7 +1046,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 45,
+        "stamina": 55
     },
     {
         "id": 59,
@@ -889,7 +1063,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 110,
+        "defense": 80,
+        "stamina": 90
     },
     {
         "id": 60,
@@ -903,7 +1080,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 40,
+        "stamina": 40
     },
     {
         "id": 61,
@@ -917,7 +1097,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 65,
+        "stamina": 65
     },
     {
         "id": 62,
@@ -932,7 +1115,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 95,
+        "stamina": 90
     },
     {
         "id": 63,
@@ -946,7 +1132,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 20,
+        "defense": 15,
+        "stamina": 25
     },
     {
         "id": 64,
@@ -960,7 +1149,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 35,
+        "defense": 30,
+        "stamina": 40
     },
     {
         "id": 65,
@@ -974,7 +1166,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 45,
+        "stamina": 55
     },
     {
         "id": 66,
@@ -988,7 +1183,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 50,
+        "stamina": 70
     },
     {
         "id": 67,
@@ -1002,7 +1200,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 70,
+        "stamina": 80
     },
     {
         "id": 68,
@@ -1016,7 +1217,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 130,
+        "defense": 80,
+        "stamina": 90
     },
     {
         "id": 69,
@@ -1031,7 +1235,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 35,
+        "stamina": 50
     },
     {
         "id": 70,
@@ -1046,7 +1253,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 50,
+        "stamina": 65
     },
     {
         "id": 71,
@@ -1061,7 +1271,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 105,
+        "defense": 65,
+        "stamina": 80
     },
     {
         "id": 72,
@@ -1076,7 +1289,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 35,
+        "stamina": 40
     },
     {
         "id": 73,
@@ -1091,7 +1307,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 65,
+        "stamina": 80
     },
     {
         "id": 74,
@@ -1110,7 +1329,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 100,
+        "stamina": 40
     },
     {
         "id": 75,
@@ -1129,7 +1351,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 115,
+        "stamina": 55
     },
     {
         "id": 76,
@@ -1148,21 +1373,27 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 120,
+        "defense": 130,
+        "stamina": 80
     },
     {
         "id": 77,
         "name": "ponyta",
         "legendary": false,
         "mythical": false,
-        "shiny": false,
+        "shiny": true,
         "alolan": false,
         "types": {
             "default": [
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 55,
+        "stamina": 50
     },
     {
         "id": 78,
@@ -1176,7 +1407,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 70,
+        "stamina": 65
     },
     {
         "id": 79,
@@ -1191,7 +1425,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 65,
+        "stamina": 90
     },
     {
         "id": 80,
@@ -1206,7 +1443,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 110,
+        "stamina": 95
     },
     {
         "id": 81,
@@ -1221,7 +1461,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 35,
+        "defense": 70,
+        "stamina": 25
     },
     {
         "id": 82,
@@ -1236,7 +1479,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 95,
+        "stamina": 50
     },
     {
         "id": 83,
@@ -1251,7 +1497,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 55,
+        "stamina": 52
     },
     {
         "id": 84,
@@ -1266,7 +1515,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 45,
+        "stamina": 35
     },
     {
         "id": 85,
@@ -1281,7 +1533,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 110,
+        "defense": 70,
+        "stamina": 60
     },
     {
         "id": 86,
@@ -1295,7 +1550,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 55,
+        "stamina": 65
     },
     {
         "id": 87,
@@ -1310,7 +1568,10 @@
                 "Ice"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 80,
+        "stamina": 90
     },
     {
         "id": 88,
@@ -1328,7 +1589,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 50,
+        "stamina": 80
     },
     {
         "id": 89,
@@ -1346,7 +1610,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 105,
+        "defense": 75,
+        "stamina": 105
     },
     {
         "id": 90,
@@ -1360,7 +1627,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 100,
+        "stamina": 30
     },
     {
         "id": 91,
@@ -1375,7 +1645,10 @@
                 "Ice"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 180,
+        "stamina": 50
     },
     {
         "id": 92,
@@ -1390,7 +1663,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 35,
+        "defense": 30,
+        "stamina": 30
     },
     {
         "id": 93,
@@ -1405,7 +1681,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 45,
+        "stamina": 45
     },
     {
         "id": 94,
@@ -1420,7 +1699,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 60,
+        "stamina": 60
     },
     {
         "id": 95,
@@ -1435,7 +1717,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 160,
+        "stamina": 35
     },
     {
         "id": 96,
@@ -1449,7 +1734,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 48,
+        "defense": 45,
+        "stamina": 60
     },
     {
         "id": 97,
@@ -1463,7 +1751,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 73,
+        "defense": 70,
+        "stamina": 85
     },
     {
         "id": 98,
@@ -1477,7 +1768,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 105,
+        "defense": 90,
+        "stamina": 30
     },
     {
         "id": 99,
@@ -1491,7 +1785,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 130,
+        "defense": 115,
+        "stamina": 55
     },
     {
         "id": 100,
@@ -1505,7 +1802,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 50,
+        "stamina": 40
     },
     {
         "id": 101,
@@ -1519,7 +1819,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 70,
+        "stamina": 60
     },
     {
         "id": 102,
@@ -1534,7 +1837,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 80,
+        "stamina": 60
     },
     {
         "id": 103,
@@ -1553,7 +1859,10 @@
                 "Dragon"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 85,
+        "stamina": 95
     },
     {
         "id": 104,
@@ -1567,7 +1876,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 95,
+        "stamina": 50
     },
     {
         "id": 105,
@@ -1585,7 +1897,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 110,
+        "stamina": 60
     },
     {
         "id": 106,
@@ -1599,7 +1914,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 120,
+        "defense": 53,
+        "stamina": 50
     },
     {
         "id": 107,
@@ -1613,7 +1931,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 105,
+        "defense": 79,
+        "stamina": 50
     },
     {
         "id": 108,
@@ -1627,7 +1948,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 75,
+        "stamina": 90
     },
     {
         "id": 109,
@@ -1641,7 +1965,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 95,
+        "stamina": 40
     },
     {
         "id": 110,
@@ -1655,7 +1982,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 120,
+        "stamina": 65
     },
     {
         "id": 111,
@@ -1670,7 +2000,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 95,
+        "stamina": 80
     },
     {
         "id": 112,
@@ -1685,7 +2018,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 130,
+        "defense": 120,
+        "stamina": 105
     },
     {
         "id": 113,
@@ -1699,7 +2035,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 5,
+        "defense": 5,
+        "stamina": 250
     },
     {
         "id": 114,
@@ -1713,7 +2052,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 115,
+        "stamina": 65
     },
     {
         "id": 115,
@@ -1727,7 +2069,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 80,
+        "stamina": 105
     },
     {
         "id": 116,
@@ -1741,7 +2086,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 70,
+        "stamina": 30
     },
     {
         "id": 117,
@@ -1755,7 +2103,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 95,
+        "stamina": 55
     },
     {
         "id": 118,
@@ -1769,7 +2120,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 67,
+        "defense": 60,
+        "stamina": 45
     },
     {
         "id": 119,
@@ -1783,7 +2137,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 92,
+        "defense": 65,
+        "stamina": 80
     },
     {
         "id": 120,
@@ -1797,7 +2154,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 55,
+        "stamina": 30
     },
     {
         "id": 121,
@@ -1812,7 +2172,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 85,
+        "stamina": 60
     },
     {
         "id": 122,
@@ -1827,7 +2190,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 65,
+        "stamina": 40
     },
     {
         "id": 123,
@@ -1842,7 +2208,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 110,
+        "defense": 80,
+        "stamina": 70
     },
     {
         "id": 124,
@@ -1857,7 +2226,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 35,
+        "stamina": 65
     },
     {
         "id": 125,
@@ -1871,7 +2243,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 83,
+        "defense": 57,
+        "stamina": 65
     },
     {
         "id": 126,
@@ -1885,7 +2260,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 57,
+        "stamina": 65
     },
     {
         "id": 127,
@@ -1899,7 +2277,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 125,
+        "defense": 100,
+        "stamina": 65
     },
     {
         "id": 128,
@@ -1913,7 +2294,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 95,
+        "stamina": 75
     },
     {
         "id": 129,
@@ -1927,7 +2311,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 10,
+        "defense": 55,
+        "stamina": 20
     },
     {
         "id": 130,
@@ -1942,7 +2329,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 125,
+        "defense": 79,
+        "stamina": 95
     },
     {
         "id": 131,
@@ -1957,7 +2347,10 @@
                 "Ice"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 80,
+        "stamina": 130
     },
     {
         "id": 132,
@@ -1971,7 +2364,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 48,
+        "defense": 48,
+        "stamina": 48
     },
     {
         "id": 133,
@@ -1985,7 +2381,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 50,
+        "stamina": 55
     },
     {
         "id": 134,
@@ -1999,7 +2398,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 60,
+        "stamina": 130
     },
     {
         "id": 135,
@@ -2013,7 +2415,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 60,
+        "stamina": 65
     },
     {
         "id": 136,
@@ -2027,7 +2432,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 130,
+        "defense": 60,
+        "stamina": 65
     },
     {
         "id": 137,
@@ -2041,7 +2449,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 70,
+        "stamina": 65
     },
     {
         "id": 138,
@@ -2056,7 +2467,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 100,
+        "stamina": 35
     },
     {
         "id": 139,
@@ -2071,7 +2485,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 125,
+        "stamina": 70
     },
     {
         "id": 140,
@@ -2086,7 +2503,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 90,
+        "stamina": 30
     },
     {
         "id": 141,
@@ -2101,7 +2521,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 115,
+        "defense": 105,
+        "stamina": 60
     },
     {
         "id": 142,
@@ -2116,7 +2539,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 105,
+        "defense": 65,
+        "stamina": 80
     },
     {
         "id": 143,
@@ -2130,7 +2556,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 110,
+        "defense": 65,
+        "stamina": 160
     },
     {
         "id": 144,
@@ -2145,7 +2574,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 100,
+        "stamina": 90
     },
     {
         "id": 145,
@@ -2160,7 +2592,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 85,
+        "stamina": 90
     },
     {
         "id": 146,
@@ -2175,7 +2610,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 90,
+        "stamina": 90
     },
     {
         "id": 147,
@@ -2189,7 +2627,10 @@
                 "Dragon"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 64,
+        "defense": 45,
+        "stamina": 41
     },
     {
         "id": 148,
@@ -2203,7 +2644,10 @@
                 "Dragon"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 84,
+        "defense": 65,
+        "stamina": 61
     },
     {
         "id": 149,
@@ -2218,7 +2662,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 134,
+        "defense": 95,
+        "stamina": 91
     },
     {
         "id": 150,
@@ -2232,7 +2679,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 110,
+        "defense": 90,
+        "stamina": 106
     },
     {
         "id": 151,
@@ -2246,7 +2696,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 100,
+        "stamina": 100
     },
     {
         "id": 152,
@@ -2260,7 +2713,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 49,
+        "defense": 65,
+        "stamina": 45
     },
     {
         "id": 153,
@@ -2274,7 +2730,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 62,
+        "defense": 80,
+        "stamina": 60
     },
     {
         "id": 154,
@@ -2288,7 +2747,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 82,
+        "defense": 100,
+        "stamina": 80
     },
     {
         "id": 155,
@@ -2302,7 +2764,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 52,
+        "defense": 43,
+        "stamina": 39
     },
     {
         "id": 156,
@@ -2316,7 +2781,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 64,
+        "defense": 58,
+        "stamina": 58
     },
     {
         "id": 157,
@@ -2330,7 +2798,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 84,
+        "defense": 78,
+        "stamina": 78
     },
     {
         "id": 158,
@@ -2344,7 +2815,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 64,
+        "stamina": 50
     },
     {
         "id": 159,
@@ -2358,7 +2832,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 80,
+        "stamina": 65
     },
     {
         "id": 160,
@@ -2372,7 +2849,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 105,
+        "defense": 100,
+        "stamina": 85
     },
     {
         "id": 161,
@@ -2386,7 +2866,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 46,
+        "defense": 34,
+        "stamina": 35
     },
     {
         "id": 162,
@@ -2400,7 +2883,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 76,
+        "defense": 64,
+        "stamina": 85
     },
     {
         "id": 163,
@@ -2415,7 +2901,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 30,
+        "stamina": 60
     },
     {
         "id": 164,
@@ -2430,7 +2919,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 50,
+        "stamina": 100
     },
     {
         "id": 165,
@@ -2445,7 +2937,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 20,
+        "defense": 30,
+        "stamina": 40
     },
     {
         "id": 166,
@@ -2460,7 +2955,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 35,
+        "defense": 50,
+        "stamina": 55
     },
     {
         "id": 167,
@@ -2475,7 +2973,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 40,
+        "stamina": 40
     },
     {
         "id": 168,
@@ -2490,7 +2991,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 70,
+        "stamina": 70
     },
     {
         "id": 169,
@@ -2505,7 +3009,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 80,
+        "stamina": 85
     },
     {
         "id": 170,
@@ -2520,7 +3027,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 38,
+        "defense": 38,
+        "stamina": 75
     },
     {
         "id": 171,
@@ -2535,7 +3045,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 58,
+        "defense": 58,
+        "stamina": 125
     },
     {
         "id": 172,
@@ -2549,7 +3062,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 15,
+        "stamina": 20
     },
     {
         "id": 173,
@@ -2563,7 +3079,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 25,
+        "defense": 28,
+        "stamina": 50
     },
     {
         "id": 174,
@@ -2578,7 +3097,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 15,
+        "stamina": 90
     },
     {
         "id": 175,
@@ -2592,7 +3114,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 20,
+        "defense": 65,
+        "stamina": 35
     },
     {
         "id": 176,
@@ -2607,7 +3132,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 85,
+        "stamina": 55
     },
     {
         "id": 177,
@@ -2622,7 +3150,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 45,
+        "stamina": 40
     },
     {
         "id": 178,
@@ -2637,7 +3168,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 70,
+        "stamina": 65
     },
     {
         "id": 179,
@@ -2651,7 +3185,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 40,
+        "stamina": 55
     },
     {
         "id": 180,
@@ -2665,7 +3202,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 55,
+        "stamina": 70
     },
     {
         "id": 181,
@@ -2679,7 +3219,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 85,
+        "stamina": 90
     },
     {
         "id": 182,
@@ -2693,7 +3236,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 95,
+        "stamina": 75
     },
     {
         "id": 183,
@@ -2708,7 +3254,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 20,
+        "defense": 50,
+        "stamina": 70
     },
     {
         "id": 184,
@@ -2723,7 +3272,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 80,
+        "stamina": 100
     },
     {
         "id": 185,
@@ -2737,7 +3289,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 115,
+        "stamina": 70
     },
     {
         "id": 186,
@@ -2751,7 +3306,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 75,
+        "stamina": 90
     },
     {
         "id": 187,
@@ -2766,7 +3324,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 35,
+        "defense": 40,
+        "stamina": 35
     },
     {
         "id": 188,
@@ -2781,7 +3342,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 50,
+        "stamina": 55
     },
     {
         "id": 189,
@@ -2796,7 +3360,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 70,
+        "stamina": 75
     },
     {
         "id": 190,
@@ -2810,7 +3377,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 55,
+        "stamina": 55
     },
     {
         "id": 191,
@@ -2824,7 +3394,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 30,
+        "stamina": 30
     },
     {
         "id": 192,
@@ -2838,7 +3411,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 55,
+        "stamina": 75
     },
     {
         "id": 193,
@@ -2853,7 +3429,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 45,
+        "stamina": 65
     },
     {
         "id": 194,
@@ -2868,7 +3447,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 45,
+        "stamina": 55
     },
     {
         "id": 195,
@@ -2883,7 +3465,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 85,
+        "stamina": 95
     },
     {
         "id": 196,
@@ -2897,7 +3482,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 60,
+        "stamina": 65
     },
     {
         "id": 197,
@@ -2911,7 +3499,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 110,
+        "stamina": 95
     },
     {
         "id": 198,
@@ -2926,7 +3517,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 42,
+        "stamina": 60
     },
     {
         "id": 199,
@@ -2941,7 +3535,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 80,
+        "stamina": 95
     },
     {
         "id": 200,
@@ -2955,7 +3552,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 60,
+        "stamina": 60
     },
     {
         "id": 201,
@@ -2969,7 +3569,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 72,
+        "defense": 48,
+        "stamina": 48
     },
     {
         "id": 202,
@@ -2983,7 +3586,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 33,
+        "defense": 58,
+        "stamina": 190
     },
     {
         "id": 203,
@@ -2998,7 +3604,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 65,
+        "stamina": 70
     },
     {
         "id": 204,
@@ -3012,7 +3621,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 90,
+        "stamina": 50
     },
     {
         "id": 205,
@@ -3027,7 +3639,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 140,
+        "stamina": 75
     },
     {
         "id": 206,
@@ -3041,7 +3656,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 70,
+        "stamina": 100
     },
     {
         "id": 207,
@@ -3056,7 +3674,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 105,
+        "stamina": 65
     },
     {
         "id": 208,
@@ -3071,7 +3692,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 200,
+        "stamina": 75
     },
     {
         "id": 209,
@@ -3085,7 +3709,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 50,
+        "stamina": 60
     },
     {
         "id": 210,
@@ -3099,7 +3726,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 120,
+        "defense": 75,
+        "stamina": 90
     },
     {
         "id": 211,
@@ -3114,7 +3744,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 85,
+        "stamina": 65
     },
     {
         "id": 212,
@@ -3129,7 +3762,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 130,
+        "defense": 100,
+        "stamina": 70
     },
     {
         "id": 213,
@@ -3144,7 +3780,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 10,
+        "defense": 230,
+        "stamina": 20
     },
     {
         "id": 214,
@@ -3159,7 +3798,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 125,
+        "defense": 75,
+        "stamina": 80
     },
     {
         "id": 215,
@@ -3174,7 +3816,10 @@
                 "Ice"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 55,
+        "stamina": 55
     },
     {
         "id": 216,
@@ -3188,7 +3833,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 50,
+        "stamina": 60
     },
     {
         "id": 217,
@@ -3202,7 +3850,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 130,
+        "defense": 75,
+        "stamina": 90
     },
     {
         "id": 218,
@@ -3216,7 +3867,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 40,
+        "stamina": 40
     },
     {
         "id": 219,
@@ -3231,7 +3885,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 120,
+        "stamina": 60
     },
     {
         "id": 220,
@@ -3246,7 +3903,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 40,
+        "stamina": 50
     },
     {
         "id": 221,
@@ -3261,7 +3921,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 80,
+        "stamina": 100
     },
     {
         "id": 222,
@@ -3276,7 +3939,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 95,
+        "stamina": 65
     },
     {
         "id": 223,
@@ -3290,7 +3956,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 35,
+        "stamina": 35
     },
     {
         "id": 224,
@@ -3304,7 +3973,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 105,
+        "defense": 75,
+        "stamina": 75
     },
     {
         "id": 225,
@@ -3319,7 +3991,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 45,
+        "stamina": 45
     },
     {
         "id": 226,
@@ -3334,7 +4009,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 70,
+        "stamina": 85
     },
     {
         "id": 227,
@@ -3349,7 +4027,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 140,
+        "stamina": 65
     },
     {
         "id": 228,
@@ -3364,7 +4045,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 30,
+        "stamina": 45
     },
     {
         "id": 229,
@@ -3379,7 +4063,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 50,
+        "stamina": 75
     },
     {
         "id": 230,
@@ -3394,7 +4081,10 @@
                 "Dragon"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 95,
+        "stamina": 75
     },
     {
         "id": 231,
@@ -3408,7 +4098,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 60,
+        "stamina": 90
     },
     {
         "id": 232,
@@ -3422,7 +4115,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 120,
+        "defense": 120,
+        "stamina": 90
     },
     {
         "id": 233,
@@ -3436,7 +4132,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 90,
+        "stamina": 85
     },
     {
         "id": 234,
@@ -3450,7 +4149,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 62,
+        "stamina": 73
     },
     {
         "id": 235,
@@ -3464,7 +4166,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 20,
+        "defense": 35,
+        "stamina": 55
     },
     {
         "id": 236,
@@ -3478,7 +4183,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 35,
+        "defense": 35,
+        "stamina": 35
     },
     {
         "id": 237,
@@ -3492,7 +4200,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 95,
+        "stamina": 50
     },
     {
         "id": 238,
@@ -3507,7 +4218,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 15,
+        "stamina": 45
     },
     {
         "id": 239,
@@ -3521,7 +4235,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 63,
+        "defense": 37,
+        "stamina": 45
     },
     {
         "id": 240,
@@ -3535,7 +4252,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 37,
+        "stamina": 45
     },
     {
         "id": 241,
@@ -3549,7 +4269,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 105,
+        "stamina": 95
     },
     {
         "id": 242,
@@ -3563,7 +4286,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 10,
+        "defense": 10,
+        "stamina": 255
     },
     {
         "id": 243,
@@ -3577,7 +4303,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 75,
+        "stamina": 90
     },
     {
         "id": 244,
@@ -3591,7 +4320,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 115,
+        "defense": 85,
+        "stamina": 115
     },
     {
         "id": 245,
@@ -3605,7 +4337,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 115,
+        "stamina": 100
     },
     {
         "id": 246,
@@ -3620,7 +4355,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 64,
+        "defense": 50,
+        "stamina": 50
     },
     {
         "id": 247,
@@ -3635,7 +4373,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 84,
+        "defense": 70,
+        "stamina": 70
     },
     {
         "id": 248,
@@ -3650,7 +4391,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 134,
+        "defense": 110,
+        "stamina": 100
     },
     {
         "id": 249,
@@ -3665,7 +4409,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 130,
+        "stamina": 106
     },
     {
         "id": 250,
@@ -3680,7 +4427,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 130,
+        "defense": 90,
+        "stamina": 106
     },
     {
         "id": 251,
@@ -3695,7 +4445,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 100,
+        "stamina": 100
     },
     {
         "id": 252,
@@ -3709,7 +4462,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 35,
+        "stamina": 40
     },
     {
         "id": 253,
@@ -3723,7 +4479,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 45,
+        "stamina": 50
     },
     {
         "id": 254,
@@ -3737,7 +4496,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 65,
+        "stamina": 70
     },
     {
         "id": 255,
@@ -3751,7 +4513,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 40,
+        "stamina": 45
     },
     {
         "id": 256,
@@ -3766,7 +4531,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 60,
+        "stamina": 60
     },
     {
         "id": 257,
@@ -3781,7 +4549,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 120,
+        "defense": 70,
+        "stamina": 80
     },
     {
         "id": 258,
@@ -3795,7 +4566,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 50,
+        "stamina": 50
     },
     {
         "id": 259,
@@ -3810,7 +4584,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 70,
+        "stamina": 70
     },
     {
         "id": 260,
@@ -3825,7 +4602,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 110,
+        "defense": 90,
+        "stamina": 100
     },
     {
         "id": 261,
@@ -3839,7 +4619,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 35,
+        "stamina": 35
     },
     {
         "id": 262,
@@ -3853,7 +4636,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 70,
+        "stamina": 70
     },
     {
         "id": 263,
@@ -3867,7 +4653,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 41,
+        "stamina": 38
     },
     {
         "id": 264,
@@ -3881,7 +4670,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 61,
+        "stamina": 78
     },
     {
         "id": 265,
@@ -3895,7 +4687,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 35,
+        "stamina": 45
     },
     {
         "id": 266,
@@ -3909,7 +4704,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 35,
+        "defense": 55,
+        "stamina": 50
     },
     {
         "id": 267,
@@ -3924,7 +4722,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 50,
+        "stamina": 60
     },
     {
         "id": 268,
@@ -3938,7 +4739,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 35,
+        "defense": 55,
+        "stamina": 50
     },
     {
         "id": 269,
@@ -3953,7 +4757,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 70,
+        "stamina": 60
     },
     {
         "id": 270,
@@ -3968,7 +4775,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 30,
+        "stamina": 40
     },
     {
         "id": 271,
@@ -3983,7 +4793,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 50,
+        "stamina": 60
     },
     {
         "id": 272,
@@ -3998,7 +4811,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 70,
+        "stamina": 80
     },
     {
         "id": 273,
@@ -4012,7 +4828,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 50,
+        "stamina": 40
     },
     {
         "id": 274,
@@ -4027,7 +4846,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 40,
+        "stamina": 70
     },
     {
         "id": 275,
@@ -4042,7 +4864,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 60,
+        "stamina": 90
     },
     {
         "id": 276,
@@ -4057,7 +4882,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 30,
+        "stamina": 40
     },
     {
         "id": 277,
@@ -4072,7 +4900,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 60,
+        "stamina": 60
     },
     {
         "id": 278,
@@ -4087,7 +4918,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 30,
+        "stamina": 40
     },
     {
         "id": 279,
@@ -4102,7 +4936,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 100,
+        "stamina": 60
     },
     {
         "id": 280,
@@ -4117,7 +4954,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 25,
+        "defense": 25,
+        "stamina": 28
     },
     {
         "id": 281,
@@ -4132,7 +4972,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 35,
+        "defense": 35,
+        "stamina": 38
     },
     {
         "id": 282,
@@ -4147,7 +4990,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 65,
+        "stamina": 68
     },
     {
         "id": 283,
@@ -4162,7 +5008,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 32,
+        "stamina": 40
     },
     {
         "id": 284,
@@ -4177,7 +5026,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 62,
+        "stamina": 70
     },
     {
         "id": 285,
@@ -4191,7 +5043,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 60,
+        "stamina": 60
     },
     {
         "id": 286,
@@ -4206,7 +5061,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 130,
+        "defense": 80,
+        "stamina": 60
     },
     {
         "id": 287,
@@ -4220,7 +5078,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 60,
+        "stamina": 60
     },
     {
         "id": 288,
@@ -4234,7 +5095,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 80,
+        "stamina": 80
     },
     {
         "id": 289,
@@ -4248,7 +5112,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 160,
+        "defense": 100,
+        "stamina": 150
     },
     {
         "id": 290,
@@ -4263,7 +5130,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 90,
+        "stamina": 31
     },
     {
         "id": 291,
@@ -4278,7 +5148,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 45,
+        "stamina": 61
     },
     {
         "id": 292,
@@ -4293,7 +5166,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 45,
+        "stamina": 1
     },
     {
         "id": 293,
@@ -4307,7 +5183,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 51,
+        "defense": 23,
+        "stamina": 64
     },
     {
         "id": 294,
@@ -4321,7 +5200,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 71,
+        "defense": 43,
+        "stamina": 84
     },
     {
         "id": 295,
@@ -4335,7 +5217,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 91,
+        "defense": 63,
+        "stamina": 104
     },
     {
         "id": 296,
@@ -4349,7 +5234,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 30,
+        "stamina": 72
     },
     {
         "id": 297,
@@ -4363,7 +5251,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 120,
+        "defense": 60,
+        "stamina": 144
     },
     {
         "id": 298,
@@ -4378,7 +5269,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 20,
+        "defense": 40,
+        "stamina": 50
     },
     {
         "id": 299,
@@ -4392,7 +5286,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 135,
+        "stamina": 30
     },
     {
         "id": 300,
@@ -4406,7 +5303,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 45,
+        "stamina": 50
     },
     {
         "id": 301,
@@ -4420,7 +5320,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 65,
+        "stamina": 70
     },
     {
         "id": 302,
@@ -4435,7 +5338,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 75,
+        "stamina": 50
     },
     {
         "id": 303,
@@ -4450,7 +5356,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 85,
+        "stamina": 50
     },
     {
         "id": 304,
@@ -4465,7 +5374,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 100,
+        "stamina": 50
     },
     {
         "id": 305,
@@ -4480,7 +5392,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 140,
+        "stamina": 60
     },
     {
         "id": 306,
@@ -4495,7 +5410,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 110,
+        "defense": 180,
+        "stamina": 70
     },
     {
         "id": 307,
@@ -4510,7 +5428,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 55,
+        "stamina": 30
     },
     {
         "id": 308,
@@ -4525,7 +5446,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 75,
+        "stamina": 60
     },
     {
         "id": 309,
@@ -4539,7 +5463,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 40,
+        "stamina": 40
     },
     {
         "id": 310,
@@ -4553,7 +5480,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 60,
+        "stamina": 70
     },
     {
         "id": 311,
@@ -4567,7 +5497,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 40,
+        "stamina": 60
     },
     {
         "id": 312,
@@ -4581,7 +5514,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 50,
+        "stamina": 60
     },
     {
         "id": 313,
@@ -4595,7 +5531,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 73,
+        "defense": 75,
+        "stamina": 65
     },
     {
         "id": 314,
@@ -4609,7 +5548,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 47,
+        "defense": 75,
+        "stamina": 65
     },
     {
         "id": 315,
@@ -4624,7 +5566,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 45,
+        "stamina": 50
     },
     {
         "id": 316,
@@ -4638,7 +5583,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 43,
+        "defense": 53,
+        "stamina": 70
     },
     {
         "id": 317,
@@ -4652,7 +5600,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 73,
+        "defense": 83,
+        "stamina": 100
     },
     {
         "id": 318,
@@ -4667,7 +5618,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 20,
+        "stamina": 45
     },
     {
         "id": 319,
@@ -4682,7 +5636,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 120,
+        "defense": 40,
+        "stamina": 70
     },
     {
         "id": 320,
@@ -4696,7 +5653,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 35,
+        "stamina": 130
     },
     {
         "id": 321,
@@ -4710,7 +5670,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 45,
+        "stamina": 170
     },
     {
         "id": 322,
@@ -4725,7 +5688,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 40,
+        "stamina": 60
     },
     {
         "id": 323,
@@ -4740,7 +5706,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 70,
+        "stamina": 70
     },
     {
         "id": 324,
@@ -4754,7 +5723,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 140,
+        "stamina": 70
     },
     {
         "id": 325,
@@ -4768,7 +5740,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 25,
+        "defense": 35,
+        "stamina": 60
     },
     {
         "id": 326,
@@ -4782,7 +5757,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 65,
+        "stamina": 80
     },
     {
         "id": 327,
@@ -4796,7 +5774,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 60,
+        "stamina": 60
     },
     {
         "id": 328,
@@ -4810,7 +5791,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 45,
+        "stamina": 45
     },
     {
         "id": 329,
@@ -4825,7 +5809,10 @@
                 "Dragon"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 50,
+        "stamina": 50
     },
     {
         "id": 330,
@@ -4840,7 +5827,10 @@
                 "Dragon"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 80,
+        "stamina": 80
     },
     {
         "id": 331,
@@ -4854,7 +5844,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 40,
+        "stamina": 50
     },
     {
         "id": 332,
@@ -4869,7 +5862,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 115,
+        "defense": 60,
+        "stamina": 70
     },
     {
         "id": 333,
@@ -4884,7 +5880,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 60,
+        "stamina": 45
     },
     {
         "id": 334,
@@ -4899,7 +5898,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 90,
+        "stamina": 75
     },
     {
         "id": 335,
@@ -4913,7 +5915,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 115,
+        "defense": 60,
+        "stamina": 73
     },
     {
         "id": 336,
@@ -4927,7 +5932,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 60,
+        "stamina": 73
     },
     {
         "id": 337,
@@ -4942,7 +5950,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 65,
+        "stamina": 90
     },
     {
         "id": 338,
@@ -4957,7 +5968,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 85,
+        "stamina": 90
     },
     {
         "id": 339,
@@ -4972,7 +5986,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 48,
+        "defense": 43,
+        "stamina": 50
     },
     {
         "id": 340,
@@ -4987,7 +6004,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 78,
+        "defense": 73,
+        "stamina": 110
     },
     {
         "id": 341,
@@ -5001,7 +6021,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 65,
+        "stamina": 43
     },
     {
         "id": 342,
@@ -5016,7 +6039,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 120,
+        "defense": 85,
+        "stamina": 63
     },
     {
         "id": 343,
@@ -5031,7 +6057,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 55,
+        "stamina": 40
     },
     {
         "id": 344,
@@ -5046,7 +6075,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 105,
+        "stamina": 60
     },
     {
         "id": 345,
@@ -5061,7 +6093,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 41,
+        "defense": 77,
+        "stamina": 66
     },
     {
         "id": 346,
@@ -5076,7 +6111,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 81,
+        "defense": 97,
+        "stamina": 86
     },
     {
         "id": 347,
@@ -5091,7 +6129,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 50,
+        "stamina": 45
     },
     {
         "id": 348,
@@ -5106,7 +6147,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 125,
+        "defense": 100,
+        "stamina": 75
     },
     {
         "id": 349,
@@ -5120,7 +6164,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 15,
+        "defense": 20,
+        "stamina": 20
     },
     {
         "id": 350,
@@ -5134,7 +6181,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 79,
+        "stamina": 95
     },
     {
         "id": 351,
@@ -5148,7 +6198,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 70,
+        "stamina": 70
     },
     {
         "id": 352,
@@ -5162,7 +6215,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 90,
+        "defense": 70,
+        "stamina": 60
     },
     {
         "id": 353,
@@ -5176,7 +6232,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 35,
+        "stamina": 44
     },
     {
         "id": 354,
@@ -5190,7 +6249,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 115,
+        "defense": 65,
+        "stamina": 64
     },
     {
         "id": 355,
@@ -5204,7 +6266,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 90,
+        "stamina": 20
     },
     {
         "id": 356,
@@ -5218,7 +6283,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 130,
+        "stamina": 40
     },
     {
         "id": 357,
@@ -5233,7 +6301,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 68,
+        "defense": 83,
+        "stamina": 99
     },
     {
         "id": 358,
@@ -5247,7 +6318,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 80,
+        "stamina": 75
     },
     {
         "id": 359,
@@ -5261,7 +6335,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 130,
+        "defense": 60,
+        "stamina": 65
     },
     {
         "id": 360,
@@ -5275,7 +6352,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 23,
+        "defense": 48,
+        "stamina": 95
     },
     {
         "id": 361,
@@ -5289,7 +6369,10 @@
                 "Ice"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 50,
+        "stamina": 50
     },
     {
         "id": 362,
@@ -5303,7 +6386,10 @@
                 "Ice"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 80,
+        "stamina": 80
     },
     {
         "id": 363,
@@ -5318,7 +6404,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 40,
+        "defense": 50,
+        "stamina": 70
     },
     {
         "id": 364,
@@ -5333,7 +6422,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 70,
+        "stamina": 90
     },
     {
         "id": 365,
@@ -5348,7 +6440,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 90,
+        "stamina": 110
     },
     {
         "id": 366,
@@ -5362,7 +6457,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 64,
+        "defense": 85,
+        "stamina": 35
     },
     {
         "id": 367,
@@ -5376,7 +6474,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 104,
+        "defense": 105,
+        "stamina": 55
     },
     {
         "id": 368,
@@ -5390,7 +6491,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 84,
+        "defense": 105,
+        "stamina": 55
     },
     {
         "id": 369,
@@ -5405,7 +6509,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 130,
+        "stamina": 100
     },
     {
         "id": 370,
@@ -5419,7 +6526,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 55,
+        "stamina": 43
     },
     {
         "id": 371,
@@ -5433,7 +6543,10 @@
                 "Dragon"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 60,
+        "stamina": 45
     },
     {
         "id": 372,
@@ -5447,7 +6560,10 @@
                 "Dragon"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 100,
+        "stamina": 65
     },
     {
         "id": 373,
@@ -5462,7 +6578,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 135,
+        "defense": 80,
+        "stamina": 95
     },
     {
         "id": 374,
@@ -5477,7 +6596,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 80,
+        "stamina": 40
     },
     {
         "id": 375,
@@ -5492,7 +6614,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 100,
+        "stamina": 60
     },
     {
         "id": 376,
@@ -5507,7 +6632,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 135,
+        "defense": 130,
+        "stamina": 80
     },
     {
         "id": 377,
@@ -5521,7 +6649,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 200,
+        "stamina": 80
     },
     {
         "id": 378,
@@ -5535,7 +6666,10 @@
                 "Ice"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 100,
+        "stamina": 80
     },
     {
         "id": 379,
@@ -5549,7 +6683,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 150,
+        "stamina": 80
     },
     {
         "id": 380,
@@ -5564,7 +6701,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 90,
+        "stamina": 80
     },
     {
         "id": 381,
@@ -5579,7 +6719,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 80,
+        "stamina": 80
     },
     {
         "id": 382,
@@ -5593,7 +6736,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 90,
+        "stamina": 100
     },
     {
         "id": 383,
@@ -5607,7 +6753,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 150,
+        "defense": 140,
+        "stamina": 100
     },
     {
         "id": 384,
@@ -5622,7 +6771,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 150,
+        "defense": 90,
+        "stamina": 105
     },
     {
         "id": 385,
@@ -5637,7 +6789,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 100,
+        "stamina": 100
     },
     {
         "id": 386,
@@ -5652,7 +6807,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 150,
+        "defense": 50,
+        "stamina": 50
     },
     {
         "id": 387,
@@ -5666,7 +6824,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 68,
+        "defense": 64,
+        "stamina": 55
     },
     {
         "id": 388,
@@ -5680,7 +6841,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 89,
+        "defense": 85,
+        "stamina": 75
     },
     {
         "id": 389,
@@ -5695,7 +6859,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 109,
+        "defense": 105,
+        "stamina": 95
     },
     {
         "id": 390,
@@ -5709,7 +6876,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 58,
+        "defense": 44,
+        "stamina": 44
     },
     {
         "id": 391,
@@ -5724,7 +6894,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 78,
+        "defense": 52,
+        "stamina": 64
     },
     {
         "id": 392,
@@ -5739,7 +6912,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 104,
+        "defense": 71,
+        "stamina": 76
     },
     {
         "id": 393,
@@ -5753,7 +6929,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 51,
+        "defense": 53,
+        "stamina": 53
     },
     {
         "id": 394,
@@ -5767,7 +6946,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 66,
+        "defense": 68,
+        "stamina": 64
     },
     {
         "id": 395,
@@ -5782,7 +6964,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 86,
+        "defense": 88,
+        "stamina": 84
     },
     {
         "id": 396,
@@ -5797,7 +6982,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 30,
+        "stamina": 40
     },
     {
         "id": 397,
@@ -5812,7 +7000,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 50,
+        "stamina": 55
     },
     {
         "id": 398,
@@ -5827,7 +7018,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 120,
+        "defense": 70,
+        "stamina": 85
     },
     {
         "id": 399,
@@ -5841,7 +7035,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 40,
+        "stamina": 59
     },
     {
         "id": 400,
@@ -5856,7 +7053,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 60,
+        "stamina": 79
     },
     {
         "id": 401,
@@ -5870,7 +7070,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 25,
+        "defense": 41,
+        "stamina": 37
     },
     {
         "id": 402,
@@ -5884,7 +7087,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 51,
+        "stamina": 77
     },
     {
         "id": 403,
@@ -5898,7 +7104,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 34,
+        "stamina": 45
     },
     {
         "id": 404,
@@ -5912,7 +7121,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 49,
+        "stamina": 60
     },
     {
         "id": 405,
@@ -5926,7 +7138,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 120,
+        "defense": 79,
+        "stamina": 80
     },
     {
         "id": 406,
@@ -5941,7 +7156,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 35,
+        "stamina": 40
     },
     {
         "id": 407,
@@ -5956,7 +7174,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 65,
+        "stamina": 60
     },
     {
         "id": 408,
@@ -5970,7 +7191,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 125,
+        "defense": 40,
+        "stamina": 67
     },
     {
         "id": 409,
@@ -5984,7 +7208,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 165,
+        "defense": 60,
+        "stamina": 97
     },
     {
         "id": 410,
@@ -5999,7 +7226,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 42,
+        "defense": 118,
+        "stamina": 30
     },
     {
         "id": 411,
@@ -6014,7 +7244,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 52,
+        "defense": 168,
+        "stamina": 60
     },
     {
         "id": 412,
@@ -6028,7 +7261,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 29,
+        "defense": 45,
+        "stamina": 40
     },
     {
         "id": 413,
@@ -6043,7 +7279,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 59,
+        "defense": 85,
+        "stamina": 60
     },
     {
         "id": 414,
@@ -6058,7 +7297,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 94,
+        "defense": 50,
+        "stamina": 70
     },
     {
         "id": 415,
@@ -6073,7 +7315,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 42,
+        "stamina": 30
     },
     {
         "id": 416,
@@ -6088,7 +7333,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 102,
+        "stamina": 70
     },
     {
         "id": 417,
@@ -6102,7 +7350,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 70,
+        "stamina": 60
     },
     {
         "id": 418,
@@ -6116,7 +7367,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 35,
+        "stamina": 55
     },
     {
         "id": 419,
@@ -6130,7 +7384,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 105,
+        "defense": 55,
+        "stamina": 85
     },
     {
         "id": 420,
@@ -6144,7 +7401,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 35,
+        "defense": 45,
+        "stamina": 45
     },
     {
         "id": 421,
@@ -6158,7 +7418,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 70,
+        "stamina": 70
     },
     {
         "id": 422,
@@ -6172,7 +7435,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 48,
+        "defense": 48,
+        "stamina": 76
     },
     {
         "id": 423,
@@ -6187,7 +7453,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 83,
+        "defense": 68,
+        "stamina": 111
     },
     {
         "id": 424,
@@ -6201,7 +7470,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 66,
+        "stamina": 75
     },
     {
         "id": 425,
@@ -6216,7 +7488,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 34,
+        "stamina": 90
     },
     {
         "id": 426,
@@ -6231,7 +7506,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 44,
+        "stamina": 150
     },
     {
         "id": 427,
@@ -6245,7 +7523,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 66,
+        "defense": 44,
+        "stamina": 55
     },
     {
         "id": 428,
@@ -6259,7 +7540,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 76,
+        "defense": 84,
+        "stamina": 65
     },
     {
         "id": 429,
@@ -6273,7 +7557,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 60,
+        "stamina": 60
     },
     {
         "id": 430,
@@ -6288,7 +7575,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 125,
+        "defense": 52,
+        "stamina": 100
     },
     {
         "id": 431,
@@ -6302,7 +7592,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 42,
+        "stamina": 49
     },
     {
         "id": 432,
@@ -6316,7 +7609,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 82,
+        "defense": 64,
+        "stamina": 71
     },
     {
         "id": 433,
@@ -6330,7 +7626,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 50,
+        "stamina": 45
     },
     {
         "id": 434,
@@ -6345,7 +7644,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 63,
+        "defense": 47,
+        "stamina": 63
     },
     {
         "id": 435,
@@ -6360,7 +7662,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 93,
+        "defense": 67,
+        "stamina": 103
     },
     {
         "id": 436,
@@ -6375,7 +7680,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 24,
+        "defense": 86,
+        "stamina": 57
     },
     {
         "id": 437,
@@ -6390,7 +7698,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 89,
+        "defense": 116,
+        "stamina": 67
     },
     {
         "id": 438,
@@ -6404,7 +7715,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 95,
+        "stamina": 50
     },
     {
         "id": 439,
@@ -6419,7 +7733,10 @@
                 "Fairy"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 25,
+        "defense": 45,
+        "stamina": 20
     },
     {
         "id": 440,
@@ -6433,7 +7750,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 5,
+        "defense": 5,
+        "stamina": 100
     },
     {
         "id": 441,
@@ -6448,7 +7768,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 65,
+        "defense": 45,
+        "stamina": 76
     },
     {
         "id": 442,
@@ -6463,7 +7786,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 92,
+        "defense": 108,
+        "stamina": 50
     },
     {
         "id": 443,
@@ -6478,7 +7804,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 45,
+        "stamina": 58
     },
     {
         "id": 444,
@@ -6493,7 +7822,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 65,
+        "stamina": 68
     },
     {
         "id": 445,
@@ -6508,7 +7840,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 130,
+        "defense": 95,
+        "stamina": 108
     },
     {
         "id": 446,
@@ -6522,7 +7857,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 40,
+        "stamina": 135
     },
     {
         "id": 447,
@@ -6536,7 +7874,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 40,
+        "stamina": 40
     },
     {
         "id": 448,
@@ -6551,7 +7892,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 110,
+        "defense": 70,
+        "stamina": 70
     },
     {
         "id": 449,
@@ -6565,7 +7909,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 72,
+        "defense": 78,
+        "stamina": 68
     },
     {
         "id": 450,
@@ -6579,7 +7926,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 112,
+        "defense": 118,
+        "stamina": 108
     },
     {
         "id": 451,
@@ -6594,7 +7944,10 @@
                 "Bug"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 90,
+        "stamina": 40
     },
     {
         "id": 452,
@@ -6609,7 +7962,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 110,
+        "stamina": 70
     },
     {
         "id": 453,
@@ -6624,7 +7980,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 61,
+        "defense": 40,
+        "stamina": 48
     },
     {
         "id": 454,
@@ -6639,7 +7998,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 106,
+        "defense": 65,
+        "stamina": 83
     },
     {
         "id": 455,
@@ -6653,7 +8015,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 72,
+        "stamina": 74
     },
     {
         "id": 456,
@@ -6667,7 +8032,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 49,
+        "defense": 56,
+        "stamina": 49
     },
     {
         "id": 457,
@@ -6681,7 +8049,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 69,
+        "defense": 76,
+        "stamina": 69
     },
     {
         "id": 458,
@@ -6696,7 +8067,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 20,
+        "defense": 50,
+        "stamina": 45
     },
     {
         "id": 459,
@@ -6711,7 +8085,10 @@
                 "Ice"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 62,
+        "defense": 50,
+        "stamina": 60
     },
     {
         "id": 460,
@@ -6726,7 +8103,10 @@
                 "Ice"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 92,
+        "defense": 75,
+        "stamina": 90
     },
     {
         "id": 461,
@@ -6741,7 +8121,10 @@
                 "Ice"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 120,
+        "defense": 65,
+        "stamina": 70
     },
     {
         "id": 462,
@@ -6756,7 +8139,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 115,
+        "stamina": 70
     },
     {
         "id": 463,
@@ -6770,7 +8156,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 95,
+        "stamina": 110
     },
     {
         "id": 464,
@@ -6785,7 +8174,10 @@
                 "Rock"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 140,
+        "defense": 130,
+        "stamina": 115
     },
     {
         "id": 465,
@@ -6799,7 +8191,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 125,
+        "stamina": 100
     },
     {
         "id": 466,
@@ -6813,7 +8208,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 123,
+        "defense": 67,
+        "stamina": 75
     },
     {
         "id": 467,
@@ -6827,7 +8225,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 67,
+        "stamina": 75
     },
     {
         "id": 468,
@@ -6842,7 +8243,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 95,
+        "stamina": 85
     },
     {
         "id": 469,
@@ -6857,7 +8261,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 76,
+        "defense": 86,
+        "stamina": 86
     },
     {
         "id": 470,
@@ -6871,7 +8278,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 110,
+        "defense": 130,
+        "stamina": 65
     },
     {
         "id": 471,
@@ -6885,7 +8295,10 @@
                 "Ice"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 110,
+        "stamina": 65
     },
     {
         "id": 472,
@@ -6900,7 +8313,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 95,
+        "defense": 125,
+        "stamina": 75
     },
     {
         "id": 473,
@@ -6915,7 +8331,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 130,
+        "defense": 80,
+        "stamina": 110
     },
     {
         "id": 474,
@@ -6929,7 +8348,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 70,
+        "stamina": 85
     },
     {
         "id": 475,
@@ -6944,7 +8366,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 125,
+        "defense": 65,
+        "stamina": 68
     },
     {
         "id": 476,
@@ -6959,7 +8384,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 145,
+        "stamina": 60
     },
     {
         "id": 477,
@@ -6973,7 +8401,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 135,
+        "stamina": 45
     },
     {
         "id": 478,
@@ -6988,7 +8419,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 70,
+        "stamina": 70
     },
     {
         "id": 479,
@@ -7003,7 +8437,10 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 50,
+        "defense": 77,
+        "stamina": 50
     },
     {
         "id": 480,
@@ -7017,7 +8454,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 130,
+        "stamina": 75
     },
     {
         "id": 481,
@@ -7031,7 +8471,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 105,
+        "defense": 105,
+        "stamina": 80
     },
     {
         "id": 482,
@@ -7045,7 +8488,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 125,
+        "defense": 70,
+        "stamina": 75
     },
     {
         "id": 483,
@@ -7060,7 +8506,10 @@
                 "Dragon"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 120,
+        "defense": 120,
+        "stamina": 100
     },
     {
         "id": 484,
@@ -7075,7 +8524,10 @@
                 "Dragon"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 120,
+        "defense": 100,
+        "stamina": 90
     },
     {
         "id": 485,
@@ -7090,7 +8542,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 106,
+        "stamina": 91
     },
     {
         "id": 486,
@@ -7104,7 +8559,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 160,
+        "defense": 110,
+        "stamina": 110
     },
     {
         "id": 487,
@@ -7119,7 +8577,10 @@
                 "Dragon"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": null,
+        "defense": null,
+        "stamina": null
     },
     {
         "id": 488,
@@ -7133,7 +8594,10 @@
                 "Psychic"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 70,
+        "defense": 120,
+        "stamina": 120
     },
     {
         "id": 489,
@@ -7147,7 +8611,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 80,
+        "defense": 80,
+        "stamina": 80
     },
     {
         "id": 490,
@@ -7161,7 +8628,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 100,
+        "defense": 100,
+        "stamina": 100
     },
     {
         "id": 491,
@@ -7175,7 +8645,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 90,
+        "defense": 90,
+        "stamina": 70
     },
     {
         "id": 492,
@@ -7189,7 +8662,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": null,
+        "defense": null,
+        "stamina": null
     },
     {
         "id": 493,
@@ -7203,7 +8679,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 120,
+        "defense": 120,
+        "stamina": 120
     },
     {
         "id": 494,
@@ -7218,7 +8697,10 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 100,
+        "defense": 100,
+        "stamina": 100
     },
     {
         "id": 495,
@@ -7232,7 +8714,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 45,
+        "defense": 55,
+        "stamina": 45
     },
     {
         "id": 496,
@@ -7246,7 +8731,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 75,
+        "stamina": 60
     },
     {
         "id": 497,
@@ -7260,7 +8748,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 95,
+        "stamina": 75
     },
     {
         "id": 498,
@@ -7274,7 +8765,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 63,
+        "defense": 45,
+        "stamina": 65
     },
     {
         "id": 499,
@@ -7289,7 +8783,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 93,
+        "defense": 55,
+        "stamina": 90
     },
     {
         "id": 500,
@@ -7304,7 +8801,10 @@
                 "Fighting"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 123,
+        "defense": 65,
+        "stamina": 110
     },
     {
         "id": 501,
@@ -7318,7 +8818,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 45,
+        "stamina": 55
     },
     {
         "id": 502,
@@ -7332,7 +8835,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 75,
+        "defense": 60,
+        "stamina": 75
     },
     {
         "id": 503,
@@ -7346,7 +8852,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 85,
+        "stamina": 95
     },
     {
         "id": 504,
@@ -7360,7 +8869,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 39,
+        "stamina": 45
     },
     {
         "id": 505,
@@ -7374,7 +8886,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 69,
+        "stamina": 60
     },
     {
         "id": 506,
@@ -7388,7 +8903,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 45,
+        "stamina": 45
     },
     {
         "id": 507,
@@ -7402,7 +8920,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 65,
+        "stamina": 65
     },
     {
         "id": 508,
@@ -7416,7 +8937,10 @@
                 "Normal"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 110,
+        "defense": 90,
+        "stamina": 85
     },
     {
         "id": 509,
@@ -7430,7 +8954,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 50,
+        "defense": 37,
+        "stamina": 41
     },
     {
         "id": 510,
@@ -7444,7 +8971,10 @@
                 "Dark"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 88,
+        "defense": 50,
+        "stamina": 64
     },
     {
         "id": 511,
@@ -7458,7 +8988,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 53,
+        "defense": 48,
+        "stamina": 50
     },
     {
         "id": 512,
@@ -7472,7 +9005,10 @@
                 "Grass"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 98,
+        "defense": 63,
+        "stamina": 75
     },
     {
         "id": 513,
@@ -7486,7 +9022,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 53,
+        "defense": 48,
+        "stamina": 50
     },
     {
         "id": 514,
@@ -7500,7 +9039,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 98,
+        "defense": 63,
+        "stamina": 75
     },
     {
         "id": 515,
@@ -7514,7 +9056,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 53,
+        "defense": 48,
+        "stamina": 50
     },
     {
         "id": 516,
@@ -7528,7 +9073,10 @@
                 "Water"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 98,
+        "defense": 63,
+        "stamina": 75
     },
     {
         "id": 517,
@@ -7542,7 +9090,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 25,
+        "defense": 45,
+        "stamina": 76
     },
     {
         "id": 518,
@@ -7556,7 +9107,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 55,
+        "defense": 85,
+        "stamina": 116
     },
     {
         "id": 519,
@@ -7571,7 +9125,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 50,
+        "stamina": 50
     },
     {
         "id": 520,
@@ -7586,7 +9143,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 77,
+        "defense": 62,
+        "stamina": 62
     },
     {
         "id": 521,
@@ -7601,7 +9161,10 @@
                 "Flying"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 115,
+        "defense": 80,
+        "stamina": 80
     },
     {
         "id": 522,
@@ -7615,7 +9178,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 60,
+        "defense": 32,
+        "stamina": 45
     },
     {
         "id": 523,
@@ -7629,7 +9195,10 @@
                 "Electric"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 63,
+        "stamina": 75
     },
     {
         "id": 524,
@@ -7643,7 +9212,10 @@
                 "Rock"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 75,
+        "defense": 85,
+        "stamina": 55
     },
     {
         "id": 525,
@@ -7657,7 +9229,10 @@
                 "Rock"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 105,
+        "defense": 105,
+        "stamina": 70
     },
     {
         "id": 526,
@@ -7671,7 +9246,10 @@
                 "Rock"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 135,
+        "defense": 130,
+        "stamina": 85
     },
     {
         "id": 527,
@@ -7686,7 +9264,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 45,
+        "defense": 43,
+        "stamina": 65
     },
     {
         "id": 528,
@@ -7701,7 +9282,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 57,
+        "defense": 55,
+        "stamina": 67
     },
     {
         "id": 529,
@@ -7715,7 +9299,10 @@
                 "Ground"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 85,
+        "defense": 40,
+        "stamina": 60
     },
     {
         "id": 530,
@@ -7730,7 +9317,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": false,
+        "attack": 135,
+        "defense": 60,
+        "stamina": 110
     },
     {
         "id": 531,
@@ -7744,7 +9334,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 60,
+        "defense": 86,
+        "stamina": 103
     },
     {
         "id": 532,
@@ -7758,7 +9351,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 80,
+        "defense": 55,
+        "stamina": 75
     },
     {
         "id": 533,
@@ -7772,7 +9368,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 105,
+        "defense": 85,
+        "stamina": 85
     },
     {
         "id": 534,
@@ -7786,7 +9385,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 140,
+        "defense": 95,
+        "stamina": 105
     },
     {
         "id": 535,
@@ -7800,7 +9402,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 50,
+        "defense": 40,
+        "stamina": 50
     },
     {
         "id": 536,
@@ -7815,7 +9420,10 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 65,
+        "defense": 55,
+        "stamina": 75
     },
     {
         "id": 537,
@@ -7830,7 +9438,10 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 95,
+        "defense": 75,
+        "stamina": 105
     },
     {
         "id": 538,
@@ -7844,7 +9455,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 100,
+        "defense": 85,
+        "stamina": 120
     },
     {
         "id": 539,
@@ -7858,7 +9472,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 125,
+        "defense": 75,
+        "stamina": 75
     },
     {
         "id": 540,
@@ -7873,7 +9490,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 53,
+        "defense": 70,
+        "stamina": 45
     },
     {
         "id": 541,
@@ -7888,7 +9508,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 63,
+        "defense": 90,
+        "stamina": 55
     },
     {
         "id": 542,
@@ -7903,7 +9526,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 103,
+        "defense": 80,
+        "stamina": 75
     },
     {
         "id": 543,
@@ -7918,7 +9544,10 @@
                 "Poison"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 45,
+        "defense": 59,
+        "stamina": 30
     },
     {
         "id": 544,
@@ -7933,7 +9562,10 @@
                 "Poison"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 55,
+        "defense": 99,
+        "stamina": 40
     },
     {
         "id": 545,
@@ -7948,7 +9580,10 @@
                 "Poison"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 100,
+        "defense": 89,
+        "stamina": 60
     },
     {
         "id": 546,
@@ -7963,7 +9598,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 27,
+        "defense": 60,
+        "stamina": 40
     },
     {
         "id": 547,
@@ -7978,7 +9616,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 67,
+        "defense": 85,
+        "stamina": 60
     },
     {
         "id": 548,
@@ -7992,7 +9633,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 35,
+        "defense": 50,
+        "stamina": 45
     },
     {
         "id": 549,
@@ -8006,7 +9650,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 60,
+        "defense": 75,
+        "stamina": 70
     },
     {
         "id": 550,
@@ -8020,7 +9667,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 92,
+        "defense": 65,
+        "stamina": 70
     },
     {
         "id": 551,
@@ -8035,7 +9685,10 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 72,
+        "defense": 35,
+        "stamina": 50
     },
     {
         "id": 552,
@@ -8050,7 +9703,10 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 82,
+        "defense": 45,
+        "stamina": 60
     },
     {
         "id": 553,
@@ -8065,7 +9721,10 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 117,
+        "defense": 80,
+        "stamina": 95
     },
     {
         "id": 554,
@@ -8079,7 +9738,10 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 90,
+        "defense": 45,
+        "stamina": 70
     },
     {
         "id": 555,
@@ -8093,7 +9755,10 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 140,
+        "defense": 55,
+        "stamina": 105
     },
     {
         "id": 556,
@@ -8107,7 +9772,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 86,
+        "defense": 67,
+        "stamina": 75
     },
     {
         "id": 557,
@@ -8122,7 +9790,10 @@
                 "Rock"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 65,
+        "defense": 85,
+        "stamina": 50
     },
     {
         "id": 558,
@@ -8137,7 +9808,10 @@
                 "Rock"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 105,
+        "defense": 125,
+        "stamina": 70
     },
     {
         "id": 559,
@@ -8152,7 +9826,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 75,
+        "defense": 70,
+        "stamina": 50
     },
     {
         "id": 560,
@@ -8167,7 +9844,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 90,
+        "defense": 115,
+        "stamina": 65
     },
     {
         "id": 561,
@@ -8182,7 +9862,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 58,
+        "defense": 80,
+        "stamina": 72
     },
     {
         "id": 562,
@@ -8196,7 +9879,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 30,
+        "defense": 85,
+        "stamina": 38
     },
     {
         "id": 563,
@@ -8210,7 +9896,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": false,
+        "attack": 50,
+        "defense": 145,
+        "stamina": 58
     },
     {
         "id": 564,
@@ -8225,7 +9914,10 @@
                 "Rock"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 78,
+        "defense": 103,
+        "stamina": 54
     },
     {
         "id": 565,
@@ -8240,7 +9932,10 @@
                 "Rock"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 108,
+        "defense": 133,
+        "stamina": 74
     },
     {
         "id": 566,
@@ -8255,7 +9950,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 112,
+        "defense": 45,
+        "stamina": 55
     },
     {
         "id": 567,
@@ -8270,7 +9968,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 140,
+        "defense": 65,
+        "stamina": 75
     },
     {
         "id": 568,
@@ -8284,7 +9985,10 @@
                 "Poison"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 50,
+        "defense": 62,
+        "stamina": 50
     },
     {
         "id": 569,
@@ -8298,7 +10002,10 @@
                 "Poison"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 95,
+        "defense": 82,
+        "stamina": 80
     },
     {
         "id": 570,
@@ -8312,7 +10019,10 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 65,
+        "defense": 40,
+        "stamina": 40
     },
     {
         "id": 571,
@@ -8326,7 +10036,10 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 105,
+        "defense": 60,
+        "stamina": 60
     },
     {
         "id": 572,
@@ -8340,7 +10053,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 50,
+        "defense": 40,
+        "stamina": 55
     },
     {
         "id": 573,
@@ -8354,7 +10070,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 95,
+        "defense": 60,
+        "stamina": 75
     },
     {
         "id": 574,
@@ -8368,7 +10087,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 30,
+        "defense": 50,
+        "stamina": 45
     },
     {
         "id": 575,
@@ -8382,7 +10104,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 45,
+        "defense": 70,
+        "stamina": 60
     },
     {
         "id": 576,
@@ -8396,7 +10121,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 55,
+        "defense": 95,
+        "stamina": 70
     },
     {
         "id": 577,
@@ -8410,7 +10138,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 30,
+        "defense": 40,
+        "stamina": 45
     },
     {
         "id": 578,
@@ -8424,7 +10155,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 40,
+        "defense": 50,
+        "stamina": 65
     },
     {
         "id": 579,
@@ -8438,7 +10172,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 65,
+        "defense": 75,
+        "stamina": 110
     },
     {
         "id": 580,
@@ -8453,7 +10190,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 44,
+        "defense": 50,
+        "stamina": 62
     },
     {
         "id": 581,
@@ -8468,7 +10208,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 87,
+        "defense": 63,
+        "stamina": 75
     },
     {
         "id": 582,
@@ -8482,7 +10225,10 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 50,
+        "defense": 50,
+        "stamina": 36
     },
     {
         "id": 583,
@@ -8496,7 +10242,10 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 65,
+        "defense": 65,
+        "stamina": 51
     },
     {
         "id": 584,
@@ -8510,7 +10259,10 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 95,
+        "defense": 85,
+        "stamina": 71
     },
     {
         "id": 585,
@@ -8525,7 +10277,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 60,
+        "defense": 50,
+        "stamina": 60
     },
     {
         "id": 586,
@@ -8540,7 +10295,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 100,
+        "defense": 70,
+        "stamina": 80
     },
     {
         "id": 587,
@@ -8555,7 +10313,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 75,
+        "defense": 60,
+        "stamina": 55
     },
     {
         "id": 588,
@@ -8569,7 +10330,10 @@
                 "Bug"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 75,
+        "defense": 45,
+        "stamina": 50
     },
     {
         "id": 589,
@@ -8584,7 +10348,10 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 135,
+        "defense": 105,
+        "stamina": 70
     },
     {
         "id": 590,
@@ -8599,7 +10366,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": false,
+        "attack": 55,
+        "defense": 45,
+        "stamina": 69
     },
     {
         "id": 591,
@@ -8614,7 +10384,10 @@
                 "Poison"
             ]
         },
-        "released": true
+        "released": false,
+        "attack": 85,
+        "defense": 70,
+        "stamina": 114
     },
     {
         "id": 592,
@@ -8629,7 +10402,10 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 40,
+        "defense": 50,
+        "stamina": 55
     },
     {
         "id": 593,
@@ -8644,7 +10420,10 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 60,
+        "defense": 70,
+        "stamina": 100
     },
     {
         "id": 594,
@@ -8658,7 +10437,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 75,
+        "defense": 80,
+        "stamina": 165
     },
     {
         "id": 595,
@@ -8673,7 +10455,10 @@
                 "Electric"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 47,
+        "defense": 50,
+        "stamina": 50
     },
     {
         "id": 596,
@@ -8688,7 +10473,10 @@
                 "Electric"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 77,
+        "defense": 60,
+        "stamina": 70
     },
     {
         "id": 597,
@@ -8703,7 +10491,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": false,
+        "attack": 50,
+        "defense": 91,
+        "stamina": 44
     },
     {
         "id": 598,
@@ -8718,7 +10509,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": false,
+        "attack": 94,
+        "defense": 131,
+        "stamina": 74
     },
     {
         "id": 599,
@@ -8732,7 +10526,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 55,
+        "defense": 70,
+        "stamina": 40
     },
     {
         "id": 600,
@@ -8746,7 +10543,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 80,
+        "defense": 95,
+        "stamina": 60
     },
     {
         "id": 601,
@@ -8760,7 +10560,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": true,
+        "attack": 100,
+        "defense": 115,
+        "stamina": 60
     },
     {
         "id": 602,
@@ -8774,7 +10577,10 @@
                 "Electric"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 55,
+        "defense": 40,
+        "stamina": 35
     },
     {
         "id": 603,
@@ -8788,7 +10594,10 @@
                 "Electric"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 85,
+        "defense": 70,
+        "stamina": 65
     },
     {
         "id": 604,
@@ -8802,7 +10611,10 @@
                 "Electric"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 115,
+        "defense": 80,
+        "stamina": 85
     },
     {
         "id": 605,
@@ -8816,7 +10628,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 55,
+        "defense": 55,
+        "stamina": 55
     },
     {
         "id": 606,
@@ -8830,7 +10645,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 75,
+        "defense": 75,
+        "stamina": 75
     },
     {
         "id": 607,
@@ -8845,7 +10663,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": false,
+        "attack": 30,
+        "defense": 55,
+        "stamina": 50
     },
     {
         "id": 608,
@@ -8860,7 +10681,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": false,
+        "attack": 40,
+        "defense": 60,
+        "stamina": 60
     },
     {
         "id": 609,
@@ -8875,7 +10699,10 @@
                 "Fire"
             ]
         },
-        "released": true
+        "released": false,
+        "attack": 55,
+        "defense": 90,
+        "stamina": 60
     },
     {
         "id": 610,
@@ -8889,7 +10716,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 87,
+        "defense": 60,
+        "stamina": 46
     },
     {
         "id": 611,
@@ -8903,7 +10733,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 117,
+        "defense": 70,
+        "stamina": 66
     },
     {
         "id": 612,
@@ -8917,7 +10750,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 147,
+        "defense": 90,
+        "stamina": 76
     },
     {
         "id": 613,
@@ -8931,7 +10767,10 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 70,
+        "defense": 40,
+        "stamina": 55
     },
     {
         "id": 614,
@@ -8945,7 +10784,10 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 130,
+        "defense": 80,
+        "stamina": 95
     },
     {
         "id": 615,
@@ -8959,7 +10801,10 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 50,
+        "defense": 50,
+        "stamina": 80
     },
     {
         "id": 616,
@@ -8973,7 +10818,10 @@
                 "Bug"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 40,
+        "defense": 85,
+        "stamina": 50
     },
     {
         "id": 617,
@@ -8987,7 +10835,10 @@
                 "Bug"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 70,
+        "defense": 40,
+        "stamina": 80
     },
     {
         "id": 618,
@@ -9002,7 +10853,10 @@
                 "Electric"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 66,
+        "defense": 84,
+        "stamina": 109
     },
     {
         "id": 619,
@@ -9016,7 +10870,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 85,
+        "defense": 50,
+        "stamina": 45
     },
     {
         "id": 620,
@@ -9030,7 +10887,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 125,
+        "defense": 60,
+        "stamina": 65
     },
     {
         "id": 621,
@@ -9044,7 +10904,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 120,
+        "defense": 90,
+        "stamina": 77
     },
     {
         "id": 622,
@@ -9059,7 +10922,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": false,
+        "attack": 74,
+        "defense": 50,
+        "stamina": 59
     },
     {
         "id": 623,
@@ -9074,7 +10940,10 @@
                 "Ghost"
             ]
         },
-        "released": true
+        "released": false,
+        "attack": 124,
+        "defense": 80,
+        "stamina": 89
     },
     {
         "id": 624,
@@ -9089,7 +10958,10 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 85,
+        "defense": 70,
+        "stamina": 45
     },
     {
         "id": 625,
@@ -9104,7 +10976,10 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 125,
+        "defense": 100,
+        "stamina": 65
     },
     {
         "id": 626,
@@ -9118,7 +10993,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 110,
+        "defense": 95,
+        "stamina": 95
     },
     {
         "id": 627,
@@ -9133,7 +11011,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 83,
+        "defense": 50,
+        "stamina": 70
     },
     {
         "id": 628,
@@ -9148,7 +11029,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 123,
+        "defense": 75,
+        "stamina": 100
     },
     {
         "id": 629,
@@ -9163,7 +11047,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 55,
+        "defense": 75,
+        "stamina": 70
     },
     {
         "id": 630,
@@ -9178,7 +11065,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 65,
+        "defense": 105,
+        "stamina": 110
     },
     {
         "id": 631,
@@ -9192,7 +11082,10 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": true,
+        "attack": 97,
+        "defense": 66,
+        "stamina": 85
     },
     {
         "id": 632,
@@ -9207,7 +11100,10 @@
                 "Steel"
             ]
         },
-        "released": true
+        "released": false,
+        "attack": 109,
+        "defense": 112,
+        "stamina": 58
     },
     {
         "id": 633,
@@ -9222,7 +11118,10 @@
                 "Dragon"
             ]
         },
-        "released": true
+        "released": false,
+        "attack": 65,
+        "defense": 50,
+        "stamina": 52
     },
     {
         "id": 634,
@@ -9237,7 +11136,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 85,
+        "defense": 70,
+        "stamina": 72
     },
     {
         "id": 635,
@@ -9252,7 +11154,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 105,
+        "defense": 90,
+        "stamina": 92
     },
     {
         "id": 636,
@@ -9267,7 +11172,10 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 85,
+        "defense": 55,
+        "stamina": 55
     },
     {
         "id": 637,
@@ -9282,7 +11190,10 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 60,
+        "defense": 65,
+        "stamina": 85
     },
     {
         "id": 638,
@@ -9297,7 +11208,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 90,
+        "defense": 129,
+        "stamina": 91
     },
     {
         "id": 639,
@@ -9312,7 +11226,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 129,
+        "defense": 90,
+        "stamina": 91
     },
     {
         "id": 640,
@@ -9327,7 +11244,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 90,
+        "defense": 72,
+        "stamina": 91
     },
     {
         "id": 641,
@@ -9341,7 +11261,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 115,
+        "defense": 70,
+        "stamina": 79
     },
     {
         "id": 642,
@@ -9356,7 +11279,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 115,
+        "defense": 70,
+        "stamina": 79
     },
     {
         "id": 643,
@@ -9371,7 +11297,10 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 120,
+        "defense": 100,
+        "stamina": 100
     },
     {
         "id": 644,
@@ -9386,7 +11315,10 @@
                 "Electric"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 150,
+        "defense": 120,
+        "stamina": 100
     },
     {
         "id": 645,
@@ -9401,7 +11333,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 125,
+        "defense": 90,
+        "stamina": 89
     },
     {
         "id": 646,
@@ -9416,7 +11351,10 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 130,
+        "defense": 90,
+        "stamina": 125
     },
     {
         "id": 647,
@@ -9431,7 +11369,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 72,
+        "defense": 90,
+        "stamina": 91
     },
     {
         "id": 648,
@@ -9446,7 +11387,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 77,
+        "defense": 77,
+        "stamina": 100
     },
     {
         "id": 649,
@@ -9461,7 +11405,10 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 120,
+        "defense": 95,
+        "stamina": 71
     },
     {
         "id": 650,
@@ -9475,7 +11422,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 61,
+        "defense": 65,
+        "stamina": 56
     },
     {
         "id": 651,
@@ -9489,7 +11439,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 78,
+        "defense": 95,
+        "stamina": 61
     },
     {
         "id": 652,
@@ -9504,7 +11457,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 107,
+        "defense": 122,
+        "stamina": 88
     },
     {
         "id": 653,
@@ -9518,7 +11474,10 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 45,
+        "defense": 40,
+        "stamina": 40
     },
     {
         "id": 654,
@@ -9532,7 +11491,10 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 59,
+        "defense": 58,
+        "stamina": 59
     },
     {
         "id": 655,
@@ -9547,7 +11509,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 69,
+        "defense": 72,
+        "stamina": 75
     },
     {
         "id": 656,
@@ -9561,7 +11526,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 56,
+        "defense": 40,
+        "stamina": 41
     },
     {
         "id": 657,
@@ -9575,7 +11543,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 63,
+        "defense": 52,
+        "stamina": 54
     },
     {
         "id": 658,
@@ -9590,7 +11561,10 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 95,
+        "defense": 67,
+        "stamina": 72
     },
     {
         "id": 659,
@@ -9604,7 +11578,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 36,
+        "defense": 38,
+        "stamina": 38
     },
     {
         "id": 660,
@@ -9619,7 +11596,10 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 56,
+        "defense": 77,
+        "stamina": 85
     },
     {
         "id": 661,
@@ -9634,7 +11614,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 50,
+        "defense": 43,
+        "stamina": 45
     },
     {
         "id": 662,
@@ -9649,7 +11632,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 73,
+        "defense": 55,
+        "stamina": 62
     },
     {
         "id": 663,
@@ -9664,7 +11650,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 81,
+        "defense": 71,
+        "stamina": 78
     },
     {
         "id": 664,
@@ -9678,7 +11667,10 @@
                 "Bug"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 35,
+        "defense": 40,
+        "stamina": 38
     },
     {
         "id": 665,
@@ -9692,7 +11684,10 @@
                 "Bug"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 22,
+        "defense": 60,
+        "stamina": 45
     },
     {
         "id": 666,
@@ -9707,7 +11702,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 52,
+        "defense": 50,
+        "stamina": 80
     },
     {
         "id": 667,
@@ -9722,7 +11720,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 50,
+        "defense": 58,
+        "stamina": 62
     },
     {
         "id": 668,
@@ -9737,7 +11738,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 68,
+        "defense": 72,
+        "stamina": 86
     },
     {
         "id": 669,
@@ -9751,7 +11755,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 38,
+        "defense": 39,
+        "stamina": 44
     },
     {
         "id": 670,
@@ -9765,7 +11772,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 45,
+        "defense": 47,
+        "stamina": 54
     },
     {
         "id": 671,
@@ -9779,7 +11789,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 65,
+        "defense": 68,
+        "stamina": 78
     },
     {
         "id": 672,
@@ -9793,7 +11806,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 65,
+        "defense": 48,
+        "stamina": 66
     },
     {
         "id": 673,
@@ -9807,7 +11823,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 100,
+        "defense": 62,
+        "stamina": 123
     },
     {
         "id": 674,
@@ -9821,7 +11840,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 82,
+        "defense": 62,
+        "stamina": 67
     },
     {
         "id": 675,
@@ -9836,7 +11858,10 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 124,
+        "defense": 78,
+        "stamina": 95
     },
     {
         "id": 676,
@@ -9850,7 +11875,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 80,
+        "defense": 60,
+        "stamina": 75
     },
     {
         "id": 677,
@@ -9864,7 +11892,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 48,
+        "defense": 54,
+        "stamina": 62
     },
     {
         "id": 678,
@@ -9878,7 +11909,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 48,
+        "defense": 76,
+        "stamina": 74
     },
     {
         "id": 679,
@@ -9893,7 +11927,10 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 80,
+        "defense": 100,
+        "stamina": 45
     },
     {
         "id": 680,
@@ -9908,7 +11945,10 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 110,
+        "defense": 150,
+        "stamina": 59
     },
     {
         "id": 681,
@@ -9923,7 +11963,10 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 50,
+        "defense": 150,
+        "stamina": 60
     },
     {
         "id": 682,
@@ -9937,7 +11980,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 52,
+        "defense": 60,
+        "stamina": 78
     },
     {
         "id": 683,
@@ -9951,7 +11997,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 72,
+        "defense": 72,
+        "stamina": 101
     },
     {
         "id": 684,
@@ -9965,7 +12014,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 48,
+        "defense": 66,
+        "stamina": 62
     },
     {
         "id": 685,
@@ -9979,7 +12031,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 80,
+        "defense": 86,
+        "stamina": 82
     },
     {
         "id": 686,
@@ -9994,7 +12049,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 54,
+        "defense": 53,
+        "stamina": 53
     },
     {
         "id": 687,
@@ -10009,7 +12067,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 92,
+        "defense": 88,
+        "stamina": 86
     },
     {
         "id": 688,
@@ -10024,7 +12085,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 52,
+        "defense": 67,
+        "stamina": 42
     },
     {
         "id": 689,
@@ -10039,7 +12103,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 105,
+        "defense": 115,
+        "stamina": 72
     },
     {
         "id": 690,
@@ -10054,7 +12121,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 60,
+        "defense": 60,
+        "stamina": 50
     },
     {
         "id": 691,
@@ -10069,7 +12139,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 75,
+        "defense": 90,
+        "stamina": 65
     },
     {
         "id": 692,
@@ -10083,7 +12156,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 53,
+        "defense": 62,
+        "stamina": 50
     },
     {
         "id": 693,
@@ -10097,7 +12173,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 73,
+        "defense": 88,
+        "stamina": 71
     },
     {
         "id": 694,
@@ -10112,7 +12191,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 38,
+        "defense": 33,
+        "stamina": 44
     },
     {
         "id": 695,
@@ -10127,7 +12209,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 55,
+        "defense": 52,
+        "stamina": 62
     },
     {
         "id": 696,
@@ -10142,7 +12227,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 89,
+        "defense": 77,
+        "stamina": 58
     },
     {
         "id": 697,
@@ -10157,7 +12245,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 121,
+        "defense": 119,
+        "stamina": 82
     },
     {
         "id": 698,
@@ -10172,7 +12263,10 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 59,
+        "defense": 50,
+        "stamina": 77
     },
     {
         "id": 699,
@@ -10187,7 +12281,10 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 77,
+        "defense": 72,
+        "stamina": 123
     },
     {
         "id": 700,
@@ -10201,7 +12298,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 65,
+        "defense": 65,
+        "stamina": 95
     },
     {
         "id": 701,
@@ -10216,7 +12316,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 92,
+        "defense": 75,
+        "stamina": 78
     },
     {
         "id": 702,
@@ -10231,7 +12334,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 58,
+        "defense": 57,
+        "stamina": 67
     },
     {
         "id": 703,
@@ -10246,7 +12352,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 50,
+        "defense": 150,
+        "stamina": 50
     },
     {
         "id": 704,
@@ -10260,7 +12369,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 50,
+        "defense": 35,
+        "stamina": 45
     },
     {
         "id": 705,
@@ -10274,7 +12386,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 75,
+        "defense": 53,
+        "stamina": 68
     },
     {
         "id": 706,
@@ -10288,7 +12403,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 100,
+        "defense": 70,
+        "stamina": 90
     },
     {
         "id": 707,
@@ -10303,7 +12421,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 80,
+        "defense": 91,
+        "stamina": 57
     },
     {
         "id": 708,
@@ -10318,7 +12439,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 70,
+        "defense": 48,
+        "stamina": 43
     },
     {
         "id": 709,
@@ -10333,7 +12457,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 110,
+        "defense": 76,
+        "stamina": 85
     },
     {
         "id": 710,
@@ -10348,7 +12475,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 66,
+        "defense": 70,
+        "stamina": 44
     },
     {
         "id": 711,
@@ -10363,7 +12493,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 85,
+        "defense": 122,
+        "stamina": 55
     },
     {
         "id": 712,
@@ -10377,7 +12510,10 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 69,
+        "defense": 85,
+        "stamina": 55
     },
     {
         "id": 713,
@@ -10391,7 +12527,10 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 117,
+        "defense": 184,
+        "stamina": 95
     },
     {
         "id": 714,
@@ -10406,7 +12545,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 30,
+        "defense": 35,
+        "stamina": 40
     },
     {
         "id": 715,
@@ -10421,7 +12563,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 70,
+        "defense": 80,
+        "stamina": 85
     },
     {
         "id": 716,
@@ -10435,7 +12580,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 131,
+        "defense": 95,
+        "stamina": 126
     },
     {
         "id": 717,
@@ -10450,7 +12598,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 131,
+        "defense": 95,
+        "stamina": 126
     },
     {
         "id": 718,
@@ -10465,7 +12616,10 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 100,
+        "defense": 121,
+        "stamina": 108
     },
     {
         "id": 719,
@@ -10480,7 +12634,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 100,
+        "defense": 150,
+        "stamina": 50
     },
     {
         "id": 720,
@@ -10495,7 +12652,10 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 110,
+        "defense": 60,
+        "stamina": 80
     },
     {
         "id": 721,
@@ -10510,7 +12670,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 110,
+        "defense": 120,
+        "stamina": 80
     },
     {
         "id": 722,
@@ -10525,7 +12688,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 55,
+        "defense": 55,
+        "stamina": 68
     },
     {
         "id": 723,
@@ -10540,7 +12706,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 75,
+        "defense": 75,
+        "stamina": 78
     },
     {
         "id": 724,
@@ -10555,7 +12724,10 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 107,
+        "defense": 75,
+        "stamina": 78
     },
     {
         "id": 725,
@@ -10569,7 +12741,10 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 65,
+        "defense": 40,
+        "stamina": 45
     },
     {
         "id": 726,
@@ -10583,7 +12758,10 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 85,
+        "defense": 50,
+        "stamina": 65
     },
     {
         "id": 727,
@@ -10598,7 +12776,10 @@
                 "Dark"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 115,
+        "defense": 90,
+        "stamina": 95
     },
     {
         "id": 728,
@@ -10612,7 +12793,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 54,
+        "defense": 54,
+        "stamina": 50
     },
     {
         "id": 729,
@@ -10626,7 +12810,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 69,
+        "defense": 69,
+        "stamina": 60
     },
     {
         "id": 730,
@@ -10641,7 +12828,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 74,
+        "defense": 74,
+        "stamina": 80
     },
     {
         "id": 731,
@@ -10656,7 +12846,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 75,
+        "defense": 30,
+        "stamina": 35
     },
     {
         "id": 732,
@@ -10671,7 +12864,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 85,
+        "defense": 50,
+        "stamina": 55
     },
     {
         "id": 733,
@@ -10686,7 +12882,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 120,
+        "defense": 75,
+        "stamina": 80
     },
     {
         "id": 734,
@@ -10700,7 +12899,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 70,
+        "defense": 30,
+        "stamina": 48
     },
     {
         "id": 735,
@@ -10714,7 +12916,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 110,
+        "defense": 60,
+        "stamina": 88
     },
     {
         "id": 736,
@@ -10728,7 +12933,10 @@
                 "Bug"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 62,
+        "defense": 45,
+        "stamina": 47
     },
     {
         "id": 737,
@@ -10743,7 +12951,10 @@
                 "Electric"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 82,
+        "defense": 95,
+        "stamina": 57
     },
     {
         "id": 738,
@@ -10758,7 +12969,10 @@
                 "Electric"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 70,
+        "defense": 90,
+        "stamina": 77
     },
     {
         "id": 739,
@@ -10772,7 +12986,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 82,
+        "defense": 57,
+        "stamina": 47
     },
     {
         "id": 740,
@@ -10787,7 +13004,10 @@
                 "Ice"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 132,
+        "defense": 77,
+        "stamina": 97
     },
     {
         "id": 741,
@@ -10802,7 +13022,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 70,
+        "defense": 70,
+        "stamina": 75
     },
     {
         "id": 742,
@@ -10817,7 +13040,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 45,
+        "defense": 40,
+        "stamina": 40
     },
     {
         "id": 743,
@@ -10832,7 +13058,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 55,
+        "defense": 60,
+        "stamina": 60
     },
     {
         "id": 744,
@@ -10846,7 +13075,10 @@
                 "Rock"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 65,
+        "defense": 40,
+        "stamina": 45
     },
     {
         "id": 745,
@@ -10860,7 +13092,10 @@
                 "Rock"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 115,
+        "defense": 65,
+        "stamina": 75
     },
     {
         "id": 746,
@@ -10874,7 +13109,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 20,
+        "defense": 20,
+        "stamina": 45
     },
     {
         "id": 747,
@@ -10889,7 +13127,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 53,
+        "defense": 62,
+        "stamina": 50
     },
     {
         "id": 748,
@@ -10904,7 +13145,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 63,
+        "defense": 152,
+        "stamina": 50
     },
     {
         "id": 749,
@@ -10918,7 +13162,10 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 100,
+        "defense": 70,
+        "stamina": 70
     },
     {
         "id": 750,
@@ -10932,7 +13179,10 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 125,
+        "defense": 100,
+        "stamina": 100
     },
     {
         "id": 751,
@@ -10947,7 +13197,10 @@
                 "Bug"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 40,
+        "defense": 52,
+        "stamina": 38
     },
     {
         "id": 752,
@@ -10962,7 +13215,10 @@
                 "Bug"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 70,
+        "defense": 92,
+        "stamina": 68
     },
     {
         "id": 753,
@@ -10976,7 +13232,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 55,
+        "defense": 35,
+        "stamina": 40
     },
     {
         "id": 754,
@@ -10990,7 +13249,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 105,
+        "defense": 90,
+        "stamina": 70
     },
     {
         "id": 755,
@@ -11005,7 +13267,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 35,
+        "defense": 55,
+        "stamina": 40
     },
     {
         "id": 756,
@@ -11020,7 +13285,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 45,
+        "defense": 80,
+        "stamina": 60
     },
     {
         "id": 757,
@@ -11035,7 +13303,10 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 44,
+        "defense": 40,
+        "stamina": 48
     },
     {
         "id": 758,
@@ -11050,7 +13321,10 @@
                 "Fire"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 64,
+        "defense": 60,
+        "stamina": 68
     },
     {
         "id": 759,
@@ -11065,7 +13339,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 75,
+        "defense": 50,
+        "stamina": 70
     },
     {
         "id": 760,
@@ -11080,7 +13357,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 125,
+        "defense": 80,
+        "stamina": 120
     },
     {
         "id": 761,
@@ -11094,7 +13374,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 30,
+        "defense": 38,
+        "stamina": 42
     },
     {
         "id": 762,
@@ -11108,7 +13391,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 40,
+        "defense": 48,
+        "stamina": 52
     },
     {
         "id": 763,
@@ -11122,7 +13408,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 120,
+        "defense": 98,
+        "stamina": 72
     },
     {
         "id": 764,
@@ -11136,7 +13425,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 52,
+        "defense": 90,
+        "stamina": 51
     },
     {
         "id": 765,
@@ -11151,7 +13443,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 60,
+        "defense": 80,
+        "stamina": 90
     },
     {
         "id": 766,
@@ -11165,7 +13460,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 120,
+        "defense": 90,
+        "stamina": 100
     },
     {
         "id": 767,
@@ -11180,7 +13478,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 35,
+        "defense": 40,
+        "stamina": 25
     },
     {
         "id": 768,
@@ -11195,7 +13496,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 125,
+        "defense": 140,
+        "stamina": 75
     },
     {
         "id": 769,
@@ -11210,7 +13514,10 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 55,
+        "defense": 80,
+        "stamina": 55
     },
     {
         "id": 770,
@@ -11225,7 +13532,10 @@
                 "Ground"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 75,
+        "defense": 110,
+        "stamina": 85
     },
     {
         "id": 771,
@@ -11239,7 +13549,10 @@
                 "Water"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 60,
+        "defense": 130,
+        "stamina": 55
     },
     {
         "id": 772,
@@ -11253,7 +13566,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 95,
+        "defense": 95,
+        "stamina": 95
     },
     {
         "id": 773,
@@ -11267,7 +13583,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 95,
+        "defense": 95,
+        "stamina": 95
     },
     {
         "id": 774,
@@ -11282,7 +13601,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 60,
+        "defense": 100,
+        "stamina": 60
     },
     {
         "id": 775,
@@ -11296,7 +13618,10 @@
                 "Normal"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 115,
+        "defense": 65,
+        "stamina": 65
     },
     {
         "id": 776,
@@ -11311,7 +13636,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 78,
+        "defense": 135,
+        "stamina": 60
     },
     {
         "id": 777,
@@ -11326,7 +13654,10 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 98,
+        "defense": 63,
+        "stamina": 65
     },
     {
         "id": 778,
@@ -11341,7 +13672,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 90,
+        "defense": 80,
+        "stamina": 55
     },
     {
         "id": 779,
@@ -11356,7 +13690,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 105,
+        "defense": 70,
+        "stamina": 68
     },
     {
         "id": 780,
@@ -11371,7 +13708,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 60,
+        "defense": 85,
+        "stamina": 78
     },
     {
         "id": 781,
@@ -11386,7 +13726,10 @@
                 "Grass"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 131,
+        "defense": 100,
+        "stamina": 70
     },
     {
         "id": 782,
@@ -11400,7 +13743,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 55,
+        "defense": 65,
+        "stamina": 45
     },
     {
         "id": 783,
@@ -11415,7 +13761,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 75,
+        "defense": 90,
+        "stamina": 55
     },
     {
         "id": 784,
@@ -11430,7 +13779,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 110,
+        "defense": 125,
+        "stamina": 75
     },
     {
         "id": 785,
@@ -11445,7 +13797,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 115,
+        "defense": 85,
+        "stamina": 70
     },
     {
         "id": 786,
@@ -11460,7 +13815,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 85,
+        "defense": 75,
+        "stamina": 70
     },
     {
         "id": 787,
@@ -11475,7 +13833,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 130,
+        "defense": 115,
+        "stamina": 70
     },
     {
         "id": 788,
@@ -11490,7 +13851,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 75,
+        "defense": 115,
+        "stamina": 70
     },
     {
         "id": 789,
@@ -11504,7 +13868,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 29,
+        "defense": 31,
+        "stamina": 43
     },
     {
         "id": 790,
@@ -11518,7 +13885,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 29,
+        "defense": 131,
+        "stamina": 43
     },
     {
         "id": 791,
@@ -11533,7 +13903,10 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 137,
+        "defense": 107,
+        "stamina": 137
     },
     {
         "id": 792,
@@ -11548,7 +13921,10 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 113,
+        "defense": 89,
+        "stamina": 137
     },
     {
         "id": 793,
@@ -11563,7 +13939,10 @@
                 "Poison"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 53,
+        "defense": 47,
+        "stamina": 109
     },
     {
         "id": 794,
@@ -11578,7 +13957,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 139,
+        "defense": 139,
+        "stamina": 107
     },
     {
         "id": 795,
@@ -11593,7 +13975,10 @@
                 "Fighting"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 137,
+        "defense": 37,
+        "stamina": 71
     },
     {
         "id": 796,
@@ -11607,7 +13992,10 @@
                 "Electric"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 89,
+        "defense": 71,
+        "stamina": 83
     },
     {
         "id": 797,
@@ -11622,7 +14010,10 @@
                 "Flying"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 101,
+        "defense": 103,
+        "stamina": 97
     },
     {
         "id": 798,
@@ -11637,7 +14028,10 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 181,
+        "defense": 131,
+        "stamina": 59
     },
     {
         "id": 799,
@@ -11652,7 +14046,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 101,
+        "defense": 53,
+        "stamina": 223
     },
     {
         "id": 800,
@@ -11666,7 +14063,10 @@
                 "Psychic"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 107,
+        "defense": 101,
+        "stamina": 97
     },
     {
         "id": 801,
@@ -11681,7 +14081,10 @@
                 "Fairy"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 95,
+        "defense": 115,
+        "stamina": 80
     },
     {
         "id": 802,
@@ -11696,7 +14099,10 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 125,
+        "defense": 80,
+        "stamina": 90
     },
     {
         "id": 803,
@@ -11710,7 +14116,10 @@
                 "Poison"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 73,
+        "defense": 67,
+        "stamina": 67
     },
     {
         "id": 804,
@@ -11725,7 +14134,10 @@
                 "Dragon"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 73,
+        "defense": 73,
+        "stamina": 73
     },
     {
         "id": 805,
@@ -11740,7 +14152,10 @@
                 "Steel"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 131,
+        "defense": 211,
+        "stamina": 61
     },
     {
         "id": 806,
@@ -11755,7 +14170,10 @@
                 "Ghost"
             ]
         },
-        "released": false
+        "released": false,
+        "attack": 127,
+        "defense": 53,
+        "stamina": 53
     },
     {
         "id": 807,
@@ -11769,34 +14187,9 @@
                 "Electric"
             ]
         },
-        "released": false
-    },
-    {
-        "id": 808,
-        "name": "meltan",
-        "legendary": false,
-        "mythical": true,
-        "shiny": true,
-        "alolan": false,
-        "types": {
-            "default": [
-                "Steel"
-            ]
-        },
-        "released": true
-    },
-    {
-        "id": 809,
-        "name": "melmetal",
-        "legendary": false,
-        "mythical": true,
-        "shiny": true,
-        "alolan": false,
-        "types": {
-            "default": [
-                "Steel"
-            ]
-        },
-        "released": true
-    }    
+        "released": false,
+        "attack": 112,
+        "defense": 75,
+        "stamina": 88
+    }
 ]

@@ -1,4 +1,8 @@
+import json
 import math
+import os
+import tempfile
+
 from discord.ext import commands
 import discord
 from string import ascii_lowercase
@@ -477,6 +481,52 @@ class Pokemon():
                 if mon:
                     raidlist.append(mon.name.lower())
         return raidlist
+
+    @staticmethod
+    def save_pokemon_to_json():
+        try:
+            with tempfile.NamedTemporaryFile('w', dir=os.path.dirname(os.path.join('data', 'pokestop_data_backup1')),
+                                             delete=False) as f:
+                pokemon = (PokemonTable
+                           .select(PokemonTable.id,
+                                   PokemonTable.name,
+                                   PokemonTable.legendary,
+                                   PokemonTable.mythical,
+                                   PokemonTable.shiny,
+                                   PokemonTable.alolan,
+                                   PokemonTable.types,
+                                   PokemonTable.released,
+                                   PokemonTable.attack,
+                                   PokemonTable.defense,
+                                   PokemonTable.stamina))
+                s = []
+                for poke in pokemon:
+                    p = {"id": poke.id,
+                         "name": poke.name,
+                         "legendary": poke.legendary,
+                         "mythical": poke.mythical,
+                         "shiny": poke.shiny,
+                         "alolan": poke.alolan,
+                         "types": poke.types,
+                         "released": poke.released,
+                         "attack": poke.attack,
+                         "defense": poke.defense,
+                         "stamina": poke.stamina}
+                    s.append(p)
+                f.write(json.dumps(s, indent=4))
+                tempname = f.name
+            try:
+                os.remove(os.path.join('data', 'pokemon_data_backup1'))
+            except OSError as e:
+                pass
+            try:
+                os.rename(os.path.join('data', 'pokemon_data_backup1'), os.path.join('data', 'pokemon_data_backup2'))
+            except OSError as e:
+                pass
+            os.rename(tempname, os.path.join('data', 'pokemon_data_backup1'))
+            return None
+        except Exception as err:
+            return err
 
 
 def setup(bot):

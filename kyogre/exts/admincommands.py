@@ -154,6 +154,7 @@ class AdminCommands(commands.Cog):
             return None
         stop_save = location_matching_cog.save_stops_to_json(guildid)
         gym_save = location_matching_cog.save_gyms_to_json(guildid)
+        pkmn_save = Pokemon.save_pokemon_to_json()
         if stop_save is not None:
             await self._print(self.bot.owner, f'Failed to save pokestop data with error: {stop_save}!')
         if gym_save is not None:
