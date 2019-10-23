@@ -115,7 +115,7 @@ def build_raid_report_message(Kyogre, raid_channel, raid_dict):
     if raidexp is not False:
         #now = datetime.datetime.utcnow() + datetime.timedelta(hours=Kyogre.guild_dict[guild.id]['configure_dict']['settings']['offset'])
         #end = now + datetime.timedelta(minutes=raidexp)
-        end = datetime.datetime.fromtimestamp(raidexp)
+        end = datetime.datetime.fromtimestamp(raidexp) + datetime.timedelta(hours=Kyogre.guild_dict[guild.id]['configure_dict']['settings']['offset'])
         msg += ' {type}{end}.'.format(end=end.strftime('%I:%M %p'), type=end_str)
     if enabled:
         msg += "\nCoordinate in the raid channel: {channel}".format(channel=raid_channel.mention)

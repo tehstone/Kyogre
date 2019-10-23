@@ -85,7 +85,7 @@ class ListManagement(commands.Cog):
         def list_output(raid):
             trainer_dict = rc_d[raid]['trainer_dict']
             rchan = self.bot.get_channel(raid)
-            end = now + datetime.timedelta(seconds=rc_d[raid]['exp'] - time.time())
+            end = now + datetime.timedelta(seconds=rc_d[raid]['exp'] - time.time()) + datetime.timedelta(hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
             output = ''
             start_str = ''
             t_emoji = ''
