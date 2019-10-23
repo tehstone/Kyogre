@@ -1389,7 +1389,7 @@ class RaidCommands(commands.Cog):
                 minutes = eggminutes
             hatch = now + datetime.timedelta(minutes=minutes)
             expire = hatch + datetime.timedelta(minutes=raidminutes)
-            hatch, expire = hatch.timestamp, expire.timestamp()
+            hatch, expire = hatch.timestamp(), expire.timestamp()
         elif ctype == 'raid':
             if not minutes:
                 minutes = raidminutes
