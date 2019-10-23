@@ -39,7 +39,8 @@ async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid
         if trainer_dict[trainer]['status']['coming']:
             user = guild.get_member(trainer)
             otw_list.append(user.mention)
-    await raid_channel.send(content='Someone has suggested a different location for the raid! Trainers {trainer_list}: make sure you are headed to the right place!'.format(trainer_list=', '.join(otw_list)))
+    await raid_channel.send(content=f"Someone has suggested a different location for the raid! "
+                                    f"Trainers {', '.join(otw_list)}: make sure you are headed to the right place!")
     channel_name = raid_channel.name
     channel_prefix = channel_name.split("_")[0]
     new_channel_name = utils.sanitize_name(channel_prefix + "_" + gym.name)[:32]
@@ -73,27 +74,39 @@ async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid
     await list_cog.update_listing_channels(guild, "raid", edit=True)
     return
 
+
 def get_raidtext(Kyogre, guild, raid_dict, raid_channel, report):
-    if 'type' in raid_dict:
-        type = raid_dict['type']
+    ctype, member, pkmn, level, raidtext = None, '', '', '', ''
+    if 'ctype' in raid_dict:
+        ctype = raid_dict['type']
     if 'pokemon' in raid_dict:
         pkmn = raid_dict['pokemon']
+        pkmn = Pokemon.get_pokemon(Kyogre, pkmn)
+        pkmn = pkmn.name()
     if 'egglevel' in raid_dict:
         level = raid_dict['egglevel']
     if 'reporter' in raid_dict:
         member = raid_dict['reporter']
-    member = guild.get_member(member)
-    pkmn = Pokemon.get_pokemon(Kyogre, pkmn)
+        member = guild.get_member(member)
+        member = member.display_name
+
     if report:
         raidtext = build_raid_report_message(Kyogre, raid_channel, raid_dict)
     else:
-        if type == "raid":
-            raidtext = "{pkmn} raid reported by {member} in {channel}! Coordinate here!\n\nFor help, react to this message with the question mark and I will DM you a list of commands you can use!".format(pkmn=pkmn.name(), member=member.display_name, channel=raid_channel.mention)
-        elif type == "egg":
-            raidtext = "Level {level} raid egg reported by {member} in {channel}! Coordinate here!\n\nFor help, react to this message with the question mark and I will DM you a list of commands you can use!".format(level=level, member=member.display_name, channel=raid_channel.mention)
-        elif type == "exraid":
-            raidtext = "EX raid reported by {member} in {channel}! Coordinate here!\n\nFor help, react to this message with the question mark and I will DM you a list of commands you can use!".format(member=member.display_name, channel=raid_channel.mention)
+        if ctype == "raid":
+            raidtext = (f"{pkmn} raid reported by {member} in {raid_channel.mention}! "
+                        f"Coordinate here!\n\nFor help, react to this message with the question mark "
+                        "and I will DM you a list of commands you can use!")
+        elif ctype == "egg":
+            raidtext = (f"Level {level} raid egg reported by {member} in {raid_channel.mention}!"
+                        f" Coordinate here!\n\nFor help, react to this message with the question mark "
+                        f"and I will DM you a list of commands you can use!")
+        elif ctype == "exraid":
+            raidtext = (f"EX raid reported by {member} in {raid_channel.mention}! "
+                        f"Coordinate here!\n\nFor help, react to this message with the question mark "
+                        f"and I will DM you a list of commands you can use!")
     return raidtext
+
 
 def build_raid_report_message(Kyogre, raid_channel, raid_dict):
     guild = raid_channel.guild
@@ -101,22 +114,23 @@ def build_raid_report_message(Kyogre, raid_channel, raid_dict):
     location_matching_cog = Kyogre.cogs.get('LocationMatching')
     gym = location_matching_cog.get_gym_by_id(guild.id, gym_id)
     c_type = raid_dict['type']
-    pokemon = raid_dict['pokemon']
+    pokemon = raid_dict['pokemon'].capitalize()
     level = raid_dict['egglevel']
     raidexp = raid_dict['exp']
     utils_cog = Kyogre.cogs.get('Utilities')
     enabled = utils_cog.raid_channels_enabled(guild, raid_channel)
+    ex = " (EX)" if gym.ex_eligible else ""
+    end_str, msg = '', ''
     if c_type == "raid":
-        msg = '{boss} @ {location}{ex}'.format(ex=" (EX)" if gym.ex_eligible else "", boss=pokemon, location=gym.name)
+        msg = f'{pokemon} @ {gym.name}{ex}'
         end_str = "Expires: "
     elif c_type == "egg":
-        msg = 'T{level} egg @ {location}{ex}'.format(ex=" (EX)" if gym.ex_eligible else "", level=level, location=gym.name)
+        msg = f'T{level} egg @ {gym.name}{ex}'
         end_str = "Hatches: "
     if raidexp is not False:
-        #now = datetime.datetime.utcnow() + datetime.timedelta(hours=Kyogre.guild_dict[guild.id]['configure_dict']['settings']['offset'])
-        #end = now + datetime.timedelta(minutes=raidexp)
-        end = datetime.datetime.fromtimestamp(raidexp) + datetime.timedelta(hours=Kyogre.guild_dict[guild.id]['configure_dict']['settings']['offset'])
-        msg += ' {type}{end}.'.format(end=end.strftime('%I:%M %p'), type=end_str)
+        end = datetime.datetime.fromtimestamp(raidexp) + \
+              datetime.timedelta(hours=Kyogre.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+        msg += f" {end_str}{end.strftime('%I:%M %p')}."
     if enabled:
-        msg += "\nCoordinate in the raid channel: {channel}".format(channel=raid_channel.mention)
+        msg += f"\nCoordinate in the raid channel: {raid_channel.mention}"
     return msg

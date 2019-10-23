@@ -66,6 +66,7 @@ class Pokemon():
         Current instance of Eevee
     """
 
+    # https://p337.info/pokemongo/pages/shiny-release-dates/api/?utm_source=share&utm_medium=ios_app
     __slots__ = ('species', 'id', 'types', 'bot', 'guild', 'pkmn_list',
                  'pb_raid', 'weather', 'moveset', 'form', 'shiny', 'alolan', 'legendary', 'mythical',
                  'base_attack', 'base_defense', 'base_stamina')
