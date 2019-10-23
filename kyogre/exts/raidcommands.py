@@ -448,6 +448,11 @@ class RaidCommands(commands.Cog):
         raid_embed.add_field(name='Directions',
                              value=f'[Google]({raid_gmaps_link}) | [Waze]({waze_link}) | [Apple]({apple_link})',
                              inline=False)
+        exp_msg = "Set with **!timerset**"
+        if manual:
+            end = datetime.datetime.fromtimestamp(exp) + datetime.timedelta(
+                hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+            exp_msg = f"{end.strftime('%I:%M %p')}"
         if raid_report:
             if enabled:
                 min_cp, max_cp = raid_pokemon.get_raid_cp_range(False)
@@ -462,7 +467,7 @@ class RaidCommands(commands.Cog):
                                              inline=True))
                 raid_embed.add_field(name='**Weaknesses:**', value='{weakness_list}'.format(weakness_list=weak_str))
                 raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**')
-                raid_embed.add_field(name='**Expires:**', value='Set with **!timerset**')
+                raid_embed.add_field(name='**Expires:**', value=exp_msg)
             raid_img_url = raid_pokemon.img_url
             msg = entity_updates.build_raid_report_message(self.bot, raid_channel, raid_dict)
         else:
@@ -476,8 +481,8 @@ class RaidCommands(commands.Cog):
                     raid_embed.add_field(name='**Possible Bosses:**', value='{bosslist}'
                                          .format(bosslist=''.join(boss_list)), inline=True)
                     raid_embed.add_field(name='\u200b', value='\u200b', inline=True)
-                raid_embed.add_field(name='**Hatches:**', value='Set with **!timerset**', inline=True)
                 raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**', inline=True)
+                raid_embed.add_field(name='**Hatches:**', value=exp_msg, inline=True)
             raid_img_url = 'https://raw.githubusercontent.com/klords/Kyogre/master/images/eggs/{}?cache=0'\
                 .format(str(egg_img))
             msg = entity_updates.build_raid_report_message(self.bot, raid_channel, raid_dict)

@@ -26,7 +26,7 @@ RUN pip install --user https://github.com/rogerbinns/apsw/releases/download/3.27
 --global-option=build --global-option=--enable-all-extensions
 
 RUN mkdir /usr/local/share/tessdata
-RUN wget https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata -P /usr/local/share/tessdata/
+RUN wget -q https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata -P /usr/local/share/tessdata/
 
 # Bundle app source
 ADD . /src

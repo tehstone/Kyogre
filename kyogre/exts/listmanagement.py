@@ -47,7 +47,7 @@ class ListManagement(commands.Cog):
         listmsg_list = []
         listmsg = ""
         now = datetime.datetime.utcnow() \
-            + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
+              + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
         listing_dict = guild_dict[guild.id]['configure_dict']['raid'].get('listings', {})
         listing_enabled = listing_dict.get('enabled', False)
         rc_d = guild_dict[guild.id]['raidchannel_dict']
@@ -85,7 +85,8 @@ class ListManagement(commands.Cog):
         def list_output(raid):
             trainer_dict = rc_d[raid]['trainer_dict']
             rchan = self.bot.get_channel(raid)
-            end = now + datetime.timedelta(seconds=rc_d[raid]['exp'] - time.time()) + datetime.timedelta(hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+            end = datetime.datetime.fromtimestamp(rc_d[raid]['exp']) + datetime.timedelta(
+                hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
             output = ''
             start_str = ''
             t_emoji = ''
@@ -111,26 +112,26 @@ class ListManagement(commands.Cog):
             egglevel = rc_d[raid]['egglevel']
             if egglevel.isdigit() and (int(egglevel) > 0):
                 t_emoji = str(egglevel) + '\u20e3'
-                expirytext = '**Hatches**: {expiry}{is_assumed}'\
+                expirytext = '**Hatches**: {expiry}{is_assumed}' \
                     .format(expiry=end.strftime('%I:%M%p'), is_assumed=assumed_str)
             elif ((rc_d[raid]['egglevel'] == 'EX') or (rc_d[raid]['type'] == 'exraid')) and not meetup:
-                expirytext = '**Hatches**: {expiry}{is_assumed}'\
+                expirytext = '**Hatches**: {expiry}{is_assumed}' \
                     .format(expiry=end.strftime('%B %d at %I:%M%p'), is_assumed=assumed_str)
             elif meetup:
                 meetupstart = meetup['start']
                 meetupend = meetup['end']
                 expirytext = ""
                 if meetupstart:
-                    expirytext += ' - Starts: {expiry}{is_assumed}'\
+                    expirytext += ' - Starts: {expiry}{is_assumed}' \
                         .format(expiry=meetupstart.strftime('%B %d at %I:%M%p'), is_assumed=assumed_str)
                 if meetupend:
-                    expirytext += " - Ends: {expiry}{is_assumed}"\
+                    expirytext += " - Ends: {expiry}{is_assumed}" \
                         .format(expiry=meetupend.strftime('%B %d at %I:%M%p'), is_assumed=assumed_str)
                 if not meetupstart and not meetupend:
-                    expirytext = ' - Starts: {expiry}{is_assumed}'\
+                    expirytext = ' - Starts: {expiry}{is_assumed}' \
                         .format(expiry=end.strftime('%B %d at %I:%M%p'), is_assumed=assumed_str)
             else:
-                expirytext = '**Expires**: {expiry}{is_assumed}'\
+                expirytext = '**Expires**: {expiry}{is_assumed}' \
                     .format(expiry=end.strftime('%I:%M%p'), is_assumed=assumed_str)
             boss = Pokemon.get_pokemon(self.bot, rc_d[raid].get('pokemon', ''))
             if not t_emoji and boss:
@@ -202,12 +203,14 @@ class ListManagement(commands.Cog):
                 for level in egg_dict:
                     if len(egg_dict[level].items()) > 0:
                         listmsg += process_category(listmsg_list, f"Level {level} Eggs",
-                                                    [r for (r, __) in sorted(egg_dict[level].items(), key=itemgetter(1))])
+                                                    [r for (r, __) in
+                                                     sorted(egg_dict[level].items(), key=itemgetter(1))])
             if raid_dict:
                 for level in raid_dict:
                     if len(raid_dict[level].items()) > 0:
                         listmsg += process_category(listmsg_list, f"Active Level {level} Raids",
-                                                    [r for (r, __) in sorted(raid_dict[level].items(), key=itemgetter(1))])
+                                                    [r for (r, __) in
+                                                     sorted(raid_dict[level].items(), key=itemgetter(1))])
             if exraid_list and not listing_enabled:
                 listmsg += process_category(listmsg_list, "EX Raids", exraid_list)
             if event_list and not listing_enabled:
@@ -242,7 +245,7 @@ class ListManagement(commands.Cog):
                 try:
                     await report_channel.fetch_message(wildid)
                     newmsg += '\n🔹'
-                    newmsg += "**Pokemon**: {perfect}{pokemon}, **Location**: [{location}]({url})"\
+                    newmsg += "**Pokemon**: {perfect}{pokemon}, **Location**: [{location}]({url})" \
                         .format(pokemon=wild_dict[wildid]['pokemon'].title(),
                                 location=wild_dict[wildid]['location'].title(),
                                 url=wild_dict[wildid].get('url', None),
@@ -285,16 +288,16 @@ class ListManagement(commands.Cog):
 
             if not region or region in utils_cog.get_channel_regions(report_channel, 'research'):
                 try:
-                    await report_channel.fetch_message(questid) # verify quest message exists
+                    await report_channel.fetch_message(questid)  # verify quest message exists
                     cat = research_dict[questid]['quest'].title()
                     if current_category != cat:
                         current_category = cat
                         newmsg += f"\n\n**{current_category}**"
                     newmsg += ('\n\t🔹')
-                    newmsg += "**Reward**: {reward}, **Pokestop**: [{location}]({url})"\
+                    newmsg += "**Reward**: {reward}, **Pokestop**: [{location}]({url})" \
                         .format(location=research_dict[questid]['location'].title(),
                                 reward=research_dict[questid]['reward'].title(),
-                                url=research_dict[questid].get('url',None))
+                                url=research_dict[questid].get('url', None))
                     if len(listmsg) + len(newmsg) < constants.MAX_MESSAGE_LENGTH:
                         listmsg += newmsg
                     else:
@@ -322,24 +325,24 @@ class ListManagement(commands.Cog):
         listmsg = f"**Here are the active Team Rocket Takeovers in {loc.capitalize()}**\n"
         current_category = ""
         current = datetime.datetime.utcnow() \
-                + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
+                  + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
         expiration_seconds = guild_dict[guild.id]['configure_dict']['settings']['invasion_minutes'] * 60
         current = round(current.timestamp())
         result = (TrainerReportRelation.select(
-                        TrainerReportRelation.id,
-                        TrainerReportRelation.created,
-                        LocationTable.name.alias('location_name'),
-                        PokemonTable.name.alias('pokemon'),
-                        LocationTable.latitude,
-                        LocationTable.longitude)
-                .join(LocationTable, on=(TrainerReportRelation.location_id == LocationTable.id))
-                .join(LocationRegionRelation, on=(LocationTable.id == LocationRegionRelation.location_id))
-                .join(RegionTable, on=(RegionTable.id == LocationRegionRelation.region_id))
-                .join(InvasionTable, on=(TrainerReportRelation.id == InvasionTable.trainer_report_id))
-                .join(PokemonTable, JOIN.LEFT_OUTER, on=(InvasionTable.pokemon_number_id == PokemonTable.id))
-                .where((RegionTable.name == region) &
-                       (TrainerReportRelation.created + expiration_seconds > current))
-                .order_by(TrainerReportRelation.created))
+            TrainerReportRelation.id,
+            TrainerReportRelation.created,
+            LocationTable.name.alias('location_name'),
+            PokemonTable.name.alias('pokemon'),
+            LocationTable.latitude,
+            LocationTable.longitude)
+                  .join(LocationTable, on=(TrainerReportRelation.location_id == LocationTable.id))
+                  .join(LocationRegionRelation, on=(LocationTable.id == LocationRegionRelation.location_id))
+                  .join(RegionTable, on=(RegionTable.id == LocationRegionRelation.region_id))
+                  .join(InvasionTable, on=(TrainerReportRelation.id == InvasionTable.trainer_report_id))
+                  .join(PokemonTable, JOIN.LEFT_OUTER, on=(InvasionTable.pokemon_number_id == PokemonTable.id))
+                  .where((RegionTable.name == region) &
+                         (TrainerReportRelation.created + expiration_seconds > current))
+                  .order_by(TrainerReportRelation.created))
 
         result = result.objects(InvasionInstance)
         for inv in result:
@@ -382,24 +385,24 @@ class ListManagement(commands.Cog):
         listmsg = f"**Here are the active lures in {loc.capitalize()}**\n"
         current_category = ""
         current = datetime.datetime.utcnow() \
-                + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
+                  + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
         expiration_seconds = guild_dict[guild.id]['configure_dict']['settings']['lure_minutes'] * 60
         current = round(current.timestamp())
         result = (TrainerReportRelation.select(
-                        TrainerReportRelation.created,
-                        LocationTable.name.alias('location_name'),
-                        LureTypeTable.name.alias('lure_type'),
-                        LocationTable.latitude,
-                        LocationTable.longitude)
-                .join(LocationTable, on=(TrainerReportRelation.location_id == LocationTable.id))
-                .join(LocationRegionRelation, on=(LocationTable.id==LocationRegionRelation.location_id))
-                .join(RegionTable, on=(RegionTable.id==LocationRegionRelation.region_id))
-                .join(LureTable, on=(TrainerReportRelation.id == LureTable.trainer_report_id))
-                .join(LureTypeRelation, on=(LureTable.id == LureTypeRelation.lure_id))
-                .join(LureTypeTable, on=(LureTypeTable.id == LureTypeRelation.type_id))
-                .where((RegionTable.name == region) &
-                       (TrainerReportRelation.created + expiration_seconds > current))
-                .order_by(TrainerReportRelation.created))
+            TrainerReportRelation.created,
+            LocationTable.name.alias('location_name'),
+            LureTypeTable.name.alias('lure_type'),
+            LocationTable.latitude,
+            LocationTable.longitude)
+                  .join(LocationTable, on=(TrainerReportRelation.location_id == LocationTable.id))
+                  .join(LocationRegionRelation, on=(LocationTable.id == LocationRegionRelation.location_id))
+                  .join(RegionTable, on=(RegionTable.id == LocationRegionRelation.region_id))
+                  .join(LureTable, on=(TrainerReportRelation.id == LureTable.trainer_report_id))
+                  .join(LureTypeRelation, on=(LureTable.id == LureTypeRelation.lure_id))
+                  .join(LureTypeTable, on=(LureTypeTable.id == LureTypeRelation.type_id))
+                  .where((RegionTable.name == region) &
+                         (TrainerReportRelation.created + expiration_seconds > current))
+                  .order_by(TrainerReportRelation.created))
 
         result = result.objects(LureInstance)
         for lure in result:
@@ -434,7 +437,7 @@ class ListManagement(commands.Cog):
         guild_dict = self.bot.guild_dict
         ctx_maybecount = 0
         now = datetime.datetime.utcnow() \
-            + datetime.timedelta(hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
+              + datetime.timedelta(hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
         trainer_dict = copy.deepcopy(guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict'])
         maybe_exstr = ''
         maybe_list = []
@@ -469,7 +472,7 @@ class ListManagement(commands.Cog):
             else:
                 maybe_exstr = ' including {trainer_list} and the people with them! ' \
                               'Let them know if there is a group forming'.format(trainer_list=', '.join(name_list))
-        listmsg = ' {trainer_count} interested{including_string}!'\
+        listmsg = ' {trainer_count} interested{including_string}!' \
             .format(trainer_count=str(ctx_maybecount), including_string=maybe_exstr)
         return listmsg
 
@@ -512,7 +515,7 @@ class ListManagement(commands.Cog):
         guild_dict = self.bot.guild_dict
         ctx_comingcount = 0
         now = datetime.datetime.utcnow() \
-            + datetime.timedelta(hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
+              + datetime.timedelta(hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
         trainer_dict = copy.deepcopy(guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict'])
         otw_exstr = ''
         otw_list = []
@@ -547,7 +550,7 @@ class ListManagement(commands.Cog):
             else:
                 otw_exstr = ' including {trainer_list} and the people with them! ' \
                             'Be considerate and wait for them if possible'.format(trainer_list=', '.join(name_list))
-        listmsg = ' {trainer_count} on the way{including_string}!'\
+        listmsg = ' {trainer_count} on the way{including_string}!' \
             .format(trainer_count=str(ctx_comingcount), including_string=otw_exstr)
         return listmsg
 
@@ -590,7 +593,7 @@ class ListManagement(commands.Cog):
         guild_dict = self.bot.guild_dict
         ctx_herecount = 0
         now = datetime.datetime.utcnow() \
-            + datetime.timedelta(hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
+              + datetime.timedelta(hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
         raid_dict = copy.deepcopy(guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id])
         trainer_dict = copy.deepcopy(guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict'])
         here_exstr = ''
@@ -621,17 +624,18 @@ class ListManagement(commands.Cog):
                 if raid_dict.get('lobby', {"team": "all"})['team'] == team \
                         or raid_dict.get('lobby', {"team": "all"})['team'] == "all":
                     ctx_herecount -= trainer_dict[trainer]['status']['lobby']
-        raidtype = "event" if guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id].get('meetup', False) else "raid"
+        raidtype = "event" if guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id].get('meetup',
+                                                                                               False) else "raid"
         if ctx_herecount > 0:
             if (now.time() >= datetime.time(5, 0)) and (now.time() <= datetime.time(21, 0)) and tag:
                 here_exstr = " including {trainer_list} and the people with them! " \
-                             "Be considerate and let them know if and when you'll be there"\
+                             "Be considerate and let them know if and when you'll be there" \
                     .format(trainer_list=', '.join(here_list))
             else:
                 here_exstr = " including {trainer_list} and the people with them! " \
-                             "Be considerate and let them know if and when you'll be there"\
+                             "Be considerate and let them know if and when you'll be there" \
                     .format(trainer_list=', '.join(name_list))
-        listmsg = ' {trainer_count} waiting at the {raidtype}{including_string}!'\
+        listmsg = ' {trainer_count} waiting at the {raidtype}{including_string}!' \
             .format(trainer_count=str(ctx_herecount), raidtype=raidtype, including_string=here_exstr)
         return listmsg
 
@@ -698,7 +702,8 @@ class ListManagement(commands.Cog):
         author = ctx.author
         lobbymsg = ''
         trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
-        raidtype = "event" if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('meetup',False) else "raid"
+        raidtype = "event" if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('meetup',
+                                                                                               False) else "raid"
         try:
             if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['lobby']:
                 lobbymsg += '\nThere is a group already in the lobby! Use **!lobby** to join them ' \
@@ -750,25 +755,25 @@ class ListManagement(commands.Cog):
             if trainer_dict['count'] == 1:
                 message = '**{member}** is no longer interested!'.format(member=author.display_name)
             else:
-                message = '**{member}** and their total of {trainer_count} trainers are no longer interested!'\
+                message = '**{member}** and their total of {trainer_count} trainers are no longer interested!' \
                     .format(member=author.display_name, trainer_count=trainer_dict['count'])
         if trainer_dict['status']['here']:
             if trainer_dict['count'] == 1:
                 message = '**{member}** has left the {raidtype}!'.format(member=author.display_name, raidtype=raidtype)
             else:
-                message = '**{member}** and their total of {trainer_count} trainers have left the {raidtype}!'\
+                message = '**{member}** and their total of {trainer_count} trainers have left the {raidtype}!' \
                     .format(member=author.display_name, trainer_count=trainer_dict['count'], raidtype=raidtype)
         if trainer_dict['status']['coming']:
             if trainer_dict['count'] == 1:
                 message = '**{member}** is no longer on their way!'.format(member=author.display_name)
             else:
-                message = '**{member}** and their total of {trainer_count} trainers are no longer on their way!'\
+                message = '**{member}** and their total of {trainer_count} trainers are no longer on their way!' \
                     .format(member=author.display_name, trainer_count=trainer_dict['count'])
         if trainer_dict['status']['lobby']:
             if trainer_dict['count'] == 1:
                 message = '**{member}** has backed out of the lobby!'.format(member=author.display_name)
             else:
-                message = '**{member}** and their total of {trainer_count} trainers have backed out of the lobby!'\
+                message = '**{member}** and their total of {trainer_count} trainers have backed out of the lobby!' \
                     .format(member=author.display_name, trainer_count=trainer_dict['count'])
         last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
         if last_status is not None:
@@ -782,7 +787,8 @@ class ListManagement(commands.Cog):
         trainer_dict['interest'] = []
         trainer_dict['count'] = 1
         await self.edit_party(ctx, channel, author)
-        trainer_count = self.determine_trainer_count(guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
+        trainer_count = self.determine_trainer_count(
+            guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
         embed = self.build_status_embed(channel.guild, trainer_count)
         new_status = await channel.send(content=message, embed=embed)
         guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
@@ -830,13 +836,16 @@ class ListManagement(commands.Cog):
                     bossstr = "{name} ({number}) {types}" \
                         .format(name=boss.name, number=boss.id, types=boss_dict[boss.name]['type'])
                     display_list.append(bossstr)
-        reportchannel = self.bot.get_channel(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['reportchannel'])
+        reportchannel = self.bot.get_channel(
+            guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['reportchannel'])
         try:
-            reportmsg = await reportchannel.fetch_message(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['raidreport'])
+            reportmsg = await reportchannel.fetch_message(
+                guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['raidreport'])
         except:
             pass
         try:
-            raidmsg = await channel.fetch_message(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['raidmessage'])
+            raidmsg = await channel.fetch_message(
+                guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['raidmessage'])
         except:
             async for message in channel.history(limit=500, reverse=True):
                 if author and message.author.id == channel.guild.me.id:
@@ -854,10 +863,10 @@ class ListManagement(commands.Cog):
         t = 'tips'
         embed_indices = await embed_utils.get_embed_field_indices(reportembed)
         for field in reportembed.fields:
-            if (m not in field.name.lower()) and (c not in field.name.lower())\
+            if (m not in field.name.lower()) and (c not in field.name.lower()) \
                     and (h not in field.name.lower()) and (t not in field.name.lower()):
                 newembed.add_field(name=field.name, value=field.value, inline=field.inline)
-        if egglevel != "0" and not guild_dict[channel.guild.id].get('raidchannel_dict', {})\
+        if egglevel != "0" and not guild_dict[channel.guild.id].get('raidchannel_dict', {}) \
                 .get(channel.id, {}).get('meetup', {}):
             index = max(i for i in [embed_indices["possible"], embed_indices["interest"],
                                     embed_indices["details"]] if i is not None)
@@ -865,13 +874,13 @@ class ListManagement(commands.Cog):
             if len(boss_list) > 1:
                 newembed.set_field_at(index, name=name, value='{bosslist1}'
                                       .format(bosslist1='\n'.join(display_list[::2])), inline=True)
-                newembed.set_field_at(index+1, name='\u200b', value='{bosslist2}'
+                newembed.set_field_at(index + 1, name='\u200b', value='{bosslist2}'
                                       .format(bosslist2='\n'.join(display_list[1::2])), inline=True)
             else:
                 newembed.set_field_at(index, name=name, value='{bosslist}'
                                       .format(bosslist=''.join(display_list)), inline=True)
-                if newembed.fields[index+1].name == '\u200b':
-                    newembed.set_field_at(index+1, name='\u200b', value='\u200b', inline=True)
+                if newembed.fields[index + 1].name == '\u200b':
+                    newembed.set_field_at(index + 1, name='\u200b', value='\u200b', inline=True)
         red_emoji = utils.parse_emoji(channel.guild, self.bot.config['team_dict']['valor'])
         yellow_emoji = utils.parse_emoji(channel.guild, self.bot.config['team_dict']['instinct'])
         blue_emoji = utils.parse_emoji(channel.guild, self.bot.config['team_dict']['mystic'])
@@ -911,7 +920,7 @@ class ListManagement(commands.Cog):
         guild_dict = self.bot.guild_dict
         ctx_lobbycount = 0
         now = datetime.datetime.utcnow() \
-            + datetime.timedelta(hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
+              + datetime.timedelta(hours=guild_dict[ctx.channel.guild.id]['configure_dict']['settings']['offset'])
         raid_dict = copy.deepcopy(guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id])
         trainer_dict = copy.deepcopy(guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict'])
         lobby_exstr = ''
@@ -945,13 +954,13 @@ class ListManagement(commands.Cog):
         if ctx_lobbycount > 0:
             if (now.time() >= datetime.time(5, 0)) and (now.time() <= datetime.time(21, 0)) and tag:
                 lobby_exstr = ' including {trainer_list} and the people with them! ' \
-                              'Use **!lobby** if you are joining them or **!backout** to request a backout'\
+                              'Use **!lobby** if you are joining them or **!backout** to request a backout' \
                     .format(trainer_list=', '.join(lobby_list))
             else:
                 lobby_exstr = ' including {trainer_list} and the people with them! ' \
-                              'Use **!lobby** if you are joining them or **!backout** to request a backout'\
+                              'Use **!lobby** if you are joining them or **!backout** to request a backout' \
                     .format(trainer_list=', '.join(name_list))
-        listmsg = ' {trainer_count} in the lobby{including_string}!'\
+        listmsg = ' {trainer_count} in the lobby{including_string}!' \
             .format(trainer_count=str(ctx_lobbycount), including_string=lobby_exstr)
         return listmsg
 
@@ -990,7 +999,7 @@ class ListManagement(commands.Cog):
         for boss in boss_list:
             if boss_dict[boss]['total'] > 0:
                 bossliststr += '{type}{name}: **{total} total,** {interested} interested, {coming} coming, ' \
-                               '{here} waiting{type}\n'\
+                               '{here} waiting{type}\n' \
                     .format(type=boss_dict[boss]['type'], name=boss.capitalize(),
                             total=boss_dict[boss]['total'], interested=boss_dict[boss]['maybe'],
                             coming=boss_dict[boss]['coming'], here=boss_dict[boss]['here'])
@@ -1010,19 +1019,21 @@ class ListManagement(commands.Cog):
         status_list = ["here", "coming", "maybe"]
         team_list = ["mystic", "valor", "instinct", "unknown"]
         teamliststr = ''
-        trainer_dict = copy.deepcopy(guild_dict[message.guild.id]['raidchannel_dict'][message.channel.id]['trainer_dict'])
+        trainer_dict = copy.deepcopy(
+            guild_dict[message.guild.id]['raidchannel_dict'][message.channel.id]['trainer_dict'])
         for trainer in trainer_dict.keys():
             if not ctx.guild.get_member(trainer):
                 continue
             for team in team_list:
                 team_dict[team]["total"] += int(trainer_dict[trainer]['party'][team])
                 for status in status_list:
-                    if max(trainer_dict[trainer]['status'], key=lambda key: trainer_dict[trainer]['status'][key]) == status:
+                    if max(trainer_dict[trainer]['status'],
+                           key=lambda key: trainer_dict[trainer]['status'][key]) == status:
                         team_dict[team][status] += int(trainer_dict[trainer]['party'][team])
         for team in team_list[:-1]:
             if team_dict[team]['total'] > 0:
                 teamliststr += '{emoji} **{total} total,** {interested} interested, ' \
-                               '{coming} coming, {here} waiting {emoji}\n'\
+                               '{coming} coming, {here} waiting {emoji}\n' \
                     .format(emoji=utils.parse_emoji(ctx.guild, self.bot.config['team_dict'][team]),
                             total=team_dict[team]['total'], interested=team_dict[team]['maybe'],
                             coming=team_dict[team]['coming'], here=team_dict[team]['here'])
@@ -1082,6 +1093,7 @@ class ListManagement(commands.Cog):
             previous_messages = [] if previous_messages is None else previous_messages
             matches = itertools.zip_longest(new_messages, previous_messages)
             new_ids = []
+
             def should_delete(m):
                 check = True
                 if m.embeds and len(m.embeds) > 0:
@@ -1089,8 +1101,9 @@ class ListManagement(commands.Cog):
                 else:
                     date1 = m.created_at
                     date2 = datetime.datetime.utcnow()
-                    check = (abs(date2-date1).seconds) > 180
+                    check = (abs(date2 - date1).seconds) > 180
                 return m.author == self.bot.user and check
+
             if not edit:
                 await channel.purge(check=should_delete)
             for pair in matches:
