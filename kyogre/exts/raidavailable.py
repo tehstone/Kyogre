@@ -30,8 +30,8 @@ class RaidAvailable(commands.Cog):
             region = regions[0]
         else:
             region_err = "No region associated with this channel, please use this command in a raid reporting channel."
-            await channel.send(embed=discord.Embed(colour=discord.Colour.orange(), description=region_err),
-                               delete_after=10)
+            return await channel.send(embed=discord.Embed(colour=discord.Colour.orange(), description=region_err),
+                                      delete_after=10)
         role_to_assign = discord.utils.get(guild.roles, name=region + '-raids')
         for role in trainer.roles:
             if role.name == role_to_assign.name:

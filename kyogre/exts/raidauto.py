@@ -175,7 +175,7 @@ class RaidAuto(commands.Cog):
                         description="Could not determine gym name from screenshot, unable to create raid channel. "
                                     "Please report using the command instead: `!r <boss/tier> <gym name> <time>`"))
             c_file = None
-            if raid_info['egg_time'] and not raid_info['boss']:
+            if raid_info['egg_time']:
                 raid_info['type'] = 'egg'
                 c_file = self._crop_tier(file)
                 tiers = testident.determine_tier(c_file)
