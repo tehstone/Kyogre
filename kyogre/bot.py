@@ -314,6 +314,7 @@ class KyogreBot(commands.AutoShardedBot):
             'wildreport_dict': {},
             'questreport_dict': {},
             'raidchannel_dict': {},
+            'exchannel_dict': {},
             'pvp_dict': {},
             'raid_notice_dict': {},
             'trade_dict': {},

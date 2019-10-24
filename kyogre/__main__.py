@@ -202,6 +202,7 @@ async def on_ready():
                     'wildreport_dict': {},
                     'questreport_dict': {},
                     'raidchannel_dict': {},
+                    'exchannel_dict': {},
                     'pvp_dict': {},
                     'raid_notice_dict': {},
                     'trade_dict': {},
@@ -237,6 +238,7 @@ async def on_ready():
                 guild_dict[guild.id].setdefault('pvp_dict', {})
                 guild_dict[guild.id].setdefault('raid_notice_dict', {})
                 guild_dict[guild.id].setdefault('trade_dict', {})
+                guild_dict[guild.id].setdefault('exchannel_dict', {})
                 try:
                     trainers = guild_dict[guild.id]['configure_dict']['trainers']
                     guild_dict[guild.id]['trainers'] = trainers
@@ -279,6 +281,7 @@ async def on_ready():
                 'wildreport_dict': {},
                 'questreport_dict': {},
                 'raidchannel_dict': {},
+                'exchannel_dict': {},
                 'pvp_dict': {},
                 'raid_notice_dict': {},
                 'trade_dict': {},

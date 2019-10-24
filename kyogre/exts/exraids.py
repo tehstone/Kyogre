@@ -45,8 +45,8 @@ class EXRaids(commands.Cog):
             ex_channel_ids = self.get_existing_raid(ctx.guild, gym, ex_raid_dict)
             if ex_channel_ids:
                 ex_channel = self.bot.get_channel(ex_channel_ids[0])
-                if self.bot.guild_dict[ctx.guild.id]['exchannel_dict'][ex_channel.category_id]\
-                    ['channels'][ex_channel.id]:
+                if ex_channel and self.bot.guild_dict[ctx.guild.id]['exchannel_dict'][ex_channel.category_id]\
+                                      ['channels'][ex_channel.id]:
                     return await ctx.channel.send(
                         embed=discord.Embed(
                             colour=discord.Colour.red(),
@@ -103,7 +103,7 @@ class EXRaids(commands.Cog):
             "report_message": report_message.id,
             "channel_message": None,
             "trainer_dict": {},
-            "reminder": None
+            "stage": "pre"
         }
         ex_embed = await self._build_ex_embed(ctx, ex_raid_dict)
         channel_message = await ex_channel.send(embed=ex_embed)
@@ -172,6 +172,7 @@ class EXRaids(commands.Cog):
             hours += 12
         hatch = datetime.datetime.utcnow().replace(month=months, day=days, hour=hours, minute=minutes, second=0)
         raid_length = self.bot.raid_info['raid_eggs']['EX']['raidtime']
+        raid_length = 1
         expire = hatch + datetime.timedelta(minutes=raid_length)
         return hatch.timestamp(), expire.timestamp()
 
@@ -243,11 +244,13 @@ class EXRaids(commands.Cog):
             user = channel.guild.get_member(t)
             trainers.append(user.mention)
         if action == "before":
-            this_ex_dict['reminder'] = True
+            this_ex_dict['stage'] = 'egg'
             return await channel.send(f"This EX Raid will be hatching soon!\n{' '.join(trainers)}")
         elif action == "hatch":
+            this_ex_dict['stage'] = 'active'
             return await channel.send("This EX raid has hatched!")
         elif action == "expire":
+            this_ex_dict['stage'] = 'expired'
             return await channel.send("This EX raid has expired. This channel will be deleted in about 2 hours.")
 
     async def _delete_ex_channel(self, channel):
@@ -278,7 +281,7 @@ class EXRaids(commands.Cog):
                 dict_channel_delete = []
                 discord_channel_delete = []
                 # check every ex channel data for each server
-                for cat in guilddict_chtemp[guildid]['exchannel_dict']:
+                for cat in guilddict_chtemp[guildid].get('exchannel_dict', {}):
                     cat_dict = guilddict_chtemp[guildid]['exchannel_dict'][cat]
                     for channelid in cat_dict['channels'].keys():
                         channel = self.bot.get_channel(channelid)
@@ -288,7 +291,7 @@ class EXRaids(commands.Cog):
                         channelmatch = self.bot.get_channel(channelid)
                         if channelmatch is None:
                             # list channel for deletion from save data
-                            dict_channel_delete.append(channelid)
+                            dict_channel_delete.append((cat, channelid))
                             self.bot.logger.info(log_str + " - NOT IN DISCORD")
                         # otherwise, if kyogre can still see the channel in discord
                         else:
@@ -348,6 +351,7 @@ class EXRaids(commands.Cog):
         guild = channel.guild
         channel = self.bot.get_channel(channel.id)
         cat_id = channel.category_id
+        offset = self.bot.guild_dict[channel.guild.id]['configure_dict']['settings']['offset']
         if channel not in self.bot.active_ex:
             self.bot.active_ex.append(channel)
             self.bot.logger.info(
@@ -355,33 +359,40 @@ class EXRaids(commands.Cog):
             await asyncio.sleep(0.5)
             while True:
                 this_ex_dict = self.bot.guild_dict[guild.id]['exchannel_dict'][cat_id]['channels'][channel.id]
+                sleep_time = 30
                 try:
-                    if not this_ex_dict['reminder']:
+                    if this_ex_dict['stage'] == 'pre':
                         if this_ex_dict['hatch'] - (30 * 60) < time.time():
                             await self._send_ex_channel_reminder(this_ex_dict, channel, "before")
-                    if this_ex_dict['hatch'] - (1 * 60) < time.time():
-                        await self._send_ex_channel_reminder(this_ex_dict, channel, "hatch")
-                    if this_ex_dict['expire'] < time.time():
-                        await self._send_ex_channel_reminder(this_ex_dict, channel, "expire")
-                    if this_ex_dict['expire'] + (120 * 60) < time.time():
-                        await self._delete_ex_channel(channel)
-                        try:
-                            self.bot.active_ex.remove(channel)
-                        except ValueError:
+                        time_diff = this_ex_dict['hatch'] - (
+                                    datetime.datetime.utcnow() + datetime.timedelta(hours=offset)).timestamp()
+                        sleep_time = round(time_diff/2)
+                    if this_ex_dict['stage'] == 'egg':
+                        if this_ex_dict['hatch'] - (1 * 60) < time.time():
+                            await self._send_ex_channel_reminder(this_ex_dict, channel, "hatch")
+                    if this_ex_dict['stage'] == 'active':
+                        if this_ex_dict['expire'] < time.time():
+                            await self._send_ex_channel_reminder(this_ex_dict, channel, "expire")
+                        sleep_time = 60
+                    if this_ex_dict['stage'] == 'expired':
+                        if this_ex_dict['expire'] + (120 * 60) < time.time():
+                            await self._delete_ex_channel(channel)
+                            try:
+                                self.bot.active_ex.remove(channel)
+                            except ValueError:
+                                self.bot.logger.info(
+                                    'Expire_Channel - Channel Removal From Active EX Failed - '
+                                    'Not in List - ' + channel.name)
                             self.bot.logger.info(
-                                'Expire_Channel - Channel Removal From Active EX Failed - '
-                                'Not in List - ' + channel.name)
-                        self.bot.logger.info(
-                            'Expire_Channel - Channel Expired And Removed From Watchlist - ' + channel.name)
-                        break
+                                'Expire_Channel - Channel Expired And Removed From Watchlist - ' + channel.name)
+                            break
+                        time_diff = (this_ex_dict['expire'] + (120 * 60)) - (
+                                datetime.datetime.utcnow() + datetime.timedelta(hours=offset)).timestamp()
+                        sleep_time = round(time_diff / 2)
                 except:
                     pass
-                if time.time() > this_ex_dict['expire']:
-                    await asyncio.sleep(120)
-                elif this_ex_dict['hatch'] - time.time() > 4800:
-                    await asyncio.sleep(4800)
-                else:
-                    await asyncio.sleep(30)
+                print(f"st: {sleep_time}")
+                await asyncio.sleep(sleep_time)
                 continue
 
 
