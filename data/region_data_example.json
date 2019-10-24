@@ -1,0 +1,10 @@
+[
+    {
+        "name": "region1",
+        "guild": "guild_id"
+    },
+    {
+        "name": "region2",
+        "guild": "guild_id"
+    }
+]

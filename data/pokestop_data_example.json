@@ -1,0 +1,12 @@
+{
+    "Pokestop Name": {
+        "coordinates": "87.48104,-152.347015",
+        "region": "some_region_name",
+        "guild": "guild_id"
+    },
+    "Some Other Pokestop Name": {
+        "coordinates": "87.470687,-152.334138",
+        "region": "some_region_name",
+        "guild": "guild_id"
+    },
+}
