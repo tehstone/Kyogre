@@ -223,9 +223,11 @@ def check_exraidchannel(ctx):
         return False
     channel = ctx.channel
     guild = ctx.guild
-    level = ctx.bot.guild_dict[guild.id].get('raidchannel_dict', {}).get(channel.id, {}).get('egglevel', False)
-    ctype = ctx.bot.guild_dict[guild.id].get('raidchannel_dict', {}).get(channel.id, {}).get('type', False)
-    return (level == 'EX') or (ctype == 'exraid')
+    ex_channels = []
+    ex_dict = ctx.bot.guild_dict[guild.id]['exchannel_dict']
+    for cat in ex_dict:
+        ex_channels += ex_dict[cat]['channels'].keys()
+    return channel.id in ex_channels
 
 
 def check_meetupset(ctx):

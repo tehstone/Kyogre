@@ -139,7 +139,9 @@ async def _print(owner, message):
 async def maint_start(bot):
     tasks = []
     try:
+        exraids_cog = bot.get_cog("EXRaids")
         raids_cog = bot.get_cog("RaidCommands")
+        tasks.append(event_loop.create_task(exraids_cog.channel_cleanup()))
         tasks.append(event_loop.create_task(raids_cog.channel_cleanup()))
         tasks.append(event_loop.create_task(message_cleanup()))
         tasks.append(event_loop.create_task(bot.update_subs_leaderboard()))

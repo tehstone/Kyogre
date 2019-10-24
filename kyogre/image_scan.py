@@ -51,7 +51,8 @@ raid_cp_chart = {"2873": "Shinx",
                  }
 raid_cp_list = raid_cp_chart.keys()
 
-def check_match(image, regex):
+
+async def check_match(image, regex):
     img_text = pytesseract.image_to_string(image, lang='eng', config='--psm 11 -c tessedit_char_whitelist=:0123456789')
     match = re.search(regex, img_text)
     if match:
@@ -60,32 +61,32 @@ def check_match(image, regex):
         return None
 
 
-def check_val_range(egg_time_crop, vals, regex=None, blur=False):
+async def check_val_range(egg_time_crop, vals, regex=None, blur=False):
     for i in vals:
         thresh = cv2.threshold(egg_time_crop, i, 255, cv2.THRESH_BINARY)[1]
         if blur:
             thresh = cv2.GaussianBlur(thresh, (5, 5), 0)
-        match = check_match(thresh, regex)
+        match = await check_match(thresh, regex)
         if match:
             return match
     for i in vals:
         thresh = cv2.threshold(egg_time_crop, i, 255, cv2.THRESH_BINARY)[1]
         image = cv2.GaussianBlur(thresh, (5, 5), 0)
-        match = check_match(image, regex)
+        match = await check_match(image, regex)
         if match:
             return match
         image = cv2.medianBlur(thresh, 3)
-        match = check_match(image, regex)
+        match = await check_match(image, regex)
         if match:
             return match
         image = cv2.bilateralFilter(thresh, 9, 75, 75)
-        match = check_match(image, regex)
+        match = await check_match(image, regex)
         if match:
             return match
     return None
 
 
-def check_phone_time(image):
+async def check_phone_time(image):
     height, width = image.shape
     maxy = round(height * .15)
     miny = 0
@@ -94,14 +95,14 @@ def check_phone_time(image):
     phone_time_crop = image[miny:maxy, minx:maxx]
     regex = r'1{0,1}[0-9]{1}:[0-9]{2}'
     vals = [0, 10]
-    result = check_val_range(phone_time_crop, vals, regex, blur=True)
+    result = await check_val_range(phone_time_crop, vals, regex, blur=True)
     if not result:
         phone_time_crop = cv2.bitwise_not(phone_time_crop)
-        result = check_val_range(phone_time_crop, vals, regex, blur=True)
+        result = await check_val_range(phone_time_crop, vals, regex, blur=True)
     return result
 
 
-def check_egg_time(image):
+async def check_egg_time(image):
     image = cv2.bitwise_not(image)
     height, width = image.shape
     maxy = round(height * .33)
@@ -110,11 +111,11 @@ def check_egg_time(image):
     minx = round(width * .25)
     egg_time_crop = image[miny:maxy, minx:maxx]
     regex = r'[0-1]{1}:[0-9]{2}:[0-9]{2}'
-    result = check_val_range(egg_time_crop, [0, 70, 10, 80], regex)
+    result = await check_val_range(egg_time_crop, [0, 70, 10, 80], regex)
     return result
 
 
-def check_egg_tier(image):
+async def check_egg_tier(image):
     height, width = image.shape
     maxy = round(height * .37)
     miny = round(height * .27)
@@ -134,7 +135,7 @@ def check_egg_tier(image):
     return None
 
 
-def check_expire_time(image):
+async def check_expire_time(image):
     image = cv2.bitwise_not(image)
     height, width = image.shape
     maxy = round(height * .64)
@@ -143,11 +144,11 @@ def check_expire_time(image):
     minx = round(width * .7)
     expire_time_crop = image[miny:maxy, minx:maxx]
     regex = r'[0-9]{1}:[0-9]{2}:[0-9]{2}'
-    result = check_val_range(expire_time_crop, [0, 70, 10], regex)
+    result = await check_val_range(expire_time_crop, [0, 70, 10], regex)
     return result
 
 
-def check_gym_name(image):
+async def check_gym_name(image):
     height, width = image.shape
     maxy = round(height * .19)
     miny = round(height * .04)
@@ -191,7 +192,7 @@ def _word_length(line):
     return longest
 
 
-def check_boss_cp(image, bot):
+async def check_boss_cp(image, bot):
     height, width = image.shape
     maxy = round(height * .32)
     miny = round(height * .15)
@@ -268,27 +269,27 @@ async def read_photo_async(file, bot, logger):
     if height < 400 or width < 200:
         dim = (round(width * 2), round(height * 2))
         image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
-    result_gym = check_gym_name(image)
+    result_gym = await check_gym_name(image)
     result_egg, result_expire, result_boss, result_tier, result_phone = None, None, None, None, None
     # If we don't have a gym, no point in checking anything else
     if result_gym:
-        result_egg = check_egg_time(image)
+        result_egg = await check_egg_time(image)
         # Only check for expire time and boss if no egg time found
         # May make sense to reverse this. Tough call.
         if not result_egg:
-            result_boss = check_boss_cp(image, bot)
+            result_boss = await check_boss_cp(image, bot)
             # If we don't find a boss, don't look for expire time
             if result_boss:
-                result_expire = check_expire_time(image)
+                result_expire = await check_expire_time(image)
         else:
             try:
-                result_tier = check_egg_tier(image)
+                result_tier = await check_egg_tier(image)
             except Exception as e:
                 logger.info(f"Could not read egg tier from text. Error: {e}")
         # If we don't find an egg time or a boss, we don't need the phone's time
         # Even if it's picked up as an egg later, the time won't be correct without egg time
         if result_egg or result_boss:
-            result_phone = check_phone_time(image)
+            result_phone = await check_phone_time(image)
     return {'egg_time': result_egg, 'expire_time': result_expire, 'boss': result_boss, 's_tier': result_tier,
             'phone_time': result_phone, 'names': result_gym, 'runtime': time.time() - start}
 

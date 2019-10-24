@@ -139,7 +139,7 @@ class AdminCommands(commands.Cog):
             try:
                 os.remove(os.path.join('data', 'serverdict_backup'))
             except OSError:
-                os.remove(os.path.join('data', tempname))
+                pass
             try:
                 os.rename(os.path.join('data', 'serverdict'), os.path.join('data', 'serverdict_backup'))
             except OSError as e:

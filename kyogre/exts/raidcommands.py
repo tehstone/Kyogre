@@ -371,7 +371,6 @@ class RaidCommands(commands.Cog):
                     raid_dict_entry = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
                 except:
                     return await message.add_reaction('\u274c')
-                utils_cog = self.bot.cogs.get('Utilities')
                 enabled = utils_cog.raid_channels_enabled(guild, channel)
                 if raid_dict_entry and not (raid_dict_entry['exp'] - 60 < datetime.datetime.now().timestamp()):
                     msg = f"A raid has already been reported for {gym.name}."
@@ -1973,11 +1972,11 @@ class RaidCommands(commands.Cog):
         while not self.bot.is_closed():
             active_raids = self.bot.active_raids
             guilddict_chtemp = copy.deepcopy(self.bot.guild_dict)
-            self.bot.logger.info('Channel_Cleanup ------ BEGIN ------')
+            self.bot.logger.info('Raid Channel_Cleanup ------ BEGIN ------')
             # for every server in save data
             for guildid in guilddict_chtemp.keys():
                 guild = self.bot.get_guild(guildid)
-                log_str = 'Channel_Cleanup - Server: ' + str(guildid)
+                log_str = 'Raid Channel_Cleanup - Server: ' + str(guildid)
                 log_str = log_str + ' - CHECKING FOR SERVER'
                 if guild is None:
                     self.bot.logger.info(log_str + ': NOT FOUND')
@@ -1989,7 +1988,7 @@ class RaidCommands(commands.Cog):
                 # check every raid channel data for each server
                 for channelid in guilddict_chtemp[guildid]['raidchannel_dict']:
                     channel = self.bot.get_channel(channelid)
-                    log_str = 'Channel_Cleanup - Server: ' + guild.name
+                    log_str = 'Raid Channel_Cleanup - Server: ' + guild.name
                     log_str = (log_str + ': Channel:') + str(channelid)
                     self.bot.logger.info(log_str + ' - CHECKING')
                     channelmatch = self.bot.get_channel(channelid)

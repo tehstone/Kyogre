@@ -86,6 +86,7 @@ class KyogreBot(commands.AutoShardedBot):
         self.api_usage_limit = 20
         self._load_data()
         self.raid_json_path = self._load_config()
+        self.active_ex = []
         self.active_raids = []
         self.active_wilds = []
         self.active_pvp = []

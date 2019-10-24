@@ -73,7 +73,7 @@ class Misc(commands.Cog):
         except discord.HTTPException:
             await channel.send('I need the `Embed links` permission to send this')
 
-    @commands.command(aliases=["invite"])
+    @commands.command()
     @checks.allowjoin()
     async def join(self, ctx, region='general'):
         """**Usage**: `!join/invite [region]`

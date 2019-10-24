@@ -33,7 +33,7 @@ class RaidParty(commands.Cog):
             teamcounts = teamcounts.lower().replace("all", "").strip()
         return self.status_parser.fullmatch(teamcounts)
 
-    async def _process_status_command(self, ctx, teamcounts):
+    async def process_status_command(self, ctx, teamcounts, trainer_dict, egglevel):
         eta = None
         if teamcounts is not None:
             if teamcounts.lower().find('eta') > -1:
@@ -41,9 +41,7 @@ class RaidParty(commands.Cog):
                 eta = teamcounts[idx:]
                 teamcounts = teamcounts[:idx]
         guild = ctx.guild
-        trainer_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict']
         entered_interest = trainer_dict.get(ctx.author.id, {}).get('interest', [])
-        egglevel = self.bot.guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['egglevel']
         parsed_counts = await self._parse_teamcounts(ctx, teamcounts, trainer_dict, egglevel)
         errors = []
         if not parsed_counts:
@@ -51,7 +49,9 @@ class RaidParty(commands.Cog):
                              "Check the format against `!help interested` and try again.")
         totalA, totalB, groups, bosses = parsed_counts.groups()
         total = totalA or totalB
-        if bosses and self.bot.guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['type'] == "egg":
+        if egglevel == 'EX':
+            pass
+        elif bosses and self.bot.guild_dict[guild.id]['raidchannel_dict'][ctx.channel.id]['type'] == "egg":
             entered_interest = set(entered_interest)
             bosses_list = bosses.lower().split(',')
             if isinstance(bosses_list, str):
@@ -85,7 +85,7 @@ class RaidParty(commands.Cog):
         if not groups:
             groups = ''
         teamcounts = f"{total} {groups}"
-        result = await self._party_status(ctx, total, teamcounts)
+        result = await self._party_status(ctx, total, teamcounts, trainer_dict)
         return (result, entered_interest, eta)
 
     @commands.command()
@@ -140,7 +140,9 @@ class RaidParty(commands.Cog):
         Party must be a number plus a team.
         **Example**: `!i 3 1i 1m 1v`"""
         try:
-            result, entered_interest, eta = await self._process_status_command(ctx, teamcounts)
+            trainer_dict = self.bot.guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict']
+            egglevel = self.bot.guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['egglevel']
+            result, entered_interest, eta = await self.process_status_command(ctx, teamcounts, trainer_dict, egglevel)
         except ValueError as e:
             return await ctx.channel.send(e)
         if isinstance(result, list):
@@ -162,7 +164,9 @@ class RaidParty(commands.Cog):
         Party must be a number plus a team.
         **Example**: `!c 3 1i 1m 1v`"""
         try:
-            result, entered_interest, eta = await self._process_status_command(ctx, teamcounts)
+            trainer_dict = self.bot.guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict']
+            egglevel = self.bot.guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['egglevel']
+            result, entered_interest, eta = await self.process_status_command(ctx, teamcounts, trainer_dict, egglevel)
         except ValueError as e:
             return await ctx.channel.send(e)
         if isinstance(result, list):
@@ -183,7 +187,9 @@ class RaidParty(commands.Cog):
         Party must be a number plus a team.
         **Example**: `!h 3 1i 1m 1v`"""
         try:
-            result, entered_interest, eta = await self._process_status_command(ctx, teamcounts)
+            trainer_dict = self.bot.guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict']
+            egglevel = self.bot.guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['egglevel']
+            result, entered_interest, eta = await self.process_status_command(ctx, teamcounts, trainer_dict, egglevel)
         except ValueError as e:
             return await ctx.channel.send(e)
         if isinstance(result, list):
@@ -192,11 +198,10 @@ class RaidParty(commands.Cog):
             listmgmt_cog = self.bot.cogs.get('ListManagement')
             await listmgmt_cog.here(ctx, count, partylist, entered_interest)
 
-    async def _party_status(self, ctx, total, teamcounts):
+    async def _party_status(self, ctx, total, teamcounts, trainer_dict):
         channel = ctx.channel
         author = ctx.author
-        trainer_dict = self.bot.guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']\
-            .get(author.id, {})
+        trainer_dict = trainer_dict.get(author.id, {})
         roles = [r.name.lower() for r in author.roles]
         if 'mystic' in roles:
             my_team = 'mystic'
