@@ -172,8 +172,8 @@ class ListManagement(commands.Cog):
                           f'{gym_note}\n[Click for directions]({map_url})\n'
             return output
 
-        def process_category(listmsg_list, category_title, category_list):
-            listmsg = f"**{category_title}:**\n"
+        def process_category(listmsg_list, listmsg, category_title, category_list):
+            listmsg += f"**{category_title}:**\n"
             for r in category_list:
                 new_msg = list_output(r)
                 if len(listmsg) + len(new_msg) < constants.MAX_MESSAGE_LENGTH:
@@ -202,19 +202,15 @@ class ListManagement(commands.Cog):
             if egg_dict:
                 for level in egg_dict:
                     if len(egg_dict[level].items()) > 0:
-                        listmsg += process_category(listmsg_list, f"Level {level} Eggs",
-                                                    [r for (r, __) in
-                                                     sorted(egg_dict[level].items(), key=itemgetter(1))])
+                        listmsg = process_category(listmsg_list, listmsg, f"Level {level} Eggs",
+                                                   [r for (r, __) in
+                                                   sorted(egg_dict[level].items(), key=itemgetter(1))])
             if raid_dict:
                 for level in raid_dict:
                     if len(raid_dict[level].items()) > 0:
-                        listmsg += process_category(listmsg_list, f"Active Level {level} Raids",
-                                                    [r for (r, __) in
-                                                     sorted(raid_dict[level].items(), key=itemgetter(1))])
-            if exraid_list and not listing_enabled:
-                listmsg += process_category(listmsg_list, "EX Raids", exraid_list)
-            if event_list and not listing_enabled:
-                listmsg += process_category(listmsg_list, "Meetups", event_list)
+                        listmsg = process_category(listmsg_list, listmsg, f"Active Level {level} Raids",
+                                                   [r for (r, __) in
+                                                   sorted(raid_dict[level].items(), key=itemgetter(1))])
         else:
             listmsg = 'No active raids! Report one with **!raid <name> <location> [weather] [timer]**.'
             if region:
