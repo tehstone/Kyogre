@@ -85,8 +85,8 @@ class EXRaids(commands.Cog):
         category_id = await self._get_or_create_category(ctx, date_key)
         category = ctx.guild.get_channel(category_id)
         ex_channel = await self._create_ex_channel(ctx, gym, start_time, category)
-        date_str = date_key.replace('_', ' ')
-        report_message_text = f"EX Raid at {gym.name} on {date_str} starting at {start_time}.\n" \
+        date_str = date_key.replace('_', ' ').capitalize()
+        report_message_text = f"EX Raid at **{gym.name}** on {date_str} starting at {start_time}.\n" \
                               f"If you have an invite to this raid, RSVP in: {ex_channel.mention}"
         report_message = await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.gold(),
                                                                     description=report_message_text))
@@ -172,7 +172,6 @@ class EXRaids(commands.Cog):
             hours += 12
         hatch = datetime.datetime.utcnow().replace(month=months, day=days, hour=hours, minute=minutes, second=0)
         raid_length = self.bot.raid_info['raid_eggs']['EX']['raidtime']
-        raid_length = 1
         expire = hatch + datetime.timedelta(minutes=raid_length)
         return hatch.timestamp(), expire.timestamp()
 
@@ -391,7 +390,6 @@ class EXRaids(commands.Cog):
                         sleep_time = round(time_diff / 2)
                 except:
                     pass
-                print(f"st: {sleep_time}")
                 await asyncio.sleep(sleep_time)
                 continue
 

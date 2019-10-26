@@ -171,7 +171,8 @@ class QuickBadge(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        channel = self.bot.get_channel(payload.channel_id)
+        ctx = await self.bot.get_context(payload.message, cls=Context)
+        channel = ctx.channel
         try:
             message = await channel.fetch_message(payload.message_id)
         except (discord.errors.NotFound, AttributeError):
@@ -226,21 +227,27 @@ class QuickBadge(commands.Cog):
             await badge_channel.send(embed=embed)
         elif str(payload.emoji) == self.thumbsup_react \
                 and payload.channel_id in quick_badge_dict.get('40_listen_channels', []):
-            try:
-                target_user = guild.get_member(message.author.id)
-            except AttributeError:
-                return
-            forty_role_id = self.bot.guild_dict[guild.id]['configure_dict']\
-                .get('quick_badge', self.quick_badge_dict_default).get('40_role', None)
-            if forty_role_id is None:
-                return
-            forty_role = discord.utils.get(guild.roles, id=forty_role_id)
-            if forty_role is None:
-                return
-            await target_user.add_roles(*[forty_role])
-            await asyncio.sleep(0.1)
-            if forty_role in target_user.roles:
-                await channel.send(f"{target_user.mention} has been verified as level 40!")
+            success = await self.set_fourty(ctx)
+            if success:
+                await channel.send(f"{ctx.message.author.mention} has been verified as level 40!")
+
+    async def set_fourty(self, ctx):
+        try:
+            target_user = ctx.guild.get_member(ctx.message.author.id)
+        except AttributeError:
+            return
+        forty_role_id = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
+            .get('quick_badge', self.quick_badge_dict_default).get('40_role', None)
+        if forty_role_id is None:
+            return
+        forty_role = discord.utils.get(ctx.guild.roles, id=forty_role_id)
+        if forty_role is None:
+            return
+        await target_user.add_roles(*[forty_role])
+        await asyncio.sleep(0.1)
+        if forty_role in target_user.roles:
+            return True
+        return False
 
 
 def setup(bot):

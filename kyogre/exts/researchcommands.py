@@ -281,7 +281,6 @@ class ResearchCommands(commands.Cog):
         report_relation.save()
 
     async def _cancel_db_research_report(self, message):
-        print("in cancel")
         try:
             report_relation = TrainerReportRelation.get(TrainerReportRelation.message == message.id)
         except Exception as e:

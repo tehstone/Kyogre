@@ -143,67 +143,107 @@ async def check_expire_time(image):
     maxx = round(width * .96)
     minx = round(width * .7)
     expire_time_crop = image[miny:maxy, minx:maxx]
-    regex = r'[0-9]{1}:[0-9]{2}:[0-9]{2}'
+    regex = r'[0-2]{1}:[0-9]{2}:[0-9]{2}'
     result = await check_val_range(expire_time_crop, [0, 70, 10], regex)
     return result
 
-def check_profile_name(image):
-    height, width = image.shape
-    maxy = round(height * .24)
-    miny = round(height * .13)
+
+async def check_profile_name(image):
+    height, width, __ = image.shape
+    regex = r'\S{5,20}\n+&'
+    vals = [180, 190]
     maxx = round(width * .56)
     minx = round(width * .05)
-    gym_name_crop = image[miny:maxy, minx:maxx]
-    regex = r'\S+\n+&'
-    vals = [180, 190]
-    for i in vals:
-        thresh=cv2.threshold(gym_name_crop,i,255,cv2.THRESH_BINARY)[1]
-        thresh = cv2.GaussianBlur(thresh, (5, 5), 0)
-        img_text = pytesseract.image_to_string(thresh, lang='eng',config='--psm 4')
-        match = re.search(regex, img_text)
-        if match:
-            return match[0]
+    yvals = [(.13, .24), (.2, .4)]
+    for pair in yvals:
+        maxy = round(height * pair[1])
+        miny = round(height * pair[0])
+        profile_name_crop = image[miny:maxy, minx:maxx]
+        for i in vals:
+            thresh = cv2.threshold(profile_name_crop, i, 255, cv2.THRESH_BINARY)[1]
+            thresh = cv2.GaussianBlur(thresh, (5, 5), 0)
+            img_text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 4')
+            match = re.search(regex, img_text)
+            if match:
+                return match[0].split('&')[0].strip()
 
-def determine_team(file):
-    image = cv2.imread(file)
+
+def determine_team(image):
     b, g, r = image[300, 5]
-    if r > 200 and g > 200:
-        return "yellow"
-    if b > 200:
-        return "blue"
-    if r > 200:
-        return "red"
-    return "grey"
+    if r >= 200 and g >= 200:
+        return "instinct"
+    if b >= 200:
+        return "mystic"
+    if r >= 200:
+        return "valor"
+    return None
 
-def check_profile_level(image):
-    height, width = image.shape
-    maxy = round(height * .7)
-    miny = round(height * .5)
-    maxx = round(width * .2)
-    minx = round(width * .05)
-    gym_name_crop = image[miny:maxy, minx:maxx]
+
+async def check_profile_level(image):
+    height, width, __ = image.shape
     vals = [220, 230, 240]
     regex = r'[1-4]{0,1}[0-9]{1}'
-    for i in vals:
-        thresh=cv2.threshold(gym_name_crop,i,255,cv2.THRESH_BINARY)[1]
+    maxx = round(width * .2)
+    minx = round(width * .05)
+    yvals = [(.5, .7), (.6, .8)]
+    for pair in yvals:
+        maxy = round(height * pair[1])
+        miny = round(height * pair[0])
+        level_crop = image[miny:maxy, minx:maxx]
+        for i in vals:
+            thresh = cv2.threshold(level_crop, i, 255, cv2.THRESH_BINARY)[1]
+            thresh = cv2.GaussianBlur(thresh, (5, 5), 0)
+            img_text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 4')
+            match = re.search(regex, img_text)
+            if match:
+                return match[0]
+
+
+async def get_xp(image):
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    height, width = image.shape
+    maxy = round(height * .78)
+    miny = round(height * .55)
+    maxx = round(width * .96)
+    minx = round(width * .55)
+    xp_crop = image[miny:maxy, minx:maxx]
+    vals = [210, 220]
+    regex = r'[0-9,\.]{3,9}/*\s*[0-9,\.]{3,12}'
+    for t in vals:
+        thresh = cv2.threshold(xp_crop, t, 255, cv2.THRESH_BINARY)[1]
         thresh = cv2.GaussianBlur(thresh, (5, 5), 0)
-        img_text = pytesseract.image_to_string(thresh, lang='eng',config='--psm 4')
+        img_text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 4')
         match = re.search(regex, img_text)
         if match:
-            return match[0]
+            xp_str = match[0]
+            if '/' in xp_str:
+                return xp_str.split('/')[0].strip().replace(',', '').replace('.', '')
+            else:
+                return xp_str.split(' ')[0].strip().replace(',', '').replace('.', '')
 
-def scan_profile(file):
-    image = cv2.imread(file, 0)
-    height, width = image.shape
+
+async def scan_profile(file):
+    image = cv2.imread(file)
+    height, width, __ = image.shape
     if height < 400 or width < 200:
         print(f"height: {height} - width: {width}")
         dim = (round(width*2), round(height*2))
-        image = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
+        image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
     team = determine_team(image)
     if team == 'grey':
-        return
-    level = check_profile_level(image)
-    trainer_name = check_profile_name(image)
+        return None, None, None, None
+    level = await check_profile_level(image)
+    trainer_name = await check_profile_name(image)
+    xp = None
+    if level:
+        try:
+            lev_int = int(level)
+            if lev_int < 40:
+                xp = await get_xp(image)
+        except ValueError:
+            pass
+    return team, level, trainer_name, xp
+
 
 async def check_gym_name(image):
     height, width = image.shape
@@ -349,5 +389,3 @@ async def read_photo_async(file, bot, logger):
             result_phone = await check_phone_time(image)
     return {'egg_time': result_egg, 'expire_time': result_expire, 'boss': result_boss, 's_tier': result_tier,
             'phone_time': result_phone, 'names': result_gym, 'runtime': time.time() - start}
-
-
