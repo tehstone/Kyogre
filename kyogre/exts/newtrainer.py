@@ -67,6 +67,15 @@ class NewTrainer(commands.Cog):
             file = await image_utils.image_pre_check(message.attachments[0])
             await self._setup_profile(ctx, file)
 
+    @staticmethod
+    async def _delete_with_pause(messages):
+        for m in messages:
+            try:
+                await m.delete()
+            except:
+                pass
+            await asyncio.sleep(.3)
+
     # Prompt to upload screenshot
     # Ask if their trainer name is correct, if not what is correct (accept yes/y/newname)
     # Ask if their level is correct or for correct value (accept yes/y/newlevel)
@@ -90,15 +99,15 @@ class NewTrainer(commands.Cog):
                     description="No team color identified. Please try a different image."))
         trainer_dict = self.bot.guild_dict[ctx.guild.id].setdefault('trainers', {})\
             .setdefault('info', {}).setdefault(ctx.author.id, {})
-        await ctx.send(f"{ctx.author.mention} Is this your trainer name: **{trainer_name}** ?"
-                       "\nReply with **Y**es if correct, or your actual trainer name if not.")
+        name_prompt = await ctx.send(f"{ctx.author.mention} Is this your trainer name: **{trainer_name}** ?"
+                                     "\nReply with **Y**es if correct, or your actual trainer name if not.")
         try:
-            response = await self.bot.wait_for('message', timeout=30,
-                                               check=(lambda reply: reply.author == ctx.message.author))
+            response_msg = await self.bot.wait_for('message', timeout=30,
+                                                   check=(lambda reply: reply.author == ctx.message.author))
         except asyncio.TimeoutError:
-            response = None
-        if response:
-            response = response.clean_content.lower()
+            response_msg = None
+        if response_msg:
+            response = response_msg.clean_content.lower()
             if response == 'y' or response == 'yes':
                 pass
             else:
@@ -106,15 +115,16 @@ class NewTrainer(commands.Cog):
             trainer_names = self.bot.guild_dict[ctx.guild.id].setdefault('trainer_names', {})
             trainer_names[trainer_name] = ctx.author.id
             trainer_dict['trainername'] = trainer_name
-        await ctx.send(f"{ctx.author.mention}  Are you level **{level}**?"
-                       "\nReply with **Y**es if correct, or your actual level if not.")
+        await self._delete_with_pause([name_prompt, response_msg])
+        level_prompt = await ctx.send(f"{ctx.author.mention}  Are you level **{level}**?"
+                                      "\nReply with **Y**es if correct, or your actual level if not.")
         try:
-            response = await self.bot.wait_for('message', timeout=30,
-                                               check=(lambda reply: reply.author == ctx.message.author))
+            response_msg = await self.bot.wait_for('message', timeout=30,
+                                                   check=(lambda reply: reply.author == ctx.message.author))
         except asyncio.TimeoutError:
-            response = None
-        if response:
-            response = response.clean_content.lower()
+            response_msg = None
+        if response_msg:
+            response = response_msg.clean_content.lower()
             if response == 'y' or response == 'yes':
                 pass
             else:
@@ -132,6 +142,7 @@ class NewTrainer(commands.Cog):
             trainer_dict['xp'] = level_xp_map[40]
             quickbadge_cog = self.bot.cogs.get('QuickBadge')
             await quickbadge_cog.set_fourty(ctx)
+        await self._delete_with_pause([level_prompt, response_msg])
         team_role = discord.utils.get(ctx.guild.roles, name=scan_team)
         if team_role is not None:
             await ctx.author.add_roles(team_role)

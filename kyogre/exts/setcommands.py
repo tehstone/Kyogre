@@ -219,6 +219,15 @@ class SetCommands(commands.Cog):
     async def profile(self, ctx):
         if not ctx.guild:
             return await ctx.send("Please use this command within a server.")
+        listen_channels = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings'] \
+            .setdefault('profile_scan_listen_channels', [])
+        if ctx.channel.id not in listen_channels:
+            if len(listen_channels) > 0:
+                listen_channel = ctx.guild.get_channel(listen_channels[0])
+                embed = discord.Embed(colour=discord.Colour.red())
+                embed.description = f"Please use this command in {listen_channel.mention}."
+                await ctx.message.delete()
+                return await ctx.send(embed=embed, delete_after=15)
         await ctx.send("I will message you directly to help you get your profile set up.")
         try:
             await ctx.author.send("Let's get your profile set up!")
