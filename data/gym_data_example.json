@@ -10,5 +10,5 @@
         "ex_eligible": false,
         "region": "some_region_name",
         "guild": "guild_id"
-    },
+    }
 }

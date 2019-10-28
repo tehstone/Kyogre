@@ -171,12 +171,12 @@ class QuickBadge(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        ctx = await self.bot.get_context(payload.message, cls=Context)
-        channel = ctx.channel
+        channel = self.bot.get_channel(payload.channel_id)
         try:
             message = await channel.fetch_message(payload.message_id)
         except (discord.errors.NotFound, AttributeError):
             return
+        ctx = await self.bot.get_context(message)
         guild = message.guild
         if not guild:
             return

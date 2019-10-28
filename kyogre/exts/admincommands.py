@@ -39,7 +39,7 @@ class AdminCommands(commands.Cog):
     @commands.command(hidden=True, name='mentiontoggle', aliases=['mt'])
     @commands.has_permissions(manage_roles=True)
     async def mention_toggle(self, ctx, rolename):
-        """**Usage**: `!mention_toggle/mt <role>`
+        """**Usage**: `!mentiontoggle/mt <role>`
         Enables or disables the "role can be tagged" setting for the role provided.
         """
         role = discord.utils.get(ctx.guild.roles, name=rolename)

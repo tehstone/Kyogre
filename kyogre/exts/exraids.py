@@ -1,6 +1,7 @@
 import asyncio
 import copy
 import datetime
+from dateutil.parser import parse
 import time
 
 import discord
@@ -154,7 +155,8 @@ class EXRaids(commands.Cog):
         attendance_str = self._get_team_count_str(ctx, ex_raid_dict)
         ex_embed.add_field(name='**Attending:**', value=attendance_str)
         tip_str = "Use `!invite` or `!in` if you plan to attend\n"
-        tip_str += "If you will be attending with additional accounts or friends, you can specify a number"
+        tip_str += "If you will be attending with additional accounts or friends, you can specify a number\n"
+        tip_str += "Use `!set-hatch/sh if the start time for this raid is not listed correctly."
         ex_embed.add_field(name='**Tips:**', value=tip_str)
         egg_img = self.bot.raid_info['raid_eggs']['EX']['egg_img']
         raid_img_url = "https://github.com/tehstone/Kyogre/blob/master/images/eggs/{}?raw=true"\
@@ -201,6 +203,29 @@ class EXRaids(commands.Cog):
         await channel_message.edit(embed=embed)
         await ctx.channel.send(f"{ctx.author.display_name} will be attending with {count}")
         await ctx.message.delete()
+
+    @commands.command(name='set-hatch', aliases=['sh'])
+    @checks.exraidchannel()
+    async def _set_hatch(self, ctx, *, new_datestr):
+        new_date = parse(new_datestr)
+        date_key = new_date.strftime("%b_%d").lower()
+        start_time = new_date.strftime("%H:%M")
+        hatch, expire = self._calculate_ex_start_time(date_key, start_time)
+        channel = ctx.channel
+        ex_raid = self.bot.guild_dict[channel.guild.id]['exchannel_dict'][channel.category_id]['channels'][channel.id]
+        ex_raid['hatch'] = hatch
+        ex_raid['expire'] = expire
+        embed = await self._build_ex_embed(ctx, ex_raid)
+        channel_message_id = ex_raid['channel_message']
+        channel_message = await ctx.channel.fetch_message(channel_message_id)
+        location_matching_cog = self.bot.cogs.get('LocationMatching')
+        gym_id = ex_raid['gym']
+        gym = location_matching_cog.get_gym_by_id(ctx.guild.id, gym_id)
+        name = utils.sanitize_name(f"{start_time.lower().replace(':', '')} {gym.name}")[:36]
+        await ctx.channel.edit(name=name)
+        await channel_message.edit(embed=embed)
+        new_hatch_str = datetime.datetime.fromtimestamp(hatch).strftime('%a %b %d %I:%M %p')
+        await ctx.channel.send(f"The start time for this EX raid has been changed to **{new_hatch_str}**!")
 
     def _get_team_count_str(self, ctx, ex_raid_dict):
         team_counts = {"instinct": 0,

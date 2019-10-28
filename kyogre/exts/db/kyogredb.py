@@ -193,7 +193,8 @@ class LocationTable(BaseModel):
                                     LocationRegionRelation.create(location=location, region=region)
                         if 'notes' in data:
                             for note in data['notes']:
-                                LocationNoteTable.create(location=location, note=note)
+                                if note:
+                                    LocationNoteTable.create(location=location, note=note)
                         if 'ex_eligible' in data:
                             GymTable.create(location=location, ex_eligible=data['ex_eligible'])
                         else:
