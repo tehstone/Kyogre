@@ -143,6 +143,20 @@ class NewTrainer(commands.Cog):
             quickbadge_cog = self.bot.cogs.get('QuickBadge')
             await quickbadge_cog.set_fourty(ctx)
         await self._delete_with_pause([level_prompt, response_msg])
+        friend_prompt = await ctx.send("Would you like to add your Friend Code to your profile?\n"
+                                       "Reply with your **Friend Code** or with **N**o to skip.")
+        try:
+            response_msg = await self.bot.wait_for('message', timeout=30,
+                                                   check=(lambda reply: reply.author == ctx.message.author))
+        except asyncio.TimeoutError:
+            response_msg = None
+        if response_msg:
+            response = response_msg.clean_content.lower()
+            if response == 'n' or response == 'no':
+                pass
+            else:
+                trainer_dict['code'] = response
+        await self._delete_with_pause([friend_prompt, response_msg])
         team_role = discord.utils.get(ctx.guild.roles, name=scan_team)
         if team_role is not None:
             await ctx.author.add_roles(team_role)

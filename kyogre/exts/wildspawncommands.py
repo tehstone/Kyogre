@@ -64,7 +64,8 @@ class WildSpawnCommands(commands.Cog):
             wild_details = re.sub(pkmn.name.lower(), '', content, flags=re.I)
         coords_regex = r'-*[0-9]+\.[0-9]+,\S*-*[0-9]+\.[0-9]+'
         matches = re.search(coords_regex, wild_details)
-        wild_gmaps_link = None
+        wild_gmaps_link, location_id = None, None
+
         if matches:
             if ',' in matches[0]:
                 lat, lng = matches[0].split(',')
@@ -75,7 +76,6 @@ class WildSpawnCommands(commands.Cog):
             wild_details = 'Custom Map Pin'
         else:
             locations = location_matching_cog.get_all(guild.id, channel_regions)
-            location_id = None
             if locations and not ('http' in wild_details or '/maps' in wild_details):
                 location = await location_matching_cog.match_prompt(channel, author.id, location, locations)
                 if location:

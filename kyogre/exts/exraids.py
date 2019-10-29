@@ -156,7 +156,7 @@ class EXRaids(commands.Cog):
         ex_embed.add_field(name='**Attending:**', value=attendance_str)
         tip_str = "Use `!invite` or `!in` if you plan to attend\n"
         tip_str += "If you will be attending with additional accounts or friends, you can specify a number\n"
-        tip_str += "Use `!set-hatch/sh if the start time for this raid is not listed correctly."
+        tip_str += "Use `!set-hatch/sh` if the start time for this raid is not listed correctly."
         ex_embed.add_field(name='**Tips:**', value=tip_str)
         egg_img = self.bot.raid_info['raid_eggs']['EX']['egg_img']
         raid_img_url = "https://github.com/tehstone/Kyogre/blob/master/images/eggs/{}?raw=true"\

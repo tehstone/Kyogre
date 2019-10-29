@@ -209,7 +209,8 @@ class SetCommands(commands.Cog):
         return await ctx.message.add_reaction('✅')
 
     profile_steps = [{'prompt': "What team are you on?", 'td_key': 'team'},
-                     {'prompt': "What is your current xp?", 'td_key': 'xp'},
+                     {'prompt': "What is your current xp?\n*Scroll to the bottom of your profile for this number*",
+                      'td_key': 'xp'},
                      {'prompt': "What is your friend code?", 'td_key': 'code'},
                      {'prompt': "What is your Trainer Name?", 'td_key': 'trainername'},
                      {'prompt': "What is the name on your Silph Road Traveler's Card?", 'td_key': 'silphid'},
