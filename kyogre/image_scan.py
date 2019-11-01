@@ -19,19 +19,26 @@ Level 4    9000
 Level 5    15000
 Level 6    22500 * NEED TO CONFIRM - this was back calculated from formula above with Darkrai's CP
 """
-raid_cp_chart = {"2873": "Shinx",
+raid_cp_chart = {"2825": "Snorunt",
+                 "2873": "Shinx",
                  "3113": "Squirtle",
                  "3151": "Drifloon",
+                 "3296": "Beldum",
                  "3334": "Charmander",
                  "3656": "Bulbasaur",
                  "2596": "Patrat",
                  "3227": "Klink",
+                 "4365": "Geodude",
                  "13472": "Alolan Exeggutor",
                  "10038": "Misdreavus",
                  "10981": "Sneasel",
                  "8132": "Sableye",
+                 "8689": "Anorith",
+                 "6539": "Lileep",
                  "9008": "Mawile",
                  "5825": "Yamask",
+                 "18678": "Aerodactyl",
+                 "3892": "Shuckle",
                  "15324": "Sharpedo",
                  "16848": "Alolan Raichu",
                  "19707": "Machamp",
@@ -39,13 +46,19 @@ raid_cp_chart = {"2873": "Shinx",
                  "16457": "Granbull",
                  "14546": "Piloswine",
                  "14476": "Skuntank",
+                 "15182": "Skarmory",
+                 "25828": "Walrein",
+                 "33326": "Aggron",
+                 "23476": "Lapras",
                  "21385": "Alolan Marowak",
                  "21360": "Umbreon",
                  "38490": "Dragonite",
-                 "65675": "Tyranitar",
                  "20453": "Togetic",
                  "28590": "Houndoom",
                  "28769": "Absol",
+                 "25962": "Registeel",
+                 "33128": "Regice",
+                 "33128": "Regirock",
                  "38326": "Altered Giratina",
                  "65675": "Darkrai"
                  }
@@ -259,6 +272,7 @@ async def check_gym_name(image):
         thresh = cv2.GaussianBlur(thresh, (5, 5), 0)
         img_text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 4')
         img_text = [s for s in list(filter(None, img_text.split('\n'))) if len(s) > 3]
+        print(img_text)
         possible_text = []
         for line in img_text:
             if 'EXRAID' in line or 'EX RAID' in line:

@@ -392,7 +392,7 @@ class Pokemon():
     def get_boss_cp(self):
         if not self.is_raid:
             return None
-        stamina = self._raid_stamina[self.raid_level]
+        stamina = self._raid_stamina[int(self.raid_level)]
         return int(((self.base_attack + 15) * math.sqrt(self.base_defense + 15) * math.sqrt(stamina)) / 10)
 
     @classmethod
