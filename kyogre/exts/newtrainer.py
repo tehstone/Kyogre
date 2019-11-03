@@ -143,10 +143,10 @@ class NewTrainer(commands.Cog):
             quickbadge_cog = self.bot.cogs.get('QuickBadge')
             await quickbadge_cog.set_fourty(ctx)
         await self._delete_with_pause([level_prompt, response_msg])
-        friend_prompt = await ctx.send("Would you like to add your Friend Code to your profile?\n"
+        friend_prompt = await ctx.send(f"{ctx.author.mention} Would you like to add your Friend Code to your profile?\n"
                                        "Reply with your **Friend Code** or with **N**o to skip.")
         try:
-            response_msg = await self.bot.wait_for('message', timeout=30,
+            response_msg = await self.bot.wait_for('message', timeout=60,
                                                    check=(lambda reply: reply.author == ctx.message.author))
         except asyncio.TimeoutError:
             response_msg = None
