@@ -91,7 +91,7 @@ class EXRaids(commands.Cog):
                               f"If you have an invite to this raid, RSVP in: {ex_channel.mention}"
         report_message = await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.gold(),
                                                                     description=report_message_text))
-        hatch, expire = self._calculate_ex_start_time(date_key, start_time)
+        hatch, expire = self._calculate_ex_start_time(date_key, start_time, ctx.guild.id)
         ex_dict = self.bot.guild_dict[ctx.guild.id]['exchannel_dict'][category_id]['channels']
         ex_raid_dict = {
             "hatch": hatch,
@@ -148,8 +148,10 @@ class EXRaids(commands.Cog):
         ex_embed.add_field(name='Directions',
                            value=f'[Google]({raid_gmaps_link}) | [Waze]({waze_link}) | [Apple]({apple_link})',
                            inline=False)
-        hatch = datetime.datetime.fromtimestamp(ex_raid_dict['hatch'])
-        expire = datetime.datetime.fromtimestamp(ex_raid_dict['expire'])
+        offset = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset']
+        offset *= (60*60)
+        hatch = datetime.datetime.fromtimestamp(ex_raid_dict['hatch'] + offset)
+        expire = datetime.datetime.fromtimestamp(ex_raid_dict['expire'] + offset)
         ex_embed.add_field(name='**Hatches:**', value=f"{hatch.strftime('%a %b %d %I:%M %p')}")
         ex_embed.add_field(name='**Expires:**', value=f"{expire.strftime('%a %b %d %I:%M %p')}")
         attendance_str = self._get_team_count_str(ctx, ex_raid_dict)
@@ -164,7 +166,7 @@ class EXRaids(commands.Cog):
         ex_embed.set_thumbnail(url=raid_img_url)
         return ex_embed
 
-    def _calculate_ex_start_time(self, date_key, start_time):
+    def _calculate_ex_start_time(self, date_key, start_time, guild_id):
         months, days = date_key.split('_')
         days = int(days)
         months = month_map[months]
@@ -173,6 +175,8 @@ class EXRaids(commands.Cog):
         if hours < 9:
             hours += 12
         hatch = datetime.datetime.utcnow().replace(month=months, day=days, hour=hours, minute=minutes, second=0)
+        offset = self.bot.guild_dict[guild_id]['configure_dict']['settings']['offset'] * -1
+        hatch = hatch + datetime.timedelta(hours=offset)
         raid_length = self.bot.raid_info['raid_eggs']['EX']['raidtime']
         expire = hatch + datetime.timedelta(minutes=raid_length)
         return hatch.timestamp(), expire.timestamp()
@@ -210,7 +214,7 @@ class EXRaids(commands.Cog):
         new_date = parse(new_datestr)
         date_key = new_date.strftime("%b_%d").lower()
         start_time = new_date.strftime("%H:%M")
-        hatch, expire = self._calculate_ex_start_time(date_key, start_time)
+        hatch, expire = self._calculate_ex_start_time(date_key, start_time, ctx.guild.id)
         channel = ctx.channel
         ex_raid = self.bot.guild_dict[channel.guild.id]['exchannel_dict'][channel.category_id]['channels'][channel.id]
         ex_raid['hatch'] = hatch
@@ -224,7 +228,10 @@ class EXRaids(commands.Cog):
         name = utils.sanitize_name(f"{start_time.lower().replace(':', '')} {gym.name}")[:36]
         await ctx.channel.edit(name=name)
         await channel_message.edit(embed=embed)
-        new_hatch_str = datetime.datetime.fromtimestamp(hatch).strftime('%a %b %d %I:%M %p')
+        offset = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset']
+        offset *= (60 * 60)
+        hatch = datetime.datetime.fromtimestamp(hatch + offset)
+        new_hatch_str = datetime.datetime.fromtimestamp(hatch.timestamp()).strftime('%a %b %d %I:%M %p')
         await ctx.channel.send(f"The start time for this EX raid has been changed to **{new_hatch_str}**!")
 
     def _get_team_count_str(self, ctx, ex_raid_dict):

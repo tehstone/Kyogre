@@ -119,9 +119,9 @@ class RaidParty(commands.Cog):
                 else:
                     trainer_list.append(guild.get_member(trainer).mention)
         if len(trainer_list) > 0:
-            message = "Hey " + ', '.join(trainer_list) + "!"
+            notify_message = "Hey " + ', '.join(trainer_list) + "!"
             embed.add_field(name=f"Message from {author.display_name}", value=shout_message)
-            await channel.send(content=message, embed=embed)
+            await channel.send(content=notify_message, embed=embed)
         else:
             await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
                                                    title="There is no one here to hear you!"))
