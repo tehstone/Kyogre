@@ -618,6 +618,9 @@ class RaidCommands(commands.Cog):
                                       raid_channel, author)
         self.bot.event_loop.create_task(self.expiry_check(raid_channel))
         await self._add_db_raid_report(ctx, raid_channel)
+        clean_list = self.bot.guild_dict[ctx.guild.id]['configure_dict'].setdefault('channel_auto_clean', [])
+        if ctx.channel.id in clean_list:
+            await ctx.message.delete()
         return raid_channel
 
     async def create_raid_channel(self, raid_type, pkmn, level, gym, report_channel):
