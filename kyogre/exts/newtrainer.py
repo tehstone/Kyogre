@@ -97,7 +97,10 @@ class NewTrainer(commands.Cog):
                 embed=discord.Embed(
                     colour=discord.Colour.red(),
                     description="No team color identified. Please try a different image."))
-        trainer_dict = self.bot.guild_dict[ctx.guild.id].setdefault('trainers', {})\
+        team_role = discord.utils.get(ctx.guild.roles, name=scan_team)
+        if team_role is not None:
+            await ctx.author.add_roles(team_role)
+        trainer_dict = self.bot.guild_dict[ctx.guild.id].setdefault('trainers', {}) \
             .setdefault('info', {}).setdefault(ctx.author.id, {})
         name_prompt = await ctx.send(f"{ctx.author.mention} Is this your trainer name: **{trainer_name}** ?"
                                      "\nReply with **Y**es if correct, or your actual trainer name if not.")
@@ -117,6 +120,7 @@ class NewTrainer(commands.Cog):
             trainer_dict['trainername'] = trainer_name
         await self._delete_with_pause([name_prompt, response_msg])
         level_prompt = await ctx.send(f"{ctx.author.mention}  Are you level **{level}**?"
+                                      " Your level plus the XP displayed will determine your total XP."
                                       "\nReply with **Y**es if correct, or your actual level if not.")
         try:
             response_msg = await self.bot.wait_for('message', timeout=30,

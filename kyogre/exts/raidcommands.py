@@ -560,8 +560,9 @@ class RaidCommands(commands.Cog):
                             'location': raid_details,
                             'regions': gym_regions}
         raidmessage = await raid_channel.send(content=raidmsg, embed=raid_embed)
-        await utils.reaction_delay(raidmessage, ['\u2754', '\u270f', '🚫'])
-        await raidmessage.pin()
+        if enabled:
+            await utils.reaction_delay(raidmessage, ['\u2754', '\u270f', '🚫'])
+            await raidmessage.pin()
         raid_dict['raidmessage'] = raidmessage.id
         raid_dict['raidreport'] = raidreport.id
         raid_dict['raidcityreport'] = None
