@@ -265,7 +265,7 @@ async def check_gym_name(image):
     maxx = round(width * .92)
     minx = round(width * .15)
     gym_name_crop = image[miny:maxy, minx:maxx]
-    vals = [200, 210]
+    vals = [200, 210, 220]
     possible_names = []
     for i in vals:
         thresh = cv2.threshold(gym_name_crop, i, 255, cv2.THRESH_BINARY)[1]
@@ -288,7 +288,7 @@ async def check_gym_name(image):
 
 
 def sub(m):
-    s = {'o', 'os', 'oS', 'So', 'S', 'C', 'CS', 'O', ' )', 'Q'}
+    s = {'o', 'os', 'oS', 'So', 'S', 'C', 'CS', 'O', ' )', 'Q', 'CO', 'OQ'}
     return '' if m.group() in s else m.group()
 
 
@@ -389,9 +389,7 @@ async def read_photo_async(file, bot, logger):
         # May make sense to reverse this. Tough call.
         if not result_egg:
             result_boss = await check_boss_cp(image, bot)
-            # If we don't find a boss, don't look for expire time
-            if result_boss:
-                result_expire = await check_expire_time(image)
+            result_expire = await check_expire_time(image)
         else:
             try:
                 result_tier = await check_egg_tier(image)

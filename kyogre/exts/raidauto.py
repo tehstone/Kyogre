@@ -174,9 +174,10 @@ class RaidAuto(commands.Cog):
                         colour=discord.Colour.red(),
                         description="Could not determine gym name from screenshot, unable to create raid channel. "
                                     "Please report using the command instead: `!r <boss/tier> <gym name> <time>`"))
-            c_file = None
+            c_file, timev = None, None
             if raid_info['egg_time']:
                 raid_info['type'] = 'egg'
+                timev = raid_info['egg_time']
                 c_file = self._crop_tier(file)
                 tiers = testident.determine_tier(c_file)
                 self.bot.gcv_logger.info(tiers)
@@ -193,6 +194,15 @@ class RaidAuto(commands.Cog):
                                          "`!r <boss/tier> <gym name> <time>`")))
                 raid_info['tier'] = tier
                 self._cleanup_file(file, f"screenshots/{tier}")
+            elif not raid_info['boss']:
+                self.bot.gcv_logger.info(raid_info)
+                self._cleanup_file(file, f"screenshots/no_tier")
+                return await message.channel.send(
+                    embed=discord.Embed(
+                        colour=discord.Colour.red(),
+                        description=("Could not determine raid boss or egg level from screenshot, unable to create "
+                                     "raid channel. If you're trying to report a raid, please use the command instead: "
+                                     "`!r <boss/tier> <gym name> <time>`")))
             if raid_info['expire_time'] or raid_info['boss']:
                 raid_info['type'] = 'raid'
             timev = None
