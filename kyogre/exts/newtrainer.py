@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 import discord
 from discord.ext import commands
@@ -65,7 +66,7 @@ class NewTrainer(commands.Cog):
         if message.channel.id in listen_channels:
             await message.add_reaction('🤔')
             file = await image_utils.image_pre_check(message.attachments[0])
-            await self._setup_profile(ctx, file)
+            await self._setup_profile(ctx, file, message.attachments[0].url)
 
     @staticmethod
     async def _delete_with_pause(messages):
@@ -80,7 +81,7 @@ class NewTrainer(commands.Cog):
     # Ask if their trainer name is correct, if not what is correct (accept yes/y/newname)
     # Ask if their level is correct or for correct value (accept yes/y/newlevel)
     # Regardless of answers, set their team
-    async def _setup_profile(self, ctx, file):
+    async def _setup_profile(self, ctx, file, u):
         team_role_names = [r.lower() for r in self.bot.team_color_map.keys()]
         for team in team_role_names:
             temp_role = discord.utils.get(ctx.guild.roles, name=team)
@@ -91,7 +92,18 @@ class NewTrainer(commands.Cog):
                     err_msg = f"{ctx.author.mention} your team is already set. Ask for help if you need to change it." \
                               "\nIf you would like to update your profile, use `!set profile`"
                     return await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=err_msg))
-        scan_team, level, trainer_name, xp = await image_scan.scan_profile(file)
+        try:
+            data = json.loads('{"image_url": "' + u + '"}')
+            async with self.bot.session.post(url='http://localhost:8000/v1/profile', json=data) as response:
+                result = await response.json()
+                image_info = result['output']
+                scan_team = image_info['team']
+                level = image_info['level']
+                trainer_name = image_info['trainer_name']
+                xp = image_info['xp']
+        except:
+            print("failed")
+            scan_team, level, trainer_name, xp = await image_scan.scan_profile(file)
         if not scan_team:
             return await ctx.channel.send(
                 embed=discord.Embed(

@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 from operator import itemgetter
 
@@ -162,7 +163,7 @@ class RaidAuto(commands.Cog):
             self.bot.gcv_logger.info(file)
             utils_cog = self.bot.cogs.get('Utilities')
             regions = utils_cog.get_channel_regions(ctx.channel, 'raid')
-            raid_info = await self._scan_wrapper(ctx, file, regions)
+            raid_info = await self._scan_wrapper(ctx, file, a.url, regions)
             if raid_info["gym"] is None:
                 if not raid_info['egg_time'] and not raid_info['boss'] and not raid_info['expire_time']:
                     self._cleanup_file(file, f"screenshots/not_raid")
@@ -350,8 +351,17 @@ class RaidAuto(commands.Cog):
             print(f"scanned: {name}\nproduced: {results}")
         pass
 
-    async def _scan_wrapper(self, ctx, file, region=None):
-        image_info = await image_scan.read_photo_async(file, self.bot, self.bot.gcv_logger)
+    async def _scan_wrapper(self, ctx, file, u, region=None):
+        try:
+            url = 'http://localhost:8000/v1/raid'
+            p_url = '{"image_url": "' + u + '"}'
+            data = json.loads(p_url)
+            async with self.bot.session.post(url=url, json=data) as response:
+                result = await response.json()
+                image_info = result['output']
+        except:
+            print("failed")
+            image_info = await image_scan.read_photo_async(file, self.bot, self.bot.gcv_logger)
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         gyms = location_matching_cog.get_gyms(ctx.guild.id, region)
         gym = None

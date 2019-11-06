@@ -4,6 +4,7 @@ import datetime
 import sys
 import time
 
+import aiohttp
 import discord
 
 from kyogre.bot import KyogreBot
@@ -157,6 +158,8 @@ Events
 """
 @Kyogre.event
 async def on_ready():
+    if not Kyogre.session:
+        Kyogre.session = aiohttp.ClientSession()
     Kyogre.owner = discord.utils.get(
         Kyogre.get_all_members(), id=config['master'])
     await _print(Kyogre.owner, 'Starting up...')

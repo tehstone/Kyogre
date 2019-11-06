@@ -1,6 +1,8 @@
 import asyncio
 import copy
 import datetime
+import json
+
 from dateutil.parser import parse
 import time
 
@@ -41,7 +43,7 @@ class EXRaids(commands.Cog):
         if message.channel.id in listen_channels:
             await message.add_reaction('🤔')
             file = await image_utils.image_pre_check(message.attachments[0])
-            gym, date_key, start_time = await self.parse_ex_pass(ctx, file)
+            gym, date_key, start_time = await self.parse_ex_pass(ctx, file, message.attachments[0].url)
             ex_raid_dict = self.bot.guild_dict[ctx.guild.id].setdefault('exchannel_dict', {})
             ex_channel_ids = self.get_existing_raid(ctx.guild, gym, ex_raid_dict)
             if ex_channel_ids:
@@ -58,8 +60,14 @@ class EXRaids(commands.Cog):
                     description=f"Could not determine gym name or pass date from EX Pass screenshot."))
             return await self._process_ex_request(ctx, gym, start_time, date_key)
 
-    async def parse_ex_pass(self, ctx, file):
-        ex_info = await image_scan.check_gym_ex(file)
+    async def parse_ex_pass(self, ctx, file, u):
+        try:
+            data = json.loads('{"image_url": "' + u + '"}')
+            async with self.bot.session.post(url='http://localhost:8000/v1/profile', json=data) as response:
+                result = await response.json()
+                ex_info = result['output']
+        except:
+            ex_info = await image_scan.check_gym_ex(file)
         if not ex_info['gym']:
             return None, None, None
         region, gym, date_key, start_time = None, None, None, None

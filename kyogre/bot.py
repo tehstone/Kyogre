@@ -100,6 +100,7 @@ class KyogreBot(commands.AutoShardedBot):
                                'Valor': discord.Colour.red(),
                                'Instinct': discord.Colour.from_rgb(255, 255, 0)}
         self.saved_files = {}
+        self.session = None
 
         for ext in default_exts:
             try:
