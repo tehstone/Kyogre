@@ -1,4 +1,6 @@
 import os
+import shutil
+
 from PIL import Image
 
 
@@ -67,3 +69,13 @@ async def _save_image(attachment):
     with open(filepath, 'wb') as out_file:
         await attachment.save(out_file)
     return filepath
+
+
+def cleanup_file(file, dst):
+    try:
+        filename = os.path.split(file)[1]
+        dest = os.path.join(dst, filename)
+        shutil.move(file, dest)
+        return dest
+    except:
+        return file

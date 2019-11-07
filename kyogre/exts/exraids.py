@@ -46,24 +46,25 @@ class EXRaids(commands.Cog):
             gym, date_key, start_time = await self.parse_ex_pass(ctx, file, message.attachments[0].url)
             ex_raid_dict = self.bot.guild_dict[ctx.guild.id].setdefault('exchannel_dict', {})
             ex_channel_ids = self.get_existing_raid(ctx.guild, gym, ex_raid_dict)
-            if ex_channel_ids:
-                ex_channel = self.bot.get_channel(ex_channel_ids[0])
-                if ex_channel and self.bot.guild_dict[ctx.guild.id]['exchannel_dict'][ex_channel.category_id]\
-                                      ['channels'][ex_channel.id]:
-                    return await ctx.channel.send(
-                        embed=discord.Embed(
-                            colour=discord.Colour.red(),
-                            description=f"An EX raid has already been reported for {gym.name}.\n{ex_channel.mention}"))
             if not gym or not date_key:
                 return await ctx.channel.send(embed=discord.Embed(
                     colour=discord.Colour.red(),
                     description=f"Could not determine gym name or pass date from EX Pass screenshot."))
+            image_utils.cleanup_file(file, f"screenshots/ex")
+            if ex_channel_ids:
+                ex_channel = self.bot.get_channel(ex_channel_ids[0])
+                if ex_channel and self.bot.guild_dict[ctx.guild.id]['exchannel_dict'][ex_channel.category_id]\
+                                      ['channels'][ex_channel.id]:
+                    await ctx.channel.send(
+                        embed=discord.Embed(
+                            colour=discord.Colour.red(),
+                            description=f"An EX raid has already been reported for {gym.name}.\n{ex_channel.mention}"))
             return await self._process_ex_request(ctx, gym, start_time, date_key)
 
     async def parse_ex_pass(self, ctx, file, u):
         try:
             data = json.loads('{"image_url": "' + u + '"}')
-            async with self.bot.session.post(url='http://localhost:8000/v1/profile', json=data) as response:
+            async with self.bot.session.post(url='http://localhost:8000/v1/expass', json=data) as response:
                 result = await response.json()
                 ex_info = result['output']
         except:

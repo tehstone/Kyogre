@@ -3,7 +3,6 @@ import json
 import os
 from operator import itemgetter
 
-import shutil
 import time
 from PIL import Image
 
@@ -137,7 +136,7 @@ class RaidAuto(commands.Cog):
             for attachment in message.attachments:
                 file = await image_utils.image_pre_check(attachment)
                 start = time.time()
-                await self.scan_test(ctx, file)
+                await self.scan_test(ctx, file, attachment.url)
                 self.bot.gcv_logger.info(f"test scan: {time.time()-start}")
             return
         if not checks.check_raidreport(ctx) and not checks.check_raidchannel(ctx):
@@ -155,26 +154,28 @@ class RaidAuto(commands.Cog):
                 clean_list = self.bot.guild_dict[ctx.guild.id]['configure_dict'].setdefault('channel_auto_clean', [])
                 if ctx.channel.id in clean_list:
                     await ctx.message.delete()
-                return await ctx.channel.send(
+                await ctx.channel.send(
                     embed=discord.Embed(
                         colour=discord.Colour.red(),
                         description="This image has already been scanned. If a raid was not created previously from this "
                                     "image, please report using the command instead:\n `!r <boss/tier> <gym name> <time>`"))
+                break
             self.bot.gcv_logger.info(file)
             utils_cog = self.bot.cogs.get('Utilities')
             regions = utils_cog.get_channel_regions(ctx.channel, 'raid')
             raid_info = await self._scan_wrapper(ctx, file, a.url, regions)
             if raid_info["gym"] is None:
                 if not raid_info['egg_time'] and not raid_info['boss'] and not raid_info['expire_time']:
-                    self._cleanup_file(file, f"screenshots/not_raid")
+                    image_utils.cleanup_file(file, f"screenshots/not_raid")
                     return await ctx.message.clear_reactions()
                 self.bot.gcv_logger.info(raid_info)
-                self._cleanup_file(file, f"screenshots/no_gym")
-                return await message.channel.send(
+                image_utils.cleanup_file(file, f"screenshots/no_gym")
+                await message.channel.send(
                     embed=discord.Embed(
                         colour=discord.Colour.red(),
                         description="Could not determine gym name from screenshot, unable to create raid channel. "
                                     "Please report using the command instead: `!r <boss/tier> <gym name> <time>`"))
+                break
             c_file, timev = None, None
             if raid_info['egg_time']:
                 raid_info['type'] = 'egg'
@@ -185,24 +186,26 @@ class RaidAuto(commands.Cog):
                 tier = self._confirm_tier(tier, raid_info['s_tier'])
                 if tier == '0':
                     self.bot.gcv_logger.info(raid_info)
-                    self._cleanup_file(file, f"screenshots/no_tier")
-                    return await message.channel.send(
+                    image_utils.cleanup_file(file, f"screenshots/no_tier")
+                    await message.channel.send(
                         embed=discord.Embed(
                             colour=discord.Colour.red(),
                             description=("Could not determine raid boss or egg level from screenshot, unable to create "
                                          "raid channel. If you're trying to report a raid, please use the command instead: "
                                          "`!r <boss/tier> <gym name> <time>`")))
+                    break
                 raid_info['tier'] = tier
-                self._cleanup_file(file, f"screenshots/{tier}")
+                image_utils.cleanup_file(file, f"screenshots/{tier}")
             elif not raid_info['boss']:
                 self.bot.gcv_logger.info(raid_info)
-                self._cleanup_file(file, f"screenshots/no_tier")
-                return await message.channel.send(
+                image_utils.cleanup_file(file, f"screenshots/no_tier")
+                await message.channel.send(
                     embed=discord.Embed(
                         colour=discord.Colour.red(),
                         description=("Could not determine raid boss or egg level from screenshot, unable to create "
                                      "raid channel. If you're trying to report a raid, please use the command instead: "
                                      "`!r <boss/tier> <gym name> <time>`")))
+                break
             if raid_info['expire_time'] or raid_info['boss']:
                 raid_info['type'] = 'raid'
             timev = None
@@ -217,7 +220,7 @@ class RaidAuto(commands.Cog):
             self.bot.gcv_logger.info(raid_info)
             self.bot.gcv_logger.info(f"real scan: {time.time() - start}")
             await self.create_raid(ctx, raid_info)
-            self._cleanup_file(file, f"screenshots/boss")
+            image_utils.cleanup_file(file, f"screenshots/boss")
             if c_file:
                 os.remove(c_file)
 
@@ -241,17 +244,17 @@ class RaidAuto(commands.Cog):
     async def _build_raid_info(self, tier, file):
         raid_info = {}
         if tier == "0":
-            self._cleanup_file(file, "screenshots/not_raid")
+            image_utils.cleanup_file(file, "screenshots/not_raid")
             return None, None
         elif tier.isdigit():
-            file = self._cleanup_file(file, f"screenshots/{tier}")
+            file = image_utils.cleanup_file(file, f"screenshots/{tier}")
             raid_info["type"] = "egg"
             raid_info["level"] = f"{tier}"
         else:
             out_path = os.path.join("screenshots", tier)
             if not os.path.exists(out_path):
                 os.makedirs(out_path)
-            file = self._cleanup_file(file, out_path)
+            file = image_utils.cleanup_file(file, out_path)
             raid_info["type"] = "raid"
             raid_info["boss"] = tier
         return raid_info, file
@@ -316,16 +319,6 @@ class RaidAuto(commands.Cog):
         return usage[0].count
 
     @staticmethod
-    def _cleanup_file(file, dst):
-        try:
-            filename = os.path.split(file)[1]
-            dest = os.path.join(dst, filename)
-            shutil.move(file, dest)
-            return dest
-        except:
-            return file
-
-    @staticmethod
     def _crop_tier(file):
         filename, file_extension = os.path.splitext(file)
         filename += '_c'
@@ -351,16 +344,14 @@ class RaidAuto(commands.Cog):
         pass
 
     async def _scan_wrapper(self, ctx, file, u, region=None):
-        try:
-            url = 'http://localhost:8000/v1/raid'
-            p_url = '{"image_url": "' + u + '"}'
-            data = json.loads(p_url)
-            async with self.bot.session.post(url=url, json=data) as response:
-                result = await response.json()
-                image_info = result['output']
-        except:
-            print("failed")
-            image_info = await image_scan.read_photo_async(file, self.bot, self.bot.gcv_logger)
+        url = 'http://localhost:5000/v1/raid'
+        p_url = '{"image_url": "' + u + '"}'
+        data = json.loads(p_url)
+        async with self.bot.session.post(url=url, json=data) as response:
+            result = await response.json()
+            image_info = result['output']
+            # print("failed")
+            # image_info = await image_scan.read_photo_async(file, self.bot, self.bot.gcv_logger)
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         gyms = location_matching_cog.get_gyms(ctx.guild.id, region)
         gym = None
@@ -423,8 +414,8 @@ class RaidAuto(commands.Cog):
             image_info['gym'] = None
         return image_info
 
-    async def scan_test(self, ctx, file, region=None):
-        image_info = await self._scan_wrapper(ctx, file, region)
+    async def scan_test(self, ctx, file, url, region=None):
+        image_info = await self._scan_wrapper(ctx, file, url, region)
 
         if not image_info['phone_time']:
             image_info['phone_time'] = 'Unknown'

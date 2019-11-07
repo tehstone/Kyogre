@@ -370,7 +370,7 @@ class RaidCommands(commands.Cog):
                 except:
                     return await message.add_reaction('\u274c')
                 if raid_dict_entry and not (raid_dict_entry['exp'] - 60 < datetime.datetime.now().timestamp()):
-                    msg = f"A raid has already been reported for {gym.name}."
+                    msg = f"A raid has already been reported for {gym.name}.\n{raid_channel.mention}"
                     if enabled:
                         msg += f"\nCoordinate in the raid channel: {raid_channel.mention}"
                     return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=msg))
@@ -2508,11 +2508,12 @@ class RaidCommands(commands.Cog):
                                     await channel.send(
                                         embed=discord.Embed(
                                             colour=discord.Colour.red(),
-                                            description=f"A raid has already been reported for {gym.name}"))
+                                            description=f"A raid has already been reported for {gym.name}\n"
+                                                        f"{raid_channel.mention}"))
                                     self.bot.help_logger.info(
                                         f"User: {user.name}, channel: {channel}, error: Raid already reported.")
                             else:
-                                raid_dict[rchannel]['gym'] = gym.id
+                                raid_report['gym'] = gym.id
                                 await entity_updates.update_raid_location(self.bot, guild_dict, message,
                                                                           report_channel, raid_channel, gym)
                                 await listmgmt_cog.update_listing_channels(guild, "raid", edit=True, regions=regions)
@@ -2524,17 +2525,14 @@ class RaidCommands(commands.Cog):
 
             # Updating time
             elif match == choices_list[1]:
+                timemsg = None
                 timewait = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(),
                                                                   description="What is the Hatch / Expire time?"))
                 try:
                     timemsg = await self.bot.wait_for('message', timeout=30, check=(lambda reply: reply.author == user))
                 except asyncio.TimeoutError:
-                    timemsg = None
                     await timewait.delete()
-                if not timemsg:
-                    error = "took too long to respond"
-                elif timemsg.clean_content.lower() == "cancel":
-                    error = "cancelled the report"
+                if timemsg and timemsg.clean_content.lower() == "cancel":
                     await timemsg.delete()
                 raidexp = await utils.time_to_minute_count(guild_dict, raid_channel, timemsg.clean_content)
                 if raidexp is not False:

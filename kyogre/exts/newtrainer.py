@@ -87,7 +87,8 @@ class NewTrainer(commands.Cog):
                     await ctx.message.delete()
                     err_msg = f"{ctx.author.mention} your team is already set. Ask for help if you need to change it." \
                               "\nIf you would like to update your profile, use `!set profile`"
-                    return await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=err_msg))
+                    await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=err_msg))
+                    image_utils.cleanup_file(file, f"screenshots/profile")
         try:
             data = json.loads('{"image_url": "' + u + '"}')
             async with self.bot.session.post(url='http://localhost:8000/v1/profile', json=data) as response:
@@ -189,8 +190,9 @@ class NewTrainer(commands.Cog):
             await ctx.author.add_roles(team_role)
         team_emoji = utils.parse_emoji(ctx.channel.guild, self.bot.config['team_dict'][scan_team])
         await ctx.invoke(self.bot.get_command('profile'), user=ctx.author)
-        return await ctx.channel.send(f"{ctx.author.mention} your team has been set to **{scan_team}** {team_emoji}!"
-                                      "\nUse `!set profile` to update your profile.")
+        await ctx.channel.send(f"{ctx.author.mention} your team has been set to **{scan_team}** {team_emoji}!"
+                               "\nUse `!set profile` to update your profile.")
+        image_utils.cleanup_file(file, f"screenshots/profile")
 
 
 def setup(bot):
