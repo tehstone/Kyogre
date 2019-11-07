@@ -160,7 +160,10 @@ class Badges(commands.Cog):
             await ctx.message.add_reaction(self.bot.failed_react)
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info.")
             return await ctx.send("Must provide a badge id and Trainer name.", delete_after=10)
-        badge_to_give = BadgeTable.get(BadgeTable.id == badge_id)
+        try:
+            badge_to_give = BadgeTable.get(BadgeTable.id == badge_id)
+        except:
+            badge_to_give = None
         colour = discord.Colour.red()
         reaction = self.bot.failed_react
         if badge_to_give:
@@ -170,24 +173,31 @@ class Badges(commands.Cog):
             else:
                 reaction, embed = await self.try_grant_badge(badge_to_give, ctx.guild.id, member.id, badge_id)
         else:
-            embed = discord.Embed(colour=colour, description="Could not find a badge with that name.")
+            embed = discord.Embed(colour=colour, description="Could not find a badge with that id.")
         await ctx.message.add_reaction(reaction)
-        await ctx.send(embed=embed)
+        if reaction == self.bot.success_react:
+            await ctx.send(content=f"{member.mention}", embed=embed)
+        else:
+            await ctx.send(embed=embed)
 
     async def try_grant_badge(self, badge, guild_id, member_id, badge_id):
         guild = self.bot.get_guild(guild_id)
         member = guild.get_member(member_id)
         colour = discord.Colour.red()
         reaction = self.bot.failed_react
+        embed = None
         try:
             __, __ = GuildTable.get_or_create(snowflake=guild_id)
             __, __ = TrainerTable.get_or_create(snowflake=member.id, guild=guild_id)
             new_badge, created = BadgeAssignmentTable.get_or_create(trainer=member.id, badge=badge_id)
             if new_badge:
                 if created:
+                    embed = discord.Embed(colour=discord.Colour.green())
                     send_emoji = self.bot.get_emoji(badge.emoji)
-                    message = f"{member.display_name} has been given {send_emoji} **{badge.name}**!"
-                    colour = discord.Colour.green()
+                    embed.set_thumbnail(url=send_emoji.url)
+                    embed.title = f"Congratulations {member.display_name}"
+                    embed.description = f"{member.display_name} has earned {send_emoji} **{badge.name}**!"
+                    embed.add_field(name="Badge Requirements", value=f"*{badge.description}*")
                     reaction = self.bot.success_react
                 else:
                     message = f"{member.display_name} already has the **{badge.name}** badge."
@@ -195,7 +205,8 @@ class Badges(commands.Cog):
                 message = "Failed to give badge. Please try again."
         except peewee.IntegrityError:
             message = f"{member.display_name} already has the **{badge.name}** badge!"
-        embed = discord.Embed(colour=colour, description=message)
+        if not embed:
+            embed = discord.Embed(colour=colour, description=message)
         return (reaction, embed)
 
     @commands.command(name='grant_to_role', aliases=['givetr', 'gbtr'])
@@ -315,7 +326,6 @@ class Badges(commands.Cog):
 
     @staticmethod
     def get_badges(guild_id, user):
-        print(guild_id)
         result = (BadgeTable
                   .select(BadgeTable.id,
                           BadgeTable.name,
