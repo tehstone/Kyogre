@@ -398,6 +398,13 @@ class SetCommands(commands.Cog):
         await ctx.message.add_reaction(self.bot.success_react)
         return await ctx.send(msg, delete_after=15)
 
+    @_set.command(name='port')
+    @checks.is_dev_or_owner()
+    async def _port(self, ctx, port: int):
+        if port:
+            self.bot.port = port
+        return await ctx.message.add_reaction(self.bot.success_react)
+
 
 def setup(bot):
     bot.add_cog(SetCommands(bot))

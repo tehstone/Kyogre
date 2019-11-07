@@ -101,6 +101,7 @@ class KyogreBot(commands.AutoShardedBot):
                                'Instinct': discord.Colour.from_rgb(255, 255, 0)}
         self.saved_files = {}
         self.session = None
+        self.port = 8000
 
         for ext in default_exts:
             try:
@@ -200,6 +201,11 @@ class KyogreBot(commands.AutoShardedBot):
         proxy_msg = discord.Object(id=None)
         proxy_msg.guild = guild
         return local_inject(self, proxy_msg)
+
+    async def make_request(self, data, request_type):
+        async with self.session.post(url=f'http://localhost:{self.port}/v1/{request_type}', json=data) as response:
+            result = await response.json()
+        return result['output']
 
     async def on_member_join(self, member):
         """Welcome message to the server and some basic instructions."""

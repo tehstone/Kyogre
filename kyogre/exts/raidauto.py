@@ -344,14 +344,12 @@ class RaidAuto(commands.Cog):
         pass
 
     async def _scan_wrapper(self, ctx, file, u, region=None):
-        url = 'http://localhost:5000/v1/raid'
-        p_url = '{"image_url": "' + u + '"}'
-        data = json.loads(p_url)
-        async with self.bot.session.post(url=url, json=data) as response:
-            result = await response.json()
-            image_info = result['output']
-            # print("failed")
-            # image_info = await image_scan.read_photo_async(file, self.bot, self.bot.gcv_logger)
+        try:
+            data = json.loads('{"image_url": "' + u + '"}')
+            image_info = await self.bot.make_request(data, 'raid')
+        except Exception as e:
+            self.bot.logger.info(f"Request to image processing server failed with error: {e}")
+            image_info = await image_scan.read_photo_async(file, self.bot, self.bot.gcv_logger)
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         gyms = location_matching_cog.get_gyms(ctx.guild.id, region)
         gym = None

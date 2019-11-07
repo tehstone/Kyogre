@@ -91,15 +91,13 @@ class NewTrainer(commands.Cog):
                     image_utils.cleanup_file(file, f"screenshots/profile")
         try:
             data = json.loads('{"image_url": "' + u + '"}')
-            async with self.bot.session.post(url='http://localhost:8000/v1/profile', json=data) as response:
-                result = await response.json()
-                image_info = result['output']
-                scan_team = image_info['team']
-                level = image_info['level']
-                trainer_name = image_info['trainer_name']
-                xp = image_info['xp']
-        except:
-            print("failed")
+            image_info = await self.bot.make_request(data, 'profile')
+            scan_team = image_info['team']
+            level = image_info['level']
+            trainer_name = image_info['trainer_name']
+            xp = image_info['xp']
+        except Exception as e:
+            self.bot.logger.info(f"Request to image processing server failed with error: {e}")
             scan_team, level, trainer_name, xp = await image_scan.scan_profile(file)
         if not scan_team:
             return await ctx.channel.send(

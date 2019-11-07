@@ -208,7 +208,8 @@ def custom_error_handling(bot, logger):
             error = await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=missing_arg_msg(ctx)))
             await delete_error(ctx.message, error, 10)
         elif isinstance(error, commands.BadArgument):
-            error = await channel.send(f"The **{prefix}{ctx.command}** command doesn't take a subcommand of **{ctx.subcommand_passed}**")
+            error = await channel.send(f"Incorrect arguments provided for **{prefix}{ctx.command} command**"
+                                       f"\nError: {error}")
             await delete_error(ctx.message, error, 20)
         elif isinstance(error, commands.CommandNotFound):
             pass

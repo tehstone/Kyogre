@@ -64,11 +64,11 @@ class EXRaids(commands.Cog):
     async def parse_ex_pass(self, ctx, file, u):
         try:
             data = json.loads('{"image_url": "' + u + '"}')
-            async with self.bot.session.post(url='http://localhost:8000/v1/expass', json=data) as response:
-                result = await response.json()
-                ex_info = result['output']
-        except:
+            ex_info = await self.bot.make_request(data, 'expass')
+        except Exception as e:
+            self.bot.logger.info(f"Request to image processing server failed with error: {e}")
             ex_info = await image_scan.check_gym_ex(file)
+
         if not ex_info['gym']:
             return None, None, None
         region, gym, date_key, start_time = None, None, None, None
