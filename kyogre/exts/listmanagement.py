@@ -518,7 +518,7 @@ class ListManagement(commands.Cog):
         name_list = []
         for trainer in trainer_dict.keys():
             user = ctx.guild.get_member(trainer)
-            if (trainer_dict[trainer]['status']['coming']) and user and team == False:
+            if (trainer_dict[trainer]['status']['coming']) and user and not team:
                 ctx_comingcount += trainer_dict[trainer]['status']['coming']
                 if trainer_dict[trainer]['status']['coming'] == 1:
                     name_list.append('**{name}**'.format(name=user.display_name))
@@ -597,7 +597,8 @@ class ListManagement(commands.Cog):
         name_list = []
         for trainer in trainer_dict.keys():
             user = ctx.guild.get_member(trainer)
-            if (trainer_dict[trainer]['status']['here']) and user and team == False:
+            print(trainer_dict[trainer]['status']['here'])
+            if (trainer_dict[trainer]['status']['here']) and user and not team:
                 ctx_herecount += trainer_dict[trainer]['status']['here']
                 if trainer_dict[trainer]['status']['here'] == 1:
                     name_list.append('**{name}**'.format(name=user.display_name))
@@ -794,7 +795,8 @@ class ListManagement(commands.Cog):
 
     async def edit_party(self, ctx, channel, author=None):
         guild_dict, raid_info = self.bot.guild_dict, self.bot.raid_info
-        egglevel = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['egglevel']
+        raid_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]
+        egglevel = raid_dict['egglevel']
         if egglevel != "0":
             boss_dict = {}
             boss_list = []
@@ -805,7 +807,7 @@ class ListManagement(commands.Cog):
                 boss_dict[p.name] = {"type": utils.types_to_str(channel.guild, p.types, self.bot.config), "total": 0}
         team_list = ["mystic", "valor", "instinct", "unknown"]
         status_list = ["maybe", "coming", "here"]
-        trainer_dict = copy.deepcopy(guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
+        trainer_dict = copy.deepcopy(raid_dict['trainer_dict'])
         status_dict = {'maybe': {'total': 0, 'trainers': {}}, 'coming': {'total': 0, 'trainers': {}},
                        'here': {'total': 0, 'trainers': {}}, 'lobby': {'total': 0, 'trainers': {}}}
         for trainer in trainer_dict:
@@ -832,58 +834,22 @@ class ListManagement(commands.Cog):
                     bossstr = "{name} ({number}) {types}" \
                         .format(name=boss.name, number=boss.id, types=boss_dict[boss.name]['type'])
                     display_list.append(bossstr)
-        reportchannel = self.bot.get_channel(
-            guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['reportchannel'])
         try:
-            reportmsg = await reportchannel.fetch_message(
-                guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['raidreport'])
-        except:
-            pass
-        try:
-            raidmsg = await channel.fetch_message(
-                guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['raidmessage'])
+            raidmsg = await channel.fetch_message(raid_dict['raidmessage'])
         except:
             async for message in channel.history(limit=500, reverse=True):
                 if author and message.author.id == channel.guild.me.id:
                     c = 'Coordinate here'
                     if c in message.content:
-                        reportchannel = message.raw_channel_mentions[0]
                         raidmsg = message
                         break
-        reportembed = raidmsg.embeds[0]
-        newembed = discord.Embed(title=reportembed.title, url=reportembed.url, colour=channel.guild.me.colour)
-        index = 0
-        m = 'maybe'
-        c = 'coming'
-        h = 'here'
-        t = 'tips'
-        embed_indices = await embed_utils.get_embed_field_indices(reportembed)
-        for field in reportembed.fields:
-            if (m not in field.name.lower()) and (c not in field.name.lower()) \
-                    and (h not in field.name.lower()) and (t not in field.name.lower()):
-                newembed.add_field(name=field.name, value=field.value, inline=field.inline)
-        if egglevel != "0" and not guild_dict[channel.guild.id].get('raidchannel_dict', {}) \
-                .get(channel.id, {}).get('meetup', {}):
-            index = max(i for i in [embed_indices["possible"], embed_indices["interest"],
-                                    embed_indices["details"]] if i is not None)
-            name = "**Possible Bosses:**"
-            if len(boss_list) > 1:
-                newembed.set_field_at(index, name=name, value='{bosslist1}'
-                                      .format(bosslist1='\n'.join(display_list[::2])), inline=True)
-                newembed.set_field_at(index + 1, name='\u200b', value='{bosslist2}'
-                                      .format(bosslist2='\n'.join(display_list[1::2])), inline=True)
-            else:
-                newembed.set_field_at(index, name=name, value='{bosslist}'
-                                      .format(bosslist=''.join(display_list)), inline=True)
-                if newembed.fields[index + 1].name == '\u200b':
-                    newembed.set_field_at(index + 1, name='\u200b', value='\u200b', inline=True)
+        report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, ctx, raid_dict, True)
         red_emoji = utils.parse_emoji(channel.guild, self.bot.config['team_dict']['valor'])
         yellow_emoji = utils.parse_emoji(channel.guild, self.bot.config['team_dict']['instinct'])
         blue_emoji = utils.parse_emoji(channel.guild, self.bot.config['team_dict']['mystic'])
         team_emojis = {'instinct': yellow_emoji, 'mystic': blue_emoji, 'valor': red_emoji, 'unknown': "❔"}
-        tips = reportembed.fields[embed_indices["tips"]]
-        if tips is not None:
-            newembed.add_field(name=tips.name, value=tips.value)
+        if len(raid_embed.fields) % 2 == 1:
+            raid_embed.add_field(name='\u200b', value='\u200b')
         for status in status_list:
             embed_value = None
             if status_dict[status]['total'] > 0:
@@ -896,19 +862,9 @@ class ListManagement(commands.Cog):
                             embed_value += team_emojis[team] * status_dict[status]['trainers'][trainer][team]
                         embed_value += "\n"
             if embed_value is not None:
-                newembed.add_field(name=f'**{status.capitalize()}**', value=embed_value, inline=True)
-        newembed.set_footer(text=reportembed.footer.text, icon_url=reportembed.footer.icon_url)
-        newembed.set_thumbnail(url=reportembed.thumbnail.url)
+                raid_embed.add_field(name=f'**{status.capitalize()}**', value=embed_value, inline=True)
         try:
-            await raidmsg.edit(embed=newembed)
-        except:
-            pass
-        try:
-            embed_indices = await embed_utils.get_embed_field_indices(newembed)
-            utils_cog = self.bot.cogs.get('Utilities')
-            enabled = utils_cog.raid_channels_enabled(ctx.guild, ctx.channel)
-            newembed = await embed_utils.filter_fields_for_report_embed(newembed, embed_indices, enabled)
-            await reportmsg.edit(embed=newembed)
+            await raidmsg.edit(embed=raid_embed)
         except:
             pass
 

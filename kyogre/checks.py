@@ -144,7 +144,7 @@ def check_citychannel(ctx):
     guild = ctx.guild
     channel_list = [x for x in ctx.bot.guild_dict[guild.id]['configure_dict']['raid'].get('report_channels', {}).keys()]
     channel_list.extend(
-        [x for x in ctx.bot.guild_dict[guild.id]['configure_dict']['exraid'].get('report_channels', {}).keys()])
+        [x for x in ctx.bot.guild_dict[guild.id]['configure_dict'].get('exraid', {}).get('report_channels', {}).keys()])
     channel_list.extend(
         [x for x in ctx.bot.guild_dict[guild.id]['configure_dict']['wild'].get('report_channels', {}).keys()])
     channel_list.extend(
@@ -198,7 +198,7 @@ def check_exraidset(ctx):
     if ctx.guild is None:
         return False
     guild = ctx.guild
-    return ctx.bot.guild_dict[guild.id]['configure_dict']['exraid'].get('enabled', False)
+    return ctx.bot.guild_dict[guild.id]['configure_dict'].get('exraid', {}).get('enabled', False)
 
 
 def check_exraidreport(ctx):
@@ -207,7 +207,7 @@ def check_exraidreport(ctx):
     channel = ctx.channel
     guild = ctx.guild
     channel_list = [x for x in
-                    ctx.bot.guild_dict[guild.id]['configure_dict']['exraid'].get('report_channels', {}).keys()]
+                    ctx.bot.guild_dict[guild.id]['configure_dict'].get('exraid', {}).get('report_channels', {}).keys()]
     return channel.id in channel_list
 
 
