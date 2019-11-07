@@ -66,11 +66,13 @@ class Social(commands.Cog):
             embed.add_field(name="Silph Road", value=f"{silph}")
         if pkb is not None:
             embed.add_field(name="Pokebattler", value=f"{pkb}")
+        if len(embed.fields) % 2 == 1:
+            embed.add_field(name='\u200b', value='\u200b')
         embed.add_field(name="Badges earned", value=f"{badge_str}")
         stats_str = f"Raid Reports: {raids}\nEgg Reports: {eggs}\nWild Points: {wilds}\n" \
             f"Research Points: {research}\nRaids Joined: {joined}\n"
         embed.add_field(name="Kyogre Stats", value=stats_str)
-        embed.set_footer(text='Do "!set profile" to get your profile set up!')
+        embed.set_footer(text='Do "!set profile" to update your profile!')
         await ctx.send(embed=embed)
 
     async def _get_profile_counts(self, ctx, user):

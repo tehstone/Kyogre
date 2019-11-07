@@ -128,7 +128,7 @@ def build_raid_report_message(Kyogre, raid_channel, raid_dict):
         msg = f'T{level} egg @ {gym.name}{ex}'
         end_str = "Hatches: "
     if raidexp is not False:
-        end = datetime.datetime.fromtimestamp(raidexp) + \
+        end = datetime.datetime.utcfromtimestamp(raidexp) + \
               datetime.timedelta(hours=Kyogre.guild_dict[guild.id]['configure_dict']['settings']['offset'])
         msg += f" {end_str}{end.strftime('%I:%M %p')}."
     if enabled:

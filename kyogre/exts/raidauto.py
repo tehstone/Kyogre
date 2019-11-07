@@ -178,7 +178,6 @@ class RaidAuto(commands.Cog):
             c_file, timev = None, None
             if raid_info['egg_time']:
                 raid_info['type'] = 'egg'
-                timev = raid_info['egg_time']
                 c_file = self._crop_tier(file)
                 tiers = testident.determine_tier(c_file)
                 self.bot.gcv_logger.info(tiers)

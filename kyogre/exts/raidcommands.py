@@ -72,7 +72,7 @@ class RaidCommands(commands.Cog):
                     await self.egg_to_raid(ctx, raid_split[1].lower(), channel, author)
                     return
                 else:
-                    await self._eggassume(" ".join(raid_split), channel, author)
+                    await self._eggassume(ctx, " ".join(raid_split), channel, author)
                     return
             elif (raid_split[0] == "alolan" and len(raid_split) > 2) \
                     or (raid_split[0] != "alolan" and len(raid_split) > 1):
@@ -342,11 +342,9 @@ class RaidCommands(commands.Cog):
         gyms = location_matching_cog.get_gyms(guild.id, report_regions)
         listmgmt_cog = self.bot.cogs.get('ListManagement')
         utils_cog = self.bot.cogs.get('Utilities')
+        enabled = utils_cog.raid_channels_enabled(guild, channel)
         other_region = False
         gym_regions = []
-        egg_info = None
-        boss_list = []
-        egg_img = None
         if gyms:
             gym = await location_matching_cog.match_prompt(channel, author.id, raid_details, gyms)
             if not gym:
@@ -371,7 +369,6 @@ class RaidCommands(commands.Cog):
                     raid_dict_entry = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
                 except:
                     return await message.add_reaction('\u274c')
-                enabled = utils_cog.raid_channels_enabled(guild, channel)
                 if raid_dict_entry and not (raid_dict_entry['exp'] - 60 < datetime.datetime.now().timestamp()):
                     msg = f"A raid has already been reported for {gym.name}."
                     if enabled:
@@ -383,14 +380,8 @@ class RaidCommands(commands.Cog):
                     if not enabled:
                         await channel.send(f"The egg at {location} has hatched into a {raid_pokemon.name} raid!")
                     return await self.egg_to_raid(ctx, raid_pokemon.name.lower(), raid_channel)
-
             raid_details = gym.name
-            raid_gmaps_link = gym.maps_url
-            waze_link = utils_cog.create_waze_query(gym.latitude, gym.longitude)
-            apple_link = utils_cog.create_applemaps_query(gym.latitude, gym.longitude)
             gym_regions = [gym.region]
-        else:
-            raid_gmaps_link = utils_cog.create_gmaps_query(raid_details, channel, type="raid")
         if other_region:
             report_channels = await listmgmt_cog.get_region_reporting_channels(guild, gym.region)
             report_channel = self.bot.get_channel(report_channels[0])
@@ -399,11 +390,6 @@ class RaidCommands(commands.Cog):
         if raid_report:
             raid_channel = await self.create_raid_channel("raid", raid_pokemon, None, gym, channel)
         else:
-            egg_info = self.bot.raid_info['raid_eggs'][str(level)]
-            egg_img = egg_info['egg_img']
-            for entry in egg_info['pokemon']:
-                p = Pokemon.get_pokemon(self.bot, entry)
-                boss_list.append(str(p) + ' (' + str(p.id) + ') ' + utils.types_to_str(guild, p.types, self.bot.config))
             raid_channel = await self.create_raid_channel("egg", None, level, gym, channel)
         ow = raid_channel.overwrites_for(guild.default_role)
         ow.send_messages = True
@@ -437,62 +423,11 @@ class RaidCommands(commands.Cog):
             'hatching': False,
             'short': None
         }
-        raid_embed = discord.Embed(colour=guild.me.colour)
-        enabled = utils_cog.raid_channels_enabled(guild, channel)
-        if gym:
-            gym_info = f"**{raid_details}**\n{'_EX Eligible Gym_' if gym.ex_eligible else ''}"
-            if gym.note is not None:
-                gym_info += f"\n**Note**: {gym.note}"
-            raid_embed.add_field(name='**Gym:**', value=gym_info, inline=False)
-        raid_embed.add_field(name='Directions',
-                             value=f'[Google]({raid_gmaps_link}) | [Waze]({waze_link}) | [Apple]({apple_link})',
-                             inline=False)
-        exp_msg = "Set with **!timerset**"
-        if manual:
-            end = datetime.datetime.fromtimestamp(exp) + datetime.timedelta(
-                hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
-            exp_msg = f"{end.strftime('%I:%M %p')}"
+        report_embed, raid_embed = await self.build_raid_embeds(ctx, raid_dict, enabled)
         if raid_report:
-            if enabled:
-                min_cp, max_cp = raid_pokemon.get_raid_cp_range(False)
-                bmin_cp, bmax_cp = raid_pokemon.get_raid_cp_range(True)
-                cp_range = f"**CP Range:** {min_cp}-{max_cp}\n **Boosted:** {bmin_cp}-{bmax_cp}"
-                weak_str = utils.types_to_str(guild, raid_pokemon.weak_against.keys(), self.bot.config)
-                raid_embed.add_field(name='**Details:**', value='**{pokemon}** ({pokemonnumber}) {type}{cprange}'
-                                     .format(pokemon=str(raid_pokemon),
-                                             pokemonnumber=str(raid_pokemon.id),
-                                             type=utils.types_to_str(guild, raid_pokemon.types, self.bot.config),
-                                             cprange='\n'+cp_range,
-                                             inline=True))
-                raid_embed.add_field(name='**Weaknesses:**', value='{weakness_list}'.format(weakness_list=weak_str))
-                raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**')
-                raid_embed.add_field(name='**Expires:**', value=exp_msg)
-            raid_img_url = raid_pokemon.img_url
             msg = entity_updates.build_raid_report_message(self.bot, raid_channel, raid_dict)
         else:
-            if enabled:
-                if len(egg_info['pokemon']) > 1:
-                    raid_embed.add_field(name='**Possible Bosses:**', value='{bosslist1}'
-                                         .format(bosslist1='\n'.join(boss_list[::2])), inline=True)
-                    raid_embed.add_field(name='\u200b', value='{bosslist2}'
-                                         .format(bosslist2='\n'.join(boss_list[1::2])), inline=True)
-                else:
-                    raid_embed.add_field(name='**Possible Bosses:**', value='{bosslist}'
-                                         .format(bosslist=''.join(boss_list)), inline=True)
-                    raid_embed.add_field(name='\u200b', value='\u200b', inline=True)
-                raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**', inline=True)
-                raid_embed.add_field(name='**Hatches:**', value=exp_msg, inline=True)
-            raid_img_url = 'https://raw.githubusercontent.com/klords/Kyogre/master/images/eggs/{}?cache=0'\
-                .format(str(egg_img))
             msg = entity_updates.build_raid_report_message(self.bot, raid_channel, raid_dict)
-        if enabled:
-            raid_embed.set_footer(text='Reported by {author} - {timestamp}'
-                                  .format(author=author.display_name, timestamp=timestamp),
-                                  icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
-        raid_embed.set_thumbnail(url=raid_img_url)
-        report_embed = raid_embed
-        embed_indices = await embed_utils.get_embed_field_indices(report_embed)
-        report_embed = await embed_utils.filter_fields_for_report_embed(report_embed, embed_indices, enabled)
         raidreport = await channel.send(content=msg, embed=report_embed)
         short_output_channel_id = self.bot.guild_dict[guild.id]['configure_dict']['raid']\
             .setdefault('short_output', {}).get(gym.region, None)
@@ -509,11 +444,6 @@ class RaidCommands(commands.Cog):
                 short_message = await short_output_channel.send(f"Raid Reported: {raid_channel.mention}")
                 raid_dict['short'] = short_message.id
         await asyncio.sleep(1)
-        raid_embed.add_field(name='**Tips:**',
-                             value='`!i` if interested\n`!c` if on the way\n`!h` '
-                                   'when you arrive\n`!x` to cancel your status\n'
-                                   "`!s` to signal lobby start\n`!shout` to ping raid party",
-                             inline=True)
         ctrsmessage_id = None
         ctrs_dict = {}
         if raid_report:
@@ -570,10 +500,7 @@ class RaidCommands(commands.Cog):
             raid_dict['ctrsmessage'] = ctrsmessage_id
             raid_dict['ctrs_dict'] = ctrs_dict
         self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = raid_dict
-        if raidexp is not False:
-            pass
-        #    await self._timerset(raid_channel, raidexp, to_print=False)
-        else:
+        if not raidexp:
             await raid_channel.send(content='Hey {member}, if you can, set the time left on the raid using '
                                             '**!timerset <minutes>** so others can check it with **!timer**.'
                                     .format(member=author.mention))
@@ -610,11 +537,11 @@ class RaidCommands(commands.Cog):
             await utils.reaction_delay(raidcityreport, ['\u270f', '🚫'])
         if not raid_report:
             if len(self.bot.raid_info['raid_eggs'][str(level)]['pokemon']) == 1:
-                await self._eggassume('assume ' + self.bot.raid_info['raid_eggs'][str(level)]['pokemon'][0],
+                await self._eggassume(ctx, 'assume ' + self.bot.raid_info['raid_eggs'][str(level)]['pokemon'][0],
                                       raid_channel, author)
             elif level == "5" and self.bot.guild_dict[guild.id]['configure_dict']['settings']\
                     .get('regional', None) in self.bot.raid_info['raid_eggs']["5"]['pokemon']:
-                await self._eggassume('assume ' +
+                await self._eggassume(ctx, 'assume ' +
                                       self.bot.guild_dict[guild.id]['configure_dict']['settings']['regional'],
                                       raid_channel, author)
         self.bot.event_loop.create_task(self.expiry_check(raid_channel))
@@ -692,7 +619,7 @@ class RaidCommands(commands.Cog):
         name = utils.sanitize_name(name + gym.name)[:32]
         return await guild.create_text_channel(name, overwrites=raid_channel_overwrite_dict, category=cat)
 
-    async def _eggassume(self, args, raid_channel, author):
+    async def _eggassume(self, ctx, args, raid_channel, author):
         guild = raid_channel.guild
         eggdetails = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
         report_channel = self.bot.get_channel(eggdetails['reportchannel'])
@@ -717,48 +644,17 @@ class RaidCommands(commands.Cog):
                 colour=discord.Colour.red(),
                 description=f'The Pokemon {raid_pokemon.name} does not hatch from level {egglevel} raid eggs!'))
         eggdetails['pokemon'] = raid_pokemon.name
-        oldembed = raid_message.embeds[0]
-        raid_gmaps_link = oldembed.url
         utils_cog = self.bot.cogs.get('Utilities')
         enabled = utils_cog.raid_channels_enabled(guild, raid_channel)
+        report_embed, raid_embed = await self.build_raid_embeds(ctx, eggdetails, enabled, )
         if enabled:
-            embed_indices = await embed_utils.get_embed_field_indices(oldembed)
-            raid_embed = discord.Embed(colour=guild.me.colour)
-            raid_embed.add_field(name=oldembed.fields[embed_indices["directions"]].name,
-                                 value=oldembed.fields[embed_indices["directions"]].value, inline=True)
-            raid_embed.add_field(name=oldembed.fields[embed_indices["gym"]].name,
-                                 value=oldembed.fields[embed_indices["gym"]].value, inline=True)
-            min_cp, max_cp = raid_pokemon.get_raid_cp_range(False)
-            bmin_cp, bmax_cp = raid_pokemon.get_raid_cp_range(True)
-            cp_range = f"**CP Range:** {min_cp}-{max_cp}\n **Boosted:** {bmin_cp}-{bmax_cp}"
-            raid_embed.add_field(name='**Details:**', value='**{pokemon}** ({pokemonnumber}) {type}{cprange}'
-                                 .format(pokemon=raid_pokemon.name, pokemonnumber=str(raid_pokemon.id),
-                                         type=utils.types_to_str(guild, raid_pokemon.types, self.bot.config),
-                                         cprange='\n'+cp_range, inline=True))
-            raid_embed.add_field(name='**Weaknesses:**', value='{weakness_list}'
-                                 .format(weakness_list=utils.types_to_str(guild,
-                                                                          raid_pokemon.weak_against, self.bot.config)))
-            if embed_indices["next"] is not None:
-                raid_embed.add_field(name=oldembed.fields[embed_indices["next"]].name,
-                                     value=oldembed.fields[embed_indices["next"]].value, inline=True)
-            if embed_indices["hatch"] is not None:
-                raid_embed.add_field(name=oldembed.fields[embed_indices["hatch"]].name,
-                                     value=oldembed.fields[embed_indices["hatch"]].value, inline=True)
-            if embed_indices["tips"] is not None:
-                raid_embed.add_field(name=oldembed.fields[embed_indices["tips"]].name,
-                                     value=oldembed.fields[embed_indices["tips"]].value, inline=True)
-
-            raid_embed.set_footer(text=oldembed.footer.text, icon_url=oldembed.footer.icon_url)
-            raid_embed.set_thumbnail(url=raid_pokemon.img_url)
             try:
                 await raid_message.edit(new_content=raid_message.content, embed=raid_embed,
                                         content=raid_message.content)
             except discord.errors.NotFound:
                 pass
             try:
-                embed_indices = await embed_utils.get_embed_field_indices(raid_embed)
-                raid_embed = await embed_utils.filter_fields_for_report_embed(raid_embed, embed_indices, enabled)
-                await egg_report.edit(new_content=egg_report.content, embed=raid_embed, content=egg_report.content)
+                await egg_report.edit(new_content=egg_report.content, embed=report_embed, content=egg_report.content)
             except discord.errors.NotFound:
                 pass
             if eggdetails.get('raidcityreport', None) is not None:
@@ -1167,6 +1063,88 @@ class RaidCommands(commands.Cog):
         report_relation.cancelled = 'True'
         report_relation.save()
 
+    async def build_raid_embeds(self, ctx, raid_dict, enabled, update=False):
+        guild = ctx.guild
+        channel = self.bot.get_channel(raid_dict['reportchannel'])
+        author = ctx.message.author
+        utils_cog = self.bot.cogs.get('Utilities')
+        location_matching_cog = self.bot.cogs.get('LocationMatching')
+        ctype = raid_dict['type']
+        raid_embed = discord.Embed(colour=guild.me.colour)
+        gym = location_matching_cog.get_gym_by_id(guild.id, raid_dict['gym'])
+        if gym:
+            gym_info = f"**{gym.name}**\n{'_EX Eligible Gym_' if gym.ex_eligible else ''}"
+            if gym.note is not None:
+                gym_info += f"\n**Note**: {gym.note}"
+            raid_embed.add_field(name='**Gym:**', value=gym_info, inline=False)
+            raid_gmaps_link = gym.maps_url
+            waze_link = utils_cog.create_waze_query(gym.latitude, gym.longitude)
+            apple_link = utils_cog.create_applemaps_query(gym.latitude, gym.longitude)
+            raid_embed.add_field(name='Directions',
+                                 value=f'[Google]({raid_gmaps_link}) | [Waze]({waze_link}) | [Apple]({apple_link})',
+                                 inline=False)
+        if raid_dict['exp']:
+            end = datetime.datetime.utcfromtimestamp(raid_dict['exp']) + datetime.timedelta(
+                hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+            exp_msg = f"{end.strftime('%I:%M %p')}"
+        else:
+            exp_msg = "Set with **!timerset**"
+        if ctype == 'raid':
+            raid_pokemon = raid_dict['pokemon']
+            if enabled:
+                min_cp, max_cp = raid_pokemon.get_raid_cp_range(False)
+                bmin_cp, bmax_cp = raid_pokemon.get_raid_cp_range(True)
+                cp_range = f"**CP Range:** {min_cp}-{max_cp}\n **Boosted:** {bmin_cp}-{bmax_cp}"
+                weak_str = utils.types_to_str(guild, raid_pokemon.weak_against.keys(), self.bot.config)
+                raid_embed.add_field(name='**Details:**', value='**{pokemon}** ({pokemonnumber}) {type}{cprange}'
+                                     .format(pokemon=str(raid_pokemon),
+                                             pokemonnumber=str(raid_pokemon.id),
+                                             type=utils.types_to_str(guild, raid_pokemon.types, self.bot.config),
+                                             cprange='\n' + cp_range,
+                                             inline=True))
+                raid_embed.add_field(name='**Weaknesses:**', value='{weakness_list}'.format(weakness_list=weak_str))
+                raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**')
+                raid_embed.add_field(name='**Expires:**', value=exp_msg)
+            raid_img_url = raid_pokemon.img_url
+        else:
+            egg_info = self.bot.raid_info['raid_eggs'][str(raid_dict['egglevel'])]
+            egg_img = egg_info['egg_img']
+            boss_list = []
+            for entry in egg_info['pokemon']:
+                p = Pokemon.get_pokemon(self.bot, entry)
+                boss_list.append(str(p) + ' (' + str(p.id) + ') ' + utils.types_to_str(guild, p.types, self.bot.config))
+            if enabled:
+                if len(egg_info['pokemon']) > 1:
+                    raid_embed.add_field(name='**Possible Bosses:**', value='{bosslist1}'
+                                         .format(bosslist1='\n'.join(boss_list[::2])), inline=True)
+                    raid_embed.add_field(name='\u200b', value='{bosslist2}'
+                                         .format(bosslist2='\n'.join(boss_list[1::2])), inline=True)
+                else:
+                    raid_embed.add_field(name='**Possible Bosses:**', value='{bosslist}'
+                                         .format(bosslist=''.join(boss_list)), inline=True)
+                    raid_embed.add_field(name='\u200b', value='\u200b', inline=True)
+                raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**', inline=True)
+                raid_embed.add_field(name='**Hatches:**', value=exp_msg, inline=True)
+            raid_img_url = 'https://raw.githubusercontent.com/klords/Kyogre/master/images/eggs/{}?cache=0' \
+                .format(str(egg_img))
+        if enabled:
+            timestamp = (ctx.message.created_at + datetime.timedelta(
+                hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])).strftime(
+                '%I:%M %p (%H:%M)')
+            raid_embed.set_footer(text='Reported by {author} - {timestamp}'
+                                  .format(author=author.display_name, timestamp=timestamp),
+                                  icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
+            raid_embed.add_field(name='**Tips:**',
+                                 value='`!i` if interested\n`!c` if on the way\n`!h` '
+                                       'when you arrive\n`!x` to cancel your status\n'
+                                       "`!s` to signal lobby start\n`!shout` to ping raid party",
+                                 inline=True)
+        raid_embed.set_thumbnail(url=raid_img_url)
+        report_embed = raid_embed
+        embed_indices = await embed_utils.get_embed_field_indices(report_embed)
+        report_embed = await embed_utils.filter_fields_for_report_embed(report_embed, embed_indices, enabled)
+        return report_embed, raid_embed
+
     async def add_db_raid_action(self, raid_channel, action, action_time):
         guild = raid_channel.guild
         report = None
@@ -1253,7 +1231,7 @@ class RaidCommands(commands.Cog):
     async def print_raid_timer(self, channel):
         guild = channel.guild
         raidexp = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp']
-        end = datetime.datetime.fromtimestamp(raidexp) + datetime.timedelta(
+        end = datetime.datetime.utcfromtimestamp(raidexp) + datetime.timedelta(
             hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
         timerstr = ' '
         if self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id].get('meetup', {}):
@@ -1387,7 +1365,7 @@ class RaidCommands(commands.Cog):
 
     async def _calc_egg_raid_exp_time(self, ctx, minutes, ctype, level):
         offset = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset']
-        now = datetime.datetime.utcnow()# + datetime.timedelta(hours=offset)
+        now = datetime.datetime.utcnow() + datetime.timedelta(hours=offset)
         eggminutes = self.bot.raid_info['raid_eggs'][level]['hatchtime']
         raidminutes = self.bot.raid_info['raid_eggs'][level]['raidtime']
         hatch, expire = None, None
@@ -1410,9 +1388,9 @@ class RaidCommands(commands.Cog):
         now = datetime.datetime.utcnow()
         end = now + datetime.timedelta(minutes=exptime)
         raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'][raidchannel.id]
-        raid_dict['exp'] = end.timestamp()
         end = end + datetime.timedelta(
             hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+        raid_dict['exp'] = end.timestamp()
         if not raid_dict['active']:
             await raidchannel.send('The channel has been reactivated.')
         raid_dict['active'] = True

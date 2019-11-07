@@ -77,10 +77,6 @@ class NewTrainer(commands.Cog):
                 pass
             await asyncio.sleep(.3)
 
-    # Prompt to upload screenshot
-    # Ask if their trainer name is correct, if not what is correct (accept yes/y/newname)
-    # Ask if their level is correct or for correct value (accept yes/y/newlevel)
-    # Regardless of answers, set their team
     async def _setup_profile(self, ctx, file, u):
         team_role_names = [r.lower() for r in self.bot.team_color_map.keys()]
         for team in team_role_names:
@@ -145,6 +141,7 @@ class NewTrainer(commands.Cog):
                 pass
             else:
                 level = response
+        await self._delete_with_pause([level_prompt, response_msg])
         if xp and level:
             try:
                 level = int(level)
@@ -158,7 +155,21 @@ class NewTrainer(commands.Cog):
             trainer_dict['xp'] = level_xp_map[40]
             quickbadge_cog = self.bot.cogs.get('QuickBadge')
             await quickbadge_cog.set_fourty(ctx)
-        await self._delete_with_pause([level_prompt, response_msg])
+            fourty_prompt = await ctx.send(
+                f"{ctx.author.mention} You have been verified as a level 40 Trainer. \n"
+                "Reply with your **Total XP** or with **N**o to skip.")
+            try:
+                response_msg = await self.bot.wait_for('message', timeout=60,
+                                                       check=(lambda reply: reply.author == ctx.message.author))
+            except asyncio.TimeoutError:
+                response_msg = None
+            if response_msg:
+                response = response_msg.clean_content.lower()
+                if response == 'n' or response == 'no':
+                    pass
+                else:
+                    trainer_dict['xp'] = response
+            await self._delete_with_pause([fourty_prompt, response_msg])
         friend_prompt = await ctx.send(f"{ctx.author.mention} Would you like to add your Friend Code to your profile?\n"
                                        "Reply with your **Friend Code** or with **N**o to skip.")
         try:
@@ -179,8 +190,7 @@ class NewTrainer(commands.Cog):
         team_emoji = utils.parse_emoji(ctx.channel.guild, self.bot.config['team_dict'][scan_team])
         await ctx.invoke(self.bot.get_command('profile'), user=ctx.author)
         return await ctx.channel.send(f"{ctx.author.mention} your team has been set to **{scan_team}** {team_emoji}!"
-                                      "\nIf you would like to add additional information to your profile or update it "
-                                      "use `!set profile`")
+                                      "\nUse `!set profile` to update your profile.")
 
 
 def setup(bot):

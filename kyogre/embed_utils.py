@@ -63,8 +63,6 @@ async def filter_fields_for_report_embed(embed, embed_indices, enabled):
         new_embed.add_field(name=embed.fields[embed_indices['hatch']].name, value=embed.fields[embed_indices['hatch']].value, inline=True) 
     if embed_indices['expires'] is not None:
         new_embed.add_field(name=embed.fields[embed_indices['expires']].name, value=embed.fields[embed_indices['expires']].value, inline=True)
-    if embed_indices['next'] is not None:
-        new_embed.add_field(name=embed.fields[embed_indices['next']].name, value=embed.fields[embed_indices['next']].value, inline=True)
     if embed_indices['team'] is not None:
         new_embed.add_field(name=embed.fields[embed_indices['team']].name, value=embed.fields[embed_indices['team']].value, inline=True)
     if embed_indices['status'] is not None:

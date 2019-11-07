@@ -176,7 +176,7 @@ class RaidAvailable(commands.Cog):
                 if str(payload.emoji) == '\u23f2':
                     exp = raid_notice_dict[message.id]['exp'] + 1800
                     raid_notice_dict[message.id]['exp'] = exp
-                    expire = datetime.datetime.fromtimestamp(exp)
+                    expire = datetime.datetime.utcfromtimestamp(exp)
                     expire_str = expire.strftime('%b %d %I:%M %p')
                     embed = message.embeds[0]
                     index = 0

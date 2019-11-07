@@ -85,7 +85,7 @@ class ListManagement(commands.Cog):
         def list_output(raid):
             trainer_dict = rc_d[raid]['trainer_dict']
             rchan = self.bot.get_channel(raid)
-            end = datetime.datetime.fromtimestamp(rc_d[raid]['exp']) + datetime.timedelta(
+            end = datetime.datetime.utcfromtimestamp(rc_d[raid]['exp']) + datetime.timedelta(
                 hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
             output = ''
             start_str = ''
@@ -345,7 +345,7 @@ class ListManagement(commands.Cog):
             if inv.id not in self.bot.active_invasions:
                 continue
             exp = inv.created + expiration_seconds
-            exp = datetime.datetime.fromtimestamp(exp)
+            exp = datetime.datetime.utcfromtimestamp(exp)
             newmsg = ""
             try:
                 newmsg += ('\n\t🔹')
@@ -403,7 +403,7 @@ class ListManagement(commands.Cog):
         result = result.objects(LureInstance)
         for lure in result:
             exp = lure.created + expiration_seconds
-            exp = datetime.datetime.fromtimestamp(exp)
+            exp = datetime.datetime.utcfromtimestamp(exp)
             newmsg = ""
             try:
                 type = lure.lure_type
