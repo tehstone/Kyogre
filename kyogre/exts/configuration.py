@@ -29,7 +29,7 @@ class Configuration(commands.Cog):
             await ctx.message.delete()
         except (discord.errors.Forbidden, discord.errors.HTTPException):
             pass
-        config_sessions = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings'].setdefault('config_sessions',{}).setdefault(owner.id,0) + 1
+        config_sessions = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings'].setdefault('config_sessions', {}).setdefault(owner.id, 0) + 1
         self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['config_sessions'][owner.id] = config_sessions
         for session in self.bot.guild_dict[guild.id]['configure_dict']['settings']['config_sessions'].keys():
             if not guild.get_member(session):
@@ -45,7 +45,7 @@ class Configuration(commands.Cog):
         if not config_dict_temp['settings']['done']:
             firstconfig = True
         if configlist and not firstconfig:
-            configlist = configlist.lower().replace("timezone","settings").split(",")
+            configlist = configlist.lower().replace("timezone", "settings").split(",")
             configlist = [x.strip().lower() for x in configlist]
             diff = set(configlist) - set(all_commands)
             if diff and "all" in diff:
@@ -77,8 +77,9 @@ class Configuration(commands.Cog):
             await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description=configmessage).set_author(name='Kyogre Configuration - {guild}'.format(guild=guild.name), icon_url=self.bot.user.avatar_url))
             while True:
                 config_error = False
+
                 def check(m):
-                    return m.guild == None and m.author == owner
+                    return not m.guild and m.author == owner
                 configreply = await self.bot.wait_for('message', check=check)
                 configreply.content = configreply.content.replace("timezone", "settings")
                 if configreply.content.lower() == 'cancel':

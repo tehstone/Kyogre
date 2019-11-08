@@ -248,6 +248,7 @@ class Social(commands.Cog):
             res, reactuser = await utils.simple_ask(self.bot, question, ctx.message.channel, ctx.message.author.id)
         except TypeError:
             timeout = True
+            res = None
         await question.delete()
         if timeout or res.emoji == '❎':
             return
@@ -292,7 +293,6 @@ class Social(commands.Cog):
         else:
             match_names = [m[0] for m in matches]
             return await ctx.send(f"You might be looking for {' or '.join(match_names)}")
-
 
 
 def setup(bot):
