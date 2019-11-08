@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import random
 import re
+import time
 
 import discord
 from discord.ext import commands
@@ -27,8 +28,13 @@ class Invasions(commands.Cog):
         guild = message.guild
         img_url = author.avatar_url_as(format=None, static_format='jpg', size=32)
         info = re.split(r',+\s+', info)
+        leader_strings = ['arlo', 'red', 'valor', 'cliff', 'blue', 'mystic', 'sierra', 'yellow', 'instinct']
+        leader_map = {'arlo': 123, 'red': 123, 'valor': 123,
+                      'cliff': 52, 'blue': 52, 'mystic': 52,
+                      'sierra': 215, 'yellow': 215, 'instinct': 215}
         stopname = info[0]
-        report_time = message.created_at + datetime.timedelta(hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+        report_time = message.created_at + \
+                      datetime.timedelta(hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
         report_time_int = round(report_time.timestamp())
         timestamp = report_time.strftime('%Y-%m-%d %H:%M:%S')
         utilities_cog = self.bot.cogs.get('Utilities')
@@ -45,32 +51,52 @@ class Invasions(commands.Cog):
                     embed=discord.Embed(colour=discord.Colour.red(),
                                         description=f"No pokestop found with name '**{stopname}**' "
                                         f"either. Try reporting again using the exact pokestop name!"),
-                    delete_after = 15)
+                    delete_after=15)
             if await self._check_existing(ctx, stop):
                 return await channel.send(
                     embed=discord.Embed(colour=discord.Colour.red(),
-                                        description=f"A Team Rocket Takeover has already been reported for '**{stop.name}**'!"))
-            location = stop.name
-            loc_url = stop.maps_url
+                                        description=f"A Team Rocket Hideout has already been reported for '**{stop.name}**'!"))
             regions = [stop.region]
-        pokemon_name = None
-        pkmnid = None
+        leader = None
+        pokemon_names = [None]
+        pokemon_ids = [None]
         if len(info) > 1:
-            pkmn = Pokemon.get_pokemon(self.bot, info[1])
-            if pkmn is not None:
-                pkmnid = pkmn.id
-                pokemon_name = pkmn.name
+            for i in info[1:]:
+                if i.lower() in leader_strings:
+                    leader = i
+                    p_id = leader_map[leader]
+                    pkmn = Pokemon.get_pokemon(self.bot, p_id)
+                    pokemon_names[0] = pkmn.name
+                    pokemon_ids[0] = pkmn.id
+                else:
+                    pkmn = Pokemon.get_pokemon(self.bot, i)
+                    if pkmn is not None:
+                        if pkmn.id not in leader_map.values():
+                            pokemon_names.append(pkmn.name)
+                            pokemon_ids.append(pkmn.id)
                 img_url = pkmn.img_url
                 img_url = img_url.replace('007_', '007normal_')
                 img_url = img_url.replace('025_', '025normal_')
         report = TrainerReportRelation.create(guild=ctx.guild.id,
                                               created=report_time_int, trainer=author.id, location=stop.id)
-        invasion = InvasionTable.create(trainer_report=report, pokemon_number=pkmnid)
+        if len(pokemon_names) < 3:
+            pokemon_names = (pokemon_names + 3 * [None])[:3]
+        if len(pokemon_ids) < 3:
+            pokemon_ids = (pokemon_ids + 3 * [None])[:3]
+        hideout = HideoutTable.create(trainer_report=report, rocket_leader=leader, first_pokemon=pokemon_ids[0],
+                                      second_pokemon=pokemon_ids[1], third_pokemon=pokemon_ids[2])
         desc = f"**Pokestop**: {stop.name}"
-        if pokemon_name is None:
-            desc += "\n**Pokemon**: Unknown"
+        if leader:
+            desc += f"\n Rocket Leader {leader.capitalize()}\n"
+        names = ''
+        for name in pokemon_names:
+            if name:
+                names += f"{name.capitalize()} "
+        if len(names) > 0:
+            names = "**Lineup**:\n" + names
         else:
-            desc += f"\n**Pokemon**: {pokemon_name.capitalize()}"
+            names = "**Unknown Lineup**"
+        desc += names
         inv_embed = discord.Embed(
             title=f'Click for directions!', description=desc, 
             url=stop.maps_url, colour=discord.Colour.red())
@@ -83,7 +109,7 @@ class Invasions(commands.Cog):
             inv_embed.set_thumbnail(url="https://github.com/tehstone/Kyogre/blob/master/images/misc/Team_Rocket_Grunt_F.png?raw=true")
         else:
             inv_embed.set_thumbnail(url="https://github.com/tehstone/Kyogre/blob/master/images/misc/Team_Rocket_Grunt_M.png?raw=true")            
-        invasionreportmsg = await channel.send(f'**Team Rocket Takeover** reported at *{stop.name}*', embed=inv_embed)
+        invasionreportmsg = await channel.send(f'**Team Rocket Hideout** reported at *{stop.name}*', embed=inv_embed)
         await utilities_cog.reaction_delay(invasionreportmsg, ['🇵', '💨'])#, '\u270f'])
         details = {'regions': regions, 'type': 'takeover', 'location': stop}
         TrainerReportRelation.update(message=invasionreportmsg.id).where(TrainerReportRelation.id == report.id).execute()
@@ -100,13 +126,15 @@ class Invasions(commands.Cog):
             await ctx.message.delete()
 
     async def invasion_expiry_check(self, message, invasion_id, author):
-        print(invasion_id)
         self.bot.logger.info('Expiry_Check - ' + message.channel.name)
         channel = message.channel
         message = await message.channel.fetch_message(message.id)
         offset = self.bot.guild_dict[channel.guild.id]['configure_dict']['settings']['offset']
-        expiration_minutes = self.bot.guild_dict[channel.guild.id]['configure_dict']['settings']['invasion_minutes']
-        expire_time = datetime.datetime.utcnow() + datetime.timedelta(hours=offset) + datetime.timedelta(minutes=expiration_minutes)
+        timestamp = (message.created_at + datetime.timedelta(
+            hours=self.bot.guild_dict[message.channel.guild.id]['configure_dict']['settings']['offset']))
+        to_day_end = 22 * 60 * 60 - (timestamp - timestamp.replace(hour=0, minute=0, second=0, microsecond=0)).seconds
+        expire_time = time.time() + to_day_end
+        epoch = datetime.datetime(1970, 1, 1)
         if message not in self.bot.active_invasions:
             self.bot.active_invasions[invasion_id] = {"author": author.id, "message": message}
             self.bot.logger.info(
@@ -114,7 +142,9 @@ class Invasions(commands.Cog):
             )
             await asyncio.sleep(0.5)
             while True:
-                time_diff = expire_time.timestamp() - (datetime.datetime.utcnow() + datetime.timedelta(hours=offset)).timestamp()
+                current = datetime.datetime.utcnow() + datetime.timedelta(hours=offset)
+                current_seconds = (current - epoch).total_seconds()
+                time_diff = expire_time - current_seconds
                 if time_diff < 1:
                     await self.expire_invasion(invasion_id)
                     break

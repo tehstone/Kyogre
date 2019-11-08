@@ -20,11 +20,14 @@ class KyogreDB:
         cls._db.initialize(handle)
         # ensure db matches current schema
         cls._db.create_tables([
-            BadgeAssignmentTable, BadgeTable, EventTable, GuildTable, GymTable, InvasionTable, InviteRoleTable,
-            LocationNoteTable, LocationRegionRelation, LocationTable, LureTable, LureTypeRelation, LureTypeTable,
-            PokemonTable, PokestopTable, QuestTable, RaidActionTable, RaidBossRelation, RaidTable, RegionTable,
-            ResearchTable, RewardTable, SightingTable, SilphcardTable, SubscriptionTable, TeamTable, TradeTable,
-            TrainerReportRelation, TrainerTable, TopSubsTable, APIUsageTable
+            BadgeAssignmentTable, BadgeTable, EventTable, GuildTable, GymTable, HideoutTable,
+            InvasionTable, InviteRoleTable, LocationNoteTable, LocationRegionRelation,
+            LocationTable, LureTable, LureTypeRelation, LureTypeTable,
+            PokemonTable, PokestopTable, QuestTable, RaidActionTable,
+            RaidBossRelation, RaidTable, RegionTable, ResearchTable,
+            RewardTable, SightingTable, SilphcardTable, SubscriptionTable,
+            TeamTable, TradeTable, TrainerReportRelation, TrainerTable,
+            TopSubsTable, APIUsageTable
         ])
         cls.init()
         cls._migrator = SqliteMigrator(cls._db)
@@ -326,6 +329,26 @@ class InvasionInstance:
 class InvasionTable(BaseModel):
     trainer_report = ForeignKeyField(TrainerReportRelation, backref='invasion')
     pokemon_number = ForeignKeyField(PokemonTable, null=True, backref='invasion')
+
+
+class HideoutInstance:
+    def __init__(self, id, created, location_name, first_pokemon, second_pokemon, third_pokemon, latitude, longitude):
+        self.id = id
+        self.created = created
+        self.location_name = location_name
+        self.first_pokemon = first_pokemon
+        self.second_pokemon = second_pokemon
+        self.third_pokemon = third_pokemon
+        self.latitude = latitude
+        self.longitude = longitude
+
+
+class HideoutTable(BaseModel):
+    trainer_report = ForeignKeyField(TrainerReportRelation, backref='invasion')
+    rocket_leader = TextField(null=True)
+    first_pokemon = ForeignKeyField(PokemonTable, null=True, backref='invasion')
+    second_pokemon = ForeignKeyField(PokemonTable, null=True, backref='invasion')
+    third_pokemon = ForeignKeyField(PokemonTable, null=True, backref='invasion')
 
 
 def parse_reward_pool(pool):

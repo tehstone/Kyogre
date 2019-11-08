@@ -36,7 +36,7 @@ class RaidAuto(commands.Cog):
             diff = abs(start_seconds-now_seconds)
             # If the time diff is off by more than 90 minutes, assume it's incorrect and discard
             if diff > 5400:
-                start = 0
+                start = None
         # Determine hatch time based on raid_info["egg"] or use default
         if raid_info.get('exp', None):
             raidexp = await utils.time_to_minute_count(self.bot.guild_dict, channel, raid_info["exp"],

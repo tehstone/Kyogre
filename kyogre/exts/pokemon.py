@@ -405,6 +405,12 @@ class Pokemon():
 
     @classmethod
     def get_pokemon(cls, bot, argument, guild=None):
+        try:
+            argument = int(argument)
+            p_obj = Pokemon.find_obj(str(argument))
+            return cls(bot, str(p_obj['name']), guild)
+        except ValueError:
+            pass
         argument = argument.lower()
         if 'shiny' in argument:
             shiny = True
