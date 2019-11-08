@@ -404,7 +404,6 @@ class RaidCommands(commands.Cog):
             exp = expire
         else:
             exp = hatch
-        await ctx.send(exp)
         raid_dict = {
             'regions': gym_regions,
             'reportcity': report_channel.id,
@@ -1299,8 +1298,10 @@ class RaidCommands(commands.Cog):
                 minutes = raidminutes
             expire = now + datetime.timedelta(minutes=minutes)
         epoch = datetime.datetime(1970, 1, 1)
-        hatch = (hatch - epoch).total_seconds()
-        expire = (expire - epoch).total_seconds()
+        if hatch:
+            hatch = (hatch - epoch).total_seconds()
+        if expire:
+            expire = (expire - epoch).total_seconds()
         return hatch, expire
 
     async def _timerset(self, raidchannel, exptime, to_print=True, update=False):

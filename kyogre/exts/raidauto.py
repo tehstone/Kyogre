@@ -29,6 +29,14 @@ class RaidAuto(commands.Cog):
         if raid_info["phone_time"]:
             offset = self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset']
             start = utils.parse_time_str(offset, raid_info["phone_time"])
+            now = datetime.datetime.utcnow() + datetime.timedelta(hours=offset)
+            epoch = datetime.datetime(1970, 1, 1)
+            start_seconds = (start - epoch).total_seconds()
+            now_seconds = (now - epoch).total_seconds()
+            diff = abs(start_seconds-now_seconds)
+            # If the time diff is off by more than 90 minutes, assume it's incorrect and discard
+            if diff > 5400:
+                start = 0
         # Determine hatch time based on raid_info["egg"] or use default
         if raid_info.get('exp', None):
             raidexp = await utils.time_to_minute_count(self.bot.guild_dict, channel, raid_info["exp"],
