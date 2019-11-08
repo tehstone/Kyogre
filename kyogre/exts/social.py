@@ -282,7 +282,7 @@ class Social(commands.Cog):
                 user = ctx.guild.get_member(trainer_names_copy[k])
                 return await ctx.send(f"You're probably looking for {user.mention}")
             trainer_list.append(k)
-        matches = utils.get_match(trainer_list, trainer, isPartial=True, limit=5)
+        matches = utils.get_match(trainer_list, trainer, score_cutoff=75, isPartial=True, limit=5)
         if not isinstance(matches, list):
             matches = [matches]
         if len(matches) < 2:
