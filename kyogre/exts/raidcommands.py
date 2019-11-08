@@ -404,6 +404,7 @@ class RaidCommands(commands.Cog):
             exp = expire
         else:
             exp = hatch
+        await ctx.send(exp)
         raid_dict = {
             'regions': gym_regions,
             'reportcity': report_channel.id,
@@ -1284,7 +1285,7 @@ class RaidCommands(commands.Cog):
 
     async def _calc_egg_raid_exp_time(self, ctx, minutes, ctype, level):
         offset = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset']
-        now = datetime.datetime.utcnow() + datetime.timedelta(hours=offset)
+        now = datetime.datetime.utcnow()# + datetime.timedelta(hours=offset)
         eggminutes = self.bot.raid_info['raid_eggs'][level]['hatchtime']
         raidminutes = self.bot.raid_info['raid_eggs'][level]['raidtime']
         hatch, expire = None, None
@@ -1293,12 +1294,13 @@ class RaidCommands(commands.Cog):
                 minutes = eggminutes
             hatch = now + datetime.timedelta(minutes=minutes)
             expire = hatch + datetime.timedelta(minutes=raidminutes)
-            hatch, expire = hatch.timestamp(), expire.timestamp()
         elif ctype == 'raid':
             if not minutes:
                 minutes = raidminutes
             expire = now + datetime.timedelta(minutes=minutes)
-            expire = expire.timestamp()
+        epoch = datetime.datetime(1970, 1, 1)
+        hatch = (hatch - epoch).total_seconds()
+        expire = (expire - epoch).total_seconds()
         return hatch, expire
 
     async def _timerset(self, raidchannel, exptime, to_print=True, update=False):
@@ -1306,10 +1308,12 @@ class RaidCommands(commands.Cog):
         guild = raidchannel.guild
         now = datetime.datetime.utcnow()
         end = now + datetime.timedelta(minutes=exptime)
+        epoch = datetime.datetime(1970, 1, 1)
+        end = (end - epoch).total_seconds()
         raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'][raidchannel.id]
-        end = end + datetime.timedelta(
+        raid_dict['exp'] = end
+        end = datetime.datetime.utcfromtimestamp(end) + datetime.timedelta(
             hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
-        raid_dict['exp'] = end.timestamp()
         if not raid_dict['active']:
             await raidchannel.send('The channel has been reactivated.')
         raid_dict['active'] = True

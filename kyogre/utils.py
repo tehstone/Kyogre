@@ -482,9 +482,10 @@ def types_to_str(guild, type_list, config):
         if p_type[-2:] == 'x2':
             p_type = p_type[:-2]
             x2 = 'x2'
+        p_type_name = 'k' + p_type
+        p_id = config['type_id_dict'][p_type]
         # Append to string
-        ret += (parse_emoji(guild,
-                            config['type_id_dict'][p_type]) + x2) + ' '
+        ret += f"<:{p_type_name}:{p_id}>" + x2
     return ret
 
 
