@@ -320,10 +320,11 @@ class ListManagement(commands.Cog):
         listmsg_list = []
         listmsg = f"**Here are the active Team Rocket Takeovers in {loc.capitalize()}**\n"
         current_category = ""
-        current = datetime.datetime.utcnow() \
-                  + datetime.timedelta(hours=guild_dict[guild.id]['configure_dict']['settings']['offset'])
-        expiration_seconds = guild_dict[guild.id]['configure_dict']['settings']['invasion_minutes'] * 60
-        current = round(current.timestamp())
+        epoch = datetime.datetime(1970, 1, 1)
+        day_start = datetime.datetime.utcnow().replace(hour=6, minute=0, second=0, microsecond=0)
+        day_end = datetime.datetime.utcnow().replace(hour=22, minute=0, second=0, microsecond=0)
+        day_start = (day_start - epoch).total_seconds()
+        day_end = (day_end - epoch).total_seconds()
         result = (TrainerReportRelation.select(
             TrainerReportRelation.id,
             TrainerReportRelation.created,
@@ -337,7 +338,8 @@ class ListManagement(commands.Cog):
                   .join(InvasionTable, on=(TrainerReportRelation.id == InvasionTable.trainer_report_id))
                   .join(PokemonTable, JOIN.LEFT_OUTER, on=(InvasionTable.pokemon_number_id == PokemonTable.id))
                   .where((RegionTable.name == region) &
-                         (TrainerReportRelation.created + expiration_seconds > current))
+                         (TrainerReportRelation.created > day_start) &
+                         (TrainerReportRelation.created < day_end))
                   .order_by(TrainerReportRelation.created))
 
         result = result.objects(InvasionInstance)

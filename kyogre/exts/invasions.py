@@ -74,9 +74,6 @@ class Invasions(commands.Cog):
                         if pkmn.id not in leader_map.values():
                             pokemon_names.append(pkmn.name)
                             pokemon_ids.append(pkmn.id)
-                img_url = pkmn.img_url
-                img_url = img_url.replace('007_', '007normal_')
-                img_url = img_url.replace('025_', '025normal_')
         report = TrainerReportRelation.create(guild=ctx.guild.id,
                                               created=report_time_int, trainer=author.id, location=stop.id)
         if len(pokemon_names) < 3:
@@ -85,30 +82,37 @@ class Invasions(commands.Cog):
             pokemon_ids = (pokemon_ids + 3 * [None])[:3]
         hideout = HideoutTable.create(trainer_report=report, rocket_leader=leader, first_pokemon=pokemon_ids[0],
                                       second_pokemon=pokemon_ids[1], third_pokemon=pokemon_ids[2])
-        desc = f"**Pokestop**: {stop.name}"
+        inv_embed = discord.Embed(
+            title=f'**Pokestop**: {stop.name}', url=stop.maps_url, colour=discord.Colour.red())
+        desc = ""
         if leader:
-            desc += f"\n Rocket Leader {leader.capitalize()}\n"
+            desc += f"\nRocket Leader {leader.capitalize()}\n"
+            inv_embed.set_thumbnail(
+                url=f"https://github.com/tehstone/Kyogre/blob/master/images/misc/{leader.lower()}.png?raw=true")
+        else:
+            if random.randint(0, 1):
+                inv_embed.set_thumbnail(
+                    url="https://github.com/tehstone/Kyogre/blob/master/images/misc/Team_Rocket_Grunt_F.png?raw=true")
+            else:
+                inv_embed.set_thumbnail(
+                    url="https://github.com/tehstone/Kyogre/blob/master/images/misc/Team_Rocket_Grunt_M.png?raw=true")
+            desc += "\n Unknown Rocket Leader\n"
         names = ''
         for name in pokemon_names:
             if name:
                 names += f"{name.capitalize()} "
         if len(names) > 0:
-            names = "**Lineup**:\n" + names
+            names = "\n**Lineup**:\n" + names
+            pkmn = Pokemon.get_pokemon(self.bot, pokemon_names[0])
+            img_url = pkmn.img_url
+            img_url = img_url.replace('007_', '007normal_')
+            img_url = img_url.replace('025_', '025normal_')
         else:
-            names = "**Unknown Lineup**"
+            names = "\n**Unknown Lineup**"
         desc += names
-        inv_embed = discord.Embed(
-            title=f'Click for directions!', description=desc, 
-            url=stop.maps_url, colour=discord.Colour.red())
-
+        inv_embed.description = desc
         inv_embed.set_footer(
-            text='Reported by {author} - {timestamp}'
-                .format(author=author.display_name, timestamp=timestamp),
-            icon_url=img_url)
-        if random.randint(0, 1):
-            inv_embed.set_thumbnail(url="https://github.com/tehstone/Kyogre/blob/master/images/misc/Team_Rocket_Grunt_F.png?raw=true")
-        else:
-            inv_embed.set_thumbnail(url="https://github.com/tehstone/Kyogre/blob/master/images/misc/Team_Rocket_Grunt_M.png?raw=true")            
+            text=f'Reported by {author.display_name} - {timestamp}', icon_url=img_url)
         invasionreportmsg = await channel.send(f'**Team Rocket Hideout** reported at *{stop.name}*', embed=inv_embed)
         await utilities_cog.reaction_delay(invasionreportmsg, ['🇵', '💨'])#, '\u270f'])
         details = {'regions': regions, 'type': 'takeover', 'location': stop}
@@ -130,8 +134,7 @@ class Invasions(commands.Cog):
         channel = message.channel
         message = await message.channel.fetch_message(message.id)
         offset = self.bot.guild_dict[channel.guild.id]['configure_dict']['settings']['offset']
-        timestamp = (message.created_at + datetime.timedelta(
-            hours=self.bot.guild_dict[message.channel.guild.id]['configure_dict']['settings']['offset']))
+        timestamp = (message.created_at + datetime.timedelta(hours=offset))
         to_day_end = 22 * 60 * 60 - (timestamp - timestamp.replace(hour=0, minute=0, second=0, microsecond=0)).seconds
         expire_time = time.time() + to_day_end
         epoch = datetime.datetime(1970, 1, 1)
@@ -142,7 +145,7 @@ class Invasions(commands.Cog):
             )
             await asyncio.sleep(0.5)
             while True:
-                current = datetime.datetime.utcnow() + datetime.timedelta(hours=offset)
+                current = datetime.datetime.utcnow()# + datetime.timedelta(hours=offset)
                 current_seconds = (current - epoch).total_seconds()
                 time_diff = expire_time - current_seconds
                 if time_diff < 1:
