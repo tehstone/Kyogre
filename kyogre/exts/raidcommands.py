@@ -1789,9 +1789,14 @@ class RaidCommands(commands.Cog):
                                 self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['reportcity'])
                             reportmsg = await report_channel.fetch_message(
                                 self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['raidreport'])
-                            await reportmsg.edit(
-                                embed=discord.Embed(description=expiremsg, colour=channel.guild.me.colour))
-                            await reportmsg.clear_reactions()
+                            utils_cog = self.bot.cogs.get('Utilities')
+                            enabled = utils_cog.raid_channels_enabled(guild, channel)
+                            if enabled:
+                                await reportmsg.edit(
+                                    embed=discord.Embed(description=expiremsg, colour=channel.guild.me.colour))
+                                await reportmsg.clear_reactions()
+                            else:
+                                await reportmsg.delete()
                             regions = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id].get('regions', None)
                             await listmgmt_cog.update_listing_channels(guild, 'raid', edit=True, regions=regions)
                         except:
