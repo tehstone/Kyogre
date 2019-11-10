@@ -318,7 +318,7 @@ class KyogreBot(commands.AutoShardedBot):
                         'invite_tracking': {'enabled': False, 'destination': None, 'invite_counts': {}},
                         'quick_badge': {'listen_channels': [], 'pokenav_channel': None, 'badge_channel': None,
                                         'badges': {}, '40_role': None, '40_listen_channels': []},
-                        'takeover': {'enabled': False, 'report_channels': {},
+                        'hideout': {'enabled': False, 'report_channels': {},
                                      'listings': {'enabled': False, 'channels': {}}}},
             'wildreport_dict': {},
             'questreport_dict': {},

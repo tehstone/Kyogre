@@ -98,7 +98,10 @@ class NewTrainer(commands.Cog):
             xp = image_info['xp']
         except Exception as e:
             self.bot.logger.info(f"Request to image processing server failed with error: {e}")
-            scan_team, level, trainer_name, xp = await image_scan.scan_profile(file)
+            try:
+                scan_team, level, trainer_name, xp = await image_scan.scan_profile(file)
+            except AttributeError:
+                scan_team = None
         if not scan_team:
             return await ctx.channel.send(
                 embed=discord.Embed(

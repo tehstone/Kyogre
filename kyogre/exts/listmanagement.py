@@ -28,7 +28,7 @@ class ListManagement(commands.Cog):
             return await self._get_research_listing_messages(channel, region)
         elif list_type == 'lure':
             return await self._get_lure_listing_messages(channel, region)
-        elif list_type == 'takeover':
+        elif list_type == 'hideout':
             return await self._get_invasion_listing_messages(channel, region)
         else:
             return None
@@ -289,7 +289,7 @@ class ListManagement(commands.Cog):
                     if current_category != cat:
                         current_category = cat
                         newmsg += f"\n\n**{current_category}**"
-                    newmsg += ('\n\t🔹')
+                    newmsg += '\n\t🔹'
                     newmsg += "**Reward**: {reward}, **Pokestop**: [{location}]({url})" \
                         .format(location=research_dict[questid]['location'].title(),
                                 reward=research_dict[questid]['reward'].title(),
@@ -310,15 +310,13 @@ class ListManagement(commands.Cog):
         return listmsg_list
 
     async def _get_invasion_listing_messages(self, channel, region=None):
-        guild_dict = self.bot.guild_dict
-        guild = channel.guild
         if region:
             loc = region
         else:
             loc = channel.name
         invctr = 0
         listmsg_list = []
-        listmsg = f"**Here are the active Team Rocket Takeovers in {loc.capitalize()}**\n"
+        listmsg = f"**Here are today's Team Rocket Hideouts in {loc.capitalize()}**\n"
         current_category = ""
         epoch = datetime.datetime(1970, 1, 1)
         day_start = datetime.datetime.utcnow().replace(hour=6, minute=0, second=0, microsecond=0)
@@ -328,46 +326,59 @@ class ListManagement(commands.Cog):
         result = (TrainerReportRelation.select(
             TrainerReportRelation.id,
             TrainerReportRelation.created,
+            LocationTable.id.alias('location_id'),
             LocationTable.name.alias('location_name'),
-            PokemonTable.name.alias('pokemon'),
+            HideoutTable.rocket_leader.alias('leader'),
+            HideoutTable.first_pokemon,
+            HideoutTable.second_pokemon,
+            HideoutTable.third_pokemon,
             LocationTable.latitude,
-            LocationTable.longitude)
+            LocationTable.longitude,
+            TrainerReportRelation.message,
+            TrainerReportRelation.trainer)
                   .join(LocationTable, on=(TrainerReportRelation.location_id == LocationTable.id))
                   .join(LocationRegionRelation, on=(LocationTable.id == LocationRegionRelation.location_id))
                   .join(RegionTable, on=(RegionTable.id == LocationRegionRelation.region_id))
-                  .join(InvasionTable, on=(TrainerReportRelation.id == InvasionTable.trainer_report_id))
-                  .join(PokemonTable, JOIN.LEFT_OUTER, on=(InvasionTable.pokemon_number_id == PokemonTable.id))
+                  .join(HideoutTable, on=(TrainerReportRelation.id == HideoutTable.trainer_report_id))
                   .where((RegionTable.name == region) &
                          (TrainerReportRelation.created > day_start) &
-                         (TrainerReportRelation.created < day_end))
+                         (TrainerReportRelation.created < day_end)
+                        & (TrainerReportRelation.cancelled != True)
+                         )
                   .order_by(TrainerReportRelation.created))
 
-        result = result.objects(InvasionInstance)
+        result = result.objects(HideoutInstance)
         for inv in result:
-            if inv.id not in self.bot.active_invasions:
-                continue
-            exp = inv.created + expiration_seconds
-            exp = datetime.datetime.utcfromtimestamp(exp)
             newmsg = ""
             try:
-                newmsg += ('\n\t🔹')
+                newmsg += '\n<:teamrocket:642748270380187660> '
                 stop_url = utils.simple_gmaps_query(inv.latitude, inv.longitude)
-                newmsg += f"**Pokestop**: [{inv.location_name}]({stop_url}) - " \
-                          f"Ends: {exp.strftime('%I:%M')} (or sooner)."
-                if inv.pokemon is not None:
-                    newmsg += f"\n\t🔴**Pokemon**: {inv.pokemon}"
+                newmsg += f"[{inv.location_name}]({stop_url}) - "
+                if inv.leader is not None:
+                    newmsg += f"**{inv.leader.capitalize()}**\n󠀠"
+                else:
+                    newmsg += "Leader Unknown\n󠀠"
+                if inv.first_pokemon:
+                    pkmn = Pokemon.get_pokemon(self.bot, inv.first_pokemon)
+                    newmsg += f"\u2800\u2800\u2800**Lineup**: {pkmn.name.capitalize()}"
+                if inv.second_pokemon:
+                    pkmn = Pokemon.get_pokemon(self.bot, inv.second_pokemon)
+                    newmsg += f", {pkmn.name.capitalize()}"
+                if inv.third_pokemon:
+                    pkmn = Pokemon.get_pokemon(self.bot, inv.third_pokemon)
+                    newmsg += f", {pkmn.name.capitalize()}"
                 if len(listmsg) + len(newmsg) < constants.MAX_MESSAGE_LENGTH:
                     listmsg += newmsg
                 else:
                     listmsg_list.append(listmsg)
                     if current_category not in newmsg:
                         newmsg = f"**({current_category} continued)**"
-                    listmsg = "takeover " + newmsg
+                    listmsg = "hideout " + newmsg
                 invctr += 1
             except discord.errors.NotFound:
                 continue
         if invctr == 0:
-            listmsg = "There are no active Team Rocket Takeovers. Report one with **!rocket**"
+            listmsg = "No Team Rocket Hideouts reported. Report one with **!rocket**"
         listmsg_list.append(listmsg)
         return listmsg_list
 
@@ -1014,7 +1025,7 @@ class ListManagement(commands.Cog):
 
     async def update_listing_channels(self, guild, list_type, edit=False, regions=None):
         guild_dict = self.bot.guild_dict
-        valid_types = ['raid', 'research', 'wild', 'nest', 'lure', 'takeover']
+        valid_types = ['raid', 'research', 'wild', 'nest', 'lure', 'hideout']
         if list_type not in valid_types:
             return
         listing_dict = guild_dict[guild.id]['configure_dict'].get(list_type, {}).get('listings', None)

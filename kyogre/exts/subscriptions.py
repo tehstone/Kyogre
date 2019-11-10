@@ -739,7 +739,7 @@ class Subscriptions(commands.Cog):
         return 2*R*math.atan2(math.sqrt(a), math.sqrt(1 - a)) / conv < distance
 
     async def send_notifications_async(self, notification_type, details, new_channel, exclusions=[]):
-        valid_types = ['raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure', 'takeover']
+        valid_types = ['raid', 'research', 'wild', 'nest', 'gym', 'shiny', 'item', 'lure', 'hideout']
         if notification_type not in valid_types:
             return
         guild = new_channel.guild
@@ -861,8 +861,8 @@ class Subscriptions(commands.Cog):
                 message = f'{start} **{item} research task** has been reported at **{location}**!'
             elif notification_type == 'lure':
                 message = f'A **{lure_type.capitalize()}** lure has been dropped at {location.name}!'
-            elif notification_type == 'takeover':
-                message = f'A **Team Rocket Takeover** has been spotted at {location.name}!'
+            elif notification_type == 'hideout':
+                message = f'A **Team Rocket Hideout** has been spotted at {location.name}!'
             elif notification_type == 'wild':
                 message = f'A **wild {description} spawn** has been reported at **{location}**!'
             elif notification_type == 'research':
@@ -877,8 +877,8 @@ class Subscriptions(commands.Cog):
             role_name = utils.sanitize_name(f"{item} {location}".title())
         elif notification_type == 'lure':
             role_name = utils.sanitize_name(f'{lure_type} {location.name}'.title())
-        elif notification_type == 'takeover':
-            role_name = utils.sanitize_name(f'Rocket Takeover {location.name}'.title())
+        elif notification_type == 'hideout':
+            role_name = utils.sanitize_name(f'Rocket Hideout {location.name}'.title())
         else:
             role_name = utils.sanitize_name(f"{notification_type} {pokemon_names} {location}".title())
         # starting to hit rate limit for role creation so explicitly mentioning all trainers in the meantime

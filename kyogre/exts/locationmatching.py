@@ -59,6 +59,28 @@ class LocationMatching(commands.Cog):
         return self.get_gyms(guild_id, regions=regions) + self.get_stops(guild_id, regions=regions)
 
     @staticmethod
+    def get_stop_by_id(guild_id, stop_id):
+        try:
+            result = (PokestopTable
+                      .select(LocationTable.id,
+                              LocationTable.name,
+                              LocationTable.latitude,
+                              LocationTable.longitude,
+                              RegionTable.name.alias('region'),
+                              LocationNoteTable.note)
+                      .join(LocationTable)
+                      .join(LocationRegionRelation)
+                      .join(RegionTable)
+                      .join(LocationNoteTable, JOIN.LEFT_OUTER, on=(LocationNoteTable.location_id == LocationTable.id))
+                      .where((LocationTable.guild == guild_id) &
+                             (LocationTable.guild == RegionTable.guild) &
+                             (LocationTable.id == stop_id)))
+            result = result.objects(Pokestop)
+            return [o for o in result][0]
+        except:
+            return None
+
+    @staticmethod
     def get_gym_by_id(guild_id, gym_id):
         try:
             result = (GymTable

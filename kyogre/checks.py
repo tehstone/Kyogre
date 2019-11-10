@@ -357,7 +357,7 @@ def check_invasionset(ctx):
     if ctx.guild is None:
         return False
     guild = ctx.guild
-    return ctx.bot.guild_dict[guild.id]['configure_dict']['takeover'].get('enabled', False)
+    return ctx.bot.guild_dict[guild.id]['configure_dict']['hideout'].get('enabled', False)
 
 
 def check_researchreport(ctx):
@@ -376,7 +376,7 @@ def check_invasionreport(ctx):
     channel = ctx.channel
     guild = ctx.guild
     channel_list = [x for x in
-                    ctx.bot.guild_dict[guild.id]['configure_dict']['takeover'].get('report_channels', {}).keys()]
+                    ctx.bot.guild_dict[guild.id]['configure_dict']['hideout'].get('report_channels', {}).keys()]
     return channel.id in channel_list
 
 

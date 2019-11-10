@@ -91,7 +91,7 @@ class Social(commands.Cog):
                 .setdefault(user.id, {}).get('joined', 0)
         return [raids, eggs, wilds, research, joined]
 
-    @commands.command(name='leaderboard', aliases=['lb', 'board', 'leader'])
+    @commands.command(name='leaderboard', aliases=['lb', 'board'])
     async def leaderboard(self, ctx, board_type="total", region=None):
         """**Usage**: `!leaderboard [type] [region]`
         Accepted types: raids, eggs, wilds, research, joined

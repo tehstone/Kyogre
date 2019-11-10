@@ -200,7 +200,7 @@ async def on_ready():
                                 'invite_tracking': {'enabled': False, 'destination': None, 'invite_counts': {}},
                                 'quick_badge': {'listen_channels': [], 'pokenav_channel': None, 'badge_channel': None,
                                                 'badges': {}, '40_role': None, '40_listen_channels': []},
-                                'takeover': {'enabled': False, 'report_channels': {},
+                                'hideout': {'enabled': False, 'report_channels': {},
                                              'listings': {'enabled': False, 'channels': {}}}},
                     'wildreport_dict': {},
                     'questreport_dict': {},
@@ -235,7 +235,7 @@ async def on_ready():
                                                                   {'listen_channels': [], 'pokenav_channel': None,
                                                                    'badge_channel': None, 'badges': {}, '40_role': None,
                                                                    '40_listen_channels': []})
-                guild_dict[guild.id]['configure_dict'].setdefault('takeover', {'enabled': False, 'report_channels': {},
+                guild_dict[guild.id]['configure_dict'].setdefault('hideout', {'enabled': False, 'report_channels': {},
                                                                                'listings': {'enabled': True,
                                                                                             'channels': {}}})
                 guild_dict[guild.id].setdefault('pvp_dict', {})
@@ -279,7 +279,7 @@ async def on_ready():
                         'invite_tracking': {'enabled': False, 'destination': None, 'invite_counts': {}},
                         'quick_badge': {'listen_channels': [], 'pokenav_channel': None, 'badge_channel': None,
                                         'badges': {}, '40_role': None, '40_listen_channels': []},
-                        'takeover': {'enabled': False, 'report_channels': {},
+                        'hideout': {'enabled': False, 'report_channels': {},
                                      'listings': {'enabled': False, 'channels': {}}}},
                 'wildreport_dict': {},
                 'questreport_dict': {},

@@ -332,23 +332,28 @@ class InvasionTable(BaseModel):
 
 
 class HideoutInstance:
-    def __init__(self, id, created, location_name, first_pokemon, second_pokemon, third_pokemon, latitude, longitude):
+    def __init__(self, id, created, location_id, location_name, leader, first_pokemon,
+                 second_pokemon, third_pokemon, latitude, longitude, message, trainer):
         self.id = id
         self.created = created
+        self.location_id = location_id
         self.location_name = location_name
+        self.leader = leader
         self.first_pokemon = first_pokemon
         self.second_pokemon = second_pokemon
         self.third_pokemon = third_pokemon
         self.latitude = latitude
         self.longitude = longitude
+        self.message = message
+        self.trainer = trainer
 
 
 class HideoutTable(BaseModel):
     trainer_report = ForeignKeyField(TrainerReportRelation, backref='invasion')
     rocket_leader = TextField(null=True)
-    first_pokemon = ForeignKeyField(PokemonTable, null=True, backref='invasion')
-    second_pokemon = ForeignKeyField(PokemonTable, null=True, backref='invasion')
-    third_pokemon = ForeignKeyField(PokemonTable, null=True, backref='invasion')
+    first_pokemon = TextField(null=True)
+    second_pokemon = TextField(null=True)
+    third_pokemon = TextField(null=True)
 
 
 def parse_reward_pool(pool):
