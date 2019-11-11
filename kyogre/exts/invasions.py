@@ -22,13 +22,14 @@ class Invasions(commands.Cog):
                            'cliff': 52, 'blue': 52, 'mystic': 52,
                            'sierra': 215, 'yellow': 215, 'instinct': 215}
 
-    @commands.command(name='invasion', aliases=['takeover', 'rocket', 'rock', 'roc',
-                                                'hideout', 'hide', 'leader', 'lead'],
+    @commands.command(name='rocket', aliases=['rock', 'roc', 'hideout', 'hide', 'leader', 'lead'],
                       brief="Report a Team Rocket Hideout!")
     @checks.allowinvasionreport()
     async def _invasion(self, ctx, *, info=None):
-        """**Usage**: `!rocket <pokestop name> [,pokemon]`
-        Pokemon name is optional and can be updated later."""
+        """**Usage**: `!rocket <pokestop name> [,rocket leader, pokemon names]`
+
+        Report a Team Rocket Leader invasion at a pokestop!.
+        Rocket Leader and their Pokemon Lineup are optional and can be updated later."""
         message = ctx.message
         channel = message.channel
         author = message.author
@@ -542,6 +543,7 @@ class Invasions(commands.Cog):
                   .join(HideoutTable, on=(TrainerReportRelation.id == HideoutTable.trainer_report_id))
                   .where(TrainerReportRelation.id == report_id))
         return result.objects(HideoutInstance)[0]
+
 
 def setup(bot):
     bot.add_cog(Invasions(bot))

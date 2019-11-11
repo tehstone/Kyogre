@@ -11,6 +11,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
                                 "time": ["starttime", "timerset"],
                                 "other": ["list", "lobby", "starting", "backout", "shout", "weather", "counters"]
                                 },
+                "rocket": ["rocket"],
                 "pvp": ["pvp available", "pvp add", "pvp remove"],
                 "subscriptions": ["subscription list", "subscription add", "subscription remove"],
                 "user": { "commands": ["join", "gym", "profile", "leaderboard", "set silph", "set pokebattler",
