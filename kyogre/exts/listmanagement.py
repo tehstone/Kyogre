@@ -316,39 +316,44 @@ class ListManagement(commands.Cog):
             loc = channel.name
         invctr = 0
         listmsg_list = []
-        listmsg = f"**Here are today's Team Rocket Hideouts in {loc.capitalize()}**\n"
+        listmsg = f"Here are today's **Team Rocket Hideouts** in **{loc.capitalize()}**\n"
         current_category = ""
         epoch = datetime.datetime(1970, 1, 1)
-        day_start = datetime.datetime.utcnow().replace(hour=6, minute=0, second=0, microsecond=0)
-        day_end = datetime.datetime.utcnow().replace(hour=22, minute=0, second=0, microsecond=0)
+        offset = self.bot.guild_dict[channel.guild.id]['configure_dict']['settings']['offset']
+        day_start = (datetime.datetime.utcnow() + datetime.timedelta(hours=offset)) \
+            .replace(hour=6, minute=0, second=0, microsecond=0)
+        day_end = day_start + datetime.timedelta(hours=16)
         day_start = (day_start - epoch).total_seconds()
         day_end = (day_end - epoch).total_seconds()
-        result = (TrainerReportRelation.select(
-            TrainerReportRelation.id,
-            TrainerReportRelation.created,
-            LocationTable.id.alias('location_id'),
-            LocationTable.name.alias('location_name'),
-            HideoutTable.rocket_leader.alias('leader'),
-            HideoutTable.first_pokemon,
-            HideoutTable.second_pokemon,
-            HideoutTable.third_pokemon,
-            LocationTable.latitude,
-            LocationTable.longitude,
-            TrainerReportRelation.message,
-            TrainerReportRelation.trainer)
-                  .join(LocationTable, on=(TrainerReportRelation.location_id == LocationTable.id))
-                  .join(LocationRegionRelation, on=(LocationTable.id == LocationRegionRelation.location_id))
-                  .join(RegionTable, on=(RegionTable.id == LocationRegionRelation.region_id))
-                  .join(HideoutTable, on=(TrainerReportRelation.id == HideoutTable.trainer_report_id))
-                  .where((RegionTable.name == region) &
-                         (TrainerReportRelation.created > day_start) &
-                         (TrainerReportRelation.created < day_end)
-                        & (TrainerReportRelation.cancelled != True)
-                         )
-                  .order_by(TrainerReportRelation.created))
+        results = {}
+        leader_list = ['arlo', 'cliff', 'sierra', None]
+        for leader in leader_list:
+            result = (TrainerReportRelation.select(
+                TrainerReportRelation.id,
+                TrainerReportRelation.created,
+                LocationTable.id.alias('location_id'),
+                LocationTable.name.alias('location_name'),
+                HideoutTable.rocket_leader.alias('leader'),
+                HideoutTable.first_pokemon,
+                HideoutTable.second_pokemon,
+                HideoutTable.third_pokemon,
+                LocationTable.latitude,
+                LocationTable.longitude,
+                TrainerReportRelation.message,
+                TrainerReportRelation.trainer)
+                      .join(LocationTable, on=(TrainerReportRelation.location_id == LocationTable.id))
+                      .join(LocationRegionRelation, on=(LocationTable.id == LocationRegionRelation.location_id))
+                      .join(RegionTable, on=(RegionTable.id == LocationRegionRelation.region_id))
+                      .join(HideoutTable, on=(TrainerReportRelation.id == HideoutTable.trainer_report_id))
+                      .where((RegionTable.name == region) &
+                             (TrainerReportRelation.created > day_start) &
+                             (TrainerReportRelation.created < day_end) &
+                             (TrainerReportRelation.cancelled != True) &
+                             (HideoutTable.rocket_leader == leader))
+                      .order_by(TrainerReportRelation.created))
 
-        result = result.objects(HideoutInstance)
-        for inv in result:
+            results[leader] = [r for r in result.objects(HideoutInstance)]
+        for inv in results:
             newmsg = ""
             try:
                 newmsg += '\n<:teamrocket:642748270380187660> '

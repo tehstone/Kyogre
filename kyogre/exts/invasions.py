@@ -125,14 +125,14 @@ class Invasions(commands.Cog):
             pokemon_ids[2] = pkmn.id
         if existing.id:
             report = TrainerReportRelation.get_by_id(existing.id)
-            HideoutTable.update(rocket_leader=leader, first_pokemon=pokemon_ids[0],
+            HideoutTable.update(rocket_leader=leader.lower(), first_pokemon=pokemon_ids[0],
                                 second_pokemon=pokemon_ids[1], third_pokemon=pokemon_ids[2])\
                 .where(HideoutTable.trainer_report == report.id).execute()
             updated = True
         else:
             report = TrainerReportRelation.create(guild=ctx.guild.id, created=report_time_int, trainer=author.id,
                                                   location=stop.id, cancelled=False)
-            HideoutTable.create(trainer_report=report, rocket_leader=leader, first_pokemon=pokemon_ids[0],
+            HideoutTable.create(trainer_report=report, rocket_leader=leader.lower(), first_pokemon=pokemon_ids[0],
                                 second_pokemon=pokemon_ids[1], third_pokemon=pokemon_ids[2])
             updated = False
         hideout = self.get_single_hideout(report.id)
