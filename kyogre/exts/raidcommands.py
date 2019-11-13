@@ -621,7 +621,12 @@ class RaidCommands(commands.Cog):
 
     async def _eggassume(self, ctx, args, raid_channel, author):
         guild = raid_channel.guild
-        eggdetails = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
+        try:
+            eggdetails = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
+        except KeyError:
+            # bandaid. this failed once and broke the channel so adding a slight delay and retry for now
+            await asyncio.sleep(2)
+            eggdetails = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
         report_channel = self.bot.get_channel(eggdetails['reportchannel'])
         egglevel = eggdetails['egglevel']
         weather = eggdetails.get('weather', None)
