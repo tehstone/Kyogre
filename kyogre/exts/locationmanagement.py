@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from kyogre import utils
-from kyogre.exts.db.kyogredb import KyogreDB, RegionTable, GymTable, PokestopTable, GuildTable
+from kyogre.exts.db.kyogredb import KyogreDB, RegionTable, GymTable, PokestopTable, GuildTable, TrainerReportRelation
 from kyogre.exts.db.kyogredb import LocationTable, LocationRegionRelation, LocationNoteTable
 
 
@@ -349,6 +349,8 @@ class LocationManagement(commands.Cog):
                     .get((LocationTable.guild == guild.id) &
                            (LocationTable.name == name)))
                 location = LocationTable.get_by_id(locationresult)
+                TrainerReportRelation.update(location=None)\
+                    .where(TrainerReportRelation.location == location.id).execute()
                 loc_reg = (LocationRegionRelation
                     .get(LocationRegionRelation.location_id == locationresult))
                 if location_type == "stop":
