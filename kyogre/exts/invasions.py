@@ -17,10 +17,14 @@ from kyogre.exts.pokemon import Pokemon
 class Invasions(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.leader_strings = ['arlo', 'red', 'valor', 'cliff', 'blue', 'mystic', 'sierra', 'yellow', 'instinct']
+        self.leader_strings = ['arlo', 'red', 'valor',
+                               'cliff', 'blue', 'mystic',
+                               'sierra', 'yellow', 'instinct',
+                               'giovanni', 'boss']
         self.leader_map = {'arlo': 123, 'red': 123, 'valor': 123,
                            'cliff': 52, 'blue': 52, 'mystic': 52,
-                           'sierra': 215, 'yellow': 215, 'instinct': 215}
+                           'sierra': 215, 'yellow': 215, 'instinct': 215,
+                           'giovanni': 53, 'boss': 53}
 
     @commands.command(name='rocket', aliases=['rock', 'roc', 'hideout', 'hide', 'leader', 'lead'],
                       brief="Report a Team Rocket Hideout!")

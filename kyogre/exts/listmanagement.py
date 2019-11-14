@@ -341,7 +341,7 @@ class ListManagement(commands.Cog):
         day_start = (day_start - epoch).total_seconds()
         day_end = (day_end - epoch).total_seconds()
         results = {}
-        leader_list = [None, 'arlo', 'cliff', 'sierra']
+        leader_list = [None, 'giovanni', 'arlo', 'cliff', 'sierra']
         utils_cog = self.bot.cogs.get('Utilities')
         embeds = {}
         for leader in leader_list:
@@ -381,8 +381,11 @@ class ListManagement(commands.Cog):
                                  2: ['sandslash', 'snorlax', 'flygon'],
                                  3: ['infernape', 'torterra', 'tyranitar']},
                        'sierra': {1: ['meowth'],
-                                 2: ['hypno', 'sableye', 'lapras'],
-                                 3: ['alakazam', 'houndoom', 'gardevoir']}}
+                                  2: ['hypno', 'sableye', 'lapras'],
+                                  3: ['alakazam', 'houndoom', 'gardevoir']},
+                       'giovanni': {1: ['persian'],
+                                    2: ['Dugtrio', 'Rhydon', 'Hippowdon'],
+                                    3: ['Articuno']}}
             if leader:
                 hideout_embed.title = f"Rocket Leader {leader.capitalize()}"
                 lineup_text = f"{lineups[leader][1][0].capitalize()}\n"
