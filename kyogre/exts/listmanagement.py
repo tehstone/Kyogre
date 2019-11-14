@@ -309,15 +309,30 @@ class ListManagement(commands.Cog):
         listmsg_list.append(listmsg)
         return listmsg_list
 
+    async def _update_hideout_listings(self, channel, regions, edit):
+        if not isinstance(regions, list):
+            regions = [regions]
+        for region in regions:
+            region_dict = self.bot.guild_dict[channel.guild.id]['configure_dict'] \
+                                             ['hideout']['listings']['channels'][region]
+            embeds = await self._get_invasion_listing_messages(channel, region)
+            for leader in region_dict['messages']:
+                message_id = region_dict['messages'][leader]
+                sent = False
+                try:
+                    old_message = await channel.fetch_message(message_id)
+                    if edit:
+                        await old_message.edit(embed=embeds[leader])
+                        sent = True
+                    else:
+                        await old_message.delete()
+                except (discord.errors.Forbidden, discord.errors.HTTPException, discord.errors.NotFound):
+                    pass
+                if not sent:
+                    new_message = await channel.send(embed=embeds[leader])
+                    region_dict['messages'][leader] = new_message.id
+
     async def _get_invasion_listing_messages(self, channel, region=None):
-        if region:
-            loc = region
-        else:
-            loc = channel.name
-        invctr = 0
-        listmsg_list = []
-        listmsg = f"Here are today's **Team Rocket Hideouts** in **{loc.capitalize()}**\n"
-        current_category = ""
         epoch = datetime.datetime(1970, 1, 1)
         offset = self.bot.guild_dict[channel.guild.id]['configure_dict']['settings']['offset']
         day_start = (datetime.datetime.utcnow() + datetime.timedelta(hours=offset)) \
@@ -326,7 +341,9 @@ class ListManagement(commands.Cog):
         day_start = (day_start - epoch).total_seconds()
         day_end = (day_end - epoch).total_seconds()
         results = {}
-        leader_list = ['arlo', 'cliff', 'sierra', None]
+        leader_list = [None, 'arlo', 'cliff', 'sierra']
+        utils_cog = self.bot.cogs.get('Utilities')
+        embeds = {}
         for leader in leader_list:
             result = (TrainerReportRelation.select(
                 TrainerReportRelation.id,
@@ -353,39 +370,86 @@ class ListManagement(commands.Cog):
                       .order_by(TrainerReportRelation.created))
 
             results[leader] = [r for r in result.objects(HideoutInstance)]
-        for inv in results:
-            newmsg = ""
-            try:
-                newmsg += '\n<:teamrocket:642748270380187660> '
-                stop_url = utils.simple_gmaps_query(inv.latitude, inv.longitude)
-                newmsg += f"[{inv.location_name}]({stop_url}) - "
-                if inv.leader is not None:
-                    newmsg += f"**{inv.leader.capitalize()}**\n󠀠"
-                else:
-                    newmsg += "Leader Unknown\n󠀠"
-                if inv.first_pokemon:
-                    pkmn = Pokemon.get_pokemon(self.bot, inv.first_pokemon)
-                    newmsg += f"\u2800\u2800\u2800**Lineup**: {pkmn.name.capitalize()}"
-                if inv.second_pokemon:
-                    pkmn = Pokemon.get_pokemon(self.bot, inv.second_pokemon)
-                    newmsg += f", {pkmn.name.capitalize()}"
-                if inv.third_pokemon:
-                    pkmn = Pokemon.get_pokemon(self.bot, inv.third_pokemon)
-                    newmsg += f", {pkmn.name.capitalize()}"
-                if len(listmsg) + len(newmsg) < constants.MAX_MESSAGE_LENGTH:
-                    listmsg += newmsg
-                else:
-                    listmsg_list.append(listmsg)
-                    if current_category not in newmsg:
-                        newmsg = f"**({current_category} continued)**"
-                    listmsg = "hideout " + newmsg
-                invctr += 1
-            except discord.errors.NotFound:
-                continue
-        if invctr == 0:
-            listmsg = "No Team Rocket Hideouts reported. Report one with **!rocket**"
-        listmsg_list.append(listmsg)
-        return listmsg_list
+        for leader in leader_list:
+            hideout_embed = discord.Embed(colour=discord.Colour.red())
+            hideout_embed.description = ''
+            # todo store these in db and make easily updateable
+            lineups = {'arlo': {1: ['scyther'],
+                                2: ['gyarados', 'crobat', 'magnezone'],
+                                3: ['charizard', 'dragonite', 'scyzor']},
+                       'cliff': {1: ['meowth'],
+                                 2: ['sandslash', 'snorlax', 'flygon'],
+                                 3: ['infernape', 'torterra', 'tyranitar']},
+                       'sierra': {1: ['meowth'],
+                                 2: ['hypno', 'sableye', 'lapras'],
+                                 3: ['alakazam', 'houndoom', 'gardevoir']}}
+            if leader:
+                hideout_embed.title = f"Rocket Leader {leader.capitalize()}"
+                lineup_text = f"{lineups[leader][1][0].capitalize()}\n"
+                lineup_text += f"+ {' or '.join([l.capitalize() for l in lineups[leader][2]])}\n"
+                lineup_text += f"+ {' or '.join([l.capitalize() for l in lineups[leader][3]])}"
+                hideout_embed.add_field(name="Lineup", value=lineup_text)
+                hideout_embed.set_thumbnail(
+                    url=f"https://github.com/tehstone/Kyogre/blob/master/images/misc/{leader.lower()}.png?raw=true")
+            else:
+                hideout_embed.title = "Unknown Rocket Leader"
+                hideout_embed.set_thumbnail(
+                    url=f"https://github.com/tehstone/Kyogre/blob/master/images/misc/rocket_logo.png?raw=true")
+            if len(results[leader]) < 1:
+                hideout_embed.add_field(name='No locations reported yet!',
+                                        value='Report one with command `!rocket`')
+            else:
+                hideout_embed.add_field(name='\u200b',
+                                        value='**Locations reported today:**'
+                                        , inline=False)
+                for hideout in results[leader]:
+                    gmaps_link = utils_cog.create_simple_gmaps_query(hideout.latitude, hideout.longitude)
+                    loc_name = hideout.location_name
+                    pokemon_id_list = [hideout.first_pokemon, hideout.second_pokemon, hideout.third_pokemon]
+                    pokemon_names = ''
+                    for p_id in pokemon_id_list:
+                        if p_id:
+                            pkmn = Pokemon.get_pokemon(self.bot, p_id)
+                            pokemon_names += f'{pkmn.name.capitalize()} '
+                        else:
+                            pokemon_names += '*Unknown* '
+                    embed_val = f'[Directions]({gmaps_link})\n {pokemon_names}\n'
+                    hideout_embed.add_field(name=f'**{loc_name}**', value=embed_val)
+            embeds[leader] = hideout_embed
+        return embeds
+        # for inv in results:
+        #     newmsg = ""
+        #     try:
+        #         newmsg += '\n<:teamrocket:642748270380187660> '
+        #         stop_url = utils.simple_gmaps_query(inv.latitude, inv.longitude)
+        #         newmsg += f"[{inv.location_name}]({stop_url}) - "
+        #         if inv.leader is not None:
+        #             newmsg += f"**{inv.leader.capitalize()}**\n󠀠"
+        #         else:
+        #             newmsg += "Leader Unknown\n󠀠"
+        #         if inv.first_pokemon:
+        #             pkmn = Pokemon.get_pokemon(self.bot, inv.first_pokemon)
+        #             newmsg += f"\u2800\u2800\u2800**Lineup**: {pkmn.name.capitalize()}"
+        #         if inv.second_pokemon:
+        #             pkmn = Pokemon.get_pokemon(self.bot, inv.second_pokemon)
+        #             newmsg += f", {pkmn.name.capitalize()}"
+        #         if inv.third_pokemon:
+        #             pkmn = Pokemon.get_pokemon(self.bot, inv.third_pokemon)
+        #             newmsg += f", {pkmn.name.capitalize()}"
+        #         if len(listmsg) + len(newmsg) < constants.MAX_MESSAGE_LENGTH:
+        #             listmsg += newmsg
+        #         else:
+        #             listmsg_list.append(listmsg)
+        #             if current_category not in newmsg:
+        #                 newmsg = f"**({current_category} continued)**"
+        #             listmsg = "hideout " + newmsg
+        #         invctr += 1
+        #     except discord.errors.NotFound:
+        #         continue
+        # if invctr == 0:
+        #     listmsg = "No Team Rocket Hideouts reported. Report one with **!rocket**"
+        # listmsg_list.append(listmsg)
+        # return listmsg_list
 
     async def _get_lure_listing_messages(self, channel, region=None):
         guild_dict = self.bot.guild_dict
@@ -1057,6 +1121,8 @@ class ListManagement(commands.Cog):
             listing_dict = guild_dict[channel.guild.id]['configure_dict'].get(list_type, {}).get('listings', None)
             if not listing_dict or not listing_dict['enabled']:
                 return
+            if list_type == 'hideout':
+                return await self._update_hideout_listings(channel, region, edit)
             new_messages = await self.get_listing_messages(list_type, channel, region)
             previous_messages = await self._get_previous_listing_messages(list_type, channel, region)
             new_messages = [] if new_messages is None else new_messages

@@ -123,16 +123,18 @@ class Invasions(commands.Cog):
             pkmn = Pokemon.get_pokemon(self.bot, existing.third_pokemon)
             pokemon_names[2] = pkmn.name
             pokemon_ids[2] = pkmn.id
+        if leader:
+            leader = leader.lower()
         if existing.id:
             report = TrainerReportRelation.get_by_id(existing.id)
-            HideoutTable.update(rocket_leader=leader.lower(), first_pokemon=pokemon_ids[0],
+            HideoutTable.update(rocket_leader=leader, first_pokemon=pokemon_ids[0],
                                 second_pokemon=pokemon_ids[1], third_pokemon=pokemon_ids[2])\
                 .where(HideoutTable.trainer_report == report.id).execute()
             updated = True
         else:
             report = TrainerReportRelation.create(guild=ctx.guild.id, created=report_time_int, trainer=author.id,
                                                   location=stop.id, cancelled=False)
-            HideoutTable.create(trainer_report=report, rocket_leader=leader.lower(), first_pokemon=pokemon_ids[0],
+            HideoutTable.create(trainer_report=report, rocket_leader=leader, first_pokemon=pokemon_ids[0],
                                 second_pokemon=pokemon_ids[1], third_pokemon=pokemon_ids[2])
             updated = False
         hideout = self.get_single_hideout(report.id)
@@ -393,12 +395,8 @@ class Invasions(commands.Cog):
             inv_embed.set_thumbnail(
                 url=f"https://github.com/tehstone/Kyogre/blob/master/images/misc/{hideout.leader.lower()}.png?raw=true")
         else:
-            if random.randint(0, 1):
-                inv_embed.set_thumbnail(
-                    url="https://github.com/tehstone/Kyogre/blob/master/images/misc/Team_Rocket_Grunt_F.png?raw=true")
-            else:
-                inv_embed.set_thumbnail(
-                    url="https://github.com/tehstone/Kyogre/blob/master/images/misc/Team_Rocket_Grunt_M.png?raw=true")
+            inv_embed.set_thumbnail(
+                url="https://github.com/tehstone/Kyogre/blob/master/images/misc/rocket_logo.png?raw=true")
             desc += "\n Unknown Rocket Leader\n"
         names, img_url = '', ''
         pokemon_list = [hideout.first_pokemon, hideout.second_pokemon, hideout.third_pokemon]
