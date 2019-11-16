@@ -6,6 +6,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -24,6 +25,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -42,6 +44,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -60,6 +63,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -77,6 +81,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -94,6 +99,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -112,6 +118,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -129,6 +136,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -146,6 +154,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -163,6 +172,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -180,6 +190,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -197,6 +208,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -215,6 +227,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -233,6 +246,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -251,6 +265,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -269,6 +284,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -287,6 +303,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -305,6 +322,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -323,6 +341,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -344,6 +363,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": true,
+        "galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -365,6 +385,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -383,6 +404,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -401,6 +423,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -418,6 +441,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -435,6 +459,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -452,6 +477,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -473,6 +499,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -494,6 +521,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -515,6 +543,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -532,6 +561,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -549,6 +579,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -567,6 +598,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -584,6 +616,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -601,6 +634,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -619,6 +653,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -636,6 +671,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -653,6 +689,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -673,6 +710,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -693,6 +731,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -711,6 +750,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -729,6 +769,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -747,6 +788,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -765,6 +807,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -783,6 +826,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -801,6 +845,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -819,6 +864,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -837,6 +883,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -855,6 +902,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -873,6 +921,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -891,6 +940,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -912,6 +962,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -933,12 +984,16 @@
         "mythical": false,
         "shiny": false,
         "alolan": true,
+        "galarian": true,
         "types": {
             "default": [
                 "Normal"
             ],
             "alolan": [
                 "Dark"
+            ],
+            "galarian": [
+                "Steel"
             ]
         },
         "released": true,
@@ -953,6 +1008,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -973,6 +1029,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -990,6 +1047,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -1007,6 +1065,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -1024,6 +1083,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -1041,6 +1101,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -1058,6 +1119,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -1075,6 +1137,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -1092,6 +1155,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -1109,6 +1173,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -1127,6 +1192,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -1144,6 +1210,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -1161,6 +1228,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -1178,6 +1246,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -1195,6 +1264,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -1212,6 +1282,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -1229,6 +1300,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -1247,6 +1319,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -1265,6 +1338,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -1283,6 +1357,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -1301,6 +1376,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -1319,6 +1395,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -1341,6 +1418,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -1363,6 +1441,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -1385,9 +1464,13 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": true,
         "types": {
             "default": [
                 "Fire"
+            ],
+            "galarian": [
+                "Psychic"
             ]
         },
         "released": true,
@@ -1402,9 +1485,14 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": true,
         "types": {
             "default": [
                 "Fire"
+            ],
+            "galarian": [
+                "Psychic",
+                "Fairy"
             ]
         },
         "released": true,
@@ -1419,6 +1507,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -1437,6 +1526,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -1455,6 +1545,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric",
@@ -1473,6 +1564,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric",
@@ -1491,10 +1583,14 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": true,
         "types": {
             "default": [
                 "Normal",
                 "Flying"
+            ],
+            "galarian": [
+                "Fighting"
             ]
         },
         "released": true,
@@ -1509,6 +1605,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -1527,6 +1624,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -1545,6 +1643,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -1562,6 +1661,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -1580,6 +1680,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -1601,6 +1702,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -1622,6 +1724,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -1639,6 +1742,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -1657,6 +1761,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -1675,6 +1780,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -1693,6 +1799,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -1711,6 +1818,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -1729,6 +1837,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -1746,6 +1855,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -1763,6 +1873,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -1780,6 +1891,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -1797,6 +1909,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -1814,6 +1927,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -1831,6 +1945,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -1849,6 +1964,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -1871,6 +1987,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -1888,6 +2005,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": true,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -1909,6 +2027,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -1926,6 +2045,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -1943,6 +2063,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -1960,6 +2081,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -1977,9 +2099,14 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": true,
         "types": {
             "default": [
                 "Poison"
+            ],
+            "galarian": [
+                "Poison",
+                "Fairy"
             ]
         },
         "released": true,
@@ -1994,6 +2121,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -2012,6 +2140,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -2030,6 +2159,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -2047,6 +2177,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -2064,6 +2195,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -2081,6 +2213,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -2098,6 +2231,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -2115,6 +2249,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -2132,6 +2267,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -2149,6 +2285,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -2166,6 +2303,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -2184,10 +2322,15 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": true,
         "types": {
             "default": [
                 "Psychic",
                 "Fairy"
+            ],
+            "galarian": [
+                "Ice",
+                "Psychic"
             ]
         },
         "released": true,
@@ -2202,6 +2345,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -2220,6 +2364,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice",
@@ -2238,6 +2383,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -2255,6 +2401,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -2272,6 +2419,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -2289,6 +2437,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -2306,6 +2455,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -2323,6 +2473,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -2341,6 +2492,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -2359,6 +2511,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -2376,6 +2529,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -2393,6 +2547,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -2410,6 +2565,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -2427,6 +2583,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -2444,6 +2601,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -2461,6 +2619,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -2479,6 +2638,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -2497,6 +2657,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -2515,6 +2676,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -2533,6 +2695,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -2551,6 +2714,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -2568,6 +2732,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice",
@@ -2586,6 +2751,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric",
@@ -2604,6 +2770,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -2622,6 +2789,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon"
@@ -2639,6 +2807,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon"
@@ -2656,6 +2825,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -2674,6 +2844,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -2691,6 +2862,7 @@
         "mythical": true,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -2708,6 +2880,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -2725,6 +2898,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -2742,6 +2916,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -2759,6 +2934,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -2776,6 +2952,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -2793,6 +2970,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -2810,6 +2988,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -2827,6 +3006,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -2844,6 +3024,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -2861,6 +3042,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -2878,6 +3060,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -2895,6 +3078,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -2913,6 +3097,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -2931,6 +3116,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -2949,6 +3135,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -2967,6 +3154,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -2985,6 +3173,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -3003,6 +3192,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -3021,6 +3211,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -3039,6 +3230,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -3057,6 +3249,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -3074,6 +3267,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -3091,6 +3285,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -3109,6 +3304,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -3126,6 +3322,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy",
@@ -3144,6 +3341,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -3162,6 +3360,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -3180,6 +3379,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -3197,6 +3397,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -3214,6 +3415,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -3231,6 +3433,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -3248,6 +3451,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -3266,6 +3470,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -3284,6 +3489,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock"
@@ -3301,6 +3507,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -3318,6 +3525,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -3336,6 +3544,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -3354,6 +3563,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -3372,6 +3582,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -3389,6 +3600,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -3406,6 +3618,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -3423,6 +3636,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -3441,6 +3655,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -3459,6 +3674,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -3477,6 +3693,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -3494,6 +3711,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark"
@@ -3511,6 +3729,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -3529,6 +3748,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -3547,6 +3767,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost"
@@ -3564,6 +3785,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -3581,6 +3803,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -3598,6 +3821,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -3616,6 +3840,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -3633,6 +3858,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -3651,6 +3877,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -3668,6 +3895,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -3686,6 +3914,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -3704,6 +3933,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -3721,6 +3951,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -3738,6 +3969,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -3756,6 +3988,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -3774,6 +4007,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -3792,6 +4026,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -3810,6 +4045,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -3828,6 +4064,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -3845,6 +4082,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -3862,6 +4100,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -3879,6 +4118,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -3897,6 +4137,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice",
@@ -3915,6 +4156,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice",
@@ -3933,10 +4175,14 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": true,
         "types": {
             "default": [
                 "Water",
                 "Rock"
+            ],
+            "galarian": [
+                "Ghost"
             ]
         },
         "released": true,
@@ -3951,6 +4197,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -3968,6 +4215,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -3985,6 +4233,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice",
@@ -4003,6 +4252,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -4021,6 +4271,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -4039,6 +4290,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -4057,6 +4309,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -4075,6 +4328,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -4093,6 +4347,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -4110,6 +4365,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -4127,6 +4383,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -4144,6 +4401,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -4161,6 +4419,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -4178,6 +4437,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -4195,6 +4455,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -4212,6 +4473,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice",
@@ -4230,6 +4492,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -4247,6 +4510,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -4264,6 +4528,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -4281,6 +4546,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -4298,6 +4564,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -4315,6 +4582,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -4332,6 +4600,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -4349,6 +4618,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -4367,6 +4637,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -4385,6 +4656,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -4403,6 +4675,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -4421,6 +4694,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -4439,6 +4713,7 @@
         "mythical": true,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -4457,6 +4732,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -4474,6 +4750,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -4491,6 +4768,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -4508,6 +4786,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -4525,6 +4804,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -4543,6 +4823,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -4561,6 +4842,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -4578,6 +4860,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -4596,6 +4879,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -4614,6 +4898,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark"
@@ -4631,6 +4916,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark"
@@ -4648,8 +4934,13 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": true,
         "types": {
             "default": [
+                "Normal"
+            ],
+            "galarian": [
+                "Dark",
                 "Normal"
             ]
         },
@@ -4665,8 +4956,13 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": true,
         "types": {
             "default": [
+                "Normal"
+            ],
+            "galarian": [
+                "Dark",
                 "Normal"
             ]
         },
@@ -4682,6 +4978,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -4699,6 +4996,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -4716,6 +5014,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -4734,6 +5033,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -4751,6 +5051,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -4769,6 +5070,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -4787,6 +5089,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -4805,6 +5108,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -4823,6 +5127,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -4840,6 +5145,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -4858,6 +5164,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -4876,6 +5183,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -4894,6 +5202,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -4912,6 +5221,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -4930,6 +5240,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -4948,6 +5259,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -4966,6 +5278,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -4984,6 +5297,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -5002,6 +5316,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -5020,6 +5335,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -5038,6 +5354,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -5055,6 +5372,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -5073,6 +5391,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -5090,6 +5409,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -5107,6 +5427,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -5124,6 +5445,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -5142,6 +5464,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -5160,6 +5483,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -5178,6 +5502,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -5195,6 +5520,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -5212,6 +5538,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -5229,6 +5556,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -5246,6 +5574,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -5263,6 +5592,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -5281,6 +5611,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock"
@@ -5298,6 +5629,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -5315,6 +5647,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -5332,6 +5665,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -5350,6 +5684,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -5368,6 +5703,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -5386,6 +5722,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -5404,6 +5741,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -5422,6 +5760,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting",
@@ -5440,6 +5779,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting",
@@ -5458,6 +5798,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -5475,6 +5816,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -5492,6 +5834,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -5509,6 +5852,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -5526,6 +5870,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -5543,6 +5888,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -5560,6 +5906,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -5578,6 +5925,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -5595,6 +5943,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -5612,6 +5961,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -5630,6 +5980,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -5648,6 +5999,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -5665,6 +6017,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -5682,6 +6035,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -5700,6 +6054,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -5718,6 +6073,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -5735,6 +6091,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -5752,6 +6109,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -5769,6 +6127,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -5786,6 +6145,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -5803,6 +6163,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -5821,6 +6182,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -5839,6 +6201,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -5856,6 +6219,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -5874,6 +6238,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -5892,6 +6257,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -5910,6 +6276,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -5927,6 +6294,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -5944,6 +6312,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -5962,6 +6331,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -5980,6 +6350,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -5998,6 +6369,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -6016,6 +6388,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -6033,6 +6406,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -6051,6 +6425,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -6069,6 +6444,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -6087,6 +6463,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -6105,6 +6482,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -6123,6 +6501,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -6141,6 +6520,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -6159,6 +6539,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -6176,6 +6557,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -6193,6 +6575,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -6210,6 +6593,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -6227,6 +6611,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost"
@@ -6244,6 +6629,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost"
@@ -6261,6 +6647,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost"
@@ -6278,6 +6665,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost"
@@ -6295,6 +6683,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -6313,6 +6702,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -6330,6 +6720,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark"
@@ -6347,6 +6738,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -6364,6 +6756,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice"
@@ -6381,6 +6774,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice"
@@ -6398,6 +6792,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice",
@@ -6416,6 +6811,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice",
@@ -6434,6 +6830,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice",
@@ -6452,6 +6849,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -6469,6 +6867,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -6486,6 +6885,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -6503,6 +6903,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -6521,6 +6922,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -6538,6 +6940,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon"
@@ -6555,6 +6958,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon"
@@ -6572,6 +6976,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -6590,6 +6995,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -6608,6 +7014,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -6626,6 +7033,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -6644,6 +7052,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock"
@@ -6661,6 +7070,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice"
@@ -6678,6 +7088,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel"
@@ -6695,6 +7106,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -6713,6 +7125,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -6731,6 +7144,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -6748,6 +7162,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -6765,6 +7180,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -6783,6 +7199,7 @@
         "mythical": true,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -6801,6 +7218,7 @@
         "mythical": true,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -6819,6 +7237,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -6836,6 +7255,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -6853,6 +7273,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -6871,6 +7292,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -6888,6 +7310,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -6906,6 +7329,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -6924,6 +7348,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -6941,6 +7366,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -6958,6 +7384,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -6976,6 +7403,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -6994,6 +7422,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -7012,6 +7441,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -7030,6 +7460,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -7047,6 +7478,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -7065,6 +7497,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -7082,6 +7515,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -7099,6 +7533,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -7116,6 +7551,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -7133,6 +7569,7 @@
         "mythical": false,
         "shiny": true,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -7150,6 +7587,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -7168,6 +7606,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -7186,6 +7625,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock"
@@ -7203,6 +7643,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock"
@@ -7220,6 +7661,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -7238,6 +7680,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -7256,6 +7699,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -7273,6 +7717,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -7291,6 +7736,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -7309,6 +7755,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -7327,6 +7774,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -7345,6 +7793,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -7362,6 +7811,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -7379,6 +7829,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -7396,6 +7847,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -7413,6 +7865,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -7430,6 +7883,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -7447,6 +7901,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -7465,6 +7920,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -7482,6 +7938,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -7500,6 +7957,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -7518,6 +7976,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -7535,6 +7994,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -7552,6 +8012,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost"
@@ -7569,6 +8030,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -7587,6 +8049,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -7604,6 +8067,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -7621,6 +8085,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -7638,6 +8103,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -7656,6 +8122,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -7674,6 +8141,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -7692,6 +8160,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -7710,6 +8179,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock"
@@ -7727,6 +8197,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -7745,6 +8216,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -7762,6 +8234,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -7780,6 +8253,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -7798,6 +8272,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -7816,6 +8291,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -7834,6 +8310,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -7852,6 +8329,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -7869,6 +8347,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -7886,6 +8365,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting",
@@ -7904,6 +8384,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -7921,6 +8402,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -7938,6 +8420,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -7956,6 +8439,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -7974,6 +8458,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -7992,6 +8477,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -8010,6 +8496,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -8027,6 +8514,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -8044,6 +8532,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -8061,6 +8550,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -8079,6 +8569,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -8097,6 +8588,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -8115,6 +8607,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -8133,6 +8626,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric",
@@ -8151,6 +8645,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -8168,6 +8663,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -8186,6 +8682,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -8203,6 +8700,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -8220,6 +8718,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -8237,6 +8736,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy",
@@ -8255,6 +8755,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -8273,6 +8774,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -8290,6 +8792,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice"
@@ -8307,6 +8810,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -8325,6 +8829,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice",
@@ -8343,6 +8848,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -8360,6 +8866,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -8378,6 +8885,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -8396,6 +8904,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost"
@@ -8413,6 +8922,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice",
@@ -8431,6 +8941,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric",
@@ -8449,6 +8960,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -8466,6 +8978,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -8483,6 +8996,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -8500,6 +9014,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -8518,6 +9033,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -8536,6 +9052,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -8554,6 +9071,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -8571,6 +9089,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -8589,6 +9108,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -8606,6 +9126,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -8623,6 +9144,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -8640,6 +9162,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark"
@@ -8657,6 +9180,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -8674,6 +9198,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -8691,6 +9216,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -8709,6 +9235,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -8726,6 +9253,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -8743,6 +9271,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -8760,6 +9289,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -8777,6 +9307,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -8795,6 +9326,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -8813,6 +9345,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -8830,6 +9363,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -8847,6 +9381,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -8864,6 +9399,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -8881,6 +9417,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -8898,6 +9435,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -8915,6 +9453,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -8932,6 +9471,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -8949,6 +9489,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark"
@@ -8966,6 +9507,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark"
@@ -8983,6 +9525,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -9000,6 +9543,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -9017,6 +9561,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -9034,6 +9579,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -9051,6 +9597,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -9068,6 +9615,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -9085,6 +9633,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -9102,6 +9651,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -9119,6 +9669,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -9137,6 +9688,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -9155,6 +9707,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -9173,6 +9726,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -9190,6 +9744,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -9207,6 +9762,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock"
@@ -9224,6 +9780,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock"
@@ -9241,6 +9798,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock"
@@ -9258,6 +9816,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -9276,6 +9835,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -9294,6 +9854,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -9311,6 +9872,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -9329,6 +9891,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -9346,6 +9909,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -9363,6 +9927,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -9380,6 +9945,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -9397,6 +9963,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -9414,6 +9981,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -9432,6 +10000,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -9450,6 +10019,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -9467,6 +10037,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -9484,6 +10055,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -9502,6 +10074,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -9520,6 +10093,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -9538,6 +10112,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -9556,6 +10131,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -9574,6 +10150,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -9592,6 +10169,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -9610,6 +10188,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -9628,6 +10207,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -9645,6 +10225,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -9662,6 +10243,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -9679,6 +10261,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -9697,6 +10280,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -9715,6 +10299,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -9733,9 +10318,13 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": true,
         "types": {
             "default": [
                 "Fire"
+            ],
+            "galarian": [
+                "Ice"
             ]
         },
         "released": false,
@@ -9750,9 +10339,13 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": true,
         "types": {
             "default": [
                 "Fire"
+            ],
+            "galarian": [
+                "Ice"
             ]
         },
         "released": false,
@@ -9767,6 +10360,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -9784,6 +10378,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -9802,6 +10397,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -9820,6 +10416,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -9838,6 +10435,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -9856,6 +10454,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -9874,8 +10473,13 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": true,
         "types": {
             "default": [
+                "Ghost"
+            ],
+            "galarian": [
+                "Ghost",
                 "Ghost"
             ]
         },
@@ -9891,6 +10495,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost"
@@ -9908,6 +10513,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -9926,6 +10532,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -9944,6 +10551,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -9962,6 +10570,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -9980,6 +10589,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -9997,6 +10607,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -10014,6 +10625,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark"
@@ -10031,6 +10643,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark"
@@ -10048,6 +10661,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -10065,6 +10679,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -10082,6 +10697,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -10099,6 +10715,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -10116,6 +10733,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -10133,6 +10751,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -10150,6 +10769,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -10167,6 +10787,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -10184,6 +10805,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -10202,6 +10824,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -10220,6 +10843,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice"
@@ -10237,6 +10861,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice"
@@ -10254,6 +10879,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice"
@@ -10271,6 +10897,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -10289,6 +10916,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -10307,6 +10935,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric",
@@ -10325,6 +10954,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -10342,6 +10972,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -10360,6 +10991,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -10378,6 +11010,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -10396,6 +11029,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -10414,6 +11048,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -10432,6 +11067,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -10449,6 +11085,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -10467,6 +11104,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -10485,6 +11123,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -10503,6 +11142,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -10521,6 +11161,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel"
@@ -10538,6 +11179,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel"
@@ -10555,6 +11197,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel"
@@ -10572,6 +11215,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -10589,6 +11233,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -10606,6 +11251,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -10623,6 +11269,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -10640,6 +11287,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -10657,6 +11305,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -10675,6 +11324,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -10693,6 +11343,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -10711,6 +11362,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon"
@@ -10728,6 +11380,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon"
@@ -10745,6 +11398,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon"
@@ -10762,6 +11416,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice"
@@ -10779,6 +11434,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice"
@@ -10796,6 +11452,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice"
@@ -10813,6 +11470,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -10830,6 +11488,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -10847,10 +11506,15 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": true,
         "types": {
             "default": [
                 "Ground",
                 "Electric"
+            ],
+            "galarian": [
+                "Ground",
+                "Steel"
             ]
         },
         "released": false,
@@ -10865,6 +11529,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -10882,6 +11547,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -10899,6 +11565,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon"
@@ -10916,6 +11583,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -10934,6 +11602,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -10952,6 +11621,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -10970,6 +11640,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -10988,6 +11659,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -11005,6 +11677,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -11023,6 +11696,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -11041,6 +11715,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -11059,6 +11734,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -11077,6 +11753,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -11094,6 +11771,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -11112,6 +11790,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -11130,6 +11809,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -11148,6 +11828,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -11166,6 +11847,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -11184,6 +11866,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -11202,6 +11885,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -11220,6 +11904,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -11238,6 +11923,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -11256,6 +11942,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Flying"
@@ -11273,6 +11960,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric",
@@ -11291,6 +11979,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -11309,6 +11998,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -11327,6 +12017,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground",
@@ -11345,6 +12036,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -11363,6 +12055,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -11381,6 +12074,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -11399,6 +12093,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -11417,6 +12112,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -11434,6 +12130,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -11451,6 +12148,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -11469,6 +12167,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -11486,6 +12185,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -11503,6 +12203,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -11521,6 +12222,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -11538,6 +12240,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -11555,6 +12258,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -11573,6 +12277,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -11590,6 +12295,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -11608,6 +12314,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -11626,6 +12333,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -11644,6 +12352,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -11662,6 +12371,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -11679,6 +12389,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -11696,6 +12407,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -11714,6 +12426,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -11732,6 +12445,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -11750,6 +12464,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -11767,6 +12482,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -11784,6 +12500,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -11801,6 +12518,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -11818,6 +12536,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -11835,6 +12554,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -11852,6 +12572,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting",
@@ -11870,6 +12591,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -11887,6 +12609,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -11904,6 +12627,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -11921,6 +12645,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -11939,6 +12664,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -11957,6 +12683,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -11975,6 +12702,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -11992,6 +12720,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -12009,6 +12738,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -12026,6 +12756,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -12043,6 +12774,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -12061,6 +12793,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -12079,6 +12812,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -12097,6 +12831,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -12115,6 +12850,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -12133,6 +12869,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -12151,6 +12888,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -12168,6 +12906,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -12185,6 +12924,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric",
@@ -12203,6 +12943,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric",
@@ -12221,6 +12962,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -12239,6 +12981,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -12257,6 +13000,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -12275,6 +13019,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -12293,6 +13038,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -12310,6 +13056,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting",
@@ -12328,6 +13075,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric",
@@ -12346,6 +13094,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -12364,6 +13113,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon"
@@ -12381,6 +13131,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon"
@@ -12398,6 +13149,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon"
@@ -12415,6 +13167,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -12433,6 +13186,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -12451,6 +13205,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -12469,6 +13224,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -12487,6 +13243,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -12505,6 +13262,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice"
@@ -12522,6 +13280,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ice"
@@ -12539,6 +13298,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Flying",
@@ -12557,6 +13317,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Flying",
@@ -12575,6 +13336,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -12592,6 +13354,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -12610,6 +13373,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -12628,6 +13392,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -12646,6 +13411,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -12664,6 +13430,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -12682,6 +13449,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -12700,6 +13468,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -12718,6 +13487,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -12736,6 +13506,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -12753,6 +13524,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire"
@@ -12770,6 +13542,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -12788,6 +13561,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -12805,6 +13579,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -12822,6 +13597,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -12840,6 +13616,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -12858,6 +13635,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -12876,6 +13654,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -12894,6 +13673,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -12911,6 +13691,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -12928,6 +13709,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug"
@@ -12945,6 +13727,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -12963,6 +13746,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -12981,6 +13765,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -12998,6 +13783,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting",
@@ -13016,6 +13802,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -13034,6 +13821,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -13052,6 +13840,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -13070,6 +13859,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock"
@@ -13087,6 +13877,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock"
@@ -13104,6 +13895,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -13121,6 +13913,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -13139,6 +13932,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -13157,6 +13951,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -13174,6 +13969,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ground"
@@ -13191,6 +13987,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -13209,6 +14006,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -13227,6 +14025,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -13244,6 +14043,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -13261,6 +14061,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -13279,6 +14080,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -13297,6 +14099,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -13315,6 +14118,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -13333,6 +14137,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -13351,6 +14156,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -13369,6 +14175,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -13386,6 +14193,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -13403,6 +14211,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass"
@@ -13420,6 +14229,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fairy"
@@ -13437,6 +14247,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -13455,6 +14266,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting"
@@ -13472,6 +14284,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -13490,6 +14303,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -13508,6 +14322,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -13526,6 +14341,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -13544,6 +14360,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water"
@@ -13561,6 +14378,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -13578,6 +14396,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -13595,6 +14414,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -13613,6 +14433,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal"
@@ -13630,6 +14451,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -13648,6 +14470,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric",
@@ -13666,6 +14489,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -13684,6 +14508,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -13702,6 +14527,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Normal",
@@ -13720,6 +14546,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Ghost",
@@ -13738,6 +14565,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon"
@@ -13755,6 +14583,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -13773,6 +14602,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dragon",
@@ -13791,6 +14621,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric",
@@ -13809,6 +14640,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -13827,6 +14659,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -13845,6 +14678,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Water",
@@ -13863,6 +14697,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -13880,6 +14715,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -13897,6 +14733,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -13915,6 +14752,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic",
@@ -13933,6 +14771,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -13951,6 +14790,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -13969,6 +14809,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Bug",
@@ -13987,6 +14828,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"
@@ -14004,6 +14846,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -14022,6 +14865,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Grass",
@@ -14040,6 +14884,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Dark",
@@ -14058,6 +14903,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Psychic"
@@ -14075,6 +14921,7 @@
         "mythical": true,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Steel",
@@ -14093,6 +14940,7 @@
         "mythical": true,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fighting",
@@ -14111,6 +14959,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison"
@@ -14128,6 +14977,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Poison",
@@ -14146,6 +14996,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Rock",
@@ -14164,6 +15015,7 @@
         "mythical": false,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Fire",
@@ -14182,6 +15034,7 @@
         "mythical": true,
         "shiny": false,
         "alolan": false,
+		"galarian": false,
         "types": {
             "default": [
                 "Electric"

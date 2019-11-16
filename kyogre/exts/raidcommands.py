@@ -83,6 +83,15 @@ class RaidCommands(commands.Cog):
                         embed=discord.Embed(
                             colour=discord.Colour.red(),
                             description='Please report new raids in a reporting channel.'))
+            elif (raid_split[0] == "galarian" and len(raid_split) > 2) \
+                    or (raid_split[0] != "galarian" and len(raid_split) > 1):
+                if raid_split[0] not in Pokemon.get_forms_list() and len(raid_split) > 1:
+                    self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel},"
+                                              f" error: Raid report made in raid channel.")
+                    return await channel.send(
+                        embed=discord.Embed(
+                            colour=discord.Colour.red(),
+                            description='Please report new raids in a reporting channel.'))
             elif not self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['active']:
                 eggtoraid = True
             # This is a hack but it allows users to report the just hatched boss
@@ -116,11 +125,27 @@ class RaidCommands(commands.Cog):
                 new_content = ' '.join(new_content)
             except ValueError:
                 new_content = ' '.join(content.split())
+            try:
+                new_content = content.split()
+                pkmn_index = new_content.index('galarian')
+                del new_content[pkmn_index + 1]
+                del new_content[pkmn_index]
+                new_content = ' '.join(new_content)
+            except ValueError:
+                new_content = ' '.join(content.split())
         elif not raid_pokemon.is_raid:
             pkmn_error = 'not_boss'
             try:
                 new_content = content.split()
                 pkmn_index = new_content.index('alolan')
+                del new_content[pkmn_index + 1]
+                del new_content[pkmn_index]
+                new_content = ' '.join(new_content)
+            except ValueError:
+                new_content = ' '.join(content.split())
+            try:
+                new_content = content.split()
+                pkmn_index = new_content.index('galarian')
                 del new_content[pkmn_index + 1]
                 del new_content[pkmn_index]
                 new_content = ' '.join(new_content)
@@ -231,6 +256,8 @@ class RaidCommands(commands.Cog):
         if len(attempt) > 1:
             if attempt[-2] == "alolan" and len(attempt) > 2:
                 del attempt[-2]
+            if attempt[-2] == "galarian" and len(attempt) > 2:
+                del attempt[-2]
             del attempt[-1]
         attempt = ' '.join(attempt)
         location_matching_cog = self.bot.cogs.get('LocationMatching')
@@ -241,6 +268,8 @@ class RaidCommands(commands.Cog):
             attempt = raid_details.split(' ')
             if len(attempt) > 1:
                 if attempt[0] == "alolan" and len(attempt) > 2:
+                    del attempt[0]
+                if attempt[0] == "galarian" and len(attempt) > 2:
                     del attempt[0]
                 del attempt[0]
             attempt = ' '.join(attempt)

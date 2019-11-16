@@ -113,6 +113,7 @@ class PokemonTable(BaseModel):
     mythical = BooleanField()
     shiny = BooleanField()
     alolan = BooleanField()
+    galarian = BooleanField()
     types = JSONField()
     released = BooleanField(index=True)
     attack = IntegerField()

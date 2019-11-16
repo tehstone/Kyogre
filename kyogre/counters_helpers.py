@@ -15,6 +15,8 @@ async def _counters(ctx, Kyogre, pkmn, user = None, weather = None, movesetstr =
     pokebattler_name = pkmn.species.upper()
     if pkmn.alolan:
         pokebattler_name += "_ALOLA_FORM"
+    if pkmn.galarian:
+        pokebattler_name += "_GALARIAN_FORM"
     url = "https://fight.pokebattler.com/raids/defenders/{pkmn}/levels/RAID_LEVEL_{level}/attackers/".format(pkmn=pokebattler_name,level=level)
     if user:
         url += "users/{user}/".format(user=user)
@@ -107,6 +109,8 @@ async def _get_generic_counters(Kyogre, guild, pkmn, weather=None):
     pokebattler_name = pkmn.species.upper()
     if pkmn.alolan:
         pokebattler_name = f"{pkmn.species.upper()}_ALOLA_FORM"
+    if pkmn.galarian:
+        pokebattler_name = f"{pkmn.species.upper()}_GALARIAN_FORM"
     url = "https://fight.pokebattler.com/raids/defenders/{pkmn}/levels/RAID_LEVEL_{level}/attackers/".format(pkmn=pokebattler_name,level=level)
     url += "levels/30/"
     weather_list = ['none', 'extreme', 'clear', 'sunny', 'rainy',

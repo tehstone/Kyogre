@@ -68,12 +68,15 @@ class Pokemon():
 
     # https://p337.info/pokemongo/pages/shiny-release-dates/api/?utm_source=share&utm_medium=ios_app
     __slots__ = ('species', 'id', 'types', 'bot', 'guild', 'pkmn_list',
-                 'pb_raid', 'weather', 'moveset', 'form', 'shiny', 'alolan', 'legendary', 'mythical',
-                 'base_attack', 'base_defense', 'base_stamina')
+                 'pb_raid', 'weather', 'moveset', 'form', 'shiny', 'alolan', 'galarian',
+                 'legendary', 'mythical', 'base_attack', 'base_defense', 'base_stamina')
 
     _alolans_list = ['rattata', 'raticate', 'vulpix', 'ninetails', 'sandshrew', 'sandslash', 'grimer', 'muk',
                      'meowth', 'persian', 'diglett', 'dugtrio', 'geodude', 'graveler', 'golem', 'exeggutor',
                      'marowak', 'raichu']
+
+    _galarians_list = ['zigzagoon', 'linoone', 'meowth', "farfetch'd", 'stunfisk', 'corsola', 'weezing',
+                       'yamask', 'ponyta', 'rapidash', 'mr. mime', 'darumaka', 'darmanitan']
     
     _form_list = [
         'normal', 'sunny', 'rainy', 'snowy', 'sunglasses',
@@ -137,10 +140,13 @@ class Pokemon():
             self.form = None
         self.shiny = attribs.get('shiny', False) and p_obj['shiny']
         self.alolan = attribs.get('alolan', False) and p_obj['alolan']
+        self.galarian = attribs.get('galarian', False) and p_obj['galarian']
         self.legendary = p_obj['legendary']
         self.mythical = p_obj['mythical']
         if self.alolan:
             self.types = p_obj['types']['alolan']
+        elif self.galarian:
+            self.types = p_obj['types']['galarian']
         else:
             self.types = p_obj['types']['default']
         self.base_attack = p_obj.get('attack', None)
@@ -172,7 +178,9 @@ class Pokemon():
             else:
                 name = f'{name} {self.form.title()}'
         if self.alolan:
-            name = f'Alolan {name}' 
+            name = f'Alolan {name}'
+        if self.galarian:
+            name = f'Galarian {name}'
         return name
     
     @property
@@ -185,7 +193,9 @@ class Pokemon():
             else:
                 name = f'{name} {self.form.title()}'
         if self.alolan:
-            name = f'Alolan {name}' 
+            name = f'Alolan {name}'
+        if self.galarian:
+            name = f'Galarian {name}'
         if self.shiny:
             name = f'Shiny {name}'
         return name
@@ -270,15 +280,17 @@ class Pokemon():
         else:
             form_str = ""
         if self.alolan:
-            alolan_str = "a"
+            region_str = "a"
+        elif self.galarian:
+            region_str = "g"
         else:
-            alolan_str = ""
+            region_str = ""
         if self.shiny:
             shiny_str = "s"
         else:
             shiny_str = ""
         return ('https://raw.githubusercontent.com/tehstone/Kyogre/master/'
-                f'images/pkmn/{pkmn_no}{form_str}_{alolan_str}{shiny_str}.png?cache=3')
+                f'images/pkmn/{pkmn_no}{form_str}_{region_str}{shiny_str}.png?cache=3')
 
     # async def colour(self):
     #     """:class:`discord.Colour` : Discord colour based on Pokemon sprite."""
@@ -422,6 +434,11 @@ class Pokemon():
             argument = argument.replace('alolan', '').strip()
         else:
             alolan = False
+        if 'galarian' in argument:
+            galarian = True
+            argument = argument.replace('galarian', '').strip()
+        else:
+            galarian = False
 
         form = None
         detected_forms = []
@@ -455,7 +472,7 @@ class Pokemon():
         forms = [d for d in detected_forms if d in form_list]
         if forms:
             form = ' '.join(forms)
-        return cls(bot, str(match), guild, shiny=shiny, alolan=alolan, form=form)
+        return cls(bot, str(match), guild, shiny=shiny, alolan=alolan, galarian=galarian, form=form)
 
     @staticmethod
     def has_forms(name):
@@ -480,6 +497,10 @@ class Pokemon():
         return Pokemon._alolans_list
 
     @staticmethod
+    def get_galarians_list():
+        return Pokemon._galarians_list
+
+    @staticmethod
     def get_raidlist(bot):
         raidlist = []
         for level in bot.raid_info['raid_eggs']:
@@ -501,6 +522,7 @@ class Pokemon():
                                    PokemonTable.mythical,
                                    PokemonTable.shiny,
                                    PokemonTable.alolan,
+                                   PokemonTable.galarian,
                                    PokemonTable.types,
                                    PokemonTable.released,
                                    PokemonTable.attack,
@@ -514,6 +536,7 @@ class Pokemon():
                          "mythical": poke.mythical,
                          "shiny": poke.shiny,
                          "alolan": poke.alolan,
+                         "galarian": poke.galarian,
                          "types": poke.types,
                          "released": poke.released,
                          "attack": poke.attack,

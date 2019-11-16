@@ -67,6 +67,7 @@ class RaidAuto(commands.Cog):
                                             colour=discord.Colour.red(),
                                             description=f"A raid has already been reported for {gym.name}"))
                 raid_pokemon = self._check_alolan(raid_info['boss'])
+                raid_pokemon = self._check_galarian(raid_pokemon)
                 await raid_cog.egg_to_raid(ctx, raid_pokemon.name, self.bot.get_channel(raid_channel_ids[0]))
                 return await ctx.message.add_reaction(self.bot.success_react)
             except KeyError:
@@ -82,6 +83,7 @@ class RaidAuto(commands.Cog):
                 report_channel = guild.get_channel(reporting_channels[0])
             pokemon_name = raid_info['boss']
             raid_pokemon = self._check_alolan(pokemon_name)
+            raid_pokemon = self._check_galarian(raid_pokemon)
             if not raid_pokemon.is_raid:
                 error_desc = f'The Pokemon {raid_pokemon.name} does not currently appear in raids.'
                 return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=error_desc))
@@ -93,6 +95,15 @@ class RaidAuto(commands.Cog):
             raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon_name)
             if not raid_pokemon.is_raid:
                 raid_pokemon = Pokemon.get_pokemon(self.bot, "alolan" + pokemon_name)
+        else:
+            raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon_name)
+        return raid_pokemon
+
+    def _check_galarian(self, pokemon_name):
+        if pokemon_name in Pokemon.get_galarians_list():
+            raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon_name)
+            if not raid_pokemon.is_raid:
+                raid_pokemon = Pokemon.get_pokemon(self.bot, "galarian" + pokemon_name)
         else:
             raid_pokemon = Pokemon.get_pokemon(self.bot, pokemon_name)
         return raid_pokemon
