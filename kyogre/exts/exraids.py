@@ -328,8 +328,7 @@ class EXRaids(commands.Cog):
                         log_str = 'EX Channel_Cleanup - Server: ' + guild.name
                         log_str = (log_str + ': Channel:') + str(channelid)
                         self.bot.logger.info(log_str + ' - CHECKING')
-                        channelmatch = self.bot.get_channel(channelid)
-                        if channelmatch is None:
+                        if channel is None:
                             # list channel for deletion from save data
                             dict_channel_delete.append((cat, channelid))
                             self.bot.logger.info(log_str + " - NOT IN DISCORD")

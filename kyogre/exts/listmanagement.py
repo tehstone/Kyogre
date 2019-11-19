@@ -384,8 +384,8 @@ class ListManagement(commands.Cog):
                                   2: ['hypno', 'sableye', 'lapras'],
                                   3: ['alakazam', 'houndoom', 'gardevoir']},
                        'giovanni': {1: ['persian'],
-                                    2: ['Dugtrio', 'Rhydon', 'Hippowdon'],
-                                    3: ['Articuno']}}
+                                    2: ['dugtrio', 'rhydon', 'hippowdon'],
+                                    3: ['articuno']}}
             if leader:
                 hideout_embed.title = f"Rocket Leader {leader.capitalize()}"
                 lineup_text = f"{lineups[leader][1][0].capitalize()}\n"
@@ -420,39 +420,6 @@ class ListManagement(commands.Cog):
                     hideout_embed.add_field(name=f'**{loc_name}**', value=embed_val)
             embeds[leader] = hideout_embed
         return embeds
-        # for inv in results:
-        #     newmsg = ""
-        #     try:
-        #         newmsg += '\n<:teamrocket:642748270380187660> '
-        #         stop_url = utils.simple_gmaps_query(inv.latitude, inv.longitude)
-        #         newmsg += f"[{inv.location_name}]({stop_url}) - "
-        #         if inv.leader is not None:
-        #             newmsg += f"**{inv.leader.capitalize()}**\n󠀠"
-        #         else:
-        #             newmsg += "Leader Unknown\n󠀠"
-        #         if inv.first_pokemon:
-        #             pkmn = Pokemon.get_pokemon(self.bot, inv.first_pokemon)
-        #             newmsg += f"\u2800\u2800\u2800**Lineup**: {pkmn.name.capitalize()}"
-        #         if inv.second_pokemon:
-        #             pkmn = Pokemon.get_pokemon(self.bot, inv.second_pokemon)
-        #             newmsg += f", {pkmn.name.capitalize()}"
-        #         if inv.third_pokemon:
-        #             pkmn = Pokemon.get_pokemon(self.bot, inv.third_pokemon)
-        #             newmsg += f", {pkmn.name.capitalize()}"
-        #         if len(listmsg) + len(newmsg) < constants.MAX_MESSAGE_LENGTH:
-        #             listmsg += newmsg
-        #         else:
-        #             listmsg_list.append(listmsg)
-        #             if current_category not in newmsg:
-        #                 newmsg = f"**({current_category} continued)**"
-        #             listmsg = "hideout " + newmsg
-        #         invctr += 1
-        #     except discord.errors.NotFound:
-        #         continue
-        # if invctr == 0:
-        #     listmsg = "No Team Rocket Hideouts reported. Report one with **!rocket**"
-        # listmsg_list.append(listmsg)
-        # return listmsg_list
 
     async def _get_lure_listing_messages(self, channel, region=None):
         guild_dict = self.bot.guild_dict

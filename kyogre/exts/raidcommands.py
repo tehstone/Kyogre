@@ -74,17 +74,12 @@ class RaidCommands(commands.Cog):
                 else:
                     await self._eggassume(ctx, " ".join(raid_split), channel, author)
                     return
-            elif (raid_split[0] == "alolan" and len(raid_split) > 2) \
-                    or (raid_split[0] != "alolan" and len(raid_split) > 1):
-                if raid_split[0] not in Pokemon.get_forms_list() and len(raid_split) > 1:
-                    self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel},"
-                                              f" error: Raid report made in raid channel.")
-                    return await channel.send(
-                        embed=discord.Embed(
-                            colour=discord.Colour.red(),
-                            description='Please report new raids in a reporting channel.'))
-            elif (raid_split[0] == "galarian" and len(raid_split) > 2) \
-                    or (raid_split[0] != "galarian" and len(raid_split) > 1):
+            # raid split should be descriptors + pokemon name
+            # if it starts with a regional descriptor and is still longer than 2 parts then this is the wrong channel
+            # or of it doesn't start with a regional descriptor and is longer than 1 part
+            # then we check the first part against all other known forms
+            elif ((raid_split[0] == "alolan" or raid_split[0] == "galarian") and len(raid_split) > 2) \
+                    or ((raid_split[0] != "alolan" and raid_split[0] != "galarian") and len(raid_split) > 1):
                 if raid_split[0] not in Pokemon.get_forms_list() and len(raid_split) > 1:
                     self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel},"
                                               f" error: Raid report made in raid channel.")
