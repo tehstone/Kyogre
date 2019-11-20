@@ -663,6 +663,15 @@ class AdminCommands(commands.Cog):
         await self.bot.owner.send("Cloud API calls disabled globally.")
         await ctx.message.delete()
 
+    @commands.command(name='update_rbl', aliases=['urbl'])
+    @checks.is_owner()
+    async def _update_remote_boss_list(self, ctx):
+        result = await self.bot.update_remote_boss_list()
+        if result["status"] == "success":
+            return await ctx.send("Update succeeded", deleteafter=15)
+        else:
+            return await ctx.send("Update failed", deleteafter=15)
+
 
 def setup(bot):
     bot.add_cog(AdminCommands(bot))

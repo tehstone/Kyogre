@@ -207,6 +207,10 @@ class KyogreBot(commands.AutoShardedBot):
             result = await response.json()
         return result['output']
 
+    async def update_remote_boss_list(self):
+        async with self.session.get(url=f'http://localhost:{self.port}/v1/setup') as response:
+            return await response.json()
+
     async def on_member_join(self, member):
         """Welcome message to the server and some basic instructions."""
         guild = member.guild
