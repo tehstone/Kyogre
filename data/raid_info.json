@@ -4,11 +4,10 @@
             "egg": "normal",
             "egg_img": "1.png",
             "pokemon": [
-                "bulbasaur",
-                "charmander",
-                "squirtle",
-                "misdreavus",
-                "drifloon",
+                "horsea",
+                "swablu",
+                "beldum",
+                "shinx",
                 "klink"
             ],
             "hatchtime": 60,
@@ -18,10 +17,11 @@
             "egg": "normal",
             "egg_img": "2.png",
             "pokemon": [
-                "sneasel",
+                "muk",
+                "alolan exeggutor",
+                "noctowl",
                 "sableye",
-                "mawile",
-                "yamask"
+                "mawile"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -31,9 +31,20 @@
             "egg_img": "3.png",
             "pokemon": [
                 "alolan raichu",
-                "gengar",
-                "sharpedo",
-                "skuntank"
+                "onix",
+                "scyther",
+                "pinsir",
+                "vaporeon",
+                "porygon",
+                "aerodactyl",
+                "azumarill",
+                "espeon",
+                "piloswine",
+                "mantine",
+                "skarmory",
+                "pelipper",
+                "medicham",
+                "cacturne"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -42,10 +53,10 @@
             "egg": "rare",
             "egg_img": "4.png",
             "pokemon": [
+                "golem",
                 "alolan marowak",
-                "umbreon",
-                "tyranitar",
-                "absol"
+                "lapras",
+                "tyranitar"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -54,7 +65,7 @@
             "egg": "legendary",
             "egg_img": "5.png",
             "pokemon": [
-                "darkrai"
+                "cobalion"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -63,7 +74,7 @@
             "egg": "EX",
             "egg_img": "EX.png",
             "pokemon": [
-                "mewtwo"
+                "regigigas"
             ],
             "hatchtime": 14,
             "raidtime": 45

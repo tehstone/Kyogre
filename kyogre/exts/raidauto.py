@@ -67,7 +67,7 @@ class RaidAuto(commands.Cog):
                                             colour=discord.Colour.red(),
                                             description=f"A raid has already been reported for {gym.name}"))
                 raid_pokemon = self._check_alolan(raid_info['boss'])
-                raid_pokemon = self._check_galarian(raid_pokemon)
+                raid_pokemon = self._check_galarian(raid_pokemon.name)
                 await raid_cog.egg_to_raid(ctx, raid_pokemon.name, self.bot.get_channel(raid_channel_ids[0]))
                 return await ctx.message.add_reaction(self.bot.success_react)
             except KeyError:
@@ -81,9 +81,8 @@ class RaidAuto(commands.Cog):
             reporting_channels = await listmgmt_cog.get_region_reporting_channels(guild, regions[0])
             if len(reporting_channels) > 0:
                 report_channel = guild.get_channel(reporting_channels[0])
-            pokemon_name = raid_info['boss']
-            raid_pokemon = self._check_alolan(pokemon_name)
-            raid_pokemon = self._check_galarian(raid_pokemon)
+            raid_pokemon = self._check_alolan(raid_info['boss'])
+            raid_pokemon = self._check_galarian(raid_pokemon.name)
             if not raid_pokemon.is_raid:
                 error_desc = f'The Pokemon {raid_pokemon.name} does not currently appear in raids.'
                 return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=error_desc))
@@ -178,7 +177,7 @@ class RaidAuto(commands.Cog):
                         colour=discord.Colour.red(),
                         description="This image has already been scanned. If a raid was not created previously from this "
                                     "image, please report using the command instead:\n `!r <boss/tier> <gym name> <time>`"))
-                break
+                continue
             self.bot.gcv_logger.info(file)
             utils_cog = self.bot.cogs.get('Utilities')
             regions = utils_cog.get_channel_regions(ctx.channel, 'raid')
@@ -186,7 +185,8 @@ class RaidAuto(commands.Cog):
             if raid_info["gym"] is None:
                 if not raid_info['egg_time'] and not raid_info['boss'] and not raid_info['expire_time']:
                     image_utils.cleanup_file(file, f"screenshots/not_raid")
-                    return await ctx.message.clear_reactions()
+                    await ctx.message.clear_reactions()
+                    continue
                 self.bot.gcv_logger.info(raid_info)
                 image_utils.cleanup_file(file, f"screenshots/no_gym")
                 await message.channel.send(
@@ -194,7 +194,7 @@ class RaidAuto(commands.Cog):
                         colour=discord.Colour.red(),
                         description="Could not determine gym name from screenshot, unable to create raid channel. "
                                     "Please report using the command instead: `!r <boss/tier> <gym name> <time>`"))
-                break
+                continue
             c_file, timev = None, None
             if raid_info['egg_time']:
                 raid_info['type'] = 'egg'
@@ -212,7 +212,7 @@ class RaidAuto(commands.Cog):
                             description=("Could not determine raid boss or egg level from screenshot, unable to create "
                                          "raid channel. If you're trying to report a raid, please use the command instead: "
                                          "`!r <boss/tier> <gym name> <time>`")))
-                    break
+                    continue
                 raid_info['tier'] = tier
                 image_utils.cleanup_file(file, f"screenshots/{tier}")
             elif not raid_info['boss']:
@@ -224,7 +224,7 @@ class RaidAuto(commands.Cog):
                         description=("Could not determine raid boss or egg level from screenshot, unable to create "
                                      "raid channel. If you're trying to report a raid, please use the command instead: "
                                      "`!r <boss/tier> <gym name> <time>`")))
-                break
+                continue
             if raid_info['expire_time'] or raid_info['boss']:
                 raid_info['type'] = 'raid'
             timev = None
@@ -234,7 +234,9 @@ class RaidAuto(commands.Cog):
                 timev = raid_info['expire_time']
             if timev:
                 time_split = timev.split(':')
-                timev = str(60*int(time_split[0]) + int(time_split[1]))
+                hour = time_split[0] if time_split[0].isdigit() else 0
+                minute = time_split[1] if time_split[1].isdigit() else 0
+                timev = str(60*int(hour) + int(minute))
                 raid_info['exp'] = timev
             self.bot.gcv_logger.info(raid_info)
             self.bot.gcv_logger.info(f"real scan: {time.time() - start}")
