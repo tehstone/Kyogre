@@ -10,7 +10,7 @@ from discord.ext import commands
 
 from kyogre import checks, counters_helpers, embed_utils, entity_updates, utils
 from kyogre.exts.pokemon import Pokemon
-from kyogre.exts.bosscp import boss_cp_chart
+from kyogre.context import Context
 
 from kyogre.exts.db.kyogredb import KyogreDB, RaidActionTable, RaidTable, TrainerReportRelation
 
@@ -2484,7 +2484,8 @@ class RaidCommands(commands.Cog):
                 elif bossmsg.clean_content.lower() == "cancel":
                     error = "cancelled the report"
                     await bossmsg.delete()
-                await self.changeraid_internal(None, guild, raid_channel, bossmsg.clean_content)
+                ctx = await self.bot.get_context(message, cls=Context)
+                await self.changeraid_internal(ctx, guild, raid_channel, bossmsg.clean_content)
                 if not bossmsg.clean_content.isdigit():
                     await self._timerset(raid_channel, 45)
                 await listmgmt_cog.update_listing_channels(guild, "raid", edit=True, regions=regions)

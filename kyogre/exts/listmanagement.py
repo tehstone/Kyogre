@@ -380,14 +380,27 @@ class ListManagement(commands.Cog):
                        'cliff': {1: ['meowth'],
                                  2: ['sandslash', 'snorlax', 'flygon'],
                                  3: ['infernape', 'torterra', 'tyranitar']},
-                       'sierra': {1: ['meowth'],
+                       'sierra': {1: ['sneasel'],
                                   2: ['hypno', 'sableye', 'lapras'],
                                   3: ['alakazam', 'houndoom', 'gardevoir']},
                        'giovanni': {1: ['persian'],
                                     2: ['dugtrio', 'rhydon', 'hippowdon'],
                                     3: ['articuno']}}
+            counters = {'arlo': '**Melmetal**, **Mewtwo**, **Blaziken**',
+                        'cliff': '**Lucario**, **Regice**, **Swampert**',
+                        'sierra': '**Lucario**, **Melmetal**, **Tyranitar**',
+                        'giovanni': '**Tyranitar**, **Swampert**, **Lucario**'
+            }
+            guides = {'arlo': 'https://pokemongohub.net/post/guide/rocket-leader-arlo-counters/',
+                      'cliff': 'https://pokemongohub.net/post/guide/rocket-leader-cliff-counters/',
+                      'sierra': 'https://pokemongohub.net/post/guide/rocket-leader-sierra-counters/',
+                      'giovanni': 'https://pokemongohub.net/post/guide/rocket-boss-giovanni-counters/'
+            }
             if leader:
                 hideout_embed.title = f"Rocket Leader {leader.capitalize()}"
+                hideout_embed.url = guides[leader]
+                counters_text = f"Best general counters: {counters[leader]}"
+                hideout_embed.add_field(name="Click Leader Name for full counters guide", value=counters_text)
                 lineup_text = f"{lineups[leader][1][0].capitalize()}\n"
                 lineup_text += f"+ {' or '.join([l.capitalize() for l in lineups[leader][2]])}\n"
                 lineup_text += f"+ {' or '.join([l.capitalize() for l in lineups[leader][3]])}"
