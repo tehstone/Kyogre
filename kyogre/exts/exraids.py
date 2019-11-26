@@ -243,6 +243,38 @@ class EXRaids(commands.Cog):
         new_hatch_str = datetime.datetime.fromtimestamp(hatch.timestamp()).strftime('%a %b %d %I:%M %p')
         await ctx.channel.send(f"The start time for this EX raid has been changed to **{new_hatch_str}**!")
 
+    @commands.command(name='exraid', aliases=['ex'])
+    async def _exraid(self, ctx, *, info):
+        listen_channels = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings'] \
+            .setdefault('ex_scan_listen_channels', [])
+        if ctx.message.channel.id not in listen_channels:
+            await ctx.send(embed=discord.Embed(
+                    colour=discord.Colour.red(),
+                    description=f"Please report EX raids in an EX reporting channel."),
+                delete_after=15)
+            return await ctx.message.delete()
+        info_parts = info.split(',')
+        if len(info_parts) < 2:
+            await ctx.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description=f"Please provide both gym name and date and time of the raid, comma separated."),
+                delete_after=15)
+            return await ctx.message.delete()
+        regions = list(self.bot.guild_dict[ctx.guild.id]['configure_dict']['regions']['info'].keys())
+        location_matching_cog = self.bot.cogs.get('LocationMatching')
+        gyms = location_matching_cog.get_gyms(ctx.guild.id, regions)
+        gym = await location_matching_cog.match_prompt(ctx.channel, ctx.author.id, info_parts[0], gyms)
+        if not gym:
+            await ctx.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description=f"Unable to find gym with name {info_parts[0]}."),
+                deleteafter=15)
+            return await ctx.message.delete()
+        new_date = parse(info_parts[1])
+        date_key = new_date.strftime("%b_%d").lower()
+        start_time = new_date.strftime("%H:%M")
+        await self._process_ex_request(ctx, gym, start_time, date_key)
+
     def _get_team_count_str(self, ctx, ex_raid_dict):
         team_counts = {"instinct": 0,
                        "mystic": 0,
