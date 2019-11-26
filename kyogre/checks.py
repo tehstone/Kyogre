@@ -96,6 +96,16 @@ def serverowner():
     return serverowner_or_permissions()
 
 
+def is_dev_or_owner_or_perms(**perms):
+    def predicate(ctx):
+        if is_dev_check(ctx) or is_owner_check(ctx):
+            return True
+        else:
+            return check_permissions(ctx, perms)
+
+    return commands.check(predicate)
+
+
 # configuration
 def check_subscriptionset(ctx):
     if ctx.guild is None:

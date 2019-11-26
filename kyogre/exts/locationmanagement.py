@@ -17,7 +17,7 @@ class LocationManagement(commands.Cog):
             raise commands.BadArgument()
 
     @_loc.command(name="add")
-    @commands.has_permissions(manage_roles=True)
+    @commands.is_dev_or_owner_or_perms(manage_roles=True)
     async def _loc_add(self, ctx, *, info):
         """**Usage**: `!loc add <type (gym/stop)>, <name>, <latitude>, <longitude>, <region>, [ex_eligible]`
         Adds a new location to the database. ex_eligible is optional, all other are required.
@@ -71,7 +71,7 @@ class LocationManagement(commands.Cog):
             return await message.add_reaction(self.bot.failed_react)
 
     @_loc.command(name="convert", aliases=["c"])
-    @commands.has_permissions(manage_roles=True)
+    @commands.is_dev_or_owner_or_perms(manage_roles=True)
     async def _loc_convert(self, ctx, *, info):
         """**Usage**: `!loc convert <pokestop>`
         **Alias**: `c`
@@ -100,7 +100,7 @@ class LocationManagement(commands.Cog):
             return await ctx.message.add_reaction(self.bot.success_react)
 
     @_loc.command(name="extoggle", aliases=["ext"])
-    @commands.has_permissions(manage_roles=True)
+    @commands.is_dev_or_owner_or_perms(manage_roles=True)
     async def _loc_extoggle(self, ctx, *, info):
         """**Usage**: `!loc extoggle/ext <gym>`
         **Alias**: `ext`
@@ -131,7 +131,7 @@ class LocationManagement(commands.Cog):
             return
 
     @_loc.command(name="changeregion", aliases=["cr"])
-    @commands.has_permissions(manage_nicknames=True)
+    @commands.is_dev_or_owner_or_perms(manage_nicknames=True)
     async def _loc_change_region(self, ctx, *, info):
         """**Usage**: `!loc changeregion/cr <type (stop/gym)>, <name>, <region>`
         **Alias**: 'cr'
@@ -190,7 +190,7 @@ class LocationManagement(commands.Cog):
             return await message.add_reaction(self.bot.success_react)
 
     @_loc.command(name="deletelocation", aliases=["del"])
-    @commands.has_permissions(manage_guild=True)
+    @commands.is_dev_or_owner_or_perms(manage_guild=True)
     async def _loc_deletelocation(self, ctx, *, info):
         """**Usage**: `!loc del <type (stop/gym), <name>`
         **Alias**: `del`
@@ -242,7 +242,7 @@ class LocationManagement(commands.Cog):
             return await message.add_reaction(self.bot.success_react)
 
     @_loc.command(name="addnote", aliases=["an"])
-    @commands.has_permissions(manage_nicknames=True)
+    @commands.is_dev_or_owner_or_perms(manage_nicknames=True)
     async def _loc_addnote(self, ctx, *, info):
         """**Usage**: `!loc addnote type (stop/gym), name, note`
         **Alias**: `an`
@@ -275,7 +275,7 @@ class LocationManagement(commands.Cog):
             return await message.add_reaction(self.bot.failed_react)
 
     @_loc.command(name="removenote", aliases=["rn", "dn"])
-    @commands.has_permissions(manage_roles=True)
+    @commands.is_dev_or_owner_or_perms(manage_roles=True)
     async def _loc_removenote(self, ctx, *, info):
         """**Usage**: `!loc removenote type (stop/gym), name`
         **Alias**: `rn`, `dn`
