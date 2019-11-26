@@ -4,7 +4,7 @@ import tempfile
 import discord
 from discord.ext import commands
 
-from kyogre import utils
+from kyogre import checks, utils
 from kyogre.exts.db.kyogredb import *
 
 
@@ -158,7 +158,7 @@ class LocationMatching(commands.Cog):
         return [(l, score) for l in locations for match_name, score in match if l.name == match_name]
     
     @commands.command(hidden=True, aliases=["lmt"])
-    @commands.is_dev_or_owner_or_perms(manage_nicknames=True)
+    @checks.is_dev_or_owner_or_perms(manage_nicknames=True)
     async def location_match_test(self, ctx, *, content=None):
         """**Usage**: `!lmt <type (stop/gym)>, <name>, [region]`
         **Alias**: `lmt`
@@ -197,14 +197,14 @@ class LocationMatching(commands.Cog):
             await ctx.send(result_str[1999*i:1999*(i+1)])
 
     @commands.command(name="lmts", aliases=['smt'])
-    @commands.is_dev_or_owner_or_perms(manage_nicknames=True)
+    @checks.is_dev_or_owner_or_perms(manage_nicknames=True)
     async def stop_match_test(self, ctx, *, content=None):
         if content is None:
             return
         return await ctx.invoke(self.bot.get_command('lmt'), content=f"stop, {content}")
 
     @commands.command(name="lmtg", aliases=['gmt'])
-    @commands.is_dev_or_owner_or_perms(manage_nicknames=True)
+    @checks.is_dev_or_owner_or_perms(manage_nicknames=True)
     async def gym_match_test(self, ctx, *, content=None):
         if content is None:
             return
