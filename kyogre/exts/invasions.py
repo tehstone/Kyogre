@@ -21,9 +21,9 @@ class Invasions(commands.Cog):
                                'cliff', 'blue', 'mystic',
                                'sierra', 'yellow', 'instinct',
                                'giovanni', 'boss']
-        self.leader_map = {'arlo': 123, 'red': 123, 'valor': 123,
-                           'cliff': 52, 'blue': 52, 'mystic': 52,
-                           'sierra': 215, 'yellow': 215, 'instinct': 215,
+        self.leader_map = {'arlo': 371, 'red': 371, 'valor': 371,
+                           'cliff': 234, 'blue': 234, 'mystic': 234,
+                           'sierra': 359, 'yellow': 359, 'instinct': 359,
                            'giovanni': 53, 'boss': 53}
 
     @commands.command(name='rocket', aliases=['rock', 'roc', 'hideout', 'hide', 'leader', 'lead'],

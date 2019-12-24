@@ -374,18 +374,18 @@ class ListManagement(commands.Cog):
             hideout_embed = discord.Embed(colour=discord.Colour.red())
             hideout_embed.description = ''
             # todo store these in db and make easily updateable
-            lineups = {'arlo': {1: ['scyther'],
-                                2: ['gyarados', 'crobat', 'magnezone'],
-                                3: ['charizard', 'dragonite', 'scyzor']},
-                       'cliff': {1: ['meowth'],
-                                 2: ['sandslash', 'snorlax', 'flygon'],
-                                 3: ['infernape', 'torterra', 'tyranitar']},
-                       'sierra': {1: ['sneasel'],
-                                  2: ['hypno', 'sableye', 'lapras'],
-                                  3: ['alakazam', 'houndoom', 'gardevoir']},
+            lineups = {'arlo': {1: ['bagon'],
+                                2: ['blastoise', 'charizard', 'steelix'],
+                                3: ['dragonite', 'salamence', 'scizor']},
+                       'cliff': {1: ['stantler'],
+                                 2: ['electivire', 'onix', 'marowak'],
+                                 3: ['swampert', 'torterra', 'tyranitar']},
+                       'sierra': {1: ['absol'],
+                                  2: ['cacturne', 'alakazam', 'lapras'],
+                                  3: ['gallade', 'houndoom', 'shiftry']},
                        'giovanni': {1: ['persian'],
                                     2: ['dugtrio', 'rhydon', 'hippowdon'],
-                                    3: ['articuno']}}
+                                    3: ['zapdos']}}
             counters = {'arlo': '**Melmetal**, **Mewtwo**, **Blaziken**',
                         'cliff': '**Lucario**, **Regice**, **Swampert**',
                         'sierra': '**Lucario**, **Melmetal**, **Tyranitar**',
@@ -399,7 +399,7 @@ class ListManagement(commands.Cog):
             if leader:
                 hideout_embed.title = f"Rocket Leader {leader.capitalize()}"
                 hideout_embed.url = guides[leader]
-                counters_text = f"Best general counters: {counters[leader]}"
+                counters_text = f"Best general counters: Unknown"#{counters[leader]}"
                 hideout_embed.add_field(name="Click Leader Name for full counters guide", value=counters_text)
                 lineup_text = f"{lineups[leader][1][0].capitalize()}\n"
                 lineup_text += f"+ {' or '.join([l.capitalize() for l in lineups[leader][2]])}\n"
