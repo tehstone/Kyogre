@@ -228,6 +228,7 @@ class RaidDataHandler(commands.Cog):
             for sibling in tier.next_siblings:
                 result = walk_siblings(sibling)
                 if result:
+                    result = result.replace('galar', 'galarian')
                     raid_pokemon.append(result)
                 # If result is false, it means we encountered a header.
                 # Break the inner loop and save the current Pokemon list
