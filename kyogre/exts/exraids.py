@@ -183,7 +183,10 @@ class EXRaids(commands.Cog):
         hours, minutes = int(hours), int(minutes)
         if hours < 9:
             hours += 12
-        hatch = datetime.datetime.utcnow().replace(month=months, day=days, hour=hours, minute=minutes, second=0)
+        now = datetime.datetime.utcnow()
+        hatch = now.replace(month=months, day=days, hour=hours, minute=minutes, second=0)
+        if hatch.month == 1 and now.month == 12:
+            hatch = hatch.replace(year=hatch.year + 1)
         offset = self.bot.guild_dict[guild_id]['configure_dict']['settings']['offset'] * -1
         hatch = hatch + datetime.timedelta(hours=offset)
         raid_length = self.bot.raid_info['raid_eggs']['EX']['raidtime']
@@ -271,7 +274,9 @@ class EXRaids(commands.Cog):
                 deleteafter=15)
             return await ctx.message.delete()
         new_date = parse(info_parts[1])
-        date_key = new_date.strftime("%b_%d").lower()
+        date_key = new_date.strftime("%b_%-d").lower()
+        if date_key[-2] == '0':
+            date_key = date_key[:-2] + date_key[-1]
         start_time = new_date.strftime("%H:%M")
         await self._process_ex_request(ctx, gym, start_time, date_key)
 
