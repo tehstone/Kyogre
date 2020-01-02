@@ -384,12 +384,16 @@ class ListManagement(commands.Cog):
                                   2: ['cacturne', 'alakazam', 'lapras'],
                                   3: ['gallade', 'houndoom', 'shiftry']},
                        'giovanni': {1: ['persian'],
-                                    2: ['dugtrio', 'rhydon', 'hippowdon'],
+                                    2: ['cloyster', 'kangaskhan', 'garchomp'],
                                     3: ['zapdos']}}
-            counters = {'arlo': '**Melmetal**, **Mewtwo**, **Blaziken**',
-                        'cliff': '**Lucario**, **Regice**, **Swampert**',
-                        'sierra': '**Lucario**, **Melmetal**, **Tyranitar**',
-                        'giovanni': '**Tyranitar**, **Swampert**, **Lucario**'
+            counters = {'arlo': '**A. Giratina**, **A. Golem**, **Heatran**',
+                                '**Rhyperior**, **Gyarados**, **Blaziken**'
+                        'cliff': '**A. Giratina**, **Kyogre**, **Torterra**',
+                                 '**Lucario**, **Torterra**, **Articuno**'
+                        'sierra': '**Scizor**, **Lucario**, **Metagross**',
+                                  '**Melmetal**, **Tyranitar**, **Heatran**'
+                        'giovanni': '**Machamp**, **Dragonite**, **Tyranitar**',
+                                    '**Rhyperior**, **Gyarados**, **Magnezone**'
             }
             guides = {'arlo': 'https://pokemongohub.net/post/guide/rocket-leader-arlo-counters/',
                       'cliff': 'https://pokemongohub.net/post/guide/rocket-leader-cliff-counters/',
@@ -399,7 +403,7 @@ class ListManagement(commands.Cog):
             if leader:
                 hideout_embed.title = f"Rocket Leader {leader.capitalize()}"
                 hideout_embed.url = guides[leader]
-                counters_text = f"Best general counters: Unknown"#{counters[leader]}"
+                counters_text = f"Suggested Teams: {'\n'.join(counters[leader])}"
                 hideout_embed.add_field(name="Click Leader Name for full counters guide", value=counters_text)
                 lineup_text = f"{lineups[leader][1][0].capitalize()}\n"
                 lineup_text += f"+ {' or '.join([l.capitalize() for l in lineups[leader][2]])}\n"
