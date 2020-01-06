@@ -313,6 +313,11 @@ class Badges(commands.Cog):
         for b in badges:
             emoji = self.bot.get_emoji(b.emoji)
             description += f"{emoji} {b.name} *(#{b.id})*\n"
+            if len(description) > 1900:
+                embed.description = description
+                await ctx.send(embed=embed)
+                embed = discord.Embed(colour=user.colour)
+                description = ''
         embed.description = description
         await ctx.send(embed=embed)
 
