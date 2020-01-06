@@ -54,6 +54,8 @@ class Social(commands.Cog):
         for c in badges:
             for b in c:
                 badge_str += f"{b} "
+            if len(badge_str) > 910:
+                break
             badge_str += '\n'
         embed = discord.Embed(colour=colour)
         embed.set_author(name=user.display_name, icon_url=user.avatar_url)
