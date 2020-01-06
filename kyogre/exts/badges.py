@@ -258,6 +258,76 @@ class Badges(commands.Cog):
             return await ctx.channel.send(embed=discord.Embed(
                 colour=discord.Colour.green(), description=f"Successfully granted badge to {count} trainers."))
 
+    @commands.command(name='revoke_badge', aliases=['rb'])
+    @commands.has_permissions(manage_roles=True)
+    async def _revoke_badge(self, ctx, badge_id: int = 0, *, member):
+        """**Usage**: `!revoke_badge/rb <badge_id> <member>`
+        Revokes the provided badge from the provided user."""
+        converter = commands.MemberConverter()
+        try:
+            member = await converter.convert(ctx, member)
+        except:
+            member = None
+        if badge_id == 0 or member is None:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info.")
+            return await ctx.send("Must provide a badge id and Trainer name.", delete_after=10)
+        try:
+            badge_to_give = BadgeTable.get(BadgeTable.id == badge_id)
+        except:
+            badge_to_give = None
+        colour = discord.Colour.red()
+        reaction = self.bot.failed_react
+        if badge_to_give:
+            if badge_to_give.guild.snowflake != ctx.guild.id:
+                embed = discord.Embed(colour=colour,
+                                      description=f"No badge with id {badge_id} found on this server.")
+            else:
+                reaction, embed = await self.try_revoke_badge(badge_to_give, ctx.guild.id, member.id, badge_id, ctx)
+        else:
+            embed = discord.Embed(colour=colour, description="Could not find a badge with that id.")
+        await ctx.message.add_reaction(reaction)
+        await ctx.send(embed=embed, delete_after=20)
+
+    async def try_revoke_badge(self, badge, guild_id, member_id, badge_id, ctx):
+        guild = self.bot.get_guild(guild_id)
+        member = guild.get_member(member_id)
+        colour = discord.Colour.red()
+        reaction = self.bot.failed_react
+        embed = None
+        try:
+            __, __ = GuildTable.get_or_create(snowflake=guild_id)
+            __, __ = TrainerTable.get_or_create(snowflake=member.id, guild=guild_id)
+            # Check that trainer has this badge
+            result = (BadgeAssignmentTable
+                      .select()
+                      .where((BadgeAssignmentTable.trainer == member.id) &
+                             (BadgeAssignmentTable.badge == badge_id))
+                      .count()
+                      )
+            if result < 1:
+                message = f"{member.display_name} does not have the **{badge.name}** badge!"
+                embed = discord.Embed(colour=colour, description=message)
+                return reaction, embed
+            # Try to remove badge
+            result = (BadgeAssignmentTable.delete()
+                     .where((BadgeAssignmentTable.trainer == member.id) &
+                            (BadgeAssignmentTable.badge == badge_id))
+                     .execute()
+                    )
+            if result > 0:
+                reaction = self.bot.success_react
+                send_emoji = self.bot.get_emoji(badge.emoji)
+                message = f"Revoked {send_emoji} **{badge.name}** from **{member.display_name}**"
+                colour = discord.Colour.green()
+            else:
+                message = "Failed to revoke the badge"
+        except peewee.IntegrityError:
+            message = "Failed to revoke the badge"
+        if not embed:
+            embed = discord.Embed(colour=colour, description=message)
+        return (reaction, embed)
+
     @commands.command(name="available_badges", aliases=['avb'])
     @commands.has_permissions(manage_guild=True)
     async def _available(self, ctx):
@@ -363,3 +433,4 @@ class Badges(commands.Cog):
 
 def setup(bot):
     bot.add_cog(Badges(bot))
+
