@@ -224,7 +224,7 @@ class QuickBadge(commands.Cog):
             if reaction == self.bot.success_react:
                 await send_channel.send(f"$gb {p_badge_id} {target_user.mention}")
             badge_channel = self.bot.get_channel(quick_badge_dict['badge_channel'])
-            await badge_channel.send(embed=embed)
+            await badge_channel.send(f"{target_user.mention}", embed=embed)
         elif str(payload.emoji) == self.thumbsup_react \
                 and payload.channel_id in quick_badge_dict.get('40_listen_channels', []):
             success = await self.set_fourty(ctx)
