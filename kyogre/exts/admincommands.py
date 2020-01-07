@@ -668,9 +668,9 @@ class AdminCommands(commands.Cog):
     async def _update_remote_boss_list(self, ctx):
         result = await self.bot.update_remote_boss_list()
         if result["status"] == "success":
-            return await ctx.send("Update succeeded", deleteafter=15)
+            return await ctx.send("Successfully updated remote raid boss list.")
         else:
-            return await ctx.send("Update failed", deleteafter=15)
+            return await ctx.send("Failed to update remote raid boss list.")
 
 
 def setup(bot):
