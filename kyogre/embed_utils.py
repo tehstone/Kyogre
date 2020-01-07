@@ -82,7 +82,9 @@ async def filter_fields_for_report_embed(embed, embed_indices, enabled):
 
 async def build_raid_embeds(kyogre, ctx, raid_dict, enabled, assume=False):
     guild = ctx.guild
-    author = ctx.message.author
+    author = raid_dict.get('reporter', None)
+    if author:
+        author = guild.get_member(author)
     utils_cog = kyogre.cogs.get('Utilities')
     location_matching_cog = kyogre.cogs.get('LocationMatching')
     ctype = raid_dict['type']
@@ -154,9 +156,10 @@ async def build_raid_embeds(kyogre, ctx, raid_dict, enabled, assume=False):
         timestamp = (ctx.message.created_at + datetime.timedelta(
             hours=kyogre.guild_dict[guild.id]['configure_dict']['settings']['offset'])).strftime(
             '%I:%M %p (%H:%M)')
-        raid_embed.set_footer(text='Reported by {author} - {timestamp}'
-                              .format(author=author.display_name, timestamp=timestamp),
-                              icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
+        if author:
+            raid_embed.set_footer(text='Reported by {author} - {timestamp}'
+                                  .format(author=author.display_name, timestamp=timestamp),
+                                  icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
         raid_embed.add_field(name='**Tips:**',
                              value='`!i` if interested\n`!c` if on the way\n`!h` '
                                    'when you arrive\n`!x` to cancel your status\n'
