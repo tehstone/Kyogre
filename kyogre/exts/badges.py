@@ -327,6 +327,60 @@ class Badges(commands.Cog):
         if not embed:
             embed = discord.Embed(colour=colour, description=message)
         return (reaction, embed)
+    
+    @commands.command(name='grant_multiple_badges', aliases=['gmb'])
+    @commands.has_permissions(manage_roles=True)
+    async def _grant_multiple_badges(self, ctx, *, info):
+        info_split = info.split(',')
+        if len(info_split) < 2:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info.")
+            return await ctx.send("Must provide badge ids, comma, then Trainer name.\nFor example: `!gmb 1 2 3 @tehstone`", delete_after=10)
+        badge_ids = info_split[0].split(' ')
+        converter = commands.MemberConverter()
+        try:
+            member = ''.join(info_split[1:])
+            member = await converter.convert(ctx, member.strip())
+        except:
+            member = None
+        if member is None:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info.")
+            return await ctx.send("Must provide badge ids, comma, then Trainer name.\n`!gmb 1 2 3 @tehstone`", delete_after=10)
+        failed = {}
+        success = {}
+        for bid in badge_ids:
+            try:
+                badge_to_give = BadgeTable.get(BadgeTable.id == bid)
+            except:
+                badge_to_give = None
+            if badge_to_give:
+                if badge_to_give.guild.snowflake != ctx.guild.id:
+                    failed[bid] = f"No badge with id {bid} found on this server."
+                else:
+                    reaction, embed = await self.try_grant_badge(badge_to_give, ctx.guild.id, member.id, bid)
+                    if reaction == self.bot.failed_react:
+                        failed[bid] = embed.description
+                    else:
+                        success[bid] = (self.bot.get_emoji(badge_to_give.emoji), badge_to_give.name)
+            else:
+                failed[bid] = f"Could not find a badge with id {bid}."
+        if len(failed) > 0:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            description = 'Failed to give:\n'
+            for item in failed.items():
+                description += f"Badge {item[0]}: {item[1]}\n"
+            embed = discord.Embed(colour=discord.Colour.red(), description=description)
+            await ctx.send(embed=embed)
+        if len(success) > 0:
+            await ctx.message.add_reaction(self.bot.success_react)
+            description = "You've earned:\n"
+            for item in success.items():
+                description += f"{item[1][0]} **{item[1][1]}**!\n"
+            embed = discord.Embed(colour=discord.Colour.green())
+            embed.title = f"Congratulations {member.display_name}!"
+            embed.description = description
+            await ctx.send(content=f"{member.mention}", embed=embed)    
 
     @commands.command(name="available_badges", aliases=['avb'])
     @commands.has_permissions(manage_guild=True)
