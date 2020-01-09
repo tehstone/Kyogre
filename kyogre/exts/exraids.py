@@ -46,7 +46,7 @@ class EXRaids(commands.Cog):
             gym, date_key, start_time = await self.parse_ex_pass(ctx, file, message.attachments[0].url)
             ex_raid_dict = self.bot.guild_dict[ctx.guild.id].setdefault('exchannel_dict', {})
             ex_channel_ids = self.get_existing_raid(ctx.guild, gym, ex_raid_dict)
-            if not gym or not date_key:
+            if gym is None or date_key is None:
                 return await ctx.channel.send(embed=discord.Embed(
                     colour=discord.Colour.red(),
                     description=f"Could not determine gym name or pass date from EX Pass screenshot."))

@@ -1598,7 +1598,7 @@ class RaidCommands(commands.Cog):
                                               .format(details))
             else:
                 pass
-            await entity_updates.update_raid_location(self.bot, self.bot.guild_dict, message,
+            await entity_updates.update_raid_location(self.bot, ctx, self.bot.guild_dict, message,
                                                       report_channel, channel, gym)
             return
 
@@ -2376,6 +2376,7 @@ class RaidCommands(commands.Cog):
             user = guild.get_member(payload.user_id)
         except AttributeError:
             return
+        ctx = await self.bot.get_context(message, cls=Context)
         updated_time = round(time.time())
         raid_dict = guild_dict[guild.id].setdefault('raidchannel_dict', {})
         config_dict = guild_dict[guild.id]['configure_dict']
@@ -2441,7 +2442,7 @@ class RaidCommands(commands.Cog):
                                         f"User: {user.name}, channel: {channel}, error: Raid already reported.")
                             else:
                                 raid_report['gym'] = gym.id
-                                await entity_updates.update_raid_location(self.bot, guild_dict, message,
+                                await entity_updates.update_raid_location(self.bot, ctx, guild_dict, message,
                                                                           report_channel, raid_channel, gym)
                                 await listmgmt_cog.update_listing_channels(guild, "raid", edit=True, regions=regions)
                                 await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
