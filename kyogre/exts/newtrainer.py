@@ -192,7 +192,7 @@ class NewTrainer(commands.Cog):
         team_emoji = utils.parse_emoji(ctx.channel.guild, self.bot.config['team_dict'][scan_team])
         await ctx.invoke(self.bot.get_command('profile'), user=ctx.author)
         await ctx.channel.send(f"{ctx.author.mention} your team has been set to **{scan_team}** {team_emoji}!"
-                               "\nUse `!set profile` to update your profile.")
+                               "\nIf you would like to make changes or update your profile use `!set profile`")
         image_utils.cleanup_file(file, f"screenshots/profile")
 
 
