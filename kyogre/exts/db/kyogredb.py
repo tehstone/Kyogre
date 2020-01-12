@@ -207,6 +207,32 @@ class LocationTable(BaseModel):
             print(e)
 
     @classmethod
+    def create_single_location(ctx, name, data, guild_id):
+        try:
+            latitude, longitude = data['coordinates'].split(',')
+            if 'guild' in data and data['guild']:
+                with KyogreDB._db.atomic():
+                    guild, __ = GuildTable.get_or_create(snowflake=guild_id)
+                    location = LocationTable.create(name=name, latitude=latitude, longitude=longitude, guild=guild)
+                    if 'region' in data and data['region']:
+                        for region_name in data['region'].split(','):
+                            with KyogreDB._db.atomic():
+                                # guild_id used here because peewee will not get correctly if obj used and throw error
+                                region, __ = RegionTable.get_or_create(name=region_name, area=None, guild=guild_id)
+                                LocationRegionRelation.create(location=location, region=region)
+                    if 'notes' in data:
+                        for note in data['notes']:
+                            if note:
+                                LocationNoteTable.create(location=location, note=note)
+                    if 'ex_eligible' in data:
+                        location_id = GymTable.create(location=location, ex_eligible=data['ex_eligible'])
+                    else:
+                        location_id = PokestopTable.create(location=location)
+                    return location_id, None
+        except Exception as e:
+            return None, e
+
+    @classmethod
     def reload_default(cls):
         if not KyogreDB._db:
             return

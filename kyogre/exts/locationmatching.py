@@ -367,21 +367,25 @@ class LocationMatching(commands.Cog):
             return await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
                                                           description=desc))
         else:
-            gym_embed = discord.Embed(colour=guild.me.colour)
-            utils_cog = self.bot.cogs.get('Utilities')
-            waze_link = utils_cog.create_waze_query(gym.latitude, gym.longitude)
-            apple_link = utils_cog.create_applemaps_query(gym.latitude, gym.longitude)
-            location_str = f'[Google]({gym.maps_url}) | [Waze]({waze_link}) | [Apple]({apple_link})'
-            ex_eligible = ''
-            if gym.ex_eligible:
-                ex_eligible = '\n*This is an EX Eligible gym.*'
-            gym_notes = ''
-            if gym.note is not None:
-                gym_notes = f"\n**Notes:** {gym.note}"
-            gym_info = f"**Name:** {gym.name}{ex_eligible}\n**Region:** {gym.region.title()}" \
-                       f"\n**Directions:** {location_str}{gym_notes}"
-            gym_embed.add_field(name='**Gym Information**', value=gym_info, inline=False)
+            gym_embed = await self.build_gym_embed(ctx, gym)
             return await channel.send(content="", embed=gym_embed)
+
+    async def build_gym_embed(self, ctx, gym):
+        gym_embed = discord.Embed(colour=ctx.guild.me.colour)
+        utils_cog = self.bot.cogs.get('Utilities')
+        waze_link = utils_cog.create_waze_query(gym.latitude, gym.longitude)
+        apple_link = utils_cog.create_applemaps_query(gym.latitude, gym.longitude)
+        location_str = f'[Google]({gym.maps_url}) | [Waze]({waze_link}) | [Apple]({apple_link})'
+        ex_eligible = ''
+        if gym.ex_eligible:
+            ex_eligible = '\n*This is an EX Eligible gym.*'
+        gym_notes = ''
+        if gym.note is not None:
+            gym_notes = f"\n**Notes:** {gym.note}"
+        gym_info = f"**Name:** {gym.name}{ex_eligible}\n**Region:** {gym.region.title()}" \
+                   f"\n**Directions:** {location_str}{gym_notes}"
+        gym_embed.add_field(name='**Gym Information**', value=gym_info, inline=False)
+        return gym_embed
 
     @commands.command(name='pokestopinfo', aliases=['pokestop', 'pi'])
     async def _pokestop(self, ctx, *, info):

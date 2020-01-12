@@ -53,15 +53,20 @@ class LocationManagement(commands.Cog):
         data["guild"] = str(ctx.guild.id)
         try:
             region = RegionTable.get(RegionTable.name == region.lower())
-        except Exception as e:
+        except Exception:
             error_msg = f"No region found with name: **{region}**. \n"
-        if not error_msg:
-            error_msg = LocationTable.create_location(name, data)
+        if error_msg is None:
+            location_id, error_msg = LocationTable.create_single_location(name, data, ctx.guild.id)
         if error_msg is None:
             await channel.send(embed=discord.Embed(
                 colour=discord.Colour.green(),
                 description=f"Successfully added **{loc_type}** with name: **{name}**."),
                 delete_after=12)
+            if loc_type == "gym":
+                update_channel = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']\
+                    .setdefault('location_update_channel', None)
+                if update_channel:
+                    await self._send_location_update(ctx, update_channel, location_id)
             return await message.add_reaction(self.bot.success_react)
         else:
             await channel.send(
@@ -69,6 +74,16 @@ class LocationManagement(commands.Cog):
                                     description=error_msg + f"Failed to add **{loc_type}** with name: **{name}**."),
                 delete_after=12)
             return await message.add_reaction(self.bot.failed_react)
+
+    async def _send_location_update(self, ctx, update_channel, location_id):
+        utilities_cog = self.bot.cogs.get('Utilities')
+        location_matching_cog = self.bot.cogs.get('LocationMatching')
+        gym = location_matching_cog.get_gym_by_id(ctx.guild.id, location_id)
+        aluc_channel = await utilities_cog.get_channel_by_name_or_id(ctx, str(update_channel))
+        if aluc_channel is None or gym is None:
+            return
+        gym_embed = await location_matching_cog.build_gym_embed(ctx, gym)
+        return await aluc_channel.send(content="New gym added!", embed=gym_embed)
 
     @_loc.command(name="convert", aliases=["c"])
     @checks.is_dev_or_owner_or_perms(manage_roles=True)
@@ -97,6 +112,10 @@ class LocationManagement(commands.Cog):
             await channel.send(embed=discord.Embed(colour=discord.Colour.green(),
                                                    description=f"Converted {result[0]} stop(s) to gym(s)."),
                                delete_after=12)
+            update_channel = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings'] \
+                .setdefault('location_update_channel', None)
+            if update_channel:
+                await self._send_location_update(ctx, update_channel, stop.id)
             return await ctx.message.add_reaction(self.bot.success_react)
 
     @_loc.command(name="extoggle", aliases=["ext"])
@@ -450,6 +469,19 @@ class LocationManagement(commands.Cog):
         if not location_matching_cog:
             return None
         return location_matching_cog.get_gyms(guild_id, regions)
+
+    @commands.command(name='set_location_update_channel', aliases=['sluc'])
+    async def _set_location_update_channel(self, ctx, channel):
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings'].setdefault('location_update_channel', None)
+        utilities_cog = self.bot.cogs.get('Utilities')
+        aluc_channel = await utilities_cog.get_channel_by_name_or_id(ctx, channel)
+        if aluc_channel is None:
+            await ctx.channel.send('No channel found by that name or id, please try again.', delete_after=10)
+            return await ctx.message.add_reaction(self.bot.failed_react)
+        update_channel = aluc_channel.id
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['location_update_channel'] = update_channel
+        await ctx.channel.send(f'{aluc_channel.mention} set as location updates channel.', delete_after=10)
+        return await ctx.message.add_reaction(self.bot.success_react)
 
 
 def setup(bot):
