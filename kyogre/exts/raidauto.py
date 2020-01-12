@@ -477,6 +477,7 @@ class RaidAuto(commands.Cog):
         await ctx.send(embed=embed)
         if c_file:
             os.remove(c_file)
+        image_utils.cleanup_file(file, f"screenshots/test")
 
 
 def setup(bot):

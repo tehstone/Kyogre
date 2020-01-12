@@ -1120,7 +1120,10 @@ class ListManagement(commands.Cog):
             def should_delete(m):
                 check = True
                 if m.embeds and len(m.embeds) > 0:
-                    check = (list_type in m.embeds[0].description.lower())
+                    try:
+                        check = (list_type in m.embeds[0].description.lower())
+                    except AttributeError:
+                        pass
                 else:
                     date1 = m.created_at
                     date2 = datetime.datetime.utcnow()

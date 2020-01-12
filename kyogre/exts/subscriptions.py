@@ -769,6 +769,7 @@ class Subscriptions(commands.Cog):
         if not isinstance(pokemon_list, list):
             pokemon_list = [pokemon_list]
         location = details.get('location', None)
+        multi = details.get('multi', False)
         region_dict = self.bot.guild_dict[guild.id]['configure_dict'].get('regions', None)
         outbound_dict = {}
         # build final dict
@@ -858,6 +859,8 @@ class Subscriptions(commands.Cog):
             start = 'An' if re.match(r'^[aeiou]', description, re.I) else 'A'
             if notification_type == 'item':
                 start = 'An' if re.match(r'^[aeiou]', item, re.I) else 'A'
+                if multi:
+                    location = 'multiple locations'
                 message = f'{start} **{item} research task** has been reported at **{location}**!'
             elif notification_type == 'lure':
                 message = f'A **{lure_type.capitalize()}** lure has been dropped at {location.name}!'
@@ -866,6 +869,8 @@ class Subscriptions(commands.Cog):
             elif notification_type == 'wild':
                 message = f'A **wild {description} spawn** has been reported at **{location}**!'
             elif notification_type == 'research':
+                if multi:
+                    location = 'multiple locations'
                 message = f'{start} **{description} research task** has been reported at **{location}**!'
             elif 'hatching' in details and details['hatching']:
                 message = f"The egg at **{location}** has hatched into {start.lower()} **{description}** raid!"

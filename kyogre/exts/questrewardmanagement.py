@@ -226,12 +226,10 @@ class QuestRewardManagement(commands.Cog):
             name = await utils.prompt_match_result(self.bot, channel, author, name, candidates)
         return next((q for q in result if q.name is not None and q.name.lower() == name.lower()), None)
 
-
     async def prompt_reward(self, ctx, quest, reward_type=None):
         channel = ctx.channel
         author = ctx.message.author.id
         return await self.prompt_reward_v(channel, author, quest, reward_type)
-
 
     async def prompt_reward_v(self, channel, author, quest, reward_type=None):
         """prompts user for reward info selection using quest's reward pool
@@ -255,15 +253,15 @@ class QuestRewardManagement(commands.Cog):
         target_pool = quest.reward_pool[reward_type]
         # handle encounters
         if reward_type == "encounters":
-            any = f"{' or '.join([p.title() for p in target_pool])} Encounter"
+            any_encounter = f"{' or '.join([p.title() for p in target_pool])} Encounter"
             if len(target_pool) > 1:
                 candidates = [f"{p.title()} Encounter" for p in target_pool]
-                candidates.append(any)
+                candidates.append(any_encounter)
                 prompt = "If you know which encounter this task gives, please select it below. \
                           Otherwise select the last option"
                 return await utils.ask_list(self.bot, prompt, channel, candidates, user_list=author)
             else:
-                return any
+                return any_encounter
         # handle items
         if reward_type == "items":
             if len(target_pool) == 1:
@@ -285,6 +283,30 @@ class QuestRewardManagement(commands.Cog):
             if not quantity:
                 return
             return f"{quantity} {reward_type.title()}"
+
+    async def check_reward(self, ctx, quest, reward):
+        complete_pool = []
+        reward = reward.lower().strip()
+        if reward == 'encounter':
+            any_encounter = f"{' or '.join([p.title() for p in quest.reward_pool['encounters']])} Encounter"
+            complete_pool.append(any_encounter)
+        elif 'stardust' in quest.reward_pool and reward in ['stardust', 'dust']:
+            if len(quest.reward_pool['stardust']) > 0:
+                r = f"{quest.reward_pool['stardust'][0]} stardust"
+                complete_pool.append(r)
+        else:
+            if 'encounters' in quest.reward_pool:
+                for e in quest.reward_pool['encounters']:
+                    complete_pool.append(e)
+            if 'items' in quest.reward_pool:
+                for item in quest.reward_pool['items']:
+                    r = f"{quest.reward_pool['items'][item][0]} {item}"
+                    complete_pool.append(r)
+        candidates = utils.get_match(complete_pool, reward.strip(), score_cutoff=70, isPartial=True, limit=5)
+        if candidates[0] is None:
+            return None
+        reward = await utils.prompt_match_result(self.bot, ctx.channel, ctx.message.author.id, reward, candidates)
+        return reward
 
 
 def setup(bot):

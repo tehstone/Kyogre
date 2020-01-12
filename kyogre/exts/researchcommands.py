@@ -53,12 +53,16 @@ class ResearchCommands(commands.Cog):
                                                           description="Quest data is not loaded for this server."))
         while True:
             if details:
-                research_split = details.rsplit(",", 1)
-                if len(research_split) != 2:
+                research_split = details.rsplit(",", 2)
+                if len(research_split) == 2:
+                    location, quest_name = research_split
+                    reward = None
+                elif len(research_split) == 3:
+                    location, quest_name, reward = research_split
+                else:
                     error = "entered an incorrect amount of arguments.\n\n" \
                             "Usage: **!research** or **!research <pokestop>, <quest>**"
                     break
-                location, quest_name = research_split
                 if stops:
                     stop = await location_matching_cog.match_prompt(channel, author.id, location, stops)
                     if not stop:
@@ -94,7 +98,10 @@ class ResearchCommands(commands.Cog):
                     return await channel.send(embed=discord.Embed(
                         colour=discord.Colour.red(),
                         description=f"I couldn't find a quest named '{quest_name}'"))
-                reward = await questrewardmanagement_cog.prompt_reward(ctx, quest)
+                if reward:
+                    reward = await questrewardmanagement_cog.check_reward(ctx, quest, reward)
+                else:
+                    reward = await questrewardmanagement_cog.prompt_reward(ctx, quest)
                 if not reward:
                     return await channel.send(embed=discord.Embed(
                         colour=discord.Colour.red(),
@@ -243,6 +250,141 @@ class ResearchCommands(commands.Cog):
             confirmation = await channel.send(embed=research_embed)
             return await utils.sleep_and_cleanup([message, confirmation], 10)
 
+    @commands.command(aliases=['resl', 'resm'], brief="Report a List of Field Research tasks")
+    @checks.allowresearchreport()
+    async def research_multiple(self, ctx, *, details=None):
+        """**Usage**: `!research_multiple / resl / resm task, reward, stop, [stop2, etc...]`
+        Provide task name and reward and at least 1 pokestop."""
+        message = ctx.message
+        channel = message.channel
+        author = message.author
+        guild = message.guild
+        timestamp = (message.created_at + datetime.timedelta(
+            hours=self.bot.guild_dict[message.channel.guild.id]['configure_dict']['settings']['offset']))
+        to_midnight = 24 * 60 * 60 - (timestamp - timestamp.replace(hour=0, minute=0, second=0, microsecond=0)).seconds
+
+        utilities_cog = self.bot.cogs.get('Utilities')
+        location_matching_cog = self.bot.cogs.get('LocationMatching')
+        questrewardmanagement_cog = self.bot.cogs.get('QuestRewardManagement')
+
+        regions = utilities_cog.get_channel_regions(channel, 'research')
+        stops = location_matching_cog.get_stops(guild.id, regions)
+        loc_url = utilities_cog.create_gmaps_query("", message.channel, type="research")
+
+        research_split = details.split(",")
+        if len(research_split) < 3:
+            error = "entered an incorrect amount of arguments.\n\n" \
+                    "**Usage**: `!research_multiple / resl / resm task, reward, stop, [stop2, etc...]`"
+            return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=error))
+        task, reward, report_stops = research_split[0], research_split[1], research_split[2:]
+
+        quest = await questrewardmanagement_cog.get_quest(ctx, task.strip())
+        if not quest:
+            self.bot.help_logger.info(
+                f"User: {ctx.author.name}, channel: {ctx.channel}, error: No quest found with name: {task}.")
+            return await channel.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description=f"I couldn't find a quest named '{task}'"))
+
+        reward = await questrewardmanagement_cog.check_reward(ctx, quest, reward)
+        if not reward:
+            return await channel.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description=f"I couldn't find a reward for '{task}'"))
+        failed_stops = {"not_found": [], "already_reported": []}
+        success_count = 0
+        confirmation = None
+        if stops:
+            for s in report_stops:
+                stop = await location_matching_cog.match_prompt(channel, author.id, s, stops)
+                if not stop:
+                    self.bot.help_logger.info(
+                        f"User: {ctx.author.name}, channel: {ctx.channel}, error: No Pokestop found with name: {location.strip()}.")
+                    failed_stops["not_found"].append(s)
+                    continue
+                if self.get_existing_research(guild, stop):
+                    failed_stops["already_reported"].append(s)
+                    continue
+                location = stop.name
+                loc_url = stop.maps_url
+                regions = [stop.region]
+                research_embed = discord.Embed(
+                    colour=message.guild.me.colour) \
+                    .set_thumbnail(
+                    url='https://raw.githubusercontent.com/klords/Kyogre/master/images/misc/field-research.png?cache=0')
+                research_embed.set_footer(text='Reported by {author} - {timestamp}'
+                                          .format(author=author.display_name,
+                                                  timestamp=timestamp.strftime('%I:%M %p (%H:%M)')),
+                                          icon_url=author.avatar_url_as(format=None, static_format='jpg', size=32))
+                research_msg = f'{quest.name} Field Research task, reward: {reward} reported at {location}'
+                research_embed.title = 'Click here for my directions to the research!'
+                research_embed.description = "Ask {author} if my directions aren't perfect!".format(author=author.name)
+                research_embed.url = loc_url
+                confirmation = await channel.send(research_msg, embed=research_embed)
+                await utilities_cog.reaction_delay(confirmation, ['\u270f', '🚫'])
+                research_dict = copy.deepcopy(self.bot.guild_dict[guild.id].get('questreport_dict', {}))
+                research_dict[confirmation.id] = {
+                    'regions': regions,
+                    'exp': time.time() + to_midnight,
+                    'expedit': "delete",
+                    'reportmessage': message.id,
+                    'reportchannel': channel.id,
+                    'reportauthor': author.id,
+                    'location': location,
+                    'location_id': stop.id,
+                    'url': loc_url,
+                    'quest': quest.name,
+                    'quest_id': quest.id,
+                    'reward': reward
+                }
+                self.bot.guild_dict[guild.id]['questreport_dict'] = research_dict
+                success_count += 1
+        else:
+            return await channel.send(embed=discord.Embed(
+                colour=discord.Colour.red(), description="Failed to load Pokestops list."))
+        no_stop = len(failed_stops["not_found"])
+        reported = len(failed_stops["already_reported"])
+        if no_stop > 0:
+            message = "Could not find the following stops:"
+            for stop in failed_stops["not_found"]:
+                message += f"\n{stop}"
+            await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=message))
+        if reported > 0:
+            message = "Task already reported for:"
+            for stop in failed_stops["already_reported"]:
+                message += f"\n{stop}"
+            await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=message))
+        if success_count < 1:
+            return
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
+        await listmgmt_cog.update_listing_channels(guild, 'research', edit=False, regions=regions)
+        subscriptions_cog = self.bot.cogs.get('Subscriptions')
+        send_channel = subscriptions_cog.get_region_list_channel(guild, regions[0], 'research')
+        if send_channel is None:
+            send_channel = channel
+        points = 1
+        if 'encounter' in reward.lower():
+            pkmn = reward.rsplit(maxsplit=1)[0]
+            research_details = {'pokemon': [Pokemon.get_pokemon(self.bot, p) for p in re.split(r'\s*,\s*', pkmn)],
+                                'regions': regions, 'multi': True}
+            points = await subscriptions_cog.send_notifications_async('research', research_details,
+                                                                      send_channel, [message.author.id])
+        elif reward.split(' ')[0].isdigit() and 'stardust' not in reward.lower():
+            item = ' '.join(reward.split(' ')[1:])
+            research_details = {'item': item, 'regions': regions, 'multi': True}
+            points = await subscriptions_cog.send_notifications_async('item', research_details,
+                                                                      send_channel, [author.id])
+        points *= success_count
+        research_reports = self.bot.guild_dict[ctx.guild.id] \
+                               .setdefault('trainers', {}) \
+                               .setdefault(regions[0], {}) \
+                               .setdefault(author.id, {}) \
+                               .setdefault('research_reports', 0) + points
+        self.bot.guild_dict[ctx.guild.id]['trainers'][regions[0]][author.id]['research_reports'] = research_reports
+        await self._add_db_research_report(ctx, confirmation)
+        clean_list = self.bot.guild_dict[ctx.guild.id]['configure_dict'].setdefault('channel_auto_clean', [])
+        if ctx.channel.id in clean_list:
+            await ctx.message.delete()
 
     async def _add_db_research_report(self, ctx, message):
         channel = ctx.channel
