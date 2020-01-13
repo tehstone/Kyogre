@@ -1,3 +1,5 @@
+import asyncio
+
 import discord
 from discord.ext import commands
 
@@ -7,12 +9,13 @@ from kyogre.exts.db.kyogredb import *
 from kyogre import utils
 
 class Badge:
-    def __init__(self, id, name, description, emoji, active):
+    def __init__(self, id, name, description, emoji, active, message=None):
         self.id = id
         self.name = name
         self.description = description
         self.emoji = emoji
         self.active = active
+        self.message = message
     
 
 class Badges(commands.Cog):
@@ -70,6 +73,7 @@ class Badges(commands.Cog):
                     pokenav_channel_id = quick_badge_config['pokenav_channel']
                     pokenav_channel = self.bot.get_channel(pokenav_channel_id)
                     await pokenav_channel.send(f'$create badge {badge_emoji} "{badge_name}" "{badge_desc}"')
+                await self._update_single_internal(ctx, new_badge.id)
             else:
                 message = "Failed to create badge. Please try again."
                 colour = discord.Colour.red()
@@ -102,6 +106,7 @@ class Badges(commands.Cog):
             message = f"**{badge_to_update.name}** is now *{av}*."
             colour = discord.Colour.green()
             reaction = self.bot.success_react
+            await self._update_single_internal(ctx, badge_id)
         await ctx.message.add_reaction(reaction)
         await ctx.send(embed=discord.Embed(colour=colour, description=message))
 
@@ -110,6 +115,10 @@ class Badges(commands.Cog):
         """**Usage**: `!badge info <badge id>`
         Displays information about the badge with provided id.
         """
+        __, embed, __ = await self._badge_info_internal(ctx, badge_id)
+        return await ctx.send(embed=embed)
+
+    async def _badge_info_internal(self, ctx, badge_id):
         try:
             count = (BadgeAssignmentTable.select()
                      .where(BadgeAssignmentTable.badge_id == badge_id)
@@ -122,14 +131,18 @@ class Badges(commands.Cog):
                                     BadgeTable.name,
                                     BadgeTable.description,
                                     BadgeTable.emoji,
-                                    BadgeTable.active).where(BadgeTable.id == badge_id))
+                                    BadgeTable.active,
+                                    BadgeTable.message).where(BadgeTable.id == badge_id))
         if count == 1:
             count_str = f"*{count}* trainer has earned this badge."
         elif count > 1:
             count_str = f"*{count}* trainers have earned this badge."
         else:
             count_str = "No one has earned this badge yet!"
-        badge = result[0]
+        try:
+            badge = result[0]
+        except:
+            return 1, discord.Embed(colour=discord.Colour.red(), description=f"No badge found with id {badge_id}"), None
         send_emoji = self.bot.get_emoji(badge.emoji)
         title = f"(*#{badge.id}*) {badge.name}"
         message = f"{badge.description}"
@@ -144,7 +157,8 @@ class Badges(commands.Cog):
         embed.add_field(name=self.bot.empty_str, value=count_str)
         embed.set_footer(text=footer)
         embed.set_thumbnail(url=send_emoji.url)
-        await ctx.send(embed=embed)
+        b_message = badge.message
+        return 0, embed, b_message
 
     @commands.command(name='grant_badge', aliases=['give', 'gb'])
     @commands.has_permissions(manage_roles=True)
@@ -171,7 +185,7 @@ class Badges(commands.Cog):
                 embed = discord.Embed(colour=colour,
                                       description=f"No badge with id {badge_id} found on this server.")
             else:
-                reaction, embed = await self.try_grant_badge(badge_to_give, ctx.guild.id, member.id, badge_id)
+                reaction, embed = await self.try_grant_badge(ctx, badge_to_give, member.id, badge_id)
         else:
             embed = discord.Embed(colour=colour, description="Could not find a badge with that id.")
         await ctx.message.add_reaction(reaction)
@@ -180,15 +194,15 @@ class Badges(commands.Cog):
         else:
             await ctx.send(embed=embed)
 
-    async def try_grant_badge(self, badge, guild_id, member_id, badge_id):
-        guild = self.bot.get_guild(guild_id)
+    async def try_grant_badge(self, ctx, badge, member_id, badge_id):
+        guild = self.bot.get_guild(ctx.guild.id)
         member = guild.get_member(member_id)
         colour = discord.Colour.red()
         reaction = self.bot.failed_react
         embed = None
         try:
-            __, __ = GuildTable.get_or_create(snowflake=guild_id)
-            __, __ = TrainerTable.get_or_create(snowflake=member.id, guild=guild_id)
+            __, __ = GuildTable.get_or_create(snowflake=guild.id)
+            __, __ = TrainerTable.get_or_create(snowflake=member.id, guild=guild.id)
             new_badge, created = BadgeAssignmentTable.get_or_create(trainer=member.id, badge=badge_id)
             if new_badge:
                 if created:
@@ -199,6 +213,7 @@ class Badges(commands.Cog):
                     embed.description = f"{member.display_name} has earned {send_emoji} **{badge.name}**!"
                     embed.add_field(name="Badge Requirements", value=f"*{badge.description}*")
                     reaction = self.bot.success_react
+                    await self._update_single_internal(ctx, badge.id)
                 else:
                     message = f"{member.display_name} already has the **{badge.name}** badge."
             else:
@@ -255,6 +270,7 @@ class Badges(commands.Cog):
                 await ctx.message.add_reaction(self.bot.success_react)
                 return await ctx.channel.send(embed=discord.Embed(colour=colour, description=message), delete_after=12)
             await ctx.message.add_reaction(self.bot.success_react)
+            await self._update_single_internal(ctx, badge_id)
             return await ctx.channel.send(embed=discord.Embed(
                 colour=discord.Colour.green(), description=f"Successfully granted badge to {count} trainers."))
 
@@ -320,6 +336,7 @@ class Badges(commands.Cog):
                 send_emoji = self.bot.get_emoji(badge.emoji)
                 message = f"Revoked {send_emoji} **{badge.name}** from **{member.display_name}**"
                 colour = discord.Colour.green()
+                await self._update_single_internal(ctx, badge.id)
             else:
                 message = "Failed to revoke the badge"
         except peewee.IntegrityError:
@@ -358,7 +375,7 @@ class Badges(commands.Cog):
                 if badge_to_give.guild.snowflake != ctx.guild.id:
                     failed[bid] = f"No badge with id {bid} found on this server."
                 else:
-                    reaction, embed = await self.try_grant_badge(badge_to_give, ctx.guild.id, member.id, bid)
+                    reaction, embed = await self.try_grant_badge(ctx, badge_to_give, member.id, bid)
                     if reaction == self.bot.failed_react:
                         failed[bid] = embed.description
                     else:
@@ -380,7 +397,8 @@ class Badges(commands.Cog):
             embed = discord.Embed(colour=discord.Colour.green())
             embed.title = f"Congratulations {member.display_name}!"
             embed.description = description
-            await ctx.send(content=f"{member.mention}", embed=embed)    
+            await ctx.send(content=f"{member.mention}", embed=embed)
+            await self._update_single_internal(ctx, bid)
 
     @commands.command(name="available_badges", aliases=['avb'])
     @commands.has_permissions(manage_guild=True)
@@ -483,6 +501,101 @@ class Badges(commands.Cog):
         embed = discord.Embed(title=f"Here are the top 10 badge earners on this server", colour=discord.Colour.purple())
         embed.description = output
         await ctx.send(embed=embed)
+
+    @commands.command(name='set_badge_list_channel', aliases=['sblc'])
+    async def _set_badge_list_channel(self, ctx, channel):
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings'].setdefault('badge_list_channel', None)
+        utilities_cog = self.bot.cogs.get('Utilities')
+        sblc_channel = await utilities_cog.get_channel_by_name_or_id(ctx, channel)
+        if sblc_channel is None:
+            await ctx.channel.send('No channel found by that name or id, please try again.', delete_after=10)
+            return await ctx.message.add_reaction(self.bot.failed_react)
+        update_channel = sblc_channel.id
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['badge_list_channel'] = update_channel
+        await ctx.channel.send(f'{sblc_channel.mention} set as badge list channel.', delete_after=10)
+        return await ctx.message.add_reaction(self.bot.success_react)
+
+    @commands.command(name='refresh_badge_list', aliases=['rbl'])
+    async def _refresh_badge_list(self, ctx):
+        channel = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings'].get('badge_list_channel', None)
+        utilities_cog = self.bot.cogs.get('Utilities')
+        blc_channel = await utilities_cog.get_channel_by_name_or_id(ctx, str(channel))
+        if blc_channel is None:
+            await ctx.channel.send('Badge list channel not set or could not be found.', delete_after=10)
+            return await ctx.message.add_reaction(self.bot.failed_react)
+        blc_channel = await utils.clone_and_position(blc_channel, delete=True)
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['badge_list_channel'] = blc_channel.id
+        result = (BadgeTable.select(BadgeTable.id,
+                                    BadgeTable.guild_id,
+                                    BadgeTable.name,
+                                    BadgeTable.description,
+                                    BadgeTable.emoji,
+                                    BadgeTable.active))
+        for r in result:
+            count = (BadgeAssignmentTable.select()
+                     .where(BadgeAssignmentTable.badge_id == r.id)
+                     .count())
+            if count == 1:
+                count_str = f"*{count}* trainer has earned this badge."
+            elif count > 1:
+                count_str = f"*{count}* trainers have earned this badge."
+            else:
+                count_str = "No one has earned this badge yet!"
+            send_emoji = self.bot.get_emoji(r.emoji)
+            title = f"(*#{r.id}*) {r.name}"
+            message = f"{r.description}"
+            if r.guild_id != ctx.guild.id:
+                footer = "This badge is awarded on a different server."
+            else:
+                if r.active:
+                    footer = "This badge is currently available."
+                else:
+                    footer = "This badge is not currently available."
+            embed = discord.Embed(colour=self.bot.user.colour, title=title, description=message)
+            embed.add_field(name=self.bot.empty_str, value=count_str)
+            embed.set_footer(text=footer)
+            embed.set_thumbnail(url=send_emoji.url)
+            message = await blc_channel.send(embed=embed)
+            r.message = message.id
+            r.save()
+            await asyncio.sleep(.5)
+
+    @commands.command(name='update_single_badge_listing', aliases=['usbl'])
+    async def _update_single_badge_listing(self, ctx, badge_id):
+        status = await self._update_single_internal(ctx, badge_id)
+        if status == 0:
+            await ctx.message.add_reaction(self.bot.success_react)
+        else:
+            await ctx.message.add_reaction(self.bot.failed_react)
+
+    async def _update_single_internal(self, ctx, badge_id):
+        channel = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings'].setdefault('badge_list_channel', None)
+        utilities_cog = self.bot.cogs.get('Utilities')
+        sblc_channel = await utilities_cog.get_channel_by_name_or_id(ctx, str(channel))
+        if sblc_channel is None:
+            await ctx.channel.send('Badge list channel not set or could not be found.', delete_after=10)
+            return await ctx.message.add_reaction(self.bot.failed_react)
+        status, embed, message_id = await self._badge_info_internal(ctx, badge_id)
+        if status == 0:
+            try:
+                old_message = await sblc_channel.fetch_message(message_id)
+            except:
+                old_message = None
+            try:
+                if old_message is None:
+                    new_message = await sblc_channel.send(embed=embed)
+                    with KyogreDB._db.atomic() as txn:
+                        try:
+                            BadgeTable.update(message=new_message.id).where(BadgeTable.message == message_id).execute()
+                            txn.commit()
+                        except Exception:
+                            self.bot.logger.info("Failed to message id for badge listing.")
+                            txn.rollback()
+                else:
+                    await old_message.edit(embed=embed)
+            except:
+                status = 1
+        return status
 
 
 def setup(bot):

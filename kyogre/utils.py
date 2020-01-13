@@ -627,3 +627,12 @@ def can_edit_reports(user, config):
 def list_chunker(in_list, n):
     for i in range(0, len(in_list), n):
         yield in_list[i:i + n]
+
+
+async def clone_and_position(channel, delete=False):
+    position = channel.position
+    new_channel = await channel.clone()
+    await new_channel.edit(position=position)
+    if delete:
+        await channel.delete()
+    return new_channel

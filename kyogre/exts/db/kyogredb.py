@@ -484,6 +484,7 @@ class BadgeTable(BaseModel):
     description = TextField()
     emoji = BigIntegerField(index=True)
     active = BooleanField()
+    message = BigIntegerField(index=True, null=True)
 
     class Meta:
         constraints = [SQL('UNIQUE(name, description, emoji)')]

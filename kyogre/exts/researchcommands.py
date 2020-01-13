@@ -296,10 +296,10 @@ class ResearchCommands(commands.Cog):
         confirmation = None
         if stops:
             for s in report_stops:
-                stop = await location_matching_cog.match_prompt(channel, author.id, s, stops)
+                stop = await location_matching_cog.match_prompt(channel, author.id, s.strip(), stops)
                 if not stop:
                     self.bot.help_logger.info(
-                        f"User: {ctx.author.name}, channel: {ctx.channel}, error: No Pokestop found with name: {location.strip()}.")
+                        f"User: {ctx.author.name}, channel: {ctx.channel}, error: No Pokestop found with name: {s.strip()}.")
                     failed_stops["not_found"].append(s)
                     continue
                 if self.get_existing_research(guild, stop):

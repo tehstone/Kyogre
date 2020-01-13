@@ -219,7 +219,7 @@ class QuickBadge(commands.Cog):
                 if timeout or res.emoji == self.bot.failed_react:
                     return
 
-            reaction, embed = await badge_cog.try_grant_badge(badge_to_give, payload.guild_id,
+            reaction, embed = await badge_cog.try_grant_badge(ctx, badge_to_give,
                                                               message.author.id, k_badge_id)
             if reaction == self.bot.success_react:
                 await send_channel.send(f"$gb {p_badge_id} {target_user.mention}")
