@@ -398,7 +398,7 @@ class ResearchCommands(commands.Cog):
                                               created=created, trainer=author.id,
                                               location=quest_dict['location_id'], message=message.id)
         try:
-            ResearchTable.create(trainer_report=report, quest=quest_dict['quest_id'], reward=quest_dict['reward'])
+            ResearchTable.create(trainer_report=report, quest=quest_dict['quest'], reward=quest_dict['reward'])
         except Exception as e:
             self.bot.logger.info(f"Failed to create research table entry with error: {e}")
 
@@ -415,7 +415,7 @@ class ResearchCommands(commands.Cog):
         if quest_dict is None:
             return self.bot.logger.info(f"No quest_dict found in guild_dict. "
                                         f"Cannot update research report. Message id: {message.id}")
-        report.quest_id = quest_dict['quest_id']
+        report.quest = quest_dict['quest']
         report.reward = quest_dict['reward']
         report.save()
         report_relation.location_id = quest_dict['location_id']

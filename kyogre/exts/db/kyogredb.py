@@ -307,7 +307,7 @@ class QuestTable(BaseModel):
 
 class ResearchTable(BaseModel):
     trainer_report = ForeignKeyField(TrainerReportRelation, backref='research')
-    quest = ForeignKeyField(QuestTable, backref='reports', index=True)
+    quest = TextField(index=True)
     reward = TextField()
 
 

@@ -554,11 +554,12 @@ class Badges(commands.Cog):
             embed = discord.Embed(colour=self.bot.user.colour, title=title, description=message)
             embed.add_field(name=self.bot.empty_str, value=count_str)
             embed.set_footer(text=footer)
-            embed.set_thumbnail(url=send_emoji.url)
+            if send_emoji is not None:
+                embed.set_thumbnail(url=send_emoji.url)
             message = await blc_channel.send(embed=embed)
             r.message = message.id
             r.save()
-            await asyncio.sleep(.5)
+            await asyncio.sleep(1.1)
 
     @commands.command(name='update_single_badge_listing', aliases=['usbl'])
     async def _update_single_badge_listing(self, ctx, badge_id):
