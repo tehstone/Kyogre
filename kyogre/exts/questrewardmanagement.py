@@ -120,7 +120,7 @@ class QuestRewardManagement(commands.Cog):
         If type is not encounters, stardust, or xp, it will be assumed to be an item."""
         channel = ctx.channel
         try:
-            reward_id, reward_type, value = re.split(r'\s*,\s*', info)
+            reward_id, reward_type, value = re.split(r',', info)
             reward_id = int(reward_id)
             reward_type = reward_type.lower()
         except:
@@ -158,7 +158,7 @@ class QuestRewardManagement(commands.Cog):
         If type is not encounters, stardust, or xp, it will be assumed to be an item."""
         channel = ctx.channel
         try:
-            id, type, value = re.split(r'\s*,\s*', info)
+            id, type, value = re.split(r',', info)
             id = int(id)
             type = type.lower()
         except:

@@ -269,7 +269,6 @@ class ResearchCommands(commands.Cog):
 
         regions = utilities_cog.get_channel_regions(channel, 'research')
         stops = location_matching_cog.get_stops(guild.id, regions)
-        loc_url = utilities_cog.create_gmaps_query("", message.channel, type="research")
 
         research_split = details.split(",")
         if len(research_split) < 3:
