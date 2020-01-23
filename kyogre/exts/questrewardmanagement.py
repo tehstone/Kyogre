@@ -121,8 +121,9 @@ class QuestRewardManagement(commands.Cog):
         channel = ctx.channel
         try:
             reward_id, reward_type, value = re.split(r',', info)
-            reward_id = int(reward_id)
-            reward_type = reward_type.lower()
+            reward_id = int(reward_id.strip())
+            reward_type = reward_type.lower().strip()
+            value = value.strip()
         except:
             return await channel.send("Error parsing input. Please check the format and try again")
         try:
@@ -152,23 +153,23 @@ class QuestRewardManagement(commands.Cog):
     async def _rewards_remove(self, ctx, *, info):
         """Removes a reward to reward pool for a given quest using provided comma-separated values.
         
-        Usage: !rewards remove <ID>, <type>, <value>
+        Usage: !rewards remove <ID>, <reward_type>, <value>
         
         ID must correspond to a valid db entry.
-        If type is not encounters, stardust, or xp, it will be assumed to be an item."""
+        If reward_type is not encounters, stardust, or xp, it will be assumed to be an item."""
         channel = ctx.channel
         try:
-            id, type, value = re.split(r',', info)
-            id = int(id)
-            type = type.lower()
+            reward_id, reward_type, value = re.split(r',', info)
+            reward_id = int(reward_id)
+            reward_type = reward_type.lower()
         except:
             return await channel.send("Error parsing input. Please check the format and try again")
         try:
-            quest = QuestTable[id]
+            quest = QuestTable[reward_id]
         except:
-            return await channel.send(f"Unable to get quest with id {id}")
+            return await channel.send(f"Unable to get quest with reward_id {reward_id}")
         pool = quest.reward_pool
-        if type.startswith("encounter"):
+        if reward_type.startswith("encounter"):
             encounters = [x.lower() for x in pool["encounters"]]
             pokemon = Pokemon.get_pokemon(self.bot, value)
             name = pokemon.name.lower()
@@ -182,14 +183,14 @@ class QuestRewardManagement(commands.Cog):
             if not value.isnumeric():
                 return await channel.send("Value must be a numeric quantity")
             try:
-                if type == "stardust":
+                if reward_type == "stardust":
                     pool["stardust"].remove(int(value))
-                elif type == "xp":
+                elif reward_type == "xp":
                     pool["xp"].remove(int(value))
                 else:
-                    pool["items"][type].remove(int(value))
-                    if len(pool["items"][type]) == 0:
-                        del pool["items"][type]
+                    pool["items"][reward_type].remove(int(value))
+                    if len(pool["items"][reward_type]) == 0:
+                        del pool["items"][reward_type]
             except:
                 return await channel.send(f"Unable to remove {value}")
         quest.reward_pool = pool
