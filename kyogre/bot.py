@@ -6,7 +6,7 @@ import pickle
 import sys
 
 from kyogre.exts.pokemon import Pokemon
-from kyogre.logs import init_loggers, init_gcv_logger, init_help_logger, init_user_logger
+from kyogre.logs import init_loggers, init_logger
 from kyogre.errors import custom_error_handling
 
 import discord
@@ -78,9 +78,10 @@ class KyogreBot(commands.AutoShardedBot):
                          activity=discord.Game(name="Pokemon Go"))
 
         self.logger = init_loggers()
-        self.help_logger = init_help_logger()
-        self.user_logger = init_user_logger()
-        self.gcv_logger = init_gcv_logger()
+        self.help_logger = init_logger("help", "logs/kyogre_help.log")
+        self.user_logger = init_logger("user", "logs/kyogre_user.log")
+        self.gcv_logger = init_logger("gcv", "logs/gcv_api.log")
+        self.scan_fail_log = init_logger("scanfail", "logs/gcv_api.log")
         custom_error_handling(self, self.logger)
         self.guild_dict = {}
         self.vision_api_enabled = False

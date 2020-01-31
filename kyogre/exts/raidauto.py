@@ -194,6 +194,8 @@ class RaidAuto(commands.Cog):
                         colour=discord.Colour.red(),
                         description="Could not determine gym name from screenshot, unable to create raid channel. "
                                     "Please report using the command instead: `!r <boss/tier> <gym name> <time>`"))
+                log_message = f"Could not read gym name in: {a.url}\nFull raid info: {raid_info}"
+                self.bot.scan_fail_log.info(log_message)
                 continue
             c_file, timev = None, None
             if raid_info['egg_time']:
@@ -212,6 +214,8 @@ class RaidAuto(commands.Cog):
                             description=("Could not determine raid boss or egg level from screenshot, unable to create "
                                          "raid channel. If you're trying to report a raid, please use the command instead: "
                                          "`!r <boss/tier> <gym name> <time>`")))
+                    log_message = f"Could not egg level or boss in: {a.url}\nFull raid info: {raid_info}"
+                    self.bot.scan_fail_log.info(log_message)
                     continue
                 raid_info['tier'] = tier
                 image_utils.cleanup_file(file, f"screenshots/{tier}")
@@ -224,6 +228,8 @@ class RaidAuto(commands.Cog):
                         description=("Could not determine raid boss or egg level from screenshot, unable to create "
                                      "raid channel. If you're trying to report a raid, please use the command instead: "
                                      "`!r <boss/tier> <gym name> <time>`")))
+                log_message = f"Could not egg level or boss in: {a.url}\nFull raid info: {raid_info}"
+                self.bot.scan_fail_log.info(log_message)
                 continue
             if raid_info['expire_time'] or raid_info['boss']:
                 raid_info['type'] = 'raid'
@@ -371,6 +377,14 @@ class RaidAuto(commands.Cog):
         except Exception as e:
             self.bot.logger.info(f"Request to image processing server failed with error: {e}")
             image_info = await image_scan.read_photo_async(file, self.bot, self.bot.gcv_logger)
+        gym = await self._determine_gym(ctx, region, image_info["names"])
+        if gym:
+            image_info['gym'] = gym.name
+        else:
+            image_info['gym'] = None
+        return image_info
+
+    async def _determine_gym(self, ctx, region, names):
         location_matching_cog = self.bot.cogs.get('LocationMatching')
         gyms = location_matching_cog.get_gyms(ctx.guild.id, region)
         gym = None
@@ -380,9 +394,9 @@ class RaidAuto(commands.Cog):
         # Iterate through all possible names and look first for full matches
         # When a 100% match is found, the gym will be set.
         # Otherwise, track how many times we get a match with a lower score
-        for name in image_info['names']:
-            if "starbucks" in name.lower() or "sprint store" in name.lower():
-                prompt_str = name
+        for name in names:
+            if "starbucks" in name.lower():
+                prompt_str = "starbucks"
                 must_prompt = True
                 break
             result = location_matching_cog.location_match(name.strip(), gyms, is_partial=False)
@@ -401,8 +415,8 @@ class RaidAuto(commands.Cog):
         # If no match was found previously, try partial matches on all possible names
         # and again set the gym if a 100% match is found and track count of lower score matches.
         if not gym:
-            for name in image_info['names']:
-                result = location_matching_cog.location_match(name.strip(), gyms)
+            for name in names:
+                result = location_matching_cog.location_match(name.strip(), gyms, threshold=65)
                 results = [(match.name, score) for match, score in result]
                 results = sorted(results, key=itemgetter(1), reverse=True)
                 for r in results:
@@ -427,11 +441,7 @@ class RaidAuto(commands.Cog):
                                                   key=itemgetter(1),
                                                   reverse=True))][:min(3, len(possible_gyms))]
                 gym = next((l for l in gyms if l.name == possible_gyms[0]), None)
-        if gym:
-            image_info['gym'] = gym.name
-        else:
-            image_info['gym'] = None
-        return image_info
+        return gym
 
     async def scan_test(self, ctx, file, url, region=None):
         image_info = await self._scan_wrapper(ctx, file, url, region)
