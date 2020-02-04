@@ -374,18 +374,18 @@ class ListManagement(commands.Cog):
             hideout_embed = discord.Embed(colour=discord.Colour.red())
             hideout_embed.description = ''
             # todo store these in db and make easily updateable
-            lineups = {'arlo': {1: ['bagon'],
+            lineups = {'arlo': {1: ['mawile'],
                                 2: ['blastoise', 'charizard', 'steelix'],
                                 3: ['dragonite', 'salamence', 'scizor']},
-                       'cliff': {1: ['stantler'],
-                                 2: ['electivire', 'onix', 'marowak'],
+                       'cliff': {1: ['pinsir'],
+                                 2: ['electivire', 'omastar', 'marowak'],
                                  3: ['swampert', 'torterra', 'tyranitar']},
-                       'sierra': {1: ['absol'],
-                                  2: ['cacturne', 'alakazam', 'lapras'],
-                                  3: ['gallade', 'houndoom', 'shiftry']},
+                       'sierra': {1: ['beldum'],
+                                  2: ['exeggutor', 'sharpedo', 'lapras'],
+                                  3: ['alakazam', 'houndoom', 'shiftry']},
                        'giovanni': {1: ['persian'],
-                                    2: ['cloyster', 'kangaskhan', 'garchomp'],
-                                    3: ['zapdos']}}
+                                    2: ['cloyster', 'steelix', 'hippowdon'],
+                                    3: ['raikou']}}
             counters = {'arlo': ['**A. Giratina**, **A. Golem**, **Heatran**',
                                 '**Rhyperior**, **Gyarados**, **Blaziken**'],
                         'cliff': ['**A. Giratina**, **Kyogre**, **Torterra**',
