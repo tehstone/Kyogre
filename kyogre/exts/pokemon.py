@@ -89,7 +89,8 @@ class Pokemon():
         'standard', 'zen',
         'red', 'blue',
         'heat', 'wash', 'frost', 'fan', 'mow',
-        'altered', 'origin'
+        'altered', 'origin',
+        'incarnate', 'therian'
 
     ]
     _stat_forms = [
@@ -119,7 +120,8 @@ class Pokemon():
         'darmanitan': ['standard', 'zen'],
         'deerling': ['spring', 'summer', 'autumn', 'winter'],
         'sawsbuck': ['spring', 'summer', 'autumn', 'winter'],
-        'giratina': ['altered', 'origin']
+        'giratina': ['altered', 'origin'],
+        'tornadus': ['incarnate', 'therian']
     }
 
     _raid_stamina = {1: 600, 2: 1800, 3: 3600, 4: 9000, 5: 15000, 6: 22500}
