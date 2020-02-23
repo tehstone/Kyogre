@@ -46,7 +46,7 @@ class Social(commands.Cog):
         else:
             colour = self.bot.team_color_map[team.capitalize()]
             team_url = f"https://github.com/tehstone/Kyogre/blob/master/images/teams/{team.lower()}.png?raw=true"
-        raids, eggs, wilds, research, joined = await self._get_profile_counts(ctx, user)
+        raids, eggs, wilds, research, joined, nests = await self._get_profile_counts(ctx, user)
         badge_cog = self.bot.cogs.get('Badges')
         badges = badge_cog.get_badge_emojis(ctx.guild.id, user.id)
         badge_str = self.bot.empty_str
@@ -72,14 +72,14 @@ class Social(commands.Cog):
             embed.add_field(name='\u200b', value='\u200b')
         embed.add_field(name="Badges earned", value=f"{badge_str}")
         stats_str = f"Raid Reports: {raids}\nEgg Reports: {eggs}\nWild Points: {wilds}\n" \
-            f"Research Points: {research}\nRaids Joined: {joined}\n"
+            f"Research Points: {research}\nRaids Joined: {joined}\nNest Reports: {nests}\n"
         embed.add_field(name="Kyogre Stats", value=stats_str)
         embed.set_footer(text='Do "!set profile" to update your profile!')
         await ctx.send(embed=embed)
 
     async def _get_profile_counts(self, ctx, user):
         regions = self.bot.guild_dict[ctx.guild.id]['configure_dict']['regions']['info'].keys()
-        raids, eggs, wilds, research, joined = 0, 0, 0, 0, 0
+        raids, eggs, wilds, research, joined, nests = 0, 0, 0, 0, 0, 0
         for region in regions:
             raids += self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault(region, {})\
                 .setdefault(user.id, {}).get('raid_reports', 0)
@@ -91,18 +91,20 @@ class Social(commands.Cog):
                 .setdefault(user.id, {}).get('research_reports', 0)
             joined += self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault(region, {})\
                 .setdefault(user.id, {}).get('joined', 0)
-        return [raids, eggs, wilds, research, joined]
+        nests += self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('nests', {}) \
+            .setdefault(user.id, 0)
+        return [raids, eggs, wilds, research, joined, nests]
 
     @commands.command(name='leaderboard', aliases=['lb', 'board'])
     async def leaderboard(self, ctx, board_type="total", region=None):
         """**Usage**: `!leaderboard [type] [region]`
-        Accepted types: raids, eggs, wilds, research, joined
+        Accepted types: raids, eggs, wilds, research, joined, nests
         Region must be any configured region"""
         guild = ctx.guild
         leaderboard = {}
         rank = 1
         field_value = ""
-        typelist = ["total", "raids", "eggs", "exraids", "wild", "research", "joined"]
+        typelist = ["total", "raids", "eggs", "exraids", "wild", "research", "joined", "nests"]
         board_type = board_type.lower()
         regions = list(self.bot.guild_dict[guild.id]['configure_dict']['regions']['info'].keys())
         if board_type not in typelist:
@@ -139,13 +141,26 @@ class Social(commands.Cog):
                 research += trainers[trainer].setdefault('research_reports', 0)
                 joined += trainers[trainer].setdefault('joined', 0)
                 total_reports = raids + wilds + exraids + eggs + research + joined
-                trainer_stats = {'trainer': trainer, 'total': total_reports, 'raids': raids, 'wild': wilds,
-                                 'research': research, 'exraids': exraids, 'eggs': eggs, 'joined': joined}
+                trainer_stats = {'trainer': trainer, 'total': total_reports, 'raids': raids,
+                                 'wild': wilds, 'research': research, 'exraids': exraids,
+                                 'eggs': eggs, 'joined': joined, 'nests': 0}
                 if trainer_stats[board_type] > 0 and user:
                     if trainer in leaderboard:
                         leaderboard[trainer] = self.combine_dicts(leaderboard[trainer], trainer_stats)
                     else:
                         leaderboard[trainer] = trainer_stats
+        nest_reports = self.bot.guild_dict[guild.id]['trainers'].setdefault('nests', {})
+        for trainer in nest_reports.keys():
+            user = guild.get_member(trainer)
+            if user is None:
+                continue
+            nests = self.bot.guild_dict[guild.id]['trainers'].setdefault('nests', {}).setdefault(user.id, 0)
+            if trainer in leaderboard:
+                leaderboard[trainer]['nests'] = nests
+            else:
+                leaderboard[trainer] = {'trainer': trainer, 'total': nests, 'raids': 0,
+                                        'wild': 0, 'research': 0, 'exraids': 0,
+                                        'eggs': 0, 'joined': 0, 'nests': nests}
         leaderboardlist = []
         for key, value in leaderboard.items():
             leaderboardlist.append(value)
@@ -170,6 +185,7 @@ class Social(commands.Cog):
                     field_value += "Research Points: **{research}** | ".format(research=trainer['research'])
                 if self.bot.guild_dict[guild.id]['configure_dict']['raid']['enabled']:
                     field_value += "Raids Joined: **{joined}** | ".format(joined=trainer['joined'])
+                field_value += "Nests: **{nests}** | ".format(nests=trainer['nests'])
                 if board_type == 'total':
                     embed.add_field(name=f"{rank}. {user.display_name} - {board_type.title()}: "
                                          f"**{trainer[board_type]}**\n", value=field_value[:-3], inline=False)
@@ -237,6 +253,9 @@ class Social(commands.Cog):
                     break
                 elif "join" in argument.lower():
                     board_type = "joined"
+                    break
+                elif "nest" in argument.lower():
+                    board_type = "nests"
                     break
         if not board_type:
             board_type = "total_reports"

@@ -12,7 +12,6 @@ class QuickBadge(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.thumbsup_react = '👍'
         self.quick_badge_dict_default = {'listen_channels': [],
                                          '40_listen_channels': [],
                                          '40_role': None,
@@ -225,7 +224,7 @@ class QuickBadge(commands.Cog):
                 await send_channel.send(f"$gb {p_badge_id} {target_user.mention}")
             badge_channel = self.bot.get_channel(quick_badge_dict['badge_channel'])
             await badge_channel.send(f"{target_user.mention}", embed=embed)
-        elif str(payload.emoji) == self.thumbsup_react \
+        elif str(payload.emoji) == self.bot.thumbsup_react \
                 and payload.channel_id in quick_badge_dict.get('40_listen_channels', []):
             success = await self.set_fourty(ctx)
             if success:

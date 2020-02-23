@@ -31,6 +31,7 @@ default_exts = ['admincommands',
                 'locationmatching',
                 'lurecommands',
                 'misc',
+                'nestcommands',
                 'newtrainer',
                 'pokemon',
                 'pvp',
@@ -96,6 +97,7 @@ class KyogreBot(commands.AutoShardedBot):
         self.active_invasions = {}
         self.success_react = '✅'
         self.failed_react = '❌'
+        self.thumbsup_react = '👍'
         self.empty_str = '\u200b'
         self.team_color_map = {'Mystic': discord.Colour.blue(),
                                'Valor': discord.Colour.red(),

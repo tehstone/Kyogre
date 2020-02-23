@@ -386,14 +386,14 @@ class ListManagement(commands.Cog):
                        'giovanni': {1: ['persian'],
                                     2: ['cloyster', 'steelix', 'hippowdon'],
                                     3: ['raikou']}}
-            counters = {'arlo': ['**A. Giratina**, **A. Golem**, **Heatran**',
-                                '**Rhyperior**, **Gyarados**, **Blaziken**'],
-                        'cliff': ['**A. Giratina**, **Kyogre**, **Torterra**',
-                                 '**Lucario**, **Torterra**, **Articuno**'],
-                        'sierra': ['**Scizor**, **Lucario**, **Metagross**',
-                                  '**Melmetal**, **Tyranitar**, **Heatran**'],
-                        'giovanni': ['**Machamp**, **Dragonite**, **Tyranitar**',
-                                    '**Rhyperior**, **Gyarados**, **Magnezone**'],
+            counters = {'arlo': ['**Roserade**,' '**Dialga**', '**Darmanitan**',
+                                 '**Swampert**', '**Mammoswine**', '**Blaziken**'],
+                        'cliff': ['**Glaceon**,' '**Garchomp**', '**Moltres**',
+                                  '**Lucario**', '**Torterra**', '**Blaziken**'],
+                        'sierra': ['**Darkrai**,' '**conkeldurr**', '**Swampert**',
+                                   '**Yanmega**', '**Tyranitar**', '**Blaziken**'],
+                        'giovanni': ['**Lucario**, **Poliwrath**, **Excadrill**',
+                                     '**conkeldurr**, **Kyogre**, **Rhyperior**'],
             }
             guides = {'arlo': 'https://pokemongohub.net/post/guide/rocket-leader-arlo-counters/',
                       'cliff': 'https://pokemongohub.net/post/guide/rocket-leader-cliff-counters/',
@@ -403,7 +403,7 @@ class ListManagement(commands.Cog):
             if leader:
                 hideout_embed.title = f"Rocket Leader {leader.capitalize()}"
                 hideout_embed.url = guides[leader]
-                counters_text = f"Suggested Teams: {' or '.join(counters[leader])}"
+                counters_text = f"Suggested Counters: {', '.join(counters[leader])}"
                 hideout_embed.add_field(name="Click Leader Name for full counters guide", value=counters_text)
                 lineup_text = f"{lineups[leader][1][0].capitalize()}\n"
                 lineup_text += f"+ {' or '.join([l.capitalize() for l in lineups[leader][2]])}\n"
