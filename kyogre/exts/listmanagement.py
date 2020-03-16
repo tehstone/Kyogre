@@ -384,16 +384,15 @@ class ListManagement(commands.Cog):
                                   2: ['exeggutor', 'sharpedo', 'lapras'],
                                   3: ['alakazam', 'houndoom', 'shiftry']},
                        'giovanni': {1: ['persian'],
-                                    2: ['cloyster', 'steelix', 'hippowdon'],
-                                    3: ['raikou']}}
-            counters = {'arlo': ['**Roserade**,' '**Dialga**', '**Darmanitan**',
+                                    2: ['Kingler', 'steelix', 'Rhyperior'],
+                                    3: ['Entei']}}
+            counters = {'arlo': ['**Roserade**', '**Dialga**', '**Darmanitan**',
                                  '**Swampert**', '**Mammoswine**', '**Blaziken**'],
-                        'cliff': ['**Glaceon**,' '**Garchomp**', '**Moltres**',
+                        'cliff': ['**Glaceon**', '**Garchomp**', '**Moltres**',
                                   '**Lucario**', '**Torterra**', '**Blaziken**'],
-                        'sierra': ['**Darkrai**,' '**conkeldurr**', '**Swampert**',
+                        'sierra': ['**Darkrai**', '**conkeldurr**', '**Swampert**',
                                    '**Yanmega**', '**Tyranitar**', '**Blaziken**'],
-                        'giovanni': ['**Lucario**, **Poliwrath**, **Excadrill**',
-                                     '**conkeldurr**, **Kyogre**, **Rhyperior**'],
+                        'giovanni': ['**Melmetal**', '**Torterra**', '**Swampert**'],
             }
             guides = {'arlo': 'https://pokemongohub.net/post/guide/rocket-leader-arlo-counters/',
                       'cliff': 'https://pokemongohub.net/post/guide/rocket-leader-cliff-counters/',
@@ -405,9 +404,9 @@ class ListManagement(commands.Cog):
                 hideout_embed.url = guides[leader]
                 counters_text = f"Suggested Counters: {', '.join(counters[leader])}"
                 hideout_embed.add_field(name="Click Leader Name for full counters guide", value=counters_text)
-                lineup_text = f"{lineups[leader][1][0].capitalize()}\n"
-                lineup_text += f"+ {' or '.join([l.capitalize() for l in lineups[leader][2]])}\n"
-                lineup_text += f"+ {' or '.join([l.capitalize() for l in lineups[leader][3]])}"
+                lineup_text = f"1. {lineups[leader][1][0].capitalize()}\n"
+                lineup_text += f"2. {' or '.join([l.capitalize() for l in lineups[leader][2]])}\n"
+                lineup_text += f"3. {' or '.join([l.capitalize() for l in lineups[leader][3]])}"
                 hideout_embed.add_field(name="Lineup", value=lineup_text)
                 hideout_embed.set_thumbnail(
                     url=f"https://github.com/tehstone/Kyogre/blob/master/images/misc/{leader.lower()}.png?raw=true")
