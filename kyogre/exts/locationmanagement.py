@@ -357,6 +357,101 @@ class LocationManagement(commands.Cog):
         location_note = ', '.join(info[2:])
         return name, location_note
 
+    @_loc.command(name="edit", aliases=["ed"])
+    @checks.is_dev_or_owner_or_perms(manage_guild=True)
+    async def _loc_edit(self, ctx, *, info):
+        """**Usage**: `!loc edit/ed <type (gym or stop)>, <name>, <changed_field>, <new value>`
+        **Alias**: 'ed'
+        Updates the provided data field of a location based on the location's name.
+        Editable Fields are name or location.
+        When changing the name of a location, the current name must be provided as <name>
+        and the new location as <new value>.
+        When updating location, both latitude and longitude must be provided."""
+        channel = ctx.channel
+        message = ctx.message
+        author = message.author
+        info = [x.strip() for x in info.split(',')]
+        if len(info) < 4:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, "
+                                      f"error: Insufficient info: {info}.")
+            return await channel.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description=f"Please provide (comma separated) the location type (gym or stop), name, "
+                            f"field you are changing, and the new value you would like to set."),
+                delete_after=12)
+
+        loc_type = info[0]
+        if loc_type.lower() == "stop" or loc_type.lower() == "pokestop":
+            locations = self._get_stops(ctx.guild.id, None)
+        elif loc_type.lower() == "gym":
+            locations = self._get_gyms(ctx.guild.id, None)
+        else:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, "
+                                      f"error: Invalid location type: {info}.")
+            return await channel.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description=f"Location type must be either 'stop' or 'gym'."),
+                delete_after=12)
+        location_name = info[1]
+        location_to_edit = await self._location_match_prompt(channel, author.id, location_name, locations)
+        if not location_to_edit:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, "
+                                      f"error: No location found with provided name: {info}.")
+            return await channel.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description=f"Could not find a {loc_type} by name: {location_name}. Please check the name "
+                            f"and try again."),
+                delete_after=12)
+        edit_field = info[2]
+        if edit_field not in ["name", "location"]:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, "
+                                      f"error: Invalid edit field provided: {info}.")
+            return await channel.send(embed=discord.Embed(
+                colour=discord.Colour.red(),
+                description=f"Please provide a valid field to update, either name or location."),
+                delete_after=12)
+
+        success = 0
+        new_value = ""
+        with KyogreDB._db.atomic() as txn:
+            try:
+                locationresult = (LocationTable
+                                  .get((LocationTable.guild == channel.guild.id) &
+                                       (LocationTable.name == location_to_edit.name)))
+                location = LocationTable.get_by_id(locationresult)
+                if edit_field == "name":
+                    new_name = ' '.join(info[3:])
+                    new_value = new_name
+                    success = LocationTable.update(name=new_name).where(LocationTable.id == location.id).execute()
+                else:
+                    if len(info) == 4:
+                        location_split = info[3].split(" ")
+                        new_latitude = location_split[0]
+                        new_longitude = location_split[1]
+                    else:
+                        new_latitude = info[3]
+                        new_longitude = info[4]
+                    new_value = f"{new_latitude}, {new_longitude}"
+                    success = LocationTable.update(latitude=new_latitude, longitude=new_longitude)\
+                        .where(LocationTable.id == location.id).execute()
+                txn.commit()
+            except Exception as e:
+                await channel.send(e)
+                txn.rollback()
+        if success == 0:
+            await channel.send(embed=discord.Embed(colour=discord.Colour.red(),
+                                                   description=f"Failed to update the location."),
+                               delete_after=15)
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return
+        else:
+            await channel.send(embed=discord.Embed(
+                colour=discord.Colour.green(),
+                description=f"Successfully changed *{edit_field}* for **{location_name}** to **{new_value}**."),
+                delete_after=15)
+            await ctx.message.add_reaction(self.bot.success_react)
+            return
+
     @staticmethod
     async def delete_location(ctx, location_type, name):
         channel = ctx.channel

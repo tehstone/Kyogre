@@ -348,6 +348,9 @@ class Badges(commands.Cog):
     @commands.command(name='grant_multiple_badges', aliases=['gmb'])
     @commands.has_permissions(manage_roles=True)
     async def _grant_multiple_badges(self, ctx, *, info):
+        """**Usage**: `!grant_multiple_badges/gmb`
+        Gives a list of badges by ID to the provided user.
+        **Example**: `!gmb 1 2 3, @tehstone`"""
         info_split = info.split(',')
         if len(info_split) < 2:
             await ctx.message.add_reaction(self.bot.failed_react)
@@ -363,7 +366,7 @@ class Badges(commands.Cog):
         if member is None:
             await ctx.message.add_reaction(self.bot.failed_react)
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient info.")
-            return await ctx.send("Must provide badge ids, comma, then Trainer name.\n`!gmb 1 2 3 @tehstone`", delete_after=10)
+            return await ctx.send("Must provide badge ids, comma, then Trainer name.\n`!gmb 1 2 3, @tehstone`", delete_after=10)
         failed = {}
         success = {}
         for bid in badge_ids:

@@ -175,10 +175,12 @@ class RaidDataHandler(commands.Cog):
 
     @raiddata.command(name='save', aliases=['commit'])
     async def save_rd(self, ctx):
+        """Saves the current raid data state to the json file.
+        Must be run after any changes made to raid data with the add/remove/replace commands."""
         return await self._save_rd(ctx)
 
     async def _save_rd(self, ctx):
-        """Saves the current raid data state to the json file."""
+
         for pkmn_lvl in self.raid_info['raid_eggs']:
             data = self.raid_info['raid_eggs'][pkmn_lvl]["pokemon"]
             pkmn_names = [Pokemon.get_pokemon(self.bot, p).name.lower() for p in data]
@@ -190,6 +192,10 @@ class RaidDataHandler(commands.Cog):
 
     @raiddata.command(name='populate', aliases=['pop'])
     async def populate_rd_from_tsr(self, ctx):
+        """Pulls the current raid boss list from the Silph Road website and updates Kyogre.
+
+        Example: `!raiddata pop`
+        """
         def walk_siblings(sib):
             try:
                 # We've encountered another level header. Exit this loop.

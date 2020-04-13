@@ -24,7 +24,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
                 "bot_admin": {"commands": ["configure", "save", "exit", "restart", "welcome", "outputlog"]},
                 "debug": ["outputlog"],
                 "checkin": ["checkin"],
-                "location management": ["loc changeregion", "loc extoggle", "loc add", "loc addnote",
+                "location management": ["loc changeregion", "loc extoggle", "loc add", "loc addnote", "loc edit",
                                         "loc deletelocation", "loc convert", "location_match_test"],
                 "locationmatching": ["ex_gyms", "gyminfo", "pokestopinfo"]
                 }

@@ -666,6 +666,7 @@ class AdminCommands(commands.Cog):
     @commands.command(name='update_rbl', aliases=['urbl'])
     @checks.is_owner()
     async def _update_remote_boss_list(self, ctx):
+        """Updates the boss list on the remote image recognition server."""
         result = await self.bot.update_remote_boss_list()
         if result["status"] == "success":
             return await ctx.send("Successfully updated remote raid boss list.")
