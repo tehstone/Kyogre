@@ -89,6 +89,7 @@ class NewTrainer(commands.Cog):
                               "\nIf you would like to update your profile, use `!set profile`"
                     await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=err_msg))
                     image_utils.cleanup_file(file, f"screenshots/profile")
+        trainer_name, xp, level = "", "", ""
         try:
             data = json.loads('{"image_url": "' + u + '"}')
             image_info = await self.bot.make_request(data, 'profile')
@@ -112,38 +113,11 @@ class NewTrainer(commands.Cog):
             await ctx.author.add_roles(team_role)
         trainer_dict = self.bot.guild_dict[ctx.guild.id].setdefault('trainers', {}) \
             .setdefault('info', {}).setdefault(ctx.author.id, {})
-        name_prompt = await ctx.send(f"{ctx.author.mention} Is this your trainer name: **{trainer_name}** ?"
-                                     "\nReply with **Y**es if correct, or your actual trainer name if not.")
-        try:
-            response_msg = await self.bot.wait_for('message', timeout=30,
-                                                   check=(lambda reply: reply.author == ctx.message.author))
-        except asyncio.TimeoutError:
-            response_msg = None
-        if response_msg:
-            response = response_msg.clean_content.lower()
-            if response == 'y' or response == 'yes':
-                pass
-            else:
-                trainer_name = response
-            trainer_names = self.bot.guild_dict[ctx.guild.id].setdefault('trainer_names', {})
-            trainer_names[trainer_name] = ctx.author.id
-            trainer_dict['trainername'] = trainer_name
-        await self._delete_with_pause([name_prompt, response_msg])
-        level_prompt = await ctx.send(f"{ctx.author.mention}  Are you level **{level}**?"
-                                      " Your level plus the XP displayed will determine your total XP."
-                                      "\nReply with **Y**es if correct, or your actual level if not.")
-        try:
-            response_msg = await self.bot.wait_for('message', timeout=30,
-                                                   check=(lambda reply: reply.author == ctx.message.author))
-        except asyncio.TimeoutError:
-            response_msg = None
-        if response_msg:
-            response = response_msg.clean_content.lower()
-            if response == 'y' or response == 'yes':
-                pass
-            else:
-                level = response
-        await self._delete_with_pause([level_prompt, response_msg])
+
+        trainer_names = self.bot.guild_dict[ctx.guild.id].setdefault('trainer_names', {})
+        trainer_names[trainer_name] = ctx.author.id
+        trainer_dict['trainername'] = trainer_name
+
         if xp and level:
             try:
                 level = int(level)
@@ -191,7 +165,20 @@ class NewTrainer(commands.Cog):
             await ctx.author.add_roles(team_role)
         team_emoji = utils.parse_emoji(ctx.channel.guild, self.bot.config['team_dict'][scan_team])
         await ctx.invoke(self.bot.get_command('profile'), user=ctx.author)
+        try:
+            xp = int(xp)
+            xp_msg = f'your XP has been set to **{xp:,d}**'
+        except (ValueError, TypeError):
+            xp_msg = "your XP could not be determined"
+        if not level:
+            level_msg = "your level could not be determined"
+        else:
+            level_msg = f"your level has been set to **{level}**"
+
+
         await ctx.channel.send(f"{ctx.author.mention} your team has been set to **{scan_team}** {team_emoji}!"
+                               f"\nThe trainer name on your profile has been set to **{trainer_name}**, "
+                               f"{level_msg} and {xp_msg}."
                                "\nIf you would like to make changes or update your profile use `!set profile`")
         image_utils.cleanup_file(file, f"screenshots/profile")
 
