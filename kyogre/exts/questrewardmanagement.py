@@ -323,11 +323,13 @@ class QuestRewardManagement(commands.Cog):
 
         with open(self.bot.quest_json_path, 'w') as fd:
             json.dump(quests, fd, indent=4)
-        return await ctx.message.add_reaction('\u2705')
+        if not quest_dict:
+            return await ctx.message.add_reaction('\u2705')
 
     @_quest.command(name='populate', aliases=['pop'])
     async def populate_qd_from_tsr(self, ctx):
         task_page = "https://thesilphroad.com/research-tasks/"
+        await ctx.send(f"Connecting to <{task_page}> to update raid boss list.")
         poke_regex = re.compile("\d+x\d+/(?P<dexid>\d+)\.[a-zA-Z]{3}")
         page = requests.get(task_page)
         soup = BeautifulSoup(page.content, 'html.parser')

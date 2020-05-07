@@ -767,8 +767,6 @@ class ListManagement(commands.Cog):
         author = ctx.author
         lobbymsg = ''
         trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
-        raidtype = "event" if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('meetup',
-                                                                                               False) else "raid"
         try:
             if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['lobby']:
                 lobbymsg += '\nThere is a group already in the lobby! Use **!lobby** to join them ' \
