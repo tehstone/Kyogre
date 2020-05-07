@@ -402,6 +402,7 @@ class AdminCommands(commands.Cog):
         Usage: !reload_json
         Useful to avoid a full restart if boss list changed"""
         self.bot._load_config()
+        self.bot._load_raid_data()
         await ctx.message.add_reaction(self.success_react)
 
     @commands.command()
@@ -464,6 +465,7 @@ class AdminCommands(commands.Cog):
                 with open(os.path.join('data', 'raid_info.json'), 'w') as fd:
                     json.dump(data, fd, indent=2, separators=(', ', ': '))
                 self.bot._load_config()
+                self.bot._load_raid_data()
                 await question.clear_reactions()
                 await question.add_reaction(self.success_react)
                 return await ctx.channel.send("Configuration successful!")

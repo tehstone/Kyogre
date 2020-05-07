@@ -162,7 +162,8 @@ async def on_ready():
         Kyogre.session = aiohttp.ClientSession()
     Kyogre.owner = discord.utils.get(
         Kyogre.get_all_members(), id=config['master'])
-    await _print(Kyogre.owner, 'Starting up...')
+    if Kyogre.initial_start:
+        await _print(Kyogre.owner, 'Starting up...')
     Kyogre.uptime = datetime.datetime.now()
     owners = []
     guilds = len(Kyogre.guilds)
@@ -294,8 +295,13 @@ async def on_ready():
         owners.append(guild.owner)
     help_cog = Kyogre.cogs.get('HelpCommand')
     help_cog.set_avatar(Kyogre.user.avatar_url)
-    await _print(Kyogre.owner, "{server_count} servers connected.\n{member_count} members found."
-                 .format(server_count=guilds, member_count=users))
+    if Kyogre.initial_start:
+        await _print(Kyogre.owner, time.strftime("%d %b %Y %H:%M:%S", time.localtime()))
+        await _print(Kyogre.owner, "{server_count} servers connected.\n{member_count} members found."
+                     .format(server_count=guilds, member_count=users))
+        Kyogre.initial_start = False
+    else:
+        await _print(Kyogre.owner, "Bot failed to resume")
     await maint_start(Kyogre)
 
 

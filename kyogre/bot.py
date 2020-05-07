@@ -88,7 +88,9 @@ class KyogreBot(commands.AutoShardedBot):
         self.vision_api_enabled = False
         self.api_usage_limit = 20
         self._load_data()
-        self.raid_json_path = self._load_config()
+        self.raid_json_path = self._load_raid_data()
+        self.quest_json_path = self._load_quest_data()
+        self._load_config()
         self.active_ex = []
         self.active_raids = []
         self.active_wilds = []
@@ -105,6 +107,7 @@ class KyogreBot(commands.AutoShardedBot):
         self.saved_files = {}
         self.session = None
         self.port = 8000
+        self.initial_start = True
 
         for ext in default_exts:
             try:
@@ -147,17 +150,20 @@ class KyogreBot(commands.AutoShardedBot):
         # Load configuration
         with open('config.json', 'r') as fd:
             self.config = json.load(fd)
-        # Set up message catalog access
-        # Load raid info
-        raid_path_source = os.path.join('data', 'raid_info.json')
-        with open(raid_path_source, 'r') as fd:
-            self.raid_info = json.load(fd)
         # Load type information
         with open(os.path.join('data', 'defense_chart.json'), 'r') as fd:
             self.defense_chart = json.load(fd)
         with open(os.path.join('data', 'type_list.json'), 'r') as fd:
             self.type_list = json.load(fd)
+
+    def _load_raid_data(self):
+        raid_path_source = os.path.join('data', 'raid_info.json')
+        with open(raid_path_source, 'r') as fd:
+            self.raid_info = json.load(fd)
         return raid_path_source
+
+    def _load_quest_data(self):
+        return os.path.join('data', 'quest_data.json')
 
     @staticmethod
     def _setup_folders():

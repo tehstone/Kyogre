@@ -512,8 +512,8 @@ class ResearchCommands(commands.Cog):
                 if questmsg.clean_content.lower() == "cancel":
                     await questmsg.delete()
                 elif questmsg:
-                    quest = await questrewardmanagement_cog.get_quest_v(channel, user.id, questmsg.clean_content)
-                    reward = await questrewardmanagement_cog.prompt_reward_v(channel, user.id, quest)
+                    quest = await questrewardmanagement_cog._get_quest(channel, user.id, questmsg.clean_content)
+                    reward = await questrewardmanagement_cog._prompt_reward(channel, user.id, quest)
                 questreport_dict[message.id]['quest'] = quest.name
                 questreport_dict[message.id]['quest_id'] = quest.id
                 questreport_dict[message.id]['reward'] = reward
@@ -526,8 +526,8 @@ class ResearchCommands(commands.Cog):
                 rewardwait = await channel.send(embed=discord.Embed(colour=discord.Colour.gold(),
                                                                     description="What is the correct reward?"))
                 quest = self.bot.guild_dict[guild.id]['questreport_dict'].get(message.id, None)
-                quest_obj = await questrewardmanagement_cog.get_quest_v(channel, user.id, quest['quest'])
-                reward = await questrewardmanagement_cog.prompt_reward_v(channel, user.id, quest_obj)
+                quest_obj = await questrewardmanagement_cog._get_quest(channel, user.id, quest['quest'])
+                reward = await questrewardmanagement_cog._prompt_reward(channel, user.id, quest_obj)
 
                 questreport_dict[message.id]['reward'] = reward
                 listmgmt_cog = self.bot.cogs.get('ListManagement')

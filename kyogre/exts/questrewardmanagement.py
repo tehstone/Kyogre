@@ -1,6 +1,9 @@
+from bs4 import BeautifulSoup
 import json
 import re
+import requests
 
+import discord
 from discord.ext import commands
 
 from kyogre.exts.pokemon import Pokemon
@@ -19,7 +22,6 @@ class QuestRewardManagement(commands.Cog):
         if ctx.invoked_subcommand == None:
             raise commands.BadArgument()
 
-
     @_quest.command(name="info", aliases=["lookup", "get", "find"])
     @checks.allowresearchreport()
     async def _quest_info(self, ctx, *, name):
@@ -31,7 +33,6 @@ class QuestRewardManagement(commands.Cog):
         if not quest:
             return await channel.send("Unable to find quest by that name")
         await channel.send(self.format_quest_info(quest))
-
 
     @_quest.command(name="add")
     @commands.has_permissions(manage_guild=True)
@@ -62,7 +63,6 @@ class QuestRewardManagement(commands.Cog):
                                        Please ensure the quest does not already exist with the find command.")
         await channel.send(f"Successfully added new quest: {new_quest.name} ({new_quest.id})")
 
-
     @_quest.command(name="remove", aliases=["rm", "delete", "del", "rem"])
     @commands.has_permissions(manage_guild=True)
     async def _quest_remove(self, ctx, id):
@@ -77,7 +77,6 @@ class QuestRewardManagement(commands.Cog):
         if deleted:
             return await channel.send("Successfully deleted record")
         return await channel.send("Unable to delete record")
-
 
     def format_quest_info(self, quest):
         pool = quest.reward_pool
@@ -101,14 +100,12 @@ class QuestRewardManagement(commands.Cog):
                 output += f"\n\t{name.title()}: {quantities[0] if len(quantities) == 1 else str(quantities[0]) + ' - ' + str(quantities[-1])}"
         return output
 
-
     @commands.group(name="rewards")
     @commands.has_permissions(manage_guild=True)
     async def _rewards(self, ctx):
         """Quest reward pool data management command"""
         if not ctx.invoked_subcommand:
             raise commands.BadArgument()
-
 
     @_rewards.command(name="add")
     async def _rewards_add(self, ctx, *, info):
@@ -147,7 +144,6 @@ class QuestRewardManagement(commands.Cog):
         quest.reward_pool = pool
         quest.save()
         await channel.send("Successfully added reward to pool")
-
 
     @_rewards.command(name="remove", aliases=["rm", "delete", "del", "rem"])
     async def _rewards_remove(self, ctx, *, info):
@@ -200,9 +196,9 @@ class QuestRewardManagement(commands.Cog):
     async def get_quest(self, ctx, name):
         channel = ctx.channel
         author = ctx.message.author.id
-        return await self.get_quest_v(channel, author, name)
+        return await self._get_quest(channel, author, name)
 
-    async def get_quest_v(self, channel, author, name):
+    async def _get_quest(self, channel, author, name):
         """gets a quest by name or id"""
         if not name:
             return
@@ -230,9 +226,9 @@ class QuestRewardManagement(commands.Cog):
     async def prompt_reward(self, ctx, quest, reward_type=None):
         channel = ctx.channel
         author = ctx.message.author.id
-        return await self.prompt_reward_v(channel, author, quest, reward_type)
+        return await self._prompt_reward(channel, author, quest, reward_type)
 
-    async def prompt_reward_v(self, channel, author, quest, reward_type=None):
+    async def _prompt_reward(self, channel, author, quest, reward_type=None):
         """prompts user for reward info selection using quest's reward pool
         can optionally specify a start point with reward_type"""
         if not quest or not quest.reward_pool:
@@ -308,6 +304,75 @@ class QuestRewardManagement(commands.Cog):
             return None
         reward = await utils.prompt_match_result(self.bot, ctx.channel, ctx.message.author.id, reward, candidates)
         return reward
+
+    @_quest.command(name='save', aliases=['commit'])
+    async def save_qd(self, ctx):
+        """Saves the current quest data state to the json file.
+        Must be run after any changes made to quest data with the add/remove/replace commands."""
+        return await self._save_qd(ctx, None)
+
+    async def _save_qd(self, ctx, quest_dict):
+        if quest_dict:
+            quests = quest_dict
+        else:
+            result = QuestTable.select(QuestTable.name,
+                                       QuestTable.reward_pool)
+            quests = []
+            for r in result:
+                quests.append({"name": r.name, "reward_pool": r.reward_pool})
+
+        with open(self.bot.quest_json_path, 'w') as fd:
+            json.dump(quests, fd, indent=4)
+        return await ctx.message.add_reaction('\u2705')
+
+    @_quest.command(name='populate', aliases=['pop'])
+    async def populate_qd_from_tsr(self, ctx):
+        task_page = "https://thesilphroad.com/research-tasks/"
+        poke_regex = re.compile("\d+x\d+/(?P<dexid>\d+)\.[a-zA-Z]{3}")
+        page = requests.get(task_page)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        quests, failed = [], []
+
+        task_groups = soup.findAll('div', attrs={'class': 'task-group'})
+        for group in task_groups:
+            tasks = group.findAll('div', attrs={'class': 'task'})
+            for task in tasks:
+                quest = task.find('p', attrs={'class': 'taskText'})
+                quest_text = quest.text.split('.')[0].replace('é', 'e')
+                rewards = task.findAll('div', attrs={'class': 'task-reward'})
+                reward_pool = {"encounters": [], "stardust": [], "items": {}}
+                for reward in rewards:
+                    rewardtype = reward.attrs["class"][1].replace('_', ' ')
+                    if rewardtype == "pokemon":
+                        urlstr = reward.find('img')
+                        m = poke_regex.search(urlstr.attrs['src'])
+                        if m:
+                            rewardvalue = m.group('dexid')
+                            try:
+                                pkmn = Pokemon.get_pokemon(self.bot, int(rewardvalue))
+                                reward_pool["encounters"].append(pkmn.full_name)
+                            except TypeError:
+                                failed.append(rewardvalue)
+
+                        else:
+                            continue
+                    elif rewardtype == "stardust":
+                        reward_pool["stardust"].append(reward.text)
+                    else:
+                        reward_pool["items"][rewardtype] = reward.text
+                quests.append({"name": quest_text, "reward_pool": reward_pool})
+
+        await self._save_qd(ctx, quests)
+        QuestTable.reload_default()
+
+        if len(failed) > 0:
+            err_msg = f"Failed to set reward with Pokemon having the following IDs: {', '.join(failed)}\n" \
+                      'This typically indicates that these Pokemon have not been set as "released"\n' \
+                      'Use the `!mr` command to update these pokemon.'
+            await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=err_msg))
+            await ctx.message.add_reaction(self.bot.thumbsup_react)
+        else:
+            await ctx.message.add_reaction(self.bot.success_react)
 
 
 def setup(bot):

@@ -8,7 +8,8 @@ def init_loggers():
     dpy_logger = logging.getLogger("discord")
     dpy_logger.setLevel(logging.WARNING)
     console = logging.StreamHandler()
-    console.setLevel(logging.WARNING)
+    console.setLevel(logging.DEBUG)
+    dpy_logger.info("dpy logging level set to debug")
     dpy_logger.addHandler(console)
 
     # Kyogre
@@ -23,6 +24,7 @@ def init_loggers():
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_handler.setFormatter(kyogre_format)
     logger.setLevel(logging.INFO)
+    print("log level set to Debug")
 
     logfile_path = 'logs/kyogre.log'
     fhandler = logging.handlers.RotatingFileHandler(
