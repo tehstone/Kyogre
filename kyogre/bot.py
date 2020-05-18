@@ -180,8 +180,11 @@ class KyogreBot(commands.AutoShardedBot):
     async def on_message(self, message):
         if message.type == discord.MessageType.pins_add and message.author == self.user:
             return await message.delete()
-        if not message.author.bot:
-            await self.process_commands(message)
+        if message.author.bot and not message.webhook_id:
+            return
+        if self.user.mentioned_in(message):
+            await message.channel.send(content="Hi, I'm Kyogre! I'm just a bot who's here to help!")
+        await self.process_commands(message)
 
     async def process_commands(self, message):
         """Processes commands that are registered with the bot and it's groups.
@@ -189,8 +192,6 @@ class KyogreBot(commands.AutoShardedBot):
         Without this being run in the main `on_message` event, commands will
         not be processed.
         """
-        if message.author.bot:
-            return
         if message.content.startswith('!'):
             if message.content[1] == " ":
                 message.content = message.content[0] + message.content[2:]

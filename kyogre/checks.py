@@ -38,7 +38,9 @@ def is_dev_check(ctx):
 
 def is_dev_or_owner():
     def predicate(ctx):
-        if is_dev_check(ctx) or is_owner_check(ctx):
+        if ctx.message.webhook_id:
+            return True
+        elif is_dev_check(ctx) or is_owner_check(ctx):
             return True
         else:
             return False
@@ -98,6 +100,8 @@ def serverowner():
 
 def is_dev_or_owner_or_perms(**perms):
     def predicate(ctx):
+        if ctx.message.webhook_id:
+            return True
         if is_dev_check(ctx) or is_owner_check(ctx):
             return True
         else:
