@@ -296,13 +296,12 @@ async def on_ready():
     help_cog = Kyogre.cogs.get('HelpCommand')
     help_cog.set_avatar(Kyogre.user.avatar_url)
     if Kyogre.initial_start:
-        await _print(Kyogre.owner, time.strftime("%d %b %Y %H:%M:%S", time.localtime()))
         await _print(Kyogre.owner, "{server_count} servers connected.\n{member_count} members found."
                      .format(server_count=guilds, member_count=users))
         Kyogre.initial_start = False
         await maint_start(Kyogre)
     else:
-        await _print(Kyogre.owner, "Bot failed to resume")
+        logger.warn("Bot failed to resume")
 
 try:
     event_loop.run_until_complete(Kyogre.start(config['bot_token']))

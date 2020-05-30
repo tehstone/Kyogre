@@ -666,12 +666,13 @@ class AdminCommands(commands.Cog):
         await ctx.message.delete()
 
     @commands.command(name='update_rbl', aliases=['urbl'])
-    @checks.is_owner()
+    @commands.has_permissions(manage_roles=True)
     async def _update_remote_boss_list(self, ctx):
         """Updates the boss list on the remote image recognition server."""
         result = await self.bot.update_remote_boss_list()
         if result["status"] == "success":
-            return await ctx.send("Successfully updated remote raid boss list.")
+            await ctx.send("Successfully updated remote raid boss list.")
+            return await ctx.send(result["found"])
         else:
             return await ctx.send("Failed to update remote raid boss list.")
 

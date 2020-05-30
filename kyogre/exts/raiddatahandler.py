@@ -146,7 +146,7 @@ class RaidDataHandler(commands.Cog):
         """
         return await self._replace_rd(ctx, level, raid_pokemon)
 
-    async def _replace_rd(self, ctx, level, raid_pokemon):
+    async def _replace_rd(self, ctx, level, raid_pokemon, message=True):
         if level not in self.raid_info['raid_eggs'].keys():
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Invalid raid level.")
             return await ctx.send("Invalid raid level specified.")
@@ -170,8 +170,10 @@ class RaidDataHandler(commands.Cog):
             result.append(
                 f"**{len(failed)} entries failed to be added:**\n"
                 f"{', '.join(failed)}")
-
-        await ctx.send('\n'.join(result))
+        if message:
+            await ctx.send('\n'.join(result))
+        else:
+            return '\n'.join(result)
 
     @raiddata.command(name='save', aliases=['commit'])
     async def save_rd(self, ctx):
@@ -180,7 +182,6 @@ class RaidDataHandler(commands.Cog):
         return await self._save_rd(ctx)
 
     async def _save_rd(self, ctx):
-
         for pkmn_lvl in self.raid_info['raid_eggs']:
             data = self.raid_info['raid_eggs'][pkmn_lvl]["pokemon"]
             pkmn_names = [Pokemon.get_pokemon(self.bot, p).name.lower() for p in data]
@@ -224,6 +225,7 @@ class RaidDataHandler(commands.Cog):
         # The headers are at the same hierarchy level as the actual raids
         # so walking through siblings will encounter both.
         tiers = soup.findAll('div', attrs={'class': 'raid-boss-tier-wrap'})
+        messages = []
         for tier in tiers:
             tier_str = tier.find('h4')
             if 'EX' in tier_str.string:
@@ -241,9 +243,11 @@ class RaidDataHandler(commands.Cog):
                 # to the current level.
                 if result == False:
                     break
-            await self._replace_rd(ctx, level, ', '.join(raid_pokemon))
+            messages.append(await self._replace_rd(ctx, level, ', '.join(raid_pokemon), False))
         await self._save_rd(ctx)
+        await ctx.send('\n'.join(messages))
         await ctx.send("Finished updating raid boss list.")
+        await ctx.invoke(self.bot.get_command('update_rbl'))
 
 
 def setup(bot):

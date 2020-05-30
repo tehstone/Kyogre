@@ -615,6 +615,15 @@ def can_manage(user, config):
     return False
 
 
+def can_manage_lite(user, config):
+    if checks.is_user_dev_or_owner(config, user.id):
+        return True
+    for role in user.roles:
+        if role.permissions.manage_nicknames:
+            return True
+    return False
+
+
 def can_edit_reports(user, config):
     can_edit = False
     for role in user.roles:

@@ -2,6 +2,8 @@ import asyncio
 import copy
 import datetime
 import json
+import math
+import pytz
 
 from dateutil.parser import parse
 import time
@@ -159,8 +161,8 @@ class EXRaids(commands.Cog):
                            inline=False)
         offset = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset']
         offset *= (60*60)
-        hatch = datetime.datetime.fromtimestamp(ex_raid_dict['hatch'] + offset)
-        expire = datetime.datetime.fromtimestamp(ex_raid_dict['expire'] + offset)
+        hatch = datetime.datetime.utcfromtimestamp(ex_raid_dict['hatch'] + offset)
+        expire = datetime.datetime.utcfromtimestamp(ex_raid_dict['expire'] + offset)
         ex_embed.add_field(name='**Hatches:**', value=f"{hatch.strftime('%a %b %d %I:%M %p')}")
         ex_embed.add_field(name='**Expires:**', value=f"{expire.strftime('%a %b %d %I:%M %p')}")
         attendance_str = self._get_team_count_str(ctx, ex_raid_dict)
@@ -178,20 +180,37 @@ class EXRaids(commands.Cog):
     def _calculate_ex_start_time(self, date_key, start_time, guild_id):
         months, days = date_key.split('_')
         days = int(days)
-        months = month_map[months]
+        months = month_map[months.lower()]
         hours, minutes = start_time.lower().replace('am', '').replace('pm', '').split(':')
         hours, minutes = int(hours), int(minutes)
         if hours < 9:
             hours += 12
         now = datetime.datetime.utcnow()
-        hatch = now.replace(month=months, day=days, hour=hours, minute=minutes, second=0)
-        if hatch.month == 1 and now.month == 12:
-            hatch = hatch.replace(year=hatch.year + 1)
-        offset = self.bot.guild_dict[guild_id]['configure_dict']['settings']['offset'] * -1
-        hatch = hatch + datetime.timedelta(hours=offset)
+        year = now.year
+        if months == 1 and now.month == 12:
+            year += 1
+        offset = self.bot.guild_dict[guild_id]['configure_dict']['settings']['offset']
+        offset_string = self._offset_string_from_double(offset)
+        datestr = f"{year}-{months}-{days}T{hours}:{minutes}:00{offset_string}"
+        hatch_local = datetime.datetime.strptime(datestr, "%Y-%m-%dT%H:%M:%S%z")
+        hatch_utc = hatch_local.astimezone(pytz.UTC)
+
         raid_length = self.bot.raid_info['raid_eggs']['EX']['raidtime']
-        expire = hatch + datetime.timedelta(minutes=raid_length)
-        return hatch.timestamp(), expire.timestamp()
+        expire = hatch_utc + datetime.timedelta(minutes=raid_length)
+        return hatch_utc.timestamp(), expire.timestamp()
+
+    @staticmethod
+    def _offset_string_from_double(offset):
+        if offset < 0:
+            offset_string = "-"
+        else:
+            offset_string = "+"
+        frac, whole = math.modf(abs(offset))
+        whole = int(whole)
+        offset_string += str(whole).zfill(2)
+        frac = int(frac * 60)
+        offset_string += str(frac).zfill(2)
+        return offset_string
 
     @commands.command(name='invite', aliases=['in'])
     @checks.exraidchannel()
@@ -274,7 +293,7 @@ class EXRaids(commands.Cog):
                 deleteafter=15)
             return await ctx.message.delete()
         new_date = parse(info_parts[1])
-        date_key = new_date.strftime("%b_%-d").lower()
+        date_key = new_date.strftime("%b_%d").lower()
         if date_key[-2] == '0':
             date_key = date_key[:-2] + date_key[-1]
         start_time = new_date.strftime("%H:%M")
@@ -374,7 +393,8 @@ class EXRaids(commands.Cog):
                             self.bot.logger.info(
                                 ((log_str + ' (') + channel.name) + ') - EXISTS IN DISCORD')
                             # If it's been more than 2 hours since the raid ended
-                            if cat_dict['channels'][channel.id]['expire'] < (time.time() - (120 * 60)):
+                            current = (datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1)).total_seconds()
+                            if cat_dict['channels'][channel.id]['expire'] < (current - (120 * 60)):
                                 # list the channel to be removed from save data
                                 dict_channel_delete.append((cat, channelid))
                                 # and list the channel to be deleted in discord
@@ -427,7 +447,6 @@ class EXRaids(commands.Cog):
         guild = channel.guild
         channel = self.bot.get_channel(channel.id)
         cat_id = channel.category_id
-        offset = self.bot.guild_dict[channel.guild.id]['configure_dict']['settings']['offset']
         if channel not in self.bot.active_ex:
             self.bot.active_ex.append(channel)
             self.bot.logger.info(
@@ -436,22 +455,23 @@ class EXRaids(commands.Cog):
             while True:
                 this_ex_dict = self.bot.guild_dict[guild.id]['exchannel_dict'][cat_id]['channels'][channel.id]
                 sleep_time = 30
+                current = (datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1)).total_seconds()
                 try:
                     if this_ex_dict['stage'] == 'pre':
-                        if this_ex_dict['hatch'] - (30 * 60) < time.time():
+                        reminder_time = this_ex_dict['hatch'] - (30 * 60)
+                        if reminder_time < current:
                             await self._send_ex_channel_reminder(this_ex_dict, channel, "before")
-                        time_diff = this_ex_dict['hatch'] - (
-                                    datetime.datetime.utcnow() + datetime.timedelta(hours=offset)).timestamp()
+                        time_diff = reminder_time - current
                         sleep_time = round(time_diff/2)
-                    if this_ex_dict['stage'] == 'egg':
-                        if this_ex_dict['hatch'] - (1 * 60) < time.time():
+                    elif this_ex_dict['stage'] == 'egg':
+                        if this_ex_dict['hatch'] - (1 * 60) < current:
                             await self._send_ex_channel_reminder(this_ex_dict, channel, "hatch")
-                    if this_ex_dict['stage'] == 'active':
-                        if this_ex_dict['expire'] < time.time():
+                    elif this_ex_dict['stage'] == 'active':
+                        if this_ex_dict['expire'] < current:
                             await self._send_ex_channel_reminder(this_ex_dict, channel, "expire")
                         sleep_time = 60
-                    if this_ex_dict['stage'] == 'expired':
-                        if this_ex_dict['expire'] + (120 * 60) < time.time():
+                    elif this_ex_dict['stage'] == 'expired':
+                        if this_ex_dict['expire'] + (120 * 60) < current:
                             await self._delete_ex_channel(channel)
                             try:
                                 self.bot.active_ex.remove(channel)
@@ -462,11 +482,11 @@ class EXRaids(commands.Cog):
                             self.bot.logger.info(
                                 'Expire_Channel - Channel Expired And Removed From Watchlist - ' + channel.name)
                             break
-                        time_diff = (this_ex_dict['expire'] + (120 * 60)) - (
-                                datetime.datetime.utcnow() + datetime.timedelta(hours=offset)).timestamp()
+                        time_diff = (this_ex_dict['expire'] + (120 * 60)) - current
                         sleep_time = round(time_diff / 2)
                 except:
                     pass
+                self.bot.logger.info(f"EX Raid check, sleeping for: {sleep_time}")
                 await asyncio.sleep(sleep_time)
                 continue
 
