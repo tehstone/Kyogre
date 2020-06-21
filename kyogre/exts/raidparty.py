@@ -127,7 +127,7 @@ class RaidParty(commands.Cog):
                                                    title="There is no one here to hear you!"))
         await message.delete()
 
-    @commands.command(name='interested', aliases=['i', 'maybe'])
+    @commands.command(name='interested', aliases=['i', 'maybe', 'm'])
     @checks.activechannel()
     async def interested(self, ctx, *, teamcounts: str = None):
         """Indicate you are interested in the raid.

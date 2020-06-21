@@ -329,7 +329,7 @@ class QuestRewardManagement(commands.Cog):
     @_quest.command(name='populate', aliases=['pop'])
     async def populate_qd_from_tsr(self, ctx):
         task_page = "https://thesilphroad.com/research-tasks/"
-        await ctx.send(f"Connecting to <{task_page}> to update raid boss list.")
+        await ctx.send(f"Connecting to <{task_page}> to update research task list.")
         poke_regex = re.compile("\d+x\d+/(?P<dexid>\d+)\.[a-zA-Z]{3}")
         page = requests.get(task_page)
         soup = BeautifulSoup(page.content, 'html.parser')
@@ -374,6 +374,7 @@ class QuestRewardManagement(commands.Cog):
             await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=err_msg))
             await ctx.message.add_reaction(self.bot.thumbsup_react)
         else:
+            await ctx.send("Finished updating research task list.")
             await ctx.message.add_reaction(self.bot.success_react)
 
 

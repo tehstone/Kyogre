@@ -35,8 +35,13 @@ class RaidCommands(commands.Cog):
             content = f"{pokemon} {location}".lower()
             if pokemon.isdigit():
                 new_channel = await self._raidegg(ctx, content)
-            elif len(pokemon) == 2 and pokemon[0] == "t":
-                new_channel = await self._raidegg(ctx, content[1:])
+            elif len(pokemon) == 2:
+                if pokemon[0] == "t":
+                    new_channel = await self._raidegg(ctx, content[1:])
+                if pokemon[1] == "*":
+                    pokemon = pokemon[0]
+                    content = f"{pokemon} {location}".lower()
+                    new_channel = await self._raidegg(ctx, content[1:])
             else:
                 new_channel = await self._raid_internal(ctx, content)
         ctx.raid_channel = new_channel

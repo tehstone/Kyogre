@@ -179,7 +179,7 @@ async def get_raid_help(prefix, avatar, user=None):
     helpembed.set_author(name="Raid Coordination Help", icon_url=avatar)
     helpembed.add_field(
         name="Key",
-        value="<> denote required arguments, [] denote optional arguments",
+        value="<> indicates required arguments, [] indicates optional arguments",
         inline=False)
     helpembed.add_field(
         name="Raid MGMT Commands",
@@ -188,31 +188,20 @@ async def get_raid_help(prefix, avatar, user=None):
             f"`{prefix}weather <weather>`\n"
             f"`{prefix}timerset <minutes>`\n"
             f"`{prefix}starttime <time>`\n"
-            "`<google maps link>`\n"
             "**RSVP**\n"
-            f"`{prefix}(i/c/h)...\n"
-            "[total]...\n"
-            "[team counts]`\n"
-            "**Lists**\n"
-            f"`{prefix}list [status]`\n"
-            f"`{prefix}list [status] tags`\n"
-            f"`{prefix}list teams`\n\n"
-            f"`{prefix}starting [team]`"))
+            f"`{prefix}(i/c/h)...`\n"
+            f"`{prefix}(i/c/h) 2`\n"
+            f"`{prefix}(i/c/h) 4 1m 1i 2v`\n"))
     helpembed.add_field(
         name="Description",
         value=(
             "`Hatches Egg channel`\n"
             "`Sets in-game weather`\n"
             "`Sets hatch/raid timer`\n"
-            "`Sets start time`\n"
-            "`Updates raid location`\n\n"
+            "`Sets start time`\n\n"
             "`interested/coming/here`\n"
             "`# of trainers`\n"
-            "`# from each team (ex. 3m for 3 Mystic)`\n\n"
-            "`Lists trainers by status`\n"
-            "`@mentions trainers by status`\n"
-            "`Lists trainers by team`\n\n"
-            "`Moves trainers on 'here' list to a lobby.`"))
+            "`# from each team (ex. 3m for 3 Mystic)`\n\n"))
     if not user:
         return helpembed
     await user.send(embed=helpembed)
