@@ -147,9 +147,9 @@ class NewTrainer(commands.Cog):
                     trainer_dict['xp'] = response
             await self._delete_with_pause([fourty_prompt, response_msg])
         friend_prompt = await ctx.send(f"{ctx.author.mention} Would you like to add your Friend Code to your profile?\n"
-                                       "Reply with your **Friend Code** or with **N**o to skip.")
+                                       "Reply with your **Friend Code** as text or with **N**o to skip.")
         try:
-            response_msg = await self.bot.wait_for('message', timeout=60,
+            response_msg = await self.bot.wait_for('message', timeout=120,
                                                    check=(lambda reply: reply.author == ctx.message.author))
         except asyncio.TimeoutError:
             response_msg = None
@@ -176,7 +176,7 @@ class NewTrainer(commands.Cog):
             level_msg = f"your level has been set to **{level}**"
 
 
-        await ctx.channel.send(f"{ctx.author.mention} your team has been set to **{scan_team}** {team_emoji}!"
+        await ctx.channel.send(f"{ctx.author.mention} your team has been set to **{scan_team.capitalize()}** {team_emoji}!"
                                f"\nThe trainer name on your profile has been set to **{trainer_name}**, "
                                f"{level_msg} and {xp_msg}."
                                "\nIf you would like to make changes or update your profile use `!set profile`")

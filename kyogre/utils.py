@@ -185,9 +185,9 @@ async def get_raid_help(prefix, avatar, user=None):
         name="Raid MGMT Commands",
         value=(
             f"`{prefix}raid <species>`\n"
-            f"`{prefix}weather <weather>`\n"
             f"`{prefix}timerset <minutes>`\n"
             f"`{prefix}starttime <time>`\n"
+            f"`{prefix}weather <weather>`\n\n\n"
             "**RSVP**\n"
             f"`{prefix}(i/c/h)...`\n"
             f"`{prefix}(i/c/h) 2`\n"
@@ -196,9 +196,11 @@ async def get_raid_help(prefix, avatar, user=None):
         name="Description",
         value=(
             "`Hatches Egg channel`\n"
-            "`Sets in-game weather`\n"
             "`Sets hatch/raid timer`\n"
-            "`Sets start time`\n\n"
+            "`Sets start time`\n"
+            "`Set in-game weather to 1 of:`\n"
+            "`none, extreme, clear, rainy, fog,`\n"
+            "`partlycloudy, cloudy, windy, snow`\n\n"
             "`interested/coming/here`\n"
             "`# of trainers`\n"
             "`# from each team (ex. 3m for 3 Mystic)`\n\n"))

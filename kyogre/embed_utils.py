@@ -163,7 +163,7 @@ async def build_raid_embeds(kyogre, ctx, raid_dict, enabled, assume=False):
         raid_embed.add_field(name='**Tips:**',
                              value='`!m/!c/!h` for maybe/coming/here\n`!c 2` #s indicate size of party'
                                    '\n`!x` to cancel your status\n`!s` to signal lobby start\n'
-                                   '`!shout` to ping raid party\n`!st <time>` sets a group start time\n',
+                                   '`!shout` to ping raid party\n`!weather` sets the current weather\n',
                              inline=True)
     raid_embed.set_thumbnail(url=raid_img_url)
     report_embed = raid_embed

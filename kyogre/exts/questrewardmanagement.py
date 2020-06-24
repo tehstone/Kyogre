@@ -331,6 +331,7 @@ class QuestRewardManagement(commands.Cog):
         task_page = "https://thesilphroad.com/research-tasks/"
         await ctx.send(f"Connecting to <{task_page}> to update research task list.")
         poke_regex = re.compile("\d+x\d+/(?P<dexid>\d+)\.[a-zA-Z]{3}")
+        alola_regex = re.compile("\d+x\d+/(?P<species>\S+)-alola\.[a-zA-Z]{3}")
         page = requests.get(task_page)
         soup = BeautifulSoup(page.content, 'html.parser')
         quests, failed = [], []
@@ -347,14 +348,20 @@ class QuestRewardManagement(commands.Cog):
                     rewardtype = reward.attrs["class"][1].replace('_', ' ')
                     if rewardtype == "pokemon":
                         urlstr = reward.find('img')
-                        m = poke_regex.search(urlstr.attrs['src'])
-                        if m:
-                            rewardvalue = m.group('dexid')
-                            try:
+                        try:
+                            m = poke_regex.search(urlstr.attrs['src'])
+                            if not m:
+                                m = alola_regex.search((urlstr.attrs['src']))
+                                if m:
+                                    rewardvalue = "alolan " + m.group('species')
+                                    pkmn = Pokemon.get_pokemon(self.bot, rewardvalue)
+                                    reward_pool["encounters"].append(pkmn.full_name)
+                            else:
+                                rewardvalue = m.group('dexid')
                                 pkmn = Pokemon.get_pokemon(self.bot, int(rewardvalue))
                                 reward_pool["encounters"].append(pkmn.full_name)
-                            except TypeError:
-                                failed.append(rewardvalue)
+                        except TypeError:
+                            failed.append(rewardvalue)
 
                         else:
                             continue
