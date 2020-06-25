@@ -2327,6 +2327,7 @@ class RaidCommands(commands.Cog):
                     prefix = guild_dict[guild.id]['configure_dict']['settings']['prefix']
                     prefix = prefix or self.bot.config['default_prefix']
                     avatar = self.bot.user.avatar_url
+                    await message.remove_reaction(payload.emoji, user)
                     await utils.get_raid_help(prefix, avatar, user)
         if channel.id in raid_dict:
             raid_report = channel.id
@@ -2335,11 +2336,8 @@ class RaidCommands(commands.Cog):
         if raid_report is not None:
             if raid_dict[raid_report].get('reporter', 0) == payload.user_id or \
                     utils.can_edit_reports(user, self.bot.config):
-                try:
-                    await message.remove_reaction(payload.emoji, user)
-                except:
-                    pass
                 if str(payload.emoji) == '\u270f':
+                    await message.remove_reaction(payload.emoji, user)
                     await self.modify_raid_report(payload, raid_report)
                 elif str(payload.emoji) == '🚫':
                     try:

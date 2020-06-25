@@ -297,23 +297,26 @@ class Social(commands.Cog):
 
     @commands.command(name='whois', aliases=['who'])
     async def _who_is(self, ctx, trainer):
+        user = ctx.guild.get_member_named(trainer)
+        if user:
+            return await ctx.send(f"You're probably looking for {user.mention}")
         trainer_names_copy = copy.deepcopy(self.bot.guild_dict[ctx.guild.id].setdefault('trainer_names', {}))
         trainer_list = []
         for k in trainer_names_copy.keys():
-            if trainer == k:
+            if k and trainer.lower() == k.lower():
                 user = ctx.guild.get_member(trainer_names_copy[k])
                 return await ctx.send(f"You're probably looking for {user.mention}")
             trainer_list.append(k)
         matches = utils.get_match(trainer_list, trainer, score_cutoff=75, isPartial=True, limit=5)
         if not isinstance(matches, list):
             matches = [matches]
-        if len(matches) < 2:
-            if matches[0][0] is None:
-                return await ctx.send("No trainers found with a name similar to that")
-            return await ctx.send(f"You might be looking for {matches[0][0]}")
-        else:
+        if len(matches) >= 2:
             match_names = [m[0] for m in matches]
             return await ctx.send(f"You might be looking for {' or '.join(match_names)}")
+        if matches[0][0]:
+            return await ctx.send(f"You might be looking for {matches[0][0]}")
+        return await ctx.send("No trainers found with a name similar to that")
+
 
 
 def setup(bot):

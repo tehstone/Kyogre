@@ -4,10 +4,11 @@
             "egg": "normal",
             "egg_img": "1.png",
             "pokemon": [
-                "horsea",
-                "swablu",
-                "beldum",
+                "alolan grimer",
+                "makuhita",
                 "shinx",
+                "shieldon",
+                "timburr",
                 "klink"
             ],
             "hatchtime": 60,
@@ -17,11 +18,10 @@
             "egg": "normal",
             "egg_img": "2.png",
             "pokemon": [
-                "muk",
-                "alolan exeggutor",
-                "noctowl",
-                "sableye",
-                "mawile"
+                "cloyster",
+                "haunter",
+                "kirlia",
+                "whiscash"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -30,21 +30,11 @@
             "egg": "rare",
             "egg_img": "3.png",
             "pokemon": [
-                "alolan raichu",
+                "clefable",
+                "machamp",
                 "onix",
-                "scyther",
-                "pinsir",
-                "vaporeon",
-                "porygon",
-                "aerodactyl",
-                "azumarill",
-                "espeon",
                 "piloswine",
-                "mantine",
-                "skarmory",
-                "pelipper",
-                "medicham",
-                "cacturne"
+                "skarmory"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -53,10 +43,11 @@
             "egg": "rare",
             "egg_img": "4.png",
             "pokemon": [
-                "golem",
-                "alolan marowak",
-                "lapras",
-                "tyranitar"
+                "charizard",
+                "snorlax",
+                "togetic",
+                "umbreon",
+                "swampert"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -65,7 +56,9 @@
             "egg": "legendary",
             "egg_img": "5.png",
             "pokemon": [
-                "cobalion"
+                "registeel",
+                "cresselia",
+                "reshiram"
             ],
             "hatchtime": 60,
             "raidtime": 45
