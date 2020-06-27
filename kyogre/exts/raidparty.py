@@ -89,7 +89,7 @@ class RaidParty(commands.Cog):
         return (result, entered_interest, eta)
 
     @commands.command()
-    @checks.activechannel()
+    @checks.raidchannel()
     async def shout(self, ctx, *, shout_message="\u200b"):
         """Notifies all trainers who have RSVPd for the raid of your message
         
@@ -128,7 +128,7 @@ class RaidParty(commands.Cog):
         await message.delete()
 
     @commands.command(name='interested', aliases=['i', 'maybe', 'm'])
-    @checks.activechannel()
+    @checks.raidchannel()
     async def interested(self, ctx, *, teamcounts: str = None):
         """Indicate you are interested in the raid.
 
@@ -152,7 +152,7 @@ class RaidParty(commands.Cog):
             await listmgmt_cog.maybe(ctx, count, partylist, eta, entered_interest)
 
     @commands.command(aliases=['c'])
-    @checks.activechannel()
+    @checks.raidchannel()
     async def coming(self, ctx, *, teamcounts: str = None):
         """Indicate you are on the way to a raid.
 
@@ -176,7 +176,7 @@ class RaidParty(commands.Cog):
             await listmgmt_cog.coming(ctx, count, partylist, eta, entered_interest)
 
     @commands.command(aliases=['h'])
-    @checks.activechannel()
+    @checks.raidchannel()
     async def here(self, ctx, *, teamcounts: str = None):
         """Indicate you have arrived at the raid.
 

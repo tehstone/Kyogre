@@ -52,7 +52,7 @@ class EXRaids(commands.Cog):
                 return await ctx.channel.send(embed=discord.Embed(
                     colour=discord.Colour.red(),
                     description=f"Could not determine gym name or pass date from EX Pass screenshot."))
-            image_utils.cleanup_file(file, f"screenshots/ex")
+            await image_utils.cleanup_file(file, f"screenshots/ex")
             if ex_channel_ids:
                 ex_channel = self.bot.get_channel(ex_channel_ids[0])
                 if ex_channel and self.bot.guild_dict[ctx.guild.id]['exchannel_dict'][ex_channel.category_id]\

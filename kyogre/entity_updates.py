@@ -1,10 +1,7 @@
 import copy
 import datetime
 
-import discord
-
 from kyogre import embed_utils, utils
-from kyogre.exts.pokemon import Pokemon
 
 
 async def update_raid_location(Kyogre, ctx, guild_dict, message, report_channel, raid_channel, gym):
@@ -27,13 +24,8 @@ async def update_raid_location(Kyogre, ctx, guild_dict, message, report_channel,
     new_channel_name = utils.sanitize_name(channel_prefix + "_" + gym.name)[:32]
     await raid_channel.edit(name=new_channel_name)
     try:
-        message_content = get_raidtext(Kyogre, guild, raid_dict, raid_channel, False)
-        await oldraidmsg.edit(new_content=message_content, embed=raid_embed, content=message_content)
-    except:
-        Kyogre.logger.info(f"Failed to update raid channel embed for raid at {gym.name}")
-    try:
         content = build_raid_report_message(Kyogre, raid_channel, raid_dict)
-        message_content = get_raidtext(Kyogre, guild, raid_dict, raid_channel, True)
+        message_content = get_raidtext(raid_channel)
         await oldreportmsg.edit(new_content=content, embed=report_embed, content=content)
         if raid_dict['raidcityreport'] is not None:
             report_city_channel = Kyogre.get_channel(raid_dict['reportcity'])
@@ -53,37 +45,10 @@ async def update_raid_location(Kyogre, ctx, guild_dict, message, report_channel,
     return
 
 
-def get_raidtext(Kyogre, guild, raid_dict, raid_channel, report):
-    ctype, member, pokemon_str, level, raidtext = None, '', '', '', ''
-    if 'ctype' in raid_dict:
-        ctype = raid_dict['type']
-    if 'pokemon' in raid_dict:
-        pokemon_str = raid_dict['pokemon']
-        pkmn = Pokemon.get_pokemon(Kyogre, pokemon_str)
-        pokemon_str = pkmn.name
-    if 'egglevel' in raid_dict:
-        level = raid_dict['egglevel']
-    if 'reporter' in raid_dict:
-        member = raid_dict['reporter']
-        member = guild.get_member(member)
-        member = member.display_name
-
-    if report:
-        raidtext = build_raid_report_message(Kyogre, raid_channel, raid_dict)
-    else:
-        if ctype == "raid":
-            raidtext = (f"{pokemon_str} raid reported by {member} in {raid_channel.mention}! "
-                        f"Coordinate here!\n\nFor help, react to this message with the question mark "
-                        "and I will DM you a list of commands you can use!")
-        elif ctype == "egg":
-            raidtext = (f"Level {level} raid egg reported by {member} in {raid_channel.mention}!"
-                        f" Coordinate here!\n\nFor help, react to this message with the question mark "
-                        f"and I will DM you a list of commands you can use!")
-        elif ctype == "exraid":
-            raidtext = (f"EX raid reported by {member} in {raid_channel.mention}! "
-                        f"Coordinate here!\n\nFor help, react to this message with the question mark "
-                        f"and I will DM you a list of commands you can use!")
-    return raidtext
+def get_raidtext(report_channel):
+    return (f"Click {report_channel.mention} to return to this region's reporting channel. \n"
+            "For help, react to this message with the question mark to receive a DM with a "
+            "list of commands you can use in this channel!")
 
 
 def build_raid_report_message(Kyogre, raid_channel, raid_dict):

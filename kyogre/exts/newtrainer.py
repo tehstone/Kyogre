@@ -88,7 +88,7 @@ class NewTrainer(commands.Cog):
                     err_msg = f"{ctx.author.mention} your team is already set. Ask for help if you need to change it." \
                               "\nIf you would like to update your profile, use `!set profile`"
                     await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=err_msg))
-                    image_utils.cleanup_file(file, f"screenshots/profile")
+                    await image_utils.cleanup_file(file, f"screenshots/profile")
         trainer_name, xp, level = "", "", ""
         try:
             data = json.loads('{"image_url": "' + u + '"}')
@@ -180,7 +180,7 @@ class NewTrainer(commands.Cog):
                                f"\nThe trainer name on your profile has been set to **{trainer_name}**, "
                                f"{level_msg} and {xp_msg}."
                                "\nIf you would like to make changes or update your profile use `!set profile`")
-        image_utils.cleanup_file(file, f"screenshots/profile")
+        await image_utils.cleanup_file(file, f"screenshots/profile")
 
 
 def setup(bot):

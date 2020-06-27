@@ -1,3 +1,4 @@
+import asyncio
 import os
 import shutil
 
@@ -71,7 +72,8 @@ async def _save_image(attachment):
     return filepath
 
 
-def cleanup_file(file, dst):
+async def cleanup_file(file, dst):
+    await asyncio.sleep(15)
     try:
         filename = os.path.split(file)[1]
         dest = os.path.join(dst, filename)

@@ -20,7 +20,7 @@ class RaidAuto(commands.Cog):
         self.bot = bot
         self.hashes = {}
 
-    async def create_raid(self, ctx, raid_info):
+    async def create_raid(self, ctx, raid_info, file, warning):
         guild = ctx.guild
         channel = ctx.channel
         author = ctx.author
@@ -74,7 +74,7 @@ class RaidAuto(commands.Cog):
                 pass
         if raid_info['type'] == 'egg':
             await raid_cog.finish_raid_report(ctx, raid_info["gym"], None, raid_info["tier"],
-                                              None, raidexp, auto=True)
+                                              None, raidexp, image_file=file, bad_scan=warning)
         else:
             report_channel = None
             listmgmt_cog = self.bot.cogs.get('ListManagement')
@@ -86,8 +86,9 @@ class RaidAuto(commands.Cog):
             if not raid_pokemon.is_raid:
                 error_desc = f'The Pokemon {raid_pokemon.name} does not currently appear in raids.'
                 return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=error_desc))
-            await raid_cog.finish_raid_report(ctx, raid_info["gym"], raid_pokemon, raid_pokemon.raid_level,
-                                              None, raidexp, auto=True, report_channel=report_channel)
+            await raid_cog.finish_raid_report(ctx, raid_info["gym"], raid_pokemon,
+                                              raid_pokemon.raid_level, None, raidexp,
+                                              report_channel=report_channel, image_file=file, bad_scan=warning)
 
     def _check_alolan(self, pokemon_name):
         if pokemon_name in Pokemon.get_alolans_list():
@@ -163,7 +164,6 @@ class RaidAuto(commands.Cog):
         await self._process_message_attachments(ctx, message)
 
     async def _process_message_attachments(self, ctx, message):
-        # TODO Determine if it's worth handling multiple attachments and refactor to accommodate
         for a in message.attachments:
             start = time.time()
             file = await image_utils.image_pre_check(a)
@@ -182,13 +182,14 @@ class RaidAuto(commands.Cog):
             utils_cog = self.bot.cogs.get('Utilities')
             regions = utils_cog.get_channel_regions(ctx.channel, 'raid')
             raid_info = await self._scan_wrapper(ctx, file, a.url, regions)
+            # If we don't have a gym, all is lost
             if raid_info["gym"] is None:
                 if not raid_info['egg_time'] and not raid_info['boss'] and not raid_info['expire_time']:
-                    image_utils.cleanup_file(file, f"screenshots/not_raid")
+                    await image_utils.cleanup_file(file, f"screenshots/not_raid")
                     await ctx.message.clear_reactions()
                     continue
                 self.bot.gcv_logger.info(raid_info)
-                image_utils.cleanup_file(file, f"screenshots/no_gym")
+                await image_utils.cleanup_file(file, f"screenshots/no_gym")
                 await message.channel.send(
                     embed=discord.Embed(
                         colour=discord.Colour.red(),
@@ -197,8 +198,11 @@ class RaidAuto(commands.Cog):
                 log_message = f"Could not read gym name in: {a.url}\nFull raid info: {raid_info}"
                 self.bot.scan_fail_log.info(log_message)
                 continue
-            c_file, timev = None, None
-            if raid_info['egg_time']:
+            c_file, timev, egg_image, time_set, warning = None, None, False, False, False
+            # If an egg time or tier was identified, or both expire time and boss were NOT identified
+            # Then assume it's an egg.
+            if raid_info['egg_time'] or raid_info['s_tier'] and \
+               (not raid_info['expire_time'] and not raid_info['boss']):
                 raid_info['type'] = 'egg'
                 c_file = self._crop_tier(file)
                 tiers = testident.determine_tier(c_file)
@@ -207,47 +211,60 @@ class RaidAuto(commands.Cog):
                 tier = self._confirm_tier(tier, raid_info['s_tier'])
                 if tier == '0':
                     self.bot.gcv_logger.info(raid_info)
-                    image_utils.cleanup_file(file, f"screenshots/no_tier")
+                    await image_utils.cleanup_file(file, f"screenshots/no_tier")
                     await message.channel.send(
                         embed=discord.Embed(
                             colour=discord.Colour.red(),
                             description=("Could not determine raid boss or egg level from screenshot, unable to create "
                                          "raid channel. If you're trying to report a raid, please use the command instead: "
                                          "`!r <boss/tier> <gym name> <time>`")))
-                    log_message = f"Could not egg level or boss in: {a.url}\nFull raid info: {raid_info}"
+                    log_message = f"Could not read egg level or boss in: {a.url}\nFull raid info: {raid_info}"
                     self.bot.scan_fail_log.info(log_message)
                     continue
                 raid_info['tier'] = tier
-                image_utils.cleanup_file(file, f"screenshots/{tier}")
-            elif not raid_info['boss']:
+                egg_image = True
+            # If we don't have a boss or expire time or egg time, all is lost
+            elif not raid_info['boss'] and not raid_info['expire_time']:
                 self.bot.gcv_logger.info(raid_info)
-                image_utils.cleanup_file(file, f"screenshots/no_tier")
+                await image_utils.cleanup_file(file, f"screenshots/no_tier")
                 await message.channel.send(
                     embed=discord.Embed(
                         colour=discord.Colour.red(),
                         description=("Could not determine raid boss or egg level from screenshot, unable to create "
                                      "raid channel. If you're trying to report a raid, please use the command instead: "
                                      "`!r <boss/tier> <gym name> <time>`")))
-                log_message = f"Could not egg level or boss in: {a.url}\nFull raid info: {raid_info}"
+                log_message = f"Could not read egg level or boss in: {a.url}\nFull raid info: {raid_info}"
                 self.bot.scan_fail_log.info(log_message)
                 continue
-            if raid_info['expire_time'] or raid_info['boss']:
+            # If we have an expire time but no boss, make it a level 1 egg about to hatch
+            elif raid_info['expire_time'] and not raid_info['boss']:
+                raid_info['type'] = 'egg'
+                raid_info['exp'] = "0"
+                raid_info['phone_time'] = None
+                raid_info['tier'] = 1
+                time_set = True
+                warning = True
+            elif raid_info['boss']:
                 raid_info['type'] = 'raid'
-            timev = None
-            if raid_info['egg_time']:
-                timev = raid_info['egg_time']
-            elif raid_info['expire_time']:
-                timev = raid_info['expire_time']
-            if timev:
-                time_split = timev.split(':')
-                hour = time_split[0] if time_split[0].isdigit() else 0
-                minute = time_split[1] if time_split[1].isdigit() else 0
-                timev = str(60*int(hour) + int(minute))
-                raid_info['exp'] = timev
+                # if raid_info['expire_time'] or raid_info['boss']:
+            if not time_set:
+                if raid_info['egg_time'] and not timev:
+                    timev = raid_info['egg_time']
+                elif raid_info['expire_time'] and not timev:
+                    timev = raid_info['expire_time']
+                if timev:
+                    time_split = timev.split(':')
+                    hour = time_split[0] if time_split[0].isdigit() else 0
+                    minute = time_split[1] if time_split[1].isdigit() else 0
+                    timev = str(60*int(hour) + int(minute))
+                    raid_info['exp'] = timev
             self.bot.gcv_logger.info(raid_info)
             self.bot.gcv_logger.info(f"real scan: {time.time() - start}")
-            await self.create_raid(ctx, raid_info)
-            image_utils.cleanup_file(file, f"screenshots/boss")
+            await self.create_raid(ctx, raid_info, file, warning)
+            if egg_image:
+                await image_utils.cleanup_file(file, f"screenshots/{raid_info['tier']}")
+            else:
+                await image_utils.cleanup_file(file, f"screenshots/boss")
             if c_file:
                 os.remove(c_file)
 
@@ -255,6 +272,9 @@ class RaidAuto(commands.Cog):
     def _confirm_tier(tier, s_tier):
         """Check the tier returned by the image classifier against the tier returned by the OCR.
            If the egg color matches, we will trust the OCR over the classifier."""
+        # If the scan didn't find a tier but we're in this check, trust the image classifier
+        if tier and not s_tier:
+            return tier
         # If the image classifier found a level 5 egg, then we will trust it
         if tier == '5':
             return tier
@@ -271,17 +291,17 @@ class RaidAuto(commands.Cog):
     async def _build_raid_info(self, tier, file):
         raid_info = {}
         if tier == "0":
-            image_utils.cleanup_file(file, "screenshots/not_raid")
+            await image_utils.cleanup_file(file, "screenshots/not_raid")
             return None, None
         elif tier.isdigit():
-            file = image_utils.cleanup_file(file, f"screenshots/{tier}")
+            file = await image_utils.cleanup_file(file, f"screenshots/{tier}")
             raid_info["type"] = "egg"
             raid_info["level"] = f"{tier}"
         else:
             out_path = os.path.join("screenshots", tier)
             if not os.path.exists(out_path):
                 os.makedirs(out_path)
-            file = image_utils.cleanup_file(file, out_path)
+            file = await image_utils.cleanup_file(file, out_path)
             raid_info["type"] = "raid"
             raid_info["boss"] = tier
         return raid_info, file
@@ -487,7 +507,7 @@ class RaidAuto(commands.Cog):
         await ctx.send(embed=embed)
         if c_file:
             os.remove(c_file)
-        image_utils.cleanup_file(file, f"screenshots/test")
+        await image_utils.cleanup_file(file, f"screenshots/test")
 
 
 def setup(bot):

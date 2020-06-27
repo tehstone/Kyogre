@@ -1,5 +1,7 @@
 import asyncio
 import copy
+import os
+
 import dateparser
 import datetime
 import re
@@ -350,7 +352,7 @@ class RaidCommands(commands.Cog):
         return await self.finish_raid_report(ctx, raid_details, None, egg_level, weather, raidexp)
 
     async def finish_raid_report(self, ctx, raid_details, raid_pokemon, level, weather, raidexp,
-                                 auto=False, report_channel=None):
+                                 report_channel=None, image_file=None, bad_scan=False):
         message = ctx.message
         if report_channel:
             channel = report_channel
@@ -426,6 +428,8 @@ class RaidCommands(commands.Cog):
             await raid_channel.set_permissions(guild.default_role, overwrite=ow)
         except (discord.errors.Forbidden, discord.errors.HTTPException, discord.errors.InvalidArgument):
             pass
+        if image_file:
+            await self.send_scanned_image(author, raid_channel, image_file, bad_scan)
         ctype = 'raid' if raid_report else 'egg'
         manual = True if raidexp else False
         hatch, expire = await self._calc_egg_raid_exp_time(ctx, raidexp, ctype, str(level))
@@ -453,10 +457,10 @@ class RaidCommands(commands.Cog):
             'short': None
         }
         report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, ctx, raid_dict, enabled)
-        if raid_report:
-            msg = entity_updates.build_raid_report_message(self.bot, raid_channel, raid_dict)
-        else:
-            msg = entity_updates.build_raid_report_message(self.bot, raid_channel, raid_dict)
+        msg = entity_updates.build_raid_report_message(self.bot, raid_channel, raid_dict)
+        if bad_scan:
+            msg = f"{author.mention} **Raid boss was not identified. Please edit this report with :pencil2:" \
+                  f" and update the time!**"
         raidreport = await channel.send(content=msg, embed=report_embed)
         short_output_channel_id = self.bot.guild_dict[guild.id]['configure_dict']['raid']\
             .setdefault('short_output', {}).get(gym.region, None)
@@ -476,11 +480,7 @@ class RaidCommands(commands.Cog):
         ctrsmessage_id = None
         ctrs_dict = {}
         if raid_report:
-            raidmsg = "{pokemon} raid reported at {location_details} gym by {member} in {citychannel}. " \
-                      "Coordinate here!\n\nClick the question mark reaction" \
-                      " to get help on the commands that work in this channel."\
-                .format(pokemon=str(raid_pokemon), member=author.display_name,
-                        citychannel=channel.mention, location_details=raid_details)
+            raidmsg = entity_updates.get_raidtext(report_channel)
             if str(level) in self.bot.guild_dict[guild.id]['configure_dict']['counters']['auto_levels']:
                 try:
                     ctrs_dict = await counters_helpers._get_generic_counters(self.bot, guild, raid_pokemon, weather)
@@ -506,11 +506,7 @@ class RaidCommands(commands.Cog):
                             'location': raid_details,
                             'regions': gym_regions}
         else:
-            raidmsg = "Level {level} raid egg reported at {location_details} gym by {member} in {citychannel}. " \
-                      "Coordinate here!\n\nClick the question mark reaction to get help " \
-                      "on the commands that work in this channel."\
-                .format(level=level, member=author.display_name,
-                        citychannel=channel.mention, location_details=raid_details)
+            raidmsg = entity_updates.get_raidtext(report_channel)
             egg_reports = self.bot.guild_dict[guild.id].setdefault('trainers', {}).setdefault(gym.region, {})\
                               .setdefault(author.id, {}).setdefault('egg_reports', 0) + 1
             self.bot.guild_dict[guild.id]['trainers'][gym.region][author.id]['egg_reports'] = egg_reports
@@ -533,9 +529,6 @@ class RaidCommands(commands.Cog):
             await raid_channel.send(content='Hey {member}, if you can, set the time left on the raid using '
                                             '**!timerset <minutes>** so others can check it with **!timer**.'
                                     .format(member=author.mention))
-        if auto:
-            await raid_channel.send("This raid was auto-generated from a screenshot so the information may "
-                                    "not be completely accurate.")
         await listmgmt_cog.update_listing_channels(guild, 'raid', edit=False, regions=gym_regions)
         subscriptions_cog = self.bot.cogs.get('Subscriptions')
         if enabled:
@@ -748,11 +741,11 @@ class RaidCommands(commands.Cog):
         except:
             reporter = None
         try:
-            reportchannel = eggdetails['reportchannel']
+            report_channel = eggdetails['reportchannel']
         except:
-            reportchannel = None
-        if reportchannel is not None:
-            reportchannel = self.bot.get_channel(reportchannel)
+            report_channel = None
+        if report_channel is not None:
+            report_channel = self.bot.get_channel(report_channel)
         raid_message = await raid_channel.fetch_message(eggdetails['raidmessage'])
         egg_report = None
         if not reportcitychannel:
@@ -762,9 +755,9 @@ class RaidCommands(commands.Cog):
                     if c in message.content:
                         reportcitychannel = message.raw_channel_mentions[0]
                         break
-        if reportchannel:
+        if report_channel:
             try:
-                egg_report = await reportchannel.fetch_message(eggdetails['raidreport'])
+                egg_report = await report_channel.fetch_message(eggdetails['raidreport'])
             except (discord.errors.NotFound, discord.errors.HTTPException):
                 pass
         city_report = None
@@ -793,7 +786,6 @@ class RaidCommands(commands.Cog):
         end = datetime.datetime.utcfromtimestamp(raidexp) + datetime.timedelta(
             hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
         oldembed = raid_message.embeds[0]
-        raid_gmaps_link = oldembed.url
         enabled = True
         raidmsg = ''
         raidreportcontent = ''
@@ -814,12 +806,7 @@ class RaidCommands(commands.Cog):
             if enabled:
                 raidreportcontent += '\nCoordinate in the raid channel: {raid_channel}'\
                     .format(raid_channel=raid_channel.mention)
-            raidmsg = "The egg reported in {citychannel} hatched into a {pokemon} raid! Details: {location_details}. " \
-                      "Coordinate here!\n\nClick the question mark react to get help on the commands that work in here." \
-                      "\n\nThis channel will be deleted five minutes after the timer expires."\
-                .format(citychannel=reportcitychannel.mention,
-                        pokemon=entered_raid.capitalize(),
-                        location_details=egg_address)
+            raidmsg = entity_updates.get_raidtext(report_channel)
         elif egglevel == 'EX':
             hatchtype = 'exraid'
             if self.bot.guild_dict[guild.id]['configure_dict']['invite']['enabled']:
@@ -834,13 +821,7 @@ class RaidCommands(commands.Cog):
                         location_details=egg_address,
                         invitemsgstr=invitemsgstr,
                         raid_channel=raid_channel.mention)
-            raidmsg = "{pokemon} EX raid reported in {citychannel}! Details: {location_details}. Coordinate here" \
-                      "{invitemsgstr2}!\n\nClick the question mark reaction to get help on the commands " \
-                      "that work in here.\n\nThis channel will be deleted five minutes after the timer expires."\
-                .format(pokemon=entered_raid.capitalize(),
-                        citychannel=reportcitychannel.mention,
-                        location_details=egg_address,
-                        invitemsgstr2=invitemsgstr2)
+            raidmsg = entity_updates.get_raidtext(report_channel)
         raid_channel_name = utils.sanitize_name(pkmn.name.lower() + '_' + egg_address)[:32]
         embed_indices = await embed_utils.get_embed_field_indices(oldembed)
         raid_embed = discord.Embed(colour=guild.me.colour)
@@ -907,7 +888,7 @@ class RaidCommands(commands.Cog):
         else:
             send_channel = subscriptions_cog.get_region_list_channel(guild, gym.region, 'raid')
             if send_channel is None:
-                send_channel = reportchannel
+                send_channel = report_channel
         await subscriptions_cog.send_notifications_async('raid', raid_details, send_channel,
                                                          [author] if author else [])
         if embed_indices["directions"] is not None:
@@ -975,7 +956,7 @@ class RaidCommands(commands.Cog):
             'active': True,
             'raidmessage': raid_message,
             'raidreport': egg_report,
-            'reportchannel': reportchannel.id,
+            'reportchannel': report_channel.id,
             'address': egg_address,
             'type': hatchtype,
             'pokemon': pkmn.name.lower(),
@@ -1312,6 +1293,18 @@ class RaidCommands(commands.Cog):
             else:
                 await channel.send("Timerset isn't supported for EX Raids after they have hatched.")
 
+    async def send_scanned_image(self, author, channel, file, bad_scan):
+        __, tail = os.path.split(file)
+        message = "Please verify that the information in this raid report is correct."
+        if bad_scan:
+            message = f"{author.mention}\n**The raid boss could not be identified!\n" \
+                      "Please use `!raid bossname` to correct this raid!**"
+        try:
+            with open(file, 'rb') as image_file:
+                await channel.send(message, file=discord.File(image_file, filename=tail))
+        except FileNotFoundError:
+            self.bot.logger.warn(f"Could not find image {tail}, no image posted in raid channel {channel.name}.")
+
     @staticmethod
     def _timercheck(exp_time, maxtime):
         return exp_time > maxtime
@@ -1323,7 +1316,7 @@ class RaidCommands(commands.Cog):
         raidminutes = self.bot.raid_info['raid_eggs'][level]['raidtime']
         hatch, expire = None, None
         if ctype == 'egg':
-            if not minutes:
+            if minutes is None:
                 minutes = eggminutes
             hatch = now + datetime.timedelta(minutes=minutes)
             expire = hatch + datetime.timedelta(minutes=raidminutes)
