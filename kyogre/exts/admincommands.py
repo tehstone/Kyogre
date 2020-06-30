@@ -16,7 +16,7 @@ from contextlib import redirect_stdout
 import discord
 from discord.ext import commands
 
-from kyogre import checks, utils
+from kyogre import checks, utils, pokemon_emoji
 from kyogre.exts.db.kyogredb import PokemonTable
 from kyogre.exts.pokemon import Pokemon
 
@@ -35,6 +35,11 @@ class AdminCommands(commands.Cog):
             #     await ctx.send_help(ctx.command)
             # else:
             #     await ctx.send(error)
+
+    @commands.command(hidden=True, name='testemoji', aliases=['te'])
+    async def _test_test(self, ctx, pokemon: str):
+        await ctx.message.delete()
+        await ctx.send(pokemon_emoji.get_pokemon_emoji(pokemon))
 
     @commands.command(hidden=True, name='mentiontoggle', aliases=['mt'])
     @commands.has_permissions(manage_roles=True)
