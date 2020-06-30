@@ -284,10 +284,11 @@ class QuestRewardManagement(commands.Cog):
     async def check_reward(self, ctx, quest, reward):
         complete_pool = []
         reward = reward.lower().strip()
+        dust_result = [e for e in ['stardust', 'dust'] if (e in reward)]
         if reward == 'encounter':
             any_encounter = f"{' or '.join([p.title() for p in quest.reward_pool['encounters']])} Encounter"
             complete_pool.append(any_encounter)
-        elif 'stardust' in quest.reward_pool and reward in ['stardust', 'dust']:
+        elif 'stardust' in quest.reward_pool and dust_result:
             if len(quest.reward_pool['stardust']) > 0:
                 r = f"{quest.reward_pool['stardust'][0]} stardust"
                 complete_pool.append(r)
