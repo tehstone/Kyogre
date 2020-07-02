@@ -281,7 +281,7 @@ class TrainerReportRelation(BaseModel):
 
 
 class QuestTable(BaseModel):
-    name = TextField(unique=True)
+    name = TextField()
     reward_pool = JSONField()
 
     @classmethod

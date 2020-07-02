@@ -12,7 +12,7 @@ from discord.ext import commands
 
 from kyogre.exts.pokemon import Pokemon
 from kyogre.exts.db.kyogredb import *
-from kyogre import constants, embed_utils, utils
+from kyogre import constants, embed_utils, utils, pokemon_emoji
 
 
 class ListManagement(commands.Cog):
@@ -56,7 +56,13 @@ class ListManagement(commands.Cog):
         else:
             cty = channel.name
         egg_dict = {'1': {}, '2': {}, '3': {}, '4': {}, '5': {}}
-        raid_dict = {'1': {}, '2': {}, '3': {}, '4': {}, '5': {}}
+        raid_dict = {
+            '1': {"raid": {}, "egg": {}},
+            '2': {"raid": {}, "egg": {}},
+            '3': {"raid": {}, "egg": {}},
+            '4': {"raid": {}, "egg": {}},
+            '5': {"raid": {}, "egg": {}}
+        }
         exraid_list = []
         event_list = []
         for r in rc_d:
@@ -68,19 +74,20 @@ class ListManagement(commands.Cog):
                 reportlocation = [self.bot.get_channel(rc_d[r]['reportcity']).name]
             if not reportlocation:
                 continue
-            if (cty in reportlocation) and rc_d[r]['active'] and discord.utils.get(guild.text_channels, id=r):
+            if (cty in reportlocation) and discord.utils.get(guild.text_channels, id=r): #and rc_d[r]['active']
+
                 exp = rc_d[r]['exp']
                 type = rc_d[r]['type']
                 level = rc_d[r]['egglevel']
                 if (type == 'egg') and level.isdigit():
-                    egg_dict[level][r] = exp
+                    raid_dict[level]["egg"][r] = exp
                 elif rc_d[r].get('meetup', {}):
                     event_list.append(r)
                 elif type == 'exraid' or level == 'EX':
                     exraid_list.append(r)
                 else:
                     egglevel = Pokemon.get_pokemon(self.bot, rc_d[r]['pokemon']).raid_level
-                    raid_dict[egglevel][r] = exp
+                    raid_dict[egglevel]["raid"][r] = exp
 
         def list_output(raid):
             trainer_dict = rc_d[raid]['trainer_dict']
@@ -110,8 +117,10 @@ class ListManagement(commands.Cog):
             else:
                 pass
             egglevel = rc_d[raid]['egglevel']
-            if egglevel.isdigit() and (int(egglevel) > 0):
-                t_emoji = str(egglevel) + '\u20e3'
+            if rc_d[raid]['type'] == 'egg':
+                t_emoji = pokemon_emoji.get_egg_emoji(egglevel)
+                if int(egglevel) < 5:
+                    t_emoji += str(egglevel) + '\u20e3'
                 expirytext = '**Hatches**: {expiry}{is_assumed}' \
                     .format(expiry=end.strftime('%I:%M%p'), is_assumed=assumed_str)
             elif ((rc_d[raid]['egglevel'] == 'EX') or (rc_d[raid]['type'] == 'exraid')) and not meetup:
@@ -135,7 +144,7 @@ class ListManagement(commands.Cog):
                     .format(expiry=end.strftime('%I:%M%p'), is_assumed=assumed_str)
             boss = Pokemon.get_pokemon(self.bot, rc_d[raid].get('pokemon', ''))
             if not t_emoji and boss:
-                t_emoji = str(boss.raid_level) + '\u20e3'
+                t_emoji = pokemon_emoji.get_pokemon_emoji(boss.emoji_name)
             location_matching_cog = self.bot.cogs.get('LocationMatching')
             gym_id = rc_d[raid].get('gym', None)
             gym = location_matching_cog.get_gym_by_id(guild.id, gym_id)
@@ -199,18 +208,15 @@ class ListManagement(commands.Cog):
             if region:
                 listmsg += report_str
             listmsg += "\n"
-            if egg_dict:
-                for level in egg_dict:
-                    if len(egg_dict[level].items()) > 0:
-                        listmsg = process_category(listmsg_list, listmsg, f"Level {level} Eggs",
-                                                   [r for (r, __) in
-                                                   sorted(egg_dict[level].items(), key=itemgetter(1))])
             if raid_dict:
                 for level in raid_dict:
-                    if len(raid_dict[level].items()) > 0:
-                        listmsg = process_category(listmsg_list, listmsg, f"Active Level {level} Raids",
-                                                   [r for (r, __) in
-                                                   sorted(raid_dict[level].items(), key=itemgetter(1))])
+                    for t in ["egg", "raid"]:
+                        if len(raid_dict[level][t].items()) > 0:
+                            msg = f"Level {level} {t.capitalize()}s"
+                            listmsg = process_category(listmsg_list, listmsg, msg,
+                                                       [r for (r, __) in
+                                                        sorted(raid_dict[level][t].items(),
+                                                               key=itemgetter(1), reverse=True)])
         else:
             listmsg = 'No active raids! Report one with **!raid <name> <location> [weather] [timer]**.'
             if region:
@@ -848,7 +854,7 @@ class ListManagement(commands.Cog):
         trainer_dict['status'] = {'maybe': 0, 'coming': 0, 'here': 0, 'lobby': 0}
         trainer_dict['party'] = {'mystic': 0, 'valor': 0, 'instinct': 0, 'unknown': 0}
         trainer_dict['interest'] = []
-        trainer_dict['count'] = 1
+        trainer_dict['count'] = 0
         await self.edit_party(ctx, channel, author)
         trainer_count = self.determine_trainer_count(
             guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
