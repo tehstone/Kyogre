@@ -384,6 +384,9 @@ class QuestRewardManagement(commands.Cog):
         else:
             await ctx.send("Finished updating research task list.")
             await ctx.message.add_reaction(self.bot.success_react)
+        gameinfo_cog = self.bot.cogs.get('GameInfo')
+        if gameinfo_cog:
+            await gameinfo_cog.update_info_channel(ctx, "research")
 
 
 def setup(bot):

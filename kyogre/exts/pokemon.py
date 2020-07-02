@@ -202,6 +202,17 @@ class Pokemon():
             name = f'Shiny {name}'
         return name
 
+    @property
+    def emoji_name(self):
+        name = self.species.title()
+        if self.form:
+            name = f'{name}{self.form.title()}'
+        if self.alolan:
+            name = f'{name}alola'
+        if self.galarian:
+            name = f'{name}galar'
+        return name.lower()
+
     async def get_pb_raid(self, weather=None, userid=None, moveset=None):
         """Get a PokeBattler Raid for this Pokemon
 

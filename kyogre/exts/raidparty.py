@@ -15,6 +15,7 @@ class RaidParty(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.status_parser = re.compile(r'^(w*\d+)$|^(\d+(?:[, ]+))?([\dimvu ,]+)?(?:[, ]*)([a-zA-Z ,]+)?$')
+        self.heat_count = 3
 
     async def _parse_teamcounts(self, ctx, teamcounts, trainer_dict, egglevel):
         if not teamcounts:
@@ -88,6 +89,11 @@ class RaidParty(commands.Cog):
         result = await self._party_status(ctx, total, teamcounts, trainer_dict)
         return (result, entered_interest, eta)
 
+    @commands.command(hidden=True, name="setraidchannelheatcount", aliases=['shc'])
+    @commands.has_permissions(manage_guild=True)
+    async def _setraidchannelheatcount(self, ctx, count: int):
+        self.heat_count = count
+
     @commands.command()
     @checks.raidchannel()
     async def shout(self, ctx, *, shout_message="\u200b"):
@@ -150,6 +156,10 @@ class RaidParty(commands.Cog):
             partylist = result[1]
             listmgmt_cog = self.bot.cogs.get('ListManagement')
             await listmgmt_cog.maybe(ctx, count, partylist, eta, entered_interest)
+            new_name, changed = await self._check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
+                                                             [ctx.channel.id]['trainer_dict'], ctx.channel.name)
+            if changed:
+                await ctx.channel.edit(name=new_name)
 
     @commands.command(aliases=['c'])
     @checks.raidchannel()
@@ -174,6 +184,10 @@ class RaidParty(commands.Cog):
             partylist = result[1]
             listmgmt_cog = self.bot.cogs.get('ListManagement')
             await listmgmt_cog.coming(ctx, count, partylist, eta, entered_interest)
+            new_name, changed = await self._check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
+                                                             [ctx.channel.id]['trainer_dict'], ctx.channel.name)
+            if changed:
+                await ctx.channel.edit(name=new_name)
 
     @commands.command(aliases=['h'])
     @checks.raidchannel()
@@ -197,6 +211,10 @@ class RaidParty(commands.Cog):
             partylist = result[1]
             listmgmt_cog = self.bot.cogs.get('ListManagement')
             await listmgmt_cog.here(ctx, count, partylist, entered_interest)
+            new_name, changed = await self._check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
+                                                             [ctx.channel.id]['trainer_dict'], ctx.channel.name)
+            if changed:
+                await ctx.channel.edit(name=new_name)
 
     async def _party_status(self, ctx, total, teamcounts, trainer_dict):
         channel = ctx.channel
@@ -350,6 +368,10 @@ class RaidParty(commands.Cog):
         Or removes you and your party from the active lobby."""
         listmgmt_cog = self.bot.cogs.get('ListManagement')
         await listmgmt_cog.cancel(ctx)
+        new_name, changed = await self._check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
+                                                         [ctx.channel.id]['trainer_dict'], ctx.channel.name)
+        if changed:
+            await ctx.channel.edit(name=new_name)
 
     @commands.command(aliases=['s'])
     @checks.activeraidchannel()
@@ -490,6 +512,10 @@ class RaidParty(commands.Cog):
             await listmgmt_cog.update_listing_channels(ctx.guild, 'raid', edit=True, regions=regions)
         raid_cog = self.bot.cogs.get('RaidCommands')
         action_time += lobby_duration
+        new_name, changed = await self._check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
+                                                         [ctx.channel.id]['trainer_dict'], ctx.channel.name)
+        if changed:
+            await ctx.channel.edit(name=new_name)
         await raid_cog.add_db_raid_action(ctx.channel, "lobby complete", action_time)
 
     @commands.command()
@@ -564,6 +590,19 @@ class RaidParty(commands.Cog):
                     pass
             else:
                 return
+
+    async def _check_rsvp_total(self, trainer_dict, channel_name):
+        new_name = channel_name
+        count = 0
+        for t in trainer_dict:
+            count += trainer_dict[t]['count']
+        if count >= self.heat_count:
+            if '🔥' not in channel_name:
+                new_name = '🔥' + channel_name
+        elif count < self.heat_count:
+            if '🔥' in channel_name:
+                new_name = channel_name.replace('🔥', '')
+        return new_name, new_name != channel_name
 
 
 def setup(bot):

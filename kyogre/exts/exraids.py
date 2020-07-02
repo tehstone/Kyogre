@@ -290,7 +290,7 @@ class EXRaids(commands.Cog):
             await ctx.send(embed=discord.Embed(
                 colour=discord.Colour.red(),
                 description=f"Unable to find gym with name {info_parts[0]}."),
-                deleteafter=15)
+                delete_after=15)
             return await ctx.message.delete()
         new_date = parse(info_parts[1])
         date_key = new_date.strftime("%b_%d").lower()
@@ -366,6 +366,8 @@ class EXRaids(commands.Cog):
             self.bot.logger.info('EX Channel_Cleanup ------ BEGIN ------')
             # for every server in save data
             for guildid in guilddict_chtemp.keys():
+                if guildid in self.bot.util_servers:
+                    continue
                 guild = self.bot.get_guild(guildid)
                 log_str = 'EX Channel_Cleanup - Server: ' + str(guildid)
                 log_str = log_str + ' - CHECKING FOR SERVER'

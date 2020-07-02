@@ -7,6 +7,9 @@ import datetime
 import re
 import time
 
+from operator import itemgetter
+from functools import cmp_to_key
+
 import discord
 from discord.ext import commands
 
@@ -448,7 +451,7 @@ class RaidCommands(commands.Cog):
             'address': raid_details,
             'type': ctype,
             'pokemon': raid_pokemon.name.lower() if raid_report else '',
-            'egglevel': str(level) if not raid_report else '0',
+            'egglevel': str(level) if not raid_report else raid_pokemon.raid_level,
             'moveset': 0,
             'weather': weather,
             'gym': gym.id,
@@ -456,6 +459,8 @@ class RaidCommands(commands.Cog):
             'hatching': False,
             'short': None
         }
+        position = self._determine_channel_position(self.bot.guild_dict[guild.id]['raidchannel_dict'], raid_dict, gym_regions)
+        await raid_channel.edit(position=position)
         report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, ctx, raid_dict, enabled)
         msg = entity_updates.build_raid_report_message(self.bot, raid_channel, raid_dict)
         if bad_scan:
@@ -615,11 +620,12 @@ class RaidCommands(commands.Cog):
             raid_channel_overwrite_dict = report_channel.overwrites
             name = ""
             if raid_type == "raid":
-                name = pkmn.name.lower() + "_"
+                #🥚❓🔥
+                name = f"{pkmn.name.lower()}_"
                 cat = utils.get_category(report_channel, str(pkmn.raid_level), self.bot.guild_dict,
                                          category_type=raid_type)
             elif raid_type == "egg":
-                name = "{level}-egg_".format(level=str(level))
+                name = f'{level}🥚_'
                 cat = utils.get_category(report_channel, str(level), self.bot.guild_dict, category_type=raid_type)
         kyogre_overwrite = {
             self.bot.user: discord.PermissionOverwrite(send_messages=True, read_messages=True, manage_roles=True,
@@ -640,6 +646,45 @@ class RaidCommands(commands.Cog):
                 raid_channel_overwrite_dict.update(role_overwrite)
         name = utils.sanitize_name(name + gym.name)[:32]
         return await guild.create_text_channel(name, overwrites=raid_channel_overwrite_dict, category=cat)
+
+    def _determine_channel_position(self, raids_dict, raid_dict, gym_regions):
+        region = gym_regions[0]
+        if raid_dict['type'] == 'egg':
+            boss_val = "z"
+        else:
+            boss_val = raid_dict["pokemon"]
+        new_raid = {"channel_id": 123, "boss": boss_val, "level": raid_dict["egglevel"], "exp": raid_dict["exp"]}
+        region_raids = [new_raid]
+        for rid in raids_dict:
+            if region in raids_dict[rid]['regions']:
+                if raids_dict[rid]['type'] == 'egg':
+                    t_raid = {"channel_id": rid, "boss": "z",
+                              "level": raids_dict[rid]["egglevel"], "exp": raids_dict[rid]["exp"]}
+                else:
+                    t_raid = {"channel_id": rid, "boss": raids_dict[rid]["pokemon"],
+                              "level": raids_dict[rid]["egglevel"], "exp": raids_dict[rid]["exp"]}
+                region_raids.append(t_raid)
+        sorted_raids = self.multikeysort(region_raids, ['-level', 'boss', 'exp'])
+        return sorted_raids.index(new_raid)
+
+    def multikeysort(self, items, columns):
+        comparers = [
+            ((itemgetter(col[1:].strip()), -1) if col.startswith('-') else (itemgetter(col.strip()), 1))
+            for col in columns
+        ]
+
+        def comparer(left, right):
+            comparer_iter = (
+                self.cmp(fn(left), fn(right)) * mult
+                for fn, mult in comparers
+            )
+            return next((result for result in comparer_iter if result), 0)
+
+        return sorted(items, key=cmp_to_key(comparer))
+
+    @staticmethod
+    def cmp(x, y):
+        return (x > y) - (x < y)
 
     async def _eggassume(self, ctx, args, raid_channel, author):
         guild = raid_channel.guild
@@ -822,7 +867,6 @@ class RaidCommands(commands.Cog):
                         invitemsgstr=invitemsgstr,
                         raid_channel=raid_channel.mention)
             raidmsg = entity_updates.get_raidtext(report_channel)
-        raid_channel_name = utils.sanitize_name(pkmn.name.lower() + '_' + egg_address)[:32]
         embed_indices = await embed_utils.get_embed_field_indices(oldembed)
         raid_embed = discord.Embed(colour=guild.me.colour)
         min_cp, max_cp = pkmn.get_raid_cp_range(False)
@@ -837,7 +881,6 @@ class RaidCommands(commands.Cog):
                              , inline=True)
         raid_embed.set_footer(text=oldembed.footer.text, icon_url=oldembed.footer.icon_url)
         raid_embed.set_thumbnail(url=pkmn.img_url)
-        await raid_channel.edit(name=raid_channel_name, topic=end.strftime('Ends at %I:%M %p (%H:%M)'))
         trainer_list = []
         trainer_dict = copy.deepcopy(self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['trainer_dict'])
         for trainer in trainer_dict.keys():
@@ -947,7 +990,7 @@ class RaidCommands(commands.Cog):
             ctrsmessage_id = eggdetails.get('ctrsmessage', None)
         regions = eggdetails.get('regions', None)
         short_id = eggdetails.get('short', None)
-        self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = {
+        new_raid_dict = {
             'regions': regions,
             'reportcity': reportcitychannel.id,
             'trainer_dict': trainer_dict,
@@ -960,7 +1003,7 @@ class RaidCommands(commands.Cog):
             'address': egg_address,
             'type': hatchtype,
             'pokemon': pkmn.name.lower(),
-            'egglevel': '0',
+            'egglevel': pkmn.raid_level,
             'ctrs_dict': ctrs_dict,
             'ctrsmessage': ctrsmessage_id,
             'weather': weather,
@@ -970,6 +1013,14 @@ class RaidCommands(commands.Cog):
             'last_status': new_status.id if new_status is not None else None,
             'short': short_id
         }
+        position = self._determine_channel_position(self.bot.guild_dict[guild.id]['raidchannel_dict'], new_raid_dict,
+                                                    new_raid_dict['regions'])
+        raidparty_cog = self.bot.cogs.get('RaidParty')
+        raid_channel_name = utils.sanitize_name(pkmn.name.lower() + '_' + egg_address)[:32]
+        raid_channel_name, changed = await raidparty_cog._check_rsvp_total(trainer_dict, raid_channel_name)
+        await raid_channel.edit(name=raid_channel_name, topic=end.strftime('Ends at %I:%M %p (%H:%M)'),
+                                position=position)
+        self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = new_raid_dict
         self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['starttime'] = starttime
         self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['duplicate'] = duplicate
         self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['archive'] = archive
@@ -1749,9 +1800,7 @@ class RaidCommands(commands.Cog):
                     for trainer in trainer_dict.keys():
                         user = guild.get_member(trainer)
                         maybe_list.append(user.mention)
-                    h = 'hatched-'
-                    new_name = h if h not in channel.name else ''
-                    new_name += channel.name
+                    new_name = channel.name.replace('🥚', '❓')
                     await channel.edit(name=new_name)
                     await channel.send("**This egg has hatched!**\n\nTrainers {trainer_list}: \
                     \nUse **!raid <pokemon>** to set the Raid Boss\
@@ -1913,6 +1962,8 @@ class RaidCommands(commands.Cog):
             self.bot.logger.info('Raid Channel_Cleanup ------ BEGIN ------')
             # for every server in save data
             for guildid in guilddict_chtemp.keys():
+                if guildid in self.bot.util_servers:
+                    continue
                 guild = self.bot.get_guild(guildid)
                 log_str = 'Raid Channel_Cleanup - Server: ' + str(guildid)
                 log_str = log_str + ' - CHECKING FOR SERVER'
