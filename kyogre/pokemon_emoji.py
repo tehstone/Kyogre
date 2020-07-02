@@ -5,3 +5,12 @@ def get_pokemon_emoji(pokemonname):
     if pokemonname in poke_emoji_dict:
         return f"<:{pokemonname}:{poke_emoji_dict[pokemonname]}>"
     return f"<:spawn:727631157403058237>"
+
+
+def get_egg_emoji(egglevel):
+    egglevel = int(egglevel)
+    if egglevel == 5:
+        return "<:legegg:728034446204338256>"
+    if egglevel > 2:
+        return f"<:yellowegg:728034445998817366>"
+    return f"<:pinkegg:728034446313259038>"
