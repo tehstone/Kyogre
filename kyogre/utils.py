@@ -456,7 +456,7 @@ def do_template(message, author, guild):
 def sanitize_name(name):
     # Remove all characters other than alphanumerics,
     # dashes, underscores, and spaces
-    ret = re.sub('[^a-zA-Z0-9 _\\-]', '', name)
+    ret = re.sub('[^a-zA-Z0-9 _\\-🥚❓🔥🦖]', '', name)
     # Replace spaces with dashes
     ret = ret.replace(' ', '-')
     return ret

@@ -21,6 +21,7 @@ default_exts = ['admincommands',
                 'events',
                 'exraids',
                 'faves',
+                'gameinfo',
                 'getcommands',
                 'helpcommand',
                 'invasions',
@@ -108,6 +109,10 @@ class KyogreBot(commands.AutoShardedBot):
         self.session = None
         self.port = 8000
         self.initial_start = True
+        self.util_servers = [727602601255895050, 727602831489761291, 727603211049107547, 727607175186350130,
+                             727607261589012550, 727607316245119086, 727610691980361768, 727610940081700996,
+                             727611076744708167, 727612650514808914, 727612770169651340, 727612892467298334,
+                             727613019923677256, 727613199305670656, 727613275419967558, 727630993254645811]
 
         for ext in default_exts:
             try:
@@ -417,6 +422,8 @@ class KyogreBot(commands.AutoShardedBot):
             guilddict_chtemp = copy.deepcopy(self.guild_dict)
             # for every server in save data
             for guildid in guilddict_chtemp.keys():
+                if guildid in self.util_servers:
+                    continue
                 self.logger.info(f"Updating subscription leaderboard for guild with id: {guildid}")
                 guild = self.get_guild(guildid)
                 message_id = guilddict_chtemp[guildid]['configure_dict'].get('subscriptions', {}).get(

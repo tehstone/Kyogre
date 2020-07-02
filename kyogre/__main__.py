@@ -64,7 +64,8 @@ async def message_cleanup(loop=True):
         update_ids = set()
         guild_id = None
         for guildid in guilddict_temp.keys():
-            guild_id = guildid
+            if guildid in Kyogre.util_servers:
+                continue
             questreport_dict = guilddict_temp[guildid].get('questreport_dict', {})
             wildreport_dict = guilddict_temp[guildid].get('wildreport_dict', {})
             report_dict_dict = {
