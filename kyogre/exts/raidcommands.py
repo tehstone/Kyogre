@@ -839,7 +839,6 @@ class RaidCommands(commands.Cog):
             self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['type'] = 'exraid'
             self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['egglevel'] = '0'
             await raid_channel.send("The event has started!", embed=oldembed)
-            await raid_channel.edit(topic="")
             self.bot.event_loop.create_task(self.expiry_check(raid_channel))
             return
         if egglevel.isdigit():
@@ -1018,8 +1017,7 @@ class RaidCommands(commands.Cog):
         raidparty_cog = self.bot.cogs.get('RaidParty')
         raid_channel_name = utils.sanitize_name(pkmn.name.lower() + '_' + egg_address)[:32]
         raid_channel_name, changed = await raidparty_cog._check_rsvp_total(trainer_dict, raid_channel_name)
-        await raid_channel.edit(name=raid_channel_name, topic=end.strftime('Ends at %I:%M %p (%H:%M)'),
-                                position=position)
+        await raid_channel.edit(name=raid_channel_name, position=position)
         self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = new_raid_dict
         self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['starttime'] = starttime
         self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]['duplicate'] = duplicate
@@ -1397,28 +1395,22 @@ class RaidCommands(commands.Cog):
             await raidchannel.send('The channel has been reactivated.')
         raid_dict['active'] = True
         raid_dict['manual_timer'] = True
-        topicstr = ''
         if raid_dict.get('meetup', {}):
             raid_dict['meetup']['end'] = end
-            topicstr += 'Ends at {end}'.format(end=end.strftime('%I:%M %p (%H:%M)'))
             endtime = end.strftime('%I:%M %p (%H:%M)')
         elif raid_dict['type'] == 'egg':
             egglevel = raid_dict['egglevel']
             hatch = end
             raid_minutes = self.bot.raid_info['raid_eggs'][egglevel]['raidtime']
             end = hatch + datetime.timedelta(minutes=raid_minutes)
-            topicstr += 'Hatches at {expiry}'.format(expiry=hatch.strftime('%I:%M %p (%H:%M) | '))
-            topicstr += 'Ends at {end}'.format(end=end.strftime('%I:%M %p (%H:%M)'))
             endtime = hatch.strftime('%I:%M %p (%H:%M)')
         else:
-            topicstr += 'Ends at {end}'.format(end=end.strftime('%I:%M %p (%H:%M)'))
             egglevel = Pokemon.get_pokemon(self.bot, raid_dict['pokemon']).raid_level
             hatch = end - datetime.timedelta(minutes=self.bot.raid_info['raid_eggs'][egglevel]['raidtime'])
             endtime = end.strftime('%I:%M %p (%H:%M)')
         if to_print:
             timerstr = await self.print_raid_timer(raidchannel)
             await raidchannel.send(timerstr)
-        await raidchannel.edit(topic=topicstr)
         report_channel = self.bot.get_channel(raid_dict['reportchannel'])
         raidmsg = await raidchannel.fetch_message(raid_dict['raidmessage'])
         reportmsg = await report_channel.fetch_message(raid_dict['raidreport'])
@@ -2322,7 +2314,7 @@ class RaidCommands(commands.Cog):
                                                content=report_city_msg.content)
             except (discord.errors.NotFound, AttributeError):
                 pass
-            await channel.edit(name=raid_channel_name, topic=channel.topic)
+            await channel.edit(name=raid_channel_name)
         elif newraid and not newraid.isdigit():
             # What a hack, subtract raidtime from exp time because _eggtoraid will add it back
             egglevel = raid_dict['egglevel']

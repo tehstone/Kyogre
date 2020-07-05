@@ -396,7 +396,10 @@ class RaidAuto(commands.Cog):
             image_info = await self.bot.make_request(data, 'raid')
         except Exception as e:
             self.bot.logger.info(f"Request to image processing server failed with error: {e}")
-            image_info = await image_scan.read_photo_async(file, self.bot, self.bot.gcv_logger)
+            try:
+                image_info = await image_scan.read_photo_async(file, self.bot, self.bot.gcv_logger)
+            except:
+                return {'gym': None}
         gym = await self._determine_gym(ctx, region, image_info["names"])
         if gym:
             image_info['gym'] = gym.name

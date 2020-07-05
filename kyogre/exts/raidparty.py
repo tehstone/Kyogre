@@ -599,9 +599,9 @@ class RaidParty(commands.Cog):
         if count >= self.heat_count:
             if '🔥' not in channel_name:
                 new_name = '🔥' + channel_name
-        elif count < self.heat_count:
-            if '🔥' in channel_name:
-                new_name = channel_name.replace('🔥', '')
+        # elif count < self.heat_count:
+        #     if '🔥' in channel_name:
+        #         new_name = channel_name.replace('🔥', '')
         return new_name, new_name != channel_name
 
 
