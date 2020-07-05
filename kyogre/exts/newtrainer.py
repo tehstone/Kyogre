@@ -88,7 +88,7 @@ class NewTrainer(commands.Cog):
                     err_msg = f"{ctx.author.mention} your team is already set. Ask for help if you need to change it." \
                               "\nIf you would like to update your profile, use `!set profile`"
                     await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=err_msg))
-                    await image_utils.cleanup_file(file, f"screenshots/profile")
+                    return await image_utils.cleanup_file(file, f"screenshots/profile")
         trainer_name, xp, level = "", "", ""
         try:
             data = json.loads('{"image_url": "' + u + '"}')
@@ -174,12 +174,17 @@ class NewTrainer(commands.Cog):
             level_msg = "your level could not be determined"
         else:
             level_msg = f"your level has been set to **{level}**"
+        if not trainer_name:
+            trainer_msg = "\nYour trainer name could not be determined"
+        else:
+            trainer_msg = f"\nThe trainer name on your profile has been set to **{trainer_name}**"
 
 
         await ctx.channel.send(f"{ctx.author.mention} your team has been set to **{scan_team.capitalize()}** {team_emoji}!"
-                               f"\nThe trainer name on your profile has been set to **{trainer_name}**, "
-                               f"{level_msg} and {xp_msg}."
-                               "\nIf you would like to make changes or update your profile use `!set profile`")
+                               f"{trainer_msg}, {level_msg} and {xp_msg}."
+                               "\nIf you would like to make changes or update your profile use `!set profile`"
+                               "\nOr set an profile entry individually with `!set <entry name>`"
+                               "\nFor example: `!set friendcode 123456789101`")
         await image_utils.cleanup_file(file, f"screenshots/profile")
 
 

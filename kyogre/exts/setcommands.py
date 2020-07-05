@@ -169,13 +169,14 @@ class SetCommands(commands.Cog):
                 del self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {})[ctx.author.id]['pokebattlerid']
             except:
                 pass
-            return
+            return await ctx.message.add_reaction('✅')
         trainers = self.bot.guild_dict[ctx.guild.id].get('trainers', {})
         author = trainers.setdefault('info', {}).get(ctx.author.id, {})
         author['pokebattlerid'] = pbid
         trainers.setdefault('info', {})[ctx.author.id] = author
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
-        await ctx.send('Pokebattler ID set to {pbid}!'.format(pbid=pbid))
+        await ctx.send(f'Pokebattler ID set to {pbid}!')
+        return await ctx.message.add_reaction('✅')
 
     @_set.command()
     async def xp(self, ctx, xp: int = 0):
@@ -185,9 +186,15 @@ class SetCommands(commands.Cog):
         author = trainers.setdefault('info', {}).get(ctx.author.id, {})
         author['xp'] = xp
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
+        embed = discord.Embed(colour=discord.Colour.green())
+        if xp == 0:
+            embed.description = "XP count cleared from your profile."
+        else:
+            embed.description = f"XP count set to {xp} on your profile."
+        await ctx.send(embed=embed, delete_after=15)
         return await ctx.message.add_reaction('✅')
 
-    @_set.command(name='friendcode', aliases=['friend_code', 'fc', 'code'])
+    @_set.command(name='friendcode', aliases=['friend_code', 'fc', 'code', 'friend'])
     async def friend_code(self, ctx, *, code: str = None):
         """**Usage**: `!set friendcode <friend code>`
         Adds your friend code to your `!profile`"""
@@ -195,10 +202,16 @@ class SetCommands(commands.Cog):
         author = trainers.setdefault('info', {}).get(ctx.author.id, {})
         author['code'] = code
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
+        embed = discord.Embed(colour=discord.Colour.green())
+        if not code:
+            embed.description = "Friend code cleared from your profile."
+        else:
+            embed.description = f"Friend code set to {code} on your profile."
+        await ctx.send(embed=embed, delete_after=15)
         return await ctx.message.add_reaction('✅')
 
     @_set.command(name='trainername', aliases=['name', 'tn'])
-    async def _trainername(self, ctx, *, name: str):
+    async def _trainername(self, ctx, *, name: str = None):
         """**Usage**: `!set _trainername <trainer name>`
         Set this if your trainer name is different than your discord name.
         Adds your trainer name to your `!profile`"""
@@ -206,6 +219,12 @@ class SetCommands(commands.Cog):
         author = trainers.setdefault('info', {}).get(ctx.author.id, {})
         author['trainername'] = name
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
+        embed = discord.Embed(colour=discord.Colour.green())
+        if not name:
+            embed.description = "Trainer name cleared from your profile."
+        else:
+            embed.description = f"Trainer name set to {name} on your profile."
+        await ctx.send(embed=embed, delete_after=15)
         return await ctx.message.add_reaction('✅')
 
     profile_steps = [{'prompt': "What team are you on?", 'td_key': 'team'},
@@ -250,7 +269,7 @@ class SetCommands(commands.Cog):
                     if response is None:
                         break
                     if response.lower() not in team_role_names:
-                        if response.lower() == 'clear' or response.lower() == 'skip':
+                        if response.lower() in ['clear', 'skip', '"skip"', '" skip "', "'skip'", "' skip '"]:
                             break
                         if response.lower() == 'cancel' or response.lower() == 'exit':
                             return await ctx.author.send("Profile setup cancelled.")
@@ -271,7 +290,7 @@ class SetCommands(commands.Cog):
                     except KeyError:
                         pass
                 trainer_dict_copy[step['td_key']] = None
-            elif response.lower() == 'skip':
+            elif response.lower() in ['clear', 'skip', '"skip"', '" skip "', "'skip'", "' skip '"]:
                 continue
             elif response.lower() == 'cancel' or response.lower() == 'exit':
                 self.bot.help_logger.info(f"{ctx.author.name} cancelled on profile step: {step['prompt']}.")
