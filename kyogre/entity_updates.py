@@ -59,7 +59,9 @@ def build_raid_report_message(Kyogre, raid_channel, raid_dict):
     c_type = raid_dict['type']
     pokemon = raid_dict['pokemon'].capitalize()
     level = raid_dict['egglevel']
-    raidexp = raid_dict['exp']
+    raidexp = False
+    raid_hatch = raid_dict['hatch_time']
+    raid_expire = raid_dict['expire_time']
     utils_cog = Kyogre.cogs.get('Utilities')
     enabled = utils_cog.raid_channels_enabled(guild, raid_channel)
     ex = " (EX)" if gym.ex_eligible else ""
@@ -67,9 +69,13 @@ def build_raid_report_message(Kyogre, raid_channel, raid_dict):
     if c_type == "raid":
         msg = f'{pokemon} @ {gym.name}{ex}'
         end_str = "Expires: "
+        if raid_expire:
+            raidexp = raid_expire
     elif c_type == "egg":
         msg = f'T{level} egg @ {gym.name}{ex}'
         end_str = "Hatches: "
+        if raid_hatch:
+            raidexp = raid_hatch
     if raidexp is not False:
         end = datetime.datetime.utcfromtimestamp(raidexp) + \
               datetime.timedelta(hours=Kyogre.guild_dict[guild.id]['configure_dict']['settings']['offset'])

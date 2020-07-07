@@ -113,6 +113,8 @@ class KyogreBot(commands.AutoShardedBot):
                              727607261589012550, 727607316245119086, 727610691980361768, 727610940081700996,
                              727611076744708167, 727612650514808914, 727612770169651340, 727612892467298334,
                              727613019923677256, 727613199305670656, 727613275419967558, 727630993254645811]
+        self.leaderboard_list = ["total", "raids", "eggs", "exraids", "wild", "research", "joined", "nests"]
+        self.channel_exp_minutes = 1
 
         for ext in default_exts:
             try:

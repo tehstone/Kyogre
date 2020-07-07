@@ -74,30 +74,23 @@ class ListManagement(commands.Cog):
                 reportlocation = [self.bot.get_channel(rc_d[r]['reportcity']).name]
             if not reportlocation:
                 continue
-            if (cty in reportlocation) and discord.utils.get(guild.text_channels, id=r): #and rc_d[r]['active']
-
-                exp = rc_d[r]['exp']
-                type = rc_d[r]['type']
+            if (cty in reportlocation) and discord.utils.get(guild.text_channels, id=r):
+                raid_type = rc_d[r]['type']
                 level = rc_d[r]['egglevel']
-                if (type == 'egg') and level.isdigit():
-                    raid_dict[level]["egg"][r] = exp
+                if (raid_type == 'egg') and level.isdigit():
+                    raid_dict[level]["egg"][r] = rc_d[r]['expire_time']
                 elif rc_d[r].get('meetup', {}):
                     event_list.append(r)
-                elif type == 'exraid' or level == 'EX':
+                elif raid_type == 'exraid' or level == 'EX':
                     exraid_list.append(r)
                 else:
                     egglevel = Pokemon.get_pokemon(self.bot, rc_d[r]['pokemon']).raid_level
-                    raid_dict[egglevel]["raid"][r] = exp
+                    raid_dict[egglevel]["raid"][r] = rc_d[r]['expire_time']
 
         def list_output(raid):
             trainer_dict = rc_d[raid]['trainer_dict']
             rchan = self.bot.get_channel(raid)
-            end = datetime.datetime.utcfromtimestamp(rc_d[raid]['exp']) + datetime.timedelta(
-                hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
-            output = ''
-            start_str = ''
-            t_emoji = ''
-            ex_eligibility = ''
+            output, start_str, t_emoji, ex_eligibility = '', '', '', ''
             trainer_count = {'mystic': 0, 'valor': 0, 'instinct': 0, 'unknown': 0}
             for trainer in rc_d[raid]['trainer_dict'].keys():
                 if not guild.get_member(trainer):
@@ -121,27 +114,18 @@ class ListManagement(commands.Cog):
                 t_emoji = pokemon_emoji.get_egg_emoji(egglevel)
                 if int(egglevel) < 5:
                     t_emoji += str(egglevel) + '\u20e3'
+                end = datetime.datetime.utcfromtimestamp(rc_d[raid]['hatch_time']) + datetime.timedelta(
+                    hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
                 expirytext = '**Hatches**: {expiry}{is_assumed}' \
                     .format(expiry=end.strftime('%I:%M%p'), is_assumed=assumed_str)
             elif ((rc_d[raid]['egglevel'] == 'EX') or (rc_d[raid]['type'] == 'exraid')) and not meetup:
-                expirytext = '**Hatches**: {expiry}{is_assumed}' \
-                    .format(expiry=end.strftime('%B %d at %I:%M%p'), is_assumed=assumed_str)
-            elif meetup:
-                meetupstart = meetup['start']
-                meetupend = meetup['end']
-                expirytext = ""
-                if meetupstart:
-                    expirytext += ' - Starts: {expiry}{is_assumed}' \
-                        .format(expiry=meetupstart.strftime('%B %d at %I:%M%p'), is_assumed=assumed_str)
-                if meetupend:
-                    expirytext += " - Ends: {expiry}{is_assumed}" \
-                        .format(expiry=meetupend.strftime('%B %d at %I:%M%p'), is_assumed=assumed_str)
-                if not meetupstart and not meetupend:
-                    expirytext = ' - Starts: {expiry}{is_assumed}' \
-                        .format(expiry=end.strftime('%B %d at %I:%M%p'), is_assumed=assumed_str)
+                end = datetime.datetime.utcfromtimestamp(rc_d[raid]['hatch_time']) + datetime.timedelta(
+                    hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+                expirytext = f"**Hatches**: {end.strftime('%B %d at %I:%M%p')}{assumed_str}"
             else:
-                expirytext = '**Expires**: {expiry}{is_assumed}' \
-                    .format(expiry=end.strftime('%I:%M%p'), is_assumed=assumed_str)
+                end = datetime.datetime.utcfromtimestamp(rc_d[raid]['expire_time']) + datetime.timedelta(
+                    hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+                expirytext = f"**Expires**: {end.strftime('%I:%M%p')}{assumed_str}"
             boss = Pokemon.get_pokemon(self.bot, rc_d[raid].get('pokemon', ''))
             if not t_emoji and boss:
                 t_emoji = pokemon_emoji.get_pokemon_emoji(boss.emoji_name)

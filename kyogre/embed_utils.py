@@ -12,8 +12,7 @@ async def get_embed_field_indices(embed):
                     "possible": None,
                     "interest": None,
                     "next": None,
-                    "hatch": None,
-                    "expires": None,
+                    "time": None,
                     "status": None,
                     "team": None,
                     "details": None,
@@ -33,10 +32,8 @@ async def get_embed_field_indices(embed):
             embed_indices["interest"] = index
         if "next" in field.name.lower():
             embed_indices["next"] = index
-        if "hatch" in field.name.lower():
-            embed_indices["hatch"] = index
-        if "expires" in field.name.lower():
-            embed_indices["expires"] = index
+        if "times" in field.name.lower():
+            embed_indices["times"] = index
         if "status" in field.name.lower():
             embed_indices["status"] = index
         if "team" in field.name.lower():
@@ -66,10 +63,8 @@ async def filter_fields_for_report_embed(embed, embed_indices, enabled):
     new_embed.clear_fields()
     if embed_indices['gym'] is not None:
         new_embed.add_field(name=embed.fields[embed_indices['gym']].name, value=embed.fields[embed_indices['gym']].value, inline=True) 
-    if embed_indices['hatch'] is not None:
-        new_embed.add_field(name=embed.fields[embed_indices['hatch']].name, value=embed.fields[embed_indices['hatch']].value, inline=True) 
-    if embed_indices['expires'] is not None:
-        new_embed.add_field(name=embed.fields[embed_indices['expires']].name, value=embed.fields[embed_indices['expires']].value, inline=True)
+    if embed_indices['times'] is not None:
+        new_embed.add_field(name=embed.fields[embed_indices['times']].name, value=embed.fields[embed_indices['times']].value, inline=True)
     if embed_indices['team'] is not None:
         new_embed.add_field(name=embed.fields[embed_indices['team']].name, value=embed.fields[embed_indices['team']].value, inline=True)
     if embed_indices['status'] is not None:
@@ -101,10 +96,18 @@ async def build_raid_embeds(kyogre, ctx, raid_dict, enabled, assume=False):
         raid_embed.add_field(name='Directions',
                              value=f'[Google]({raid_gmaps_link}) | [Waze]({waze_link}) | [Apple]({apple_link})',
                              inline=False)
-    if raid_dict['exp']:
-        end = datetime.datetime.utcfromtimestamp(raid_dict['exp']) + datetime.timedelta(
+    if raid_dict['hatch_time']:
+        hatch = datetime.datetime.utcfromtimestamp(raid_dict['hatch_time']) + datetime.timedelta(
             hours=kyogre.guild_dict[guild.id]['configure_dict']['settings']['offset'])
-        exp_msg = f"{end.strftime('%I:%M %p')}"
+        expire = hatch + datetime.timedelta(
+            seconds=kyogre.raid_info['raid_eggs'][str(raid_dict['egglevel'])]['raidtime'] * 60)
+        exp_msg = f"**Hatches:** {hatch.strftime('%I:%M %p')}\n**Expires:** {expire.strftime('%I:%M %p')}"
+    elif raid_dict['expire_time']:
+        expire = datetime.datetime.utcfromtimestamp(raid_dict['expire_time']) + datetime.timedelta(
+            hours=kyogre.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+        hatch = expire + datetime.timedelta(
+            seconds=kyogre.raid_info['raid_eggs'][str(raid_dict['egglevel'])]['raidtime'] * 60)
+        exp_msg = f"**Hatches:** {hatch.strftime('%I:%M %p')}\n**Expires:**{expire.strftime('%I:%M %p')}"
     else:
         exp_msg = "Set with **!timerset**"
     if ctype == 'raid' or assume:
@@ -123,10 +126,7 @@ async def build_raid_embeds(kyogre, ctx, raid_dict, enabled, assume=False):
                                          inline=True))
             raid_embed.add_field(name='**Weaknesses:**', value='{weakness_list}'.format(weakness_list=weak_str))
             raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**')
-            if assume:
-                raid_embed.add_field(name='**Hatches:**', value=exp_msg)
-            else:
-                raid_embed.add_field(name='**Expires:**', value=exp_msg)
+            raid_embed.add_field(name='**Times:**', value=exp_msg)
         raid_img_url = pkmn.img_url
     else:
         egg_info = kyogre.raid_info['raid_eggs'][str(raid_dict['egglevel'])]
@@ -137,18 +137,9 @@ async def build_raid_embeds(kyogre, ctx, raid_dict, enabled, assume=False):
             boss_list.append(str(p) + utils.types_to_str(guild, p.types, kyogre.config))
         if enabled:
             raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**', inline=True)
-            raid_embed.add_field(name='**Hatches:**', value=exp_msg, inline=True)
+            raid_embed.add_field(name='**Times:**', value=exp_msg)
             raid_embed.add_field(name='**Possible Bosses:**', value='{bosslist}'
                                       .format(bosslist='\n'.join(boss_list)), inline=True)
-            # if len(egg_info['pokemon']) > 1:
-            #     raid_embed.add_field(name='**Possible Bosses:**', value='{bosslist1}'
-            #                          .format(bosslist1='\n'.join(boss_list[::2])), inline=True)
-            #     raid_embed.add_field(name='\u200b', value='{bosslist2}'
-            #                          .format(bosslist2='\n'.join(boss_list[1::2])), inline=True)
-            # else:
-            #     raid_embed.add_field(name='**Possible Bosses:**', value='{bosslist}'
-            #                          .format(bosslist=''.join(boss_list)), inline=True)
-            #     raid_embed.add_field(name='\u200b', value='\u200b', inline=True)
 
         raid_img_url = 'https://raw.githubusercontent.com/klords/Kyogre/master/images/eggs/{}?cache=0' \
             .format(str(egg_img))

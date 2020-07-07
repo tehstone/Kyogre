@@ -101,7 +101,7 @@ class RaidCommands(commands.Cog):
                 eggtoraid = True
             # This is a hack but it allows users to report the just hatched boss
             # before Kyogre catches up with hatching the egg.
-            elif self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] - 60 \
+            elif self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['hatch_time'] - 60 \
                     < datetime.datetime.now().timestamp():
                 eggtoraid = True
             else:
@@ -403,7 +403,7 @@ class RaidCommands(commands.Cog):
                     raid_dict_entry = self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
                 except:
                     return await message.add_reaction('\u274c')
-                if raid_dict_entry and not (raid_dict_entry['exp'] - 60 < datetime.datetime.now().timestamp()):
+                if raid_dict_entry and not (raid_dict_entry['hatch_time'] - 60 < datetime.datetime.now().timestamp()):
                     msg = f"A raid has already been reported for {gym.name}.\n{raid_channel.mention}"
                     if enabled:
                         msg += f"\nCoordinate in the raid channel: {raid_channel.mention}"
@@ -436,15 +436,12 @@ class RaidCommands(commands.Cog):
         ctype = 'raid' if raid_report else 'egg'
         manual = True if raidexp else False
         hatch, expire = await self._calc_egg_raid_exp_time(ctx, raidexp, ctype, str(level))
-        if raid_report:
-            exp = expire
-        else:
-            exp = hatch
         raid_dict = {
             'regions': gym_regions,
             'reportcity': report_channel.id,
             'trainer_dict': {},
-            'exp': exp,
+            'hatch_time': hatch,
+            'expire_time': expire,
             'manual_timer': manual,
             'active': True,
             'reportchannel': channel.id,
@@ -653,16 +650,16 @@ class RaidCommands(commands.Cog):
             boss_val = "z"
         else:
             boss_val = raid_dict["pokemon"]
-        new_raid = {"channel_id": 123, "boss": boss_val, "level": raid_dict["egglevel"], "exp": raid_dict["exp"]}
+        new_raid = {"channel_id": 123, "boss": boss_val, "level": raid_dict["egglevel"], "exp": raid_dict["hatch_time"]}
         region_raids = [new_raid]
         for rid in raids_dict:
             if region in raids_dict[rid]['regions']:
                 if raids_dict[rid]['type'] == 'egg':
                     t_raid = {"channel_id": rid, "boss": "z",
-                              "level": raids_dict[rid]["egglevel"], "exp": raids_dict[rid]["exp"]}
+                              "level": raids_dict[rid]["egglevel"], "exp": raids_dict[rid]["hatch_time"]}
                 else:
                     t_raid = {"channel_id": rid, "boss": raids_dict[rid]["pokemon"],
-                              "level": raids_dict[rid]["egglevel"], "exp": raids_dict[rid]["exp"]}
+                              "level": raids_dict[rid]["egglevel"], "exp": raids_dict[rid]["hatch_time"]}
                 region_raids.append(t_raid)
         sorted_raids = self.multikeysort(region_raids, ['-level', 'boss', 'exp'])
         return sorted_raids.index(new_raid)
@@ -814,7 +811,6 @@ class RaidCommands(commands.Cog):
         starttime = eggdetails.get('starttime', None)
         duplicate = eggdetails.get('duplicate', 0)
         archive = eggdetails.get('archive', False)
-        meetup = eggdetails.get('meetup', {})
         raid_match = pkmn.is_raid
         if not raid_match:
             await raid_channel.send(embed=discord.Embed(
@@ -824,12 +820,6 @@ class RaidCommands(commands.Cog):
                 self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel},"
                                           f" error: {pkmn.name} reported, but not in raid data.")
             return
-        if (egglevel.isdigit() and int(egglevel) > 0) or egglevel == 'EX':
-            raidexp = eggdetails['exp'] + 60 * self.bot.raid_info['raid_eggs'][str(egglevel)]['raidtime']
-        else:
-            raidexp = eggdetails['exp']
-        end = datetime.datetime.utcfromtimestamp(raidexp) + datetime.timedelta(
-            hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
         oldembed = raid_message.embeds[0]
         enabled = True
         raidmsg = ''
@@ -942,13 +932,12 @@ class RaidCommands(commands.Cog):
         if embed_indices["next"] is not None:
             raid_embed.add_field(name=oldembed.fields[embed_indices["next"]].name,
                                  value=oldembed.fields[embed_indices["next"]].value, inline=True)
-        if meetup:
-            raid_embed.add_field(name=oldembed.fields[3].name, value=end.strftime('%I:%M %p (%H:%M)'), inline=True)
-        else:
-            raid_embed.add_field(name='**Expires:**', value=end.strftime(' %I:%M %p (%H:%M)'), inline=True)
         if embed_indices["tips"] is not None:
             raid_embed.add_field(name=oldembed.fields[embed_indices["tips"]].name,
                                  value=oldembed.fields[embed_indices["tips"]].value, inline=True)
+        if embed_indices["times"] is not None:
+            raid_embed.add_field(name=oldembed.fields[embed_indices["times"]].name,
+                                 value=oldembed.fields[embed_indices["times"]].value, inline=True)
         for field in oldembed.fields:
             m = 'maybe'
             c = 'coming'
@@ -989,11 +978,14 @@ class RaidCommands(commands.Cog):
             ctrsmessage_id = eggdetails.get('ctrsmessage', None)
         regions = eggdetails.get('regions', None)
         short_id = eggdetails.get('short', None)
+        hatch = eggdetails['hatch_time']
+        expire = eggdetails['expire_time']
         new_raid_dict = {
             'regions': regions,
             'reportcity': reportcitychannel.id,
             'trainer_dict': trainer_dict,
-            'exp': raidexp,
+            'hatch_time': hatch,
+            'expire_time': expire,
             'manual_timer': manual_timer,
             'active': True,
             'raidmessage': raid_message,
@@ -1058,13 +1050,12 @@ class RaidCommands(commands.Cog):
         if 'weather' in raid_dict:
             weather = raid_dict['weather']
         if 'type' in raid_dict:
-            if 'exp' in raid_dict:
-                if raid_dict['type'] == 'egg':
-                    hatch_time = round(raid_dict['exp'])
-                    expire_time = round(raid_dict['exp']) + 2700
-                elif raid_dict['type'] == 'raid':
-                    expire_time = round(raid_dict['exp'])
-                    hatch_time = round(raid_dict['exp']) - 2700
+            if 'hatch_time' in raid_dict:
+                hatch_time = round(raid_dict['hatch_time'])
+                expire_time = hatch_time + 2700
+            elif 'expire_time' in raid_dict:
+                expire_time = round(raid_dict['expire_time'])
+                hatch_time = expire_time - 2700
         report = TrainerReportRelation.create(guild=ctx.guild.id, created=created, trainer=author.id, location=gym.id)
         try:
             RaidTable.create(trainer_report=report, level=level, pokemon=pokemon, hatch_time=hatch_time,
@@ -1097,13 +1088,12 @@ class RaidCommands(commands.Cog):
         if 'weather' in raid_dict:
             report.weather = raid_dict['weather']
         if 'type' in raid_dict:
-            if 'exp' in raid_dict:
-                if raid_dict['type'] == 'egg':
-                    report.hatch_time = round(raid_dict['exp'])
-                    report.expire_time = round(raid_dict['exp']) + 2700
-                elif raid_dict['type'] == 'raid':
-                    report.expire_time = round(raid_dict['exp'])
-                    report.hatch_time = round(raid_dict['exp']) - 2700
+            if 'hatch_time' in raid_dict:
+                hatch_time = round(raid_dict['hatch_time'])
+                expire_time = hatch_time + 2700
+            elif 'expire_time' in raid_dict:
+                expire_time = round(raid_dict['expire_time'])
+                hatch_time = expire_time - 2700
         report.save()
         if report_relation is not None:
             gym_id = raid_dict['gym']
@@ -1213,8 +1203,11 @@ class RaidCommands(commands.Cog):
 
     async def print_raid_timer(self, channel):
         guild = channel.guild
-        raidexp = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp']
-        end = datetime.datetime.utcfromtimestamp(raidexp) + datetime.timedelta(
+        hatch_time = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['hatch_time']
+        expire_time = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['expire_time']
+        hatch = datetime.datetime.utcfromtimestamp(hatch_time) + datetime.timedelta(
+            hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+        expire = datetime.datetime.utcfromtimestamp(expire_time) + datetime.timedelta(
             hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
         timerstr = ' '
         if self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id].get('meetup', {}):
@@ -1239,9 +1232,11 @@ class RaidCommands(commands.Cog):
         if self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['type'] == 'egg':
             raidtype = 'egg'
             raidaction = 'hatch'
+            end = hatch
         else:
             raidtype = 'raid'
             raidaction = 'end'
+            end = expire
         if not self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['active']:
             timerstr += "This {raidtype}'s timer has already expired as of {expiry_time}!"\
                 .format(raidtype=raidtype, expiry_time=end.strftime('%I:%M %p (%H:%M)'))
@@ -1359,8 +1354,7 @@ class RaidCommands(commands.Cog):
         return exp_time > maxtime
 
     async def _calc_egg_raid_exp_time(self, ctx, minutes, ctype, level):
-        offset = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset']
-        now = datetime.datetime.utcnow()# + datetime.timedelta(hours=offset)
+        now = datetime.datetime.utcnow()
         eggminutes = self.bot.raid_info['raid_eggs'][level]['hatchtime']
         raidminutes = self.bot.raid_info['raid_eggs'][level]['raidtime']
         hatch, expire = None, None
@@ -1373,6 +1367,7 @@ class RaidCommands(commands.Cog):
             if not minutes:
                 minutes = raidminutes
             expire = now + datetime.timedelta(minutes=minutes)
+            hatch = expire - datetime.timedelta(minutes=raidminutes)
         epoch = datetime.datetime(1970, 1, 1)
         if hatch:
             hatch = (hatch - epoch).total_seconds()
@@ -1383,31 +1378,31 @@ class RaidCommands(commands.Cog):
     async def _timerset(self, raidchannel, exptime, to_print=True, update=False):
         listmgmt_cog = self.bot.cogs.get('ListManagement')
         guild = raidchannel.guild
+        offset = datetime.timedelta(hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+        raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'][raidchannel.id]
+        egglevel = raid_dict['egglevel']
+        raid_minutes = self.bot.raid_info['raid_eggs'][egglevel]['raidtime']
         now = datetime.datetime.utcnow()
         end = now + datetime.timedelta(minutes=exptime)
-        epoch = datetime.datetime(1970, 1, 1)
-        end = (end - epoch).total_seconds()
-        raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict'][raidchannel.id]
-        raid_dict['exp'] = end
-        end = datetime.datetime.utcfromtimestamp(end) + datetime.timedelta(
-            hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
+        end_seconds = (end - datetime.datetime(1970, 1, 1)).total_seconds()
+        if raid_dict['type'] == 'egg':
+            raid_dict['hatch_time'] = end_seconds
+            expire = end + datetime.timedelta(minutes=raid_minutes)
+            raid_dict['expire_time'] = (expire - datetime.datetime(1970, 1, 1)).total_seconds()
+            hatch = end
+        else:
+            raid_dict['expire_time'] = end_seconds
+            hatch = end - datetime.timedelta(minutes=raid_minutes)
+            raid_dict['hatch_time'] = (hatch - datetime.datetime(1970, 1, 1)).total_seconds()
+            expire = end
+        hatch += offset
+        expire += offset
+        endtime = f"**Hatches:** {hatch.strftime('%I:%M %p')}\n" \
+                  f"**Expires:** {expire.strftime('%I:%M %p')}"
         if not raid_dict['active']:
             await raidchannel.send('The channel has been reactivated.')
         raid_dict['active'] = True
         raid_dict['manual_timer'] = True
-        if raid_dict.get('meetup', {}):
-            raid_dict['meetup']['end'] = end
-            endtime = end.strftime('%I:%M %p (%H:%M)')
-        elif raid_dict['type'] == 'egg':
-            egglevel = raid_dict['egglevel']
-            hatch = end
-            raid_minutes = self.bot.raid_info['raid_eggs'][egglevel]['raidtime']
-            end = hatch + datetime.timedelta(minutes=raid_minutes)
-            endtime = hatch.strftime('%I:%M %p (%H:%M)')
-        else:
-            egglevel = Pokemon.get_pokemon(self.bot, raid_dict['pokemon']).raid_level
-            hatch = end - datetime.timedelta(minutes=self.bot.raid_info['raid_eggs'][egglevel]['raidtime'])
-            endtime = end.strftime('%I:%M %p (%H:%M)')
         if to_print:
             timerstr = await self.print_raid_timer(raidchannel)
             await raidchannel.send(timerstr)
@@ -1418,15 +1413,11 @@ class RaidCommands(commands.Cog):
             content = entity_updates.build_raid_report_message(self.bot, raidchannel, raid_dict)
             embed = message.embeds[0]
             embed_indices = await embed_utils.get_embed_field_indices(embed)
-            if raid_dict['type'] == "raid":
-                exp_type = "expires"
+            if embed_indices['times'] is not None:
+                embed.set_field_at(embed_indices['times'],
+                                   name=embed.fields[embed_indices['times']].name, value=endtime)
             else:
-                exp_type = "hatch"
-            if embed_indices[exp_type] is not None:
-                embed.set_field_at(embed_indices[exp_type],
-                                   name=embed.fields[embed_indices[exp_type]].name, value=endtime)
-            else:
-                embed.add_field(name='**Expires:**' if exp_type == 'expires' else '**Hatches:**', value=endtime)
+                embed.add_field(name='**Times:**', value=endtime)
             if message == raidmsg:
                 try:
                     await message.edit(content=content, embed=embed)
@@ -1494,11 +1485,11 @@ class RaidCommands(commands.Cog):
                 return
             if raid_dict['type'] == 'egg':
                 egglevel = raid_dict['egglevel']
-                mintime = (raid_dict['exp'] - time.time()) / 60
+                mintime = (raid_dict['hatch_time'] - time.time()) / 60
                 maxtime = mintime + self.bot.raid_info['raid_eggs'][egglevel]['raidtime']
             elif (raid_dict['type'] == 'raid') or (raid_dict['type'] == 'exraid'):
                 mintime = 0
-                maxtime = (raid_dict['exp'] - time.time()) / 60
+                maxtime = (raid_dict['expire_time'] - time.time()) / 60
             alreadyset = raid_dict.get('starttime', False)
             if exp_minutes > maxtime:
                 return await channel.send('The raid will be over before that....')
@@ -1771,13 +1762,13 @@ class RaidCommands(commands.Cog):
             if dupecount >= 3:
                 dupechannel = True
                 self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['duplicate'] = 0
-                self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] = time.time()
+                self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['expire_time'] = time.time()
                 if not alreadyexpired:
                     await channel.send(
                         'This channel has been successfully reported as a duplicate and will be deleted in 1 minute. '
                         'Check the channel list for the other raid channel to coordinate in!\n'
                         'If this was in error, reset the raid with **!timerset**')
-                delete_time = (self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp']
+                delete_time = (self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['expire_time']
                                + (1 * 60)) - time.time()
             elif self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['type'] == 'egg' and not \
                     self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id].get('meetup', {}):
@@ -1794,12 +1785,9 @@ class RaidCommands(commands.Cog):
                         maybe_list.append(user.mention)
                     new_name = channel.name.replace('🥚', '❓')
                     await channel.edit(name=new_name)
-                    await channel.send("**This egg has hatched!**\n\nTrainers {trainer_list}: \
-                    \nUse **!raid <pokemon>** to set the Raid Boss\
-                    \nor **!timerset** to reset the hatch timer. \
-                    \nThis channel will be deactivated until I get an update.".format(
-                        trainer_list=', '.join(maybe_list)))
-                delete_time = (self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp']
+                    await channel.send(f"**This egg has hatched!**\n\nTrainers {', '.join(maybe_list)}: \
+                    \nUse **!raid pokemon** to set the Raid Boss")
+                delete_time = (self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['hatch_time']
                                + (45 * 60)) - time.time()
                 expiremsg = '**This level {level} raid egg has expired!**'.format(
                     level=self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['egglevel'])
@@ -1813,7 +1801,7 @@ class RaidCommands(commands.Cog):
                         'This channel timer has expired! The channel has been deactivated'
                         ' and will be deleted in 1 minute.\nTo reactivate the channel, '
                         'use **!timerset** to set the timer again.')
-                delete_time = (self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] + (1 * 60)) \
+                delete_time = (self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['expire_time'] + (1 * 60)) \
                               - time.time()
                 raidtype = "event" if self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]\
                     .get('meetup', False) else " raid"
@@ -1985,7 +1973,7 @@ class RaidCommands(commands.Cog):
                         if not guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['active']:
                             if guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['type'] == 'egg':
                                 # and if it has been expired for longer than 45 minutes already
-                                if guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['exp'] < (
+                                if guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['hatch_time'] < (
                                         time.time() - (45 * 60)):
                                     # list the channel to be removed from save data
                                     dict_channel_delete.append(channelid)
@@ -1995,8 +1983,8 @@ class RaidCommands(commands.Cog):
                                         log_str + ' - 15+ MIN EXPIRY NONACTIVE EGG')
                                     continue
                                 # and if it has been expired for longer than 1 minute already
-                            elif guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['exp'] < (
-                                    time.time() - (1 * 60)):
+                            elif guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['expire_time'] < (
+                                    time.time() - (self.bot.channel_exp_minutes * 60)):
                                 # list the channel to be removed from save data
                                 dict_channel_delete.append(channelid)
                                 # and list the channel to be deleted in discord
@@ -2016,7 +2004,7 @@ class RaidCommands(commands.Cog):
 
                                 continue
                             # or if the expiry time for the channel has already passed within 5 minutes
-                            elif guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['exp'] <= time.time():
+                            elif guilddict_chtemp[guildid]['raidchannel_dict'][channelid]['expire_time'] <= time.time():
                                 # list the channel to be sent to the channel expiry function
                                 self.bot.event_loop.create_task(self.expire_channel(channel))
                                 self.bot.logger.info(log_str + ' - RECENTLY EXPIRED')
@@ -2227,8 +2215,12 @@ class RaidCommands(commands.Cog):
                                 'Expire_Channel - Channel Expired And Removed From Watchlist - ' + channel.name)
                             break
                     elif self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['active']:
-                        if self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp']:
-                            if self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] <= time.time():
+                        if self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['type'] == 'egg':
+                            time_type = 'hatch_time'
+                        else:
+                            time_type = 'expire_time'
+                        if self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id][time_type]:
+                            if self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id][time_type] <= time.time():
                                 if self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['type'] == 'egg':
                                     pokemon = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['pokemon']
                                     egglevel = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]['egglevel']
@@ -2316,11 +2308,6 @@ class RaidCommands(commands.Cog):
                 pass
             await channel.edit(name=raid_channel_name)
         elif newraid and not newraid.isdigit():
-            # What a hack, subtract raidtime from exp time because _eggtoraid will add it back
-            egglevel = raid_dict['egglevel']
-            if egglevel == "0":
-                egglevel = Pokemon.get_pokemon(self.bot, newraid).raid_level
-            raid_dict['exp'] -= 60 * self.bot.raid_info['raid_eggs'][egglevel]['raidtime']
             author = None
             author_id = raid_dict.get('reporter', None)
             if author_id is not None:

@@ -392,7 +392,7 @@ class RaidParty(commands.Cog):
         ctx.trainer_dict = copy.deepcopy(guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
         regions = guild_dict[guild.id]['raidchannel_dict'][channel.id]['regions']
         if guild_dict[guild.id]['raidchannel_dict'][channel.id].get('type', None) == 'egg':
-            if guild_dict[guild.id]['raidchannel_dict'][channel.id]['exp'] - 60 < datetime.datetime.now().timestamp():
+            if guild_dict[guild.id]['raidchannel_dict'][channel.id]['hatch_time'] - 90 < datetime.datetime.now().timestamp():
                 starting_str = "Please tell me which raid boss has hatched before starting your lobby."
             else:
                 starting_str = "How can you start when the egg hasn't hatched!?"
