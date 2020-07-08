@@ -14,7 +14,7 @@ from kyogre.exts.pokemon import Pokemon
 class RaidParty(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.status_parser = re.compile(r'^(w*\d+)$|^(\d+(?:[, ]+))?([\dimvu ,]+)?(?:[, ]*)([a-zA-Z ,]+)?$')
+        self.status_parser = re.compile(r'^(w*\d+)$|^(\d+(?:[, ]+))?([\dimvurybg ,]+)?(?:[, ]*)([a-zA-Z ,]+)?$')
         self.heat_count = 3
 
     async def _parse_teamcounts(self, ctx, teamcounts, trainer_dict, egglevel):

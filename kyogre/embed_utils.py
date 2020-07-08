@@ -12,7 +12,7 @@ async def get_embed_field_indices(embed):
                     "possible": None,
                     "interest": None,
                     "next": None,
-                    "time": None,
+                    "times": None,
                     "status": None,
                     "team": None,
                     "details": None,

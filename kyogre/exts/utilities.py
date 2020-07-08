@@ -12,7 +12,7 @@ class Utilities(commands.Cog):
         self.bot = bot
 
     @commands.command(name='embed')
-    @checks.serverowner_or_permissions(manage_message=True)
+    @checks.serverowner_or_permissions(manage_messages=True)
     async def _embed(self, ctx, title, content=None, colour=None,
                      icon_url=None, image_url=None, thumbnail_url=None,
                      plain_msg=''):

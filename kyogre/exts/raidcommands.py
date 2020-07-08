@@ -647,7 +647,7 @@ class RaidCommands(commands.Cog):
     def _determine_channel_position(self, raids_dict, raid_dict, gym_regions):
         region = gym_regions[0]
         if raid_dict['type'] == 'egg':
-            boss_val = "z"
+            boss_val = "zz"
         else:
             boss_val = raid_dict["pokemon"]
         new_raid = {"channel_id": 123, "boss": boss_val, "level": raid_dict["egglevel"], "exp": raid_dict["hatch_time"]}
@@ -655,7 +655,7 @@ class RaidCommands(commands.Cog):
         for rid in raids_dict:
             if region in raids_dict[rid]['regions']:
                 if raids_dict[rid]['type'] == 'egg':
-                    t_raid = {"channel_id": rid, "boss": "z",
+                    t_raid = {"channel_id": rid, "boss": "zz",
                               "level": raids_dict[rid]["egglevel"], "exp": raids_dict[rid]["hatch_time"]}
                 else:
                     t_raid = {"channel_id": rid, "boss": raids_dict[rid]["pokemon"],
