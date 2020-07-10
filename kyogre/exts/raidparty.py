@@ -454,8 +454,11 @@ class RaidParty(commands.Cog):
                 guild_dict[guild.id]['raidchannel_dict'][channel.id]['raidreport'])
             embed = raidmsg.embeds[0]
             embed_indices = await embed_utils.get_embed_field_indices(embed)
-            embed.set_field_at(embed_indices["next"], name="**Next Group**", value="Set with **!starttime**",
-                               inline=True)
+            embed_text = embed.fields[embed_indices["times"]].value
+            remove_index = embed_text.index('**Next')
+            embed_text = embed_text[:remove_index]
+            embed_text += '**Next Group**:\nSet with **!starttime**'
+            embed.set_field_at(embed_indices["times"], name="**Times**:", value=embed_text, inline=True)
             try:
                 await raidmsg.edit(content=raidmsg.content, embed=embed)
             except discord.errors.NotFound:

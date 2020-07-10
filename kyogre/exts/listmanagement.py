@@ -904,8 +904,6 @@ class ListManagement(commands.Cog):
         yellow_emoji = utils.parse_emoji(channel.guild, self.bot.config['team_dict']['instinct'])
         blue_emoji = utils.parse_emoji(channel.guild, self.bot.config['team_dict']['mystic'])
         team_emojis = {'instinct': yellow_emoji, 'mystic': blue_emoji, 'valor': red_emoji, 'unknown': "❔"}
-        if len(raid_embed.fields) % 2 == 1:
-            raid_embed.add_field(name='\u200b', value='\u200b')
         for status in status_list:
             embed_value = None
             if status_dict[status]['total'] > 0:

@@ -23,17 +23,29 @@ from kyogre.exts.db.kyogredb import KyogreDB, RaidActionTable, RaidTable, Traine
 class RaidCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.weather_list = ['none', 'extreme', 'clear', 'sunny', 'rainy',
+                             'partlycloudy', 'cloudy', 'windy', 'snow', 'fog']
+        self.weather_alias_map = {'none': 0, 'off': 0,
+                                  'extreme': 1, 'storm': 1, 'advisory': 1,
+                                  'clear': 2,
+                                  'sunny': 3, 'sun': 3,
+                                  'rainy': 4, 'rain': 4,
+                                  'partlycloudy': 5, 'partcloudy': 5, 'partly': 5, 'partcloud': 5, 'part': 5,
+                                  'cloudy': 6, 'cloud': 6,
+                                  'windy': 7, 'wind': 7,
+                                  'snow': 8, 'snowy': 8,
+                                  'fog': 9, 'foggy': 9
+                                  }
 
     @commands.command(name="raid", aliases=['r', 're', 'egg', 'regg', 'raidegg', '1', '2', '3', '4', '5'],
                       brief="Report an ongoing raid or a raid egg.")
     @checks.allowraidreport()
-    async def _raid(self, ctx, pokemon, *, location:commands.clean_content(fix_channel_mentions=True) = "",
-                    weather=None, timer=None):
+    async def _raid(self, ctx, pokemon, *, location:commands.clean_content(fix_channel_mentions=True) = "", timer=None):
         """**Usage**: `!raid <raid tier/pokemon> <gym name> [time]`
         Kyogre will attempt to find a gym with the name you provide and create a separate channel for the raid report,
         for the purposes of organizing the raid."""
         if ctx.invoked_with.isdigit():
-            content = f"{ctx.invoked_with} {pokemon} {location} {weather if weather is not None else ''} " \
+            content = f"{ctx.invoked_with} {pokemon} {location} " \
                 f"{timer if timer is not None else ''}"
             new_channel = await self._raidegg(ctx, content)
         else:
@@ -240,21 +252,13 @@ class RaidCommands(commands.Cog):
             return await channel.send(embed=discord.Embed(
                 colour=discord.Colour.red(),
                 description='Give more details when reporting! Usage: **!raid <pokemon name> <location>**'))
-        weather_list = ['none', 'extreme', 'clear', 'sunny', 'rainy',
-                        'partlycloudy', 'cloudy', 'windy', 'snow', 'fog']
-        rgx = '[^a-zA-Z0-9]'
-        weather = next((w for w in weather_list if re.sub(rgx, '', w) in re.sub(rgx, '', raid_details.lower())), None)
-        if not weather:
-            weather = self.bot.guild_dict[guild.id]['raidchannel_dict'].get(channel.id, {}).get('weather', None)
-        raid_pokemon.weather = weather
-        raid_details = raid_details.replace(str(weather), '', 1)
         if raid_details == '':
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel},"
                                       f" error: Insufficient raid details provided.")
             return await channel.send(embed=discord.Embed(
                 colour=discord.Colour.red(),
                 description='Give more details when reporting! Usage: **!raid <pokemon name> <location>**'))
-        return await self.finish_raid_report(ctx, raid_details, raid_pokemon, raid_pokemon.raid_level, weather, raidexp)
+        return await self.finish_raid_report(ctx, raid_details, raid_pokemon, raid_pokemon.raid_level, raidexp)
 
     async def retry_gym_match(self, channel, author_id, raid_details, gyms):
         attempt = raid_details.split(' ')
@@ -287,7 +291,6 @@ class RaidCommands(commands.Cog):
     async def _raidegg(self, ctx, content):
         message = ctx.message
         channel = message.channel
-        guild = message.guild
         author = message.author
 
         if checks.check_eggchannel(ctx) or checks.check_raidchannel(ctx):
@@ -339,22 +342,15 @@ class RaidCommands(commands.Cog):
                 colour=discord.Colour.red(),
                 description='Give more details when reporting! Use at least: **!raidegg <level> <location>**. '
                             'Type **!help** raidegg for more info.'))
-        rgx = '[^a-zA-Z0-9]'
-        weather_list = ['none', 'extreme', 'clear', 'sunny', 'rainy',
-                        'partlycloudy', 'cloudy', 'windy', 'snow', 'fog']
-        weather = next((w for w in weather_list if re.sub(rgx, '', w) in re.sub(rgx, '', raid_details.lower())), None)
-        raid_details = raid_details.replace(str(weather), '', 1)
-        if not weather:
-            weather = self.bot.guild_dict[guild.id]['raidchannel_dict'].get(channel.id, {}).get('weather', None)
         if raid_details == '':
             self.bot.help_logger.info(f"User: {author.name}, channel: {channel},"
                                       f" error: Insufficient raid details provided.")
             return await channel.send(embed=discord.Embed(
                 colour=discord.Colour.red(),
                 description='Give more details when reporting! Usage: **!raid <pokemon name> <location>**'))
-        return await self.finish_raid_report(ctx, raid_details, None, egg_level, weather, raidexp)
+        return await self.finish_raid_report(ctx, raid_details, None, egg_level, raidexp)
 
-    async def finish_raid_report(self, ctx, raid_details, raid_pokemon, level, weather, raidexp,
+    async def finish_raid_report(self, ctx, raid_details, raid_pokemon, level, raidexp,
                                  report_channel=None, image_file=None, bad_scan=False):
         message = ctx.message
         if report_channel:
@@ -450,7 +446,7 @@ class RaidCommands(commands.Cog):
             'pokemon': raid_pokemon.name.lower() if raid_report else '',
             'egglevel': str(level) if not raid_report else raid_pokemon.raid_level,
             'moveset': 0,
-            'weather': weather,
+            'weather': None,
             'gym': gym.id,
             'reporter': author.id,
             'hatching': False,
@@ -485,7 +481,7 @@ class RaidCommands(commands.Cog):
             raidmsg = entity_updates.get_raidtext(report_channel)
             if str(level) in self.bot.guild_dict[guild.id]['configure_dict']['counters']['auto_levels']:
                 try:
-                    ctrs_dict = await counters_helpers._get_generic_counters(self.bot, guild, raid_pokemon, weather)
+                    ctrs_dict = await counters_helpers._get_generic_counters(self.bot, guild, raid_pokemon)
                     ctrsmsg = "Here are the best counters for the raid boss in currently known weather conditions! " \
                               "Update weather with **!weather**. If you know the moveset of the boss, " \
                               "you can react to this message with the matching emoji and I will update the counters."
@@ -860,7 +856,7 @@ class RaidCommands(commands.Cog):
         raid_embed = discord.Embed(colour=guild.me.colour)
         min_cp, max_cp = pkmn.get_raid_cp_range(False)
         bmin_cp, bmax_cp = pkmn.get_raid_cp_range(True)
-        cp_range = f"**CP Range:** {min_cp}-{max_cp}\n **Boosted:** {bmin_cp}-{bmax_cp}"
+        cp_range = f"**CP Range:** {min_cp}-{max_cp}\n**Boosted:** {bmin_cp}-{bmax_cp}"
         raid_embed.add_field(name='**Details:**', value='**{pokemon}** ({pokemonnumber}) {type}{cprange}'
                              .format(pokemon=pkmn.name, pokemonnumber=str(pkmn.id),
                                      type=utils.types_to_str(guild, pkmn.types, self.bot.config),
@@ -929,9 +925,6 @@ class RaidCommands(commands.Cog):
         if embed_indices["gym"] is not None:
             raid_embed.add_field(name=oldembed.fields[embed_indices["gym"]].name,
                                  value=oldembed.fields[embed_indices["gym"]].value, inline=True)
-        if embed_indices["next"] is not None:
-            raid_embed.add_field(name=oldembed.fields[embed_indices["next"]].name,
-                                 value=oldembed.fields[embed_indices["next"]].value, inline=True)
         if embed_indices["tips"] is not None:
             raid_embed.add_field(name=oldembed.fields[embed_indices["tips"]].name,
                                  value=oldembed.fields[embed_indices["tips"]].value, inline=True)
@@ -1414,6 +1407,10 @@ class RaidCommands(commands.Cog):
             embed = message.embeds[0]
             embed_indices = await embed_utils.get_embed_field_indices(embed)
             if embed_indices['times'] is not None:
+                embed_text = embed.fields[embed_indices["times"]].value
+                remove_index = embed_text.index('**Next')
+                embed_text = embed_text[remove_index:]
+                endtime += f"\n\n{embed_text}"
                 embed.set_field_at(embed_indices['times'],
                                    name=embed.fields[embed_indices['times']].name, value=endtime)
             else:
@@ -1534,8 +1531,11 @@ class RaidCommands(commands.Cog):
                 reportmsg = await report_channel.fetch_message(raid_dict['raidreport'])
                 embed = raidmsg.embeds[0]
                 embed_indices = await embed_utils.get_embed_field_indices(embed)
-                embed.set_field_at(embed_indices['next'],
-                                   name=embed.fields[embed_indices['next']].name, value=nextgroup, inline=True)
+                embed_text = embed.fields[embed_indices["times"]].value
+                remove_index = embed_text.index('**Next')
+                embed_text = embed_text[:remove_index]
+                embed_text += f'**Next Group**:\n{nextgroup}'
+                embed.set_field_at(embed_indices["times"], name="**Times**:", value=embed_text, inline=True)
                 try:
                     await raidmsg.edit(content=raidmsg.content, embed=embed)
                 except discord.errors.NotFound:
@@ -2069,7 +2069,10 @@ class RaidCommands(commands.Cog):
                 args_split = args.split()
                 for arg in args_split:
                     if arg.isdigit():
-                        user = arg
+                        if int(arg) == 0:
+                            user = None
+                        else:
+                            user = arg
                         break
             try:
                 await channel.fetch_message(self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id]
@@ -2098,7 +2101,7 @@ class RaidCommands(commands.Cog):
                     .get(moveset, {}).get('moveset', "Unknown Moveset")
                 weather = self.bot.guild_dict[guild.id]['raidchannel_dict'][channel.id].get('weather', None)
             else:
-                pkmn = next((str(p) for p in Pokemon.get_raidlist() if not str(p).isdigit()
+                pkmn = next((str(p) for p in Pokemon.get_raidlist(self.bot) if not str(p).isdigit()
                              and re.sub(rgx, '', str(p)) in re.sub(rgx, '', args.lower())), None)
                 if not pkmn:
                     await ctx.channel.send("You're missing some details! Be sure to enter a pokemon"
@@ -2106,10 +2109,10 @@ class RaidCommands(commands.Cog):
                     return
             if not weather:
                 if args:
-                    weather_list = ['none', 'extreme', 'clear', 'sunny', 'rainy',
-                                    'partlycloudy', 'cloudy', 'windy', 'snow', 'fog']
-                    weather = next((w for w in weather_list if re.sub(rgx, '', w)
+                    weather = next((w for w in self.weather_alias_map.keys() if re.sub(rgx, '', w)
                                     in re.sub(rgx, '', args.lower())), None)
+                    if weather:
+                        weather = self.weather_list[self.weather_alias_map[weather]]
             pkmn = Pokemon.get_pokemon(self.bot, pkmn)
             return await counters_helpers._counters(ctx, self.bot, pkmn, user, weather, movesetstr)
         if args:
@@ -2119,15 +2122,15 @@ class RaidCommands(commands.Cog):
                     user = arg
                     break
             rgx = '[^a-zA-Z0-9]'
-            pkmn = next((str(p) for p in Pokemon.get_raidlist() if not str(p).isdigit()
+            pkmn = next((str(p) for p in Pokemon.get_raidlist(self.bot) if not str(p).isdigit()
                          and re.sub(rgx, '', str(p)) in re.sub(rgx, '', args.lower())), None)
             if not pkmn:
                 pkmn = self.bot.guild_dict[guild.id]['raidchannel_dict'].get(channel.id, {}).get('pokemon', None)
-            weather_list = ['none', 'extreme', 'clear', 'sunny', 'rainy',
-                            'partlycloudy', 'cloudy', 'windy', 'snow', 'fog']
-            weather = next((w for w in weather_list if re.sub(rgx, '', w) in re.sub(rgx, '', args.lower())), None)
+            weather = next((w for w in self.weather_alias_map.keys() if re.sub(rgx, '', w) in re.sub(rgx, '', args.lower())), None)
             if not weather:
                 weather = self.bot.guild_dict[guild.id]['raidchannel_dict'].get(channel.id, {}).get('weather', None)
+            else:
+                weather = self.weather_list[self.weather_alias_map[weather]]
         else:
             pkmn = self.bot.guild_dict[guild.id]['raidchannel_dict'].get(channel.id, {}).get('pokemon', None)
             weather = self.bot.guild_dict[guild.id]['raidchannel_dict'].get(channel.id, {}).get('weather', None)
@@ -2146,11 +2149,11 @@ class RaidCommands(commands.Cog):
         **Usage**: !weather <weather>
 
         Acceptable options: none, extreme, clear, rainy, partlycloudy, cloudy, windy, snow, fog"""
-        weather_list = ['none', 'extreme', 'clear', 'sunny', 'rainy',
-                        'partlycloudy', 'cloudy', 'windy', 'snow', 'fog']
-        if weather.lower() not in weather_list:
+        if weather.lower() not in self.weather_alias_map.keys():
             return await ctx.channel.send("Enter one of the following weather conditions: {}".format(", ".join(weather_list)))
         else:
+            w_index = self.weather_alias_map[weather.lower()]
+            weather = self.weather_list[w_index]
             guild_dict = self.bot.guild_dict
             guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['weather'] = weather.lower()
             pkmn = guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id].get('pokemon', None)

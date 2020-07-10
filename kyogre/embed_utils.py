@@ -11,7 +11,6 @@ async def get_embed_field_indices(embed):
     embed_indices = {"gym": None,
                     "possible": None,
                     "interest": None,
-                    "next": None,
                     "times": None,
                     "status": None,
                     "team": None,
@@ -30,8 +29,6 @@ async def get_embed_field_indices(embed):
             embed_indices["possible"] = index
         if "interest" in field.name.lower():
             embed_indices["interest"] = index
-        if "next" in field.name.lower():
-            embed_indices["next"] = index
         if "times" in field.name.lower():
             embed_indices["times"] = index
         if "status" in field.name.lower():
@@ -93,7 +90,7 @@ async def build_raid_embeds(kyogre, ctx, raid_dict, enabled, assume=False):
         raid_gmaps_link = gym.maps_url
         waze_link = utils_cog.create_waze_query(gym.latitude, gym.longitude)
         apple_link = utils_cog.create_applemaps_query(gym.latitude, gym.longitude)
-        raid_embed.add_field(name='Directions',
+        raid_embed.add_field(name='**Directions**:',
                              value=f'[Google]({raid_gmaps_link}) | [Waze]({waze_link}) | [Apple]({apple_link})',
                              inline=False)
     if raid_dict['hatch_time']:
@@ -110,22 +107,18 @@ async def build_raid_embeds(kyogre, ctx, raid_dict, enabled, assume=False):
         exp_msg = f"**Hatches:** {hatch.strftime('%I:%M %p')}\n**Expires:**{expire.strftime('%I:%M %p')}"
     else:
         exp_msg = "Set with **!timerset**"
+    exp_msg += '\n\n**Next Group**:\nSet with **!starttime**'
     if ctype == 'raid' or assume:
         raid_pokemon = raid_dict['pokemon']
         pkmn = Pokemon.get_pokemon(kyogre, raid_pokemon)
         if enabled:
             min_cp, max_cp = pkmn.get_raid_cp_range(False)
             bmin_cp, bmax_cp = pkmn.get_raid_cp_range(True)
-            cp_range = f"**CP Range:** {min_cp}-{max_cp}\n **Boosted:** {bmin_cp}-{bmax_cp}"
+            cp_range = f"**CP Range:** {min_cp}-{max_cp}\n**Boosted:** {bmin_cp}-{bmax_cp}"
             weak_str = utils.types_to_str(guild, pkmn.weak_against.keys(), kyogre.config)
-            raid_embed.add_field(name='**Details:**', value='**{pokemon}** ({pokemonnumber}) {type}{cprange}'
-                                 .format(pokemon=str(pkmn),
-                                         pokemonnumber=str(pkmn.id),
-                                         type=utils.types_to_str(guild, pkmn.types, kyogre.config),
-                                         cprange='\n' + cp_range,
-                                         inline=True))
-            raid_embed.add_field(name='**Weaknesses:**', value='{weakness_list}'.format(weakness_list=weak_str))
-            raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**')
+            details = f"**{str(pkmn)}** ({str(pkmn.id)}) {utils.types_to_str(guild, pkmn.types, kyogre.config)}\n" \
+                      f"{cp_range}\n**Weak Against**:\n{weak_str}"
+            raid_embed.add_field(name='**Details:**', value=details, inline=True)
             raid_embed.add_field(name='**Times:**', value=exp_msg)
         raid_img_url = pkmn.img_url
     else:
@@ -136,7 +129,6 @@ async def build_raid_embeds(kyogre, ctx, raid_dict, enabled, assume=False):
             p = Pokemon.get_pokemon(kyogre, entry)
             boss_list.append(str(p) + utils.types_to_str(guild, p.types, kyogre.config))
         if enabled:
-            raid_embed.add_field(name='**Next Group:**', value='Set with **!starttime**', inline=True)
             raid_embed.add_field(name='**Times:**', value=exp_msg)
             raid_embed.add_field(name='**Possible Bosses:**', value='{bosslist}'
                                       .format(bosslist='\n'.join(boss_list)), inline=True)
