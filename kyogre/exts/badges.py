@@ -237,42 +237,62 @@ class Badges(commands.Cog):
         if badge_id == 0 or role is None:
             await ctx.message.add_reaction(self.bot.failed_react)
             return await ctx.send("Must provide a badge id and Role name.", delete_after=10)
+        result = await self.grant_to_many(ctx, badge_id, role.members)
+        if result["success"] == False:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            if result["partial"] == False:
+                return await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(),
+                                                                  description="Completely failed"), delete_after=12)
+            colour = discord.Colour.from_rgb(255, 255, 0)
+            await ctx.message.add_reaction(self.bot.success_react)
+            return await ctx.channel.send(embed=discord.Embed(colour=colour, description=result['message']),
+                                          delete_after=12)
+        else:
+            await ctx.message.add_reaction(self.bot.success_react)
+            return await ctx.channel.send(embed=discord.Embed(
+                colour=discord.Colour.green(), description=f"Successfully granted badge to "
+                                                           f"{result['count']} trainers."))
+
+    async def grant_to_many(self, ctx, badge_id, trainers):
         badge_to_give = BadgeTable.get(BadgeTable.id == badge_id)
+        result = {"success": True, "message": None, "partial": False, "count": 0, "errored": []}
         if badge_to_give:
             if badge_to_give.guild.snowflake != ctx.guild.id:
-                await ctx.message.add_reaction(self.bot.failed_react)
-                return await ctx.channel.send(embed=discord.Embed(
-                    colour=discord.Colour.red(), description=f"No badge with id {badge_id} found on this server."))
+                result["success"] = False
+                result["message"] = f"No badge with id {badge_id} found on this server."
+                return result
             try:
                 trainer_ids = []
                 errored = []
                 __, __ = GuildTable.get_or_create(snowflake=ctx.guild.id)
-                for trainer in role.members:
+                for trainer in trainers:
                     try:
-                        trainer_obj, __ = TrainerTable.get_or_create(snowflake=trainer.id, guild=ctx.guild.id)
+                        trainer_obj, __ = TrainerTable.get_or_create(snowflake=trainer, guild=ctx.guild.id)
                         trainer_ids.append((badge_to_give.id, trainer_obj.snowflake))
                     except:
-                        errored.append(trainer.id)
+                        errored.append(trainer)
                 with KyogreDB._db.atomic():
                     count = BadgeAssignmentTable.insert_many(trainer_ids,
                                                              fields=[BadgeAssignmentTable.badge_id,
                                                                      BadgeAssignmentTable.trainer])\
                             .on_conflict_ignore().execute()
-                message = f"Could not assign the badge to: {', '.join(errored)}"
+                message = f"Could not assign the badge {badge_to_give.name} ({badge_id}) to: {', '.join(errored)}"
             except Exception as e:
                 self.bot.logger.error(e)
-                await ctx.message.add_reaction(self.bot.failed_react)
-                return await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(),
-                                                                  description="Completely failed"), delete_after=12)
+                result["success"] = False
+                result["message"] = "Completely failed"
+                return result
+
             if len(errored) > 0:
-                colour = discord.Colour.from_rgb(255, 255, 0)
-                await ctx.message.add_reaction(self.bot.failed_react)
-                await ctx.message.add_reaction(self.bot.success_react)
-                return await ctx.channel.send(embed=discord.Embed(colour=colour, description=message), delete_after=12)
-            await ctx.message.add_reaction(self.bot.success_react)
+                result["success"] = False
+                result["partial"] = True
+                result["message"] = message
+                result["errored"] = errored
+                return result
+
             await self._update_single_internal(ctx, badge_id)
-            return await ctx.channel.send(embed=discord.Embed(
-                colour=discord.Colour.green(), description=f"Successfully granted badge to {count} trainers."))
+            result["count"] = count
+            return result
 
     @commands.command(name='revoke_badge', aliases=['rb'])
     @commands.has_permissions(manage_roles=True)

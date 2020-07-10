@@ -101,10 +101,9 @@ class Social(commands.Cog):
         Accepted types: raids, eggs, wilds, research, joined, nests
         Region must be any configured region"""
         guild = ctx.guild
-        leaderboard = {}
         rank = 1
         field_value = ""
-        typelist = ["total", "raids", "eggs", "exraids", "wild", "research", "joined", "nests"]
+        typelist = self.bot.leaderboard_list
         board_type = board_type.lower()
         regions = list(self.bot.guild_dict[guild.id]['configure_dict']['regions']['info'].keys())
         if board_type not in typelist:
@@ -126,41 +125,7 @@ class Social(commands.Cog):
                                           f"channel: {ctx.channel}, error: {region} region is invalid.")
                 return await ctx.send(embed=discord.Embed(
                     colour=discord.Colour.red(), description=f"No region found with name {region}"))
-        for region in regions:
-            trainers = copy.deepcopy(self.bot.guild_dict[guild.id]['trainers'].setdefault(region, {}))
-            for trainer in trainers.keys():
-                user = guild.get_member(trainer)
-                if user is None:
-                    continue
-                raids, wilds, exraids, eggs, research, joined = 0, 0, 0, 0, 0, 0
-                
-                raids += trainers[trainer].setdefault('raid_reports', 0)
-                wilds += trainers[trainer].setdefault('wild_reports', 0)
-                exraids += trainers[trainer].setdefault('ex_reports', 0)
-                eggs += trainers[trainer].setdefault('egg_reports', 0)
-                research += trainers[trainer].setdefault('research_reports', 0)
-                joined += trainers[trainer].setdefault('joined', 0)
-                total_reports = raids + wilds + exraids + eggs + research + joined
-                trainer_stats = {'trainer': trainer, 'total': total_reports, 'raids': raids,
-                                 'wild': wilds, 'research': research, 'exraids': exraids,
-                                 'eggs': eggs, 'joined': joined, 'nests': 0}
-                if trainer_stats[board_type] > 0 and user:
-                    if trainer in leaderboard:
-                        leaderboard[trainer] = self.combine_dicts(leaderboard[trainer], trainer_stats)
-                    else:
-                        leaderboard[trainer] = trainer_stats
-        nest_reports = self.bot.guild_dict[guild.id]['trainers'].setdefault('nests', {})
-        for trainer in nest_reports.keys():
-            user = guild.get_member(trainer)
-            if user is None:
-                continue
-            nests = self.bot.guild_dict[guild.id]['trainers'].setdefault('nests', {}).setdefault(user.id, 0)
-            if trainer in leaderboard:
-                leaderboard[trainer]['nests'] = nests
-            else:
-                leaderboard[trainer] = {'trainer': trainer, 'total': nests, 'raids': 0,
-                                        'wild': 0, 'research': 0, 'exraids': 0,
-                                        'eggs': 0, 'joined': 0, 'nests': nests}
+        leaderboard = self.full_leaderboard_list(ctx, regions, board_type)
         leaderboardlist = []
         for key, value in leaderboard.items():
             leaderboardlist.append(value)
@@ -207,6 +172,47 @@ class Social(commands.Cog):
             else:
                 embed.add_field(name="No Reports", value="Nobody has made a report or this report type is disabled.")
         await ctx.send(embed=embed)
+
+    def full_leaderboard_list(self, ctx, regions, board_type):
+        guild = ctx.guild
+        leaderboard = {}
+        for region in regions:
+            trainers = copy.deepcopy(self.bot.guild_dict[guild.id]['trainers'].setdefault(region, {}))
+            for trainer in trainers.keys():
+                user = guild.get_member(trainer)
+                if user is None:
+                    continue
+                raids, wilds, exraids, eggs, research, joined = 0, 0, 0, 0, 0, 0
+
+                raids += trainers[trainer].setdefault('raid_reports', 0)
+                wilds += trainers[trainer].setdefault('wild_reports', 0)
+                exraids += trainers[trainer].setdefault('ex_reports', 0)
+                eggs += trainers[trainer].setdefault('egg_reports', 0)
+                research += trainers[trainer].setdefault('research_reports', 0)
+                joined += trainers[trainer].setdefault('joined', 0)
+                total_reports = raids + wilds + exraids + eggs + research + joined
+                trainer_stats = {'trainer': trainer, 'total': total_reports, 'raids': raids,
+                                 'wild': wilds, 'research': research, 'exraids': exraids,
+                                 'eggs': eggs, 'joined': joined, 'nests': 0}
+                if trainer_stats[board_type] > 0 and user:
+                    if trainer in leaderboard:
+                        leaderboard[trainer] = self.combine_dicts(leaderboard[trainer], trainer_stats)
+                    else:
+                        leaderboard[trainer] = trainer_stats
+        nest_reports = self.bot.guild_dict[guild.id]['trainers'].setdefault('nests', {})
+        for trainer in nest_reports.keys():
+            user = guild.get_member(trainer)
+            if user is None:
+                continue
+            nests = self.bot.guild_dict[guild.id]['trainers'].setdefault('nests', {}).setdefault(user.id, 0)
+            if trainer in leaderboard:
+                leaderboard[trainer]['nests'] = nests
+                leaderboard[trainer]['total'] = leaderboard[trainer]['total'] + nests
+            else:
+                leaderboard[trainer] = {'trainer': trainer, 'total': nests, 'raids': 0,
+                                        'wild': 0, 'research': 0, 'exraids': 0,
+                                        'eggs': 0, 'joined': 0, 'nests': nests}
+        return leaderboard
 
     @staticmethod
     def combine_dicts(a, b):
@@ -316,7 +322,6 @@ class Social(commands.Cog):
         if matches[0][0]:
             return await ctx.send(f"You might be looking for {matches[0][0]}")
         return await ctx.send("No trainers found with a name similar to that")
-
 
 
 def setup(bot):

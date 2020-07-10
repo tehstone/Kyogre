@@ -20,8 +20,8 @@ class KyogreDB:
         cls._db.initialize(handle)
         # ensure db matches current schema
         cls._db.create_tables([
-            BadgeAssignmentTable, BadgeTable, EventTable, GuildTable, GymTable, HideoutTable,
-            InvasionTable, InviteRoleTable, LocationNoteTable, LocationRegionRelation,
+            AutoBadgeTable, BadgeAssignmentTable, BadgeTable, EventTable, GuildTable, GymTable,
+            HideoutTable, InvasionTable, InviteRoleTable, LocationNoteTable, LocationRegionRelation,
             LocationTable, LureTable, LureTypeRelation, LureTypeTable,
             PokemonTable, PokestopTable, QuestTable, RaidActionTable,
             RaidBossRelation, RaidTable, RegionTable, ResearchTable,
@@ -496,6 +496,16 @@ class BadgeAssignmentTable(BaseModel):
 
     class Meta:
         constraints = [SQL('UNIQUE(trainer, badge_id)')]
+
+
+class AutoBadgeTable(BaseModel):
+    guild = ForeignKeyField(GuildTable, field=GuildTable.snowflake, backref='autobadge', index=True)
+    stat = TextField()
+    threshold = IntegerField()
+    badge = IntegerField()
+
+    class Meta:
+        constraints = [SQL('UNIQUE(guild_id, stat, threshold, badge)')]
 
 
 class APIUsageTable(BaseModel):

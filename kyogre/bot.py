@@ -16,6 +16,7 @@ from kyogre.exts.db.kyogredb import InviteRoleTable
 
 
 default_exts = ['admincommands',
+                'autobadge',
                 'badges',
                 'configuration',
                 'events',
