@@ -65,6 +65,7 @@ class AutoBadge(commands.Cog):
             return await self._fail_out(ctx, f'Failed to delete auto badge with id {auto_badge_id}.')
 
     @commands.command(name='checkab')
+    @commands.has_permissions(manage_guild=True)
     async def _check_auto_badges(self, ctx):
         social_cog = self.bot.cogs.get('Social')
         regions = list(self.bot.guild_dict[ctx.guild.id]['configure_dict']['regions']['info'].keys())
