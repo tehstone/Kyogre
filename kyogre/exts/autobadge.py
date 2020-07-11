@@ -125,17 +125,23 @@ class AutoBadge(commands.Cog):
                 embed.title = "Congratulations Trainers!"
                 description = f"The following trainers have earned {send_emoji} **{badge_to_give.name}**!\n"
                 mentions = ""
+                exceeded = False
                 for tid in success:
                     member = ctx.guild.get_member(tid)
                     if member:
-                        description += f"{member.display_name}\n"
-                        mentions += f"{member.mention} "
+                        if len(description) + len(f"{member.display_name}\n") > 2000:
+                            exceeded = True
+                        if not exceeded:
+                            description += f"{member.display_name}\n"
+                            mentions += f"{member.mention} "
                 embed.description = description
                 embed.add_field(name="Badge Requirements", value=f"*{badge_to_give.description}*")
                 sent += 1
                 await badge_channel.send(embed=embed)
                 mentions_msg = await badge_channel.send(mentions)
                 await asyncio.sleep(2)
+                if exceeded:
+                    await badge_channel.send("Additional trainers also earned this badge.")
                 await mentions_msg.delete()
         if sent == 0:
             await ctx.channel.send("No new badge assignments.")
