@@ -274,7 +274,7 @@ class Badges(commands.Cog):
                 count = 0
                 with KyogreDB._db.atomic():
                     for chunk in chunked(trainer_ids, 200):
-                        count += TopSubsTable.insert_many(chunk,
+                        count += BadgeAssignmentTable.insert_many(chunk,
                                                           fields=[BadgeAssignmentTable.badge_id,
                                                                   BadgeAssignmentTable.trainer]).execute()
 
