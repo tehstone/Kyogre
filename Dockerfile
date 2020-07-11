@@ -25,6 +25,9 @@ RUN pip install --user https://github.com/rogerbinns/apsw/releases/download/3.27
 --global-option=fetch --global-option=--version --global-option=3.27.2 --global-option=--all \
 --global-option=build --global-option=--enable-all-extensions
 
+# For some reason the install in requirements isn't picking up latest breaking change fix?
+RUN pip install git+https://github.com/Rapptz/discord.py@master -U
+
 RUN mkdir /usr/local/share/tessdata
 RUN wget -q https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata -P /usr/local/share/tessdata/
 

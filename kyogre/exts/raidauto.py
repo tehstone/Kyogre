@@ -72,22 +72,22 @@ class RaidAuto(commands.Cog):
                 return await ctx.message.add_reaction(self.bot.success_react)
             except KeyError:
                 pass
+        report_channel = None
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
+        reporting_channels = await listmgmt_cog.get_region_reporting_channels(guild, regions[0])
+        if len(reporting_channels) > 0:
+            report_channel = guild.get_channel(reporting_channels[0])
         if raid_info['type'] == 'egg':
             await raid_cog.finish_raid_report(ctx, raid_info["gym"], None, raid_info["tier"],
-                                              None, raidexp, image_file=file, bad_scan=warning)
+                                              raidexp, report_channel=report_channel, image_file=file, bad_scan=warning)
         else:
-            report_channel = None
-            listmgmt_cog = self.bot.cogs.get('ListManagement')
-            reporting_channels = await listmgmt_cog.get_region_reporting_channels(guild, regions[0])
-            if len(reporting_channels) > 0:
-                report_channel = guild.get_channel(reporting_channels[0])
             raid_pokemon = self._check_alolan(raid_info['boss'])
             raid_pokemon = self._check_galarian(raid_pokemon.name)
             if not raid_pokemon.is_raid:
                 error_desc = f'The Pokemon {raid_pokemon.name} does not currently appear in raids.'
                 return await channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=error_desc))
             await raid_cog.finish_raid_report(ctx, raid_info["gym"], raid_pokemon,
-                                              raid_pokemon.raid_level, None, raidexp,
+                                              raid_pokemon.raid_level, raidexp,
                                               report_channel=report_channel, image_file=file, bad_scan=warning)
 
     def _check_alolan(self, pokemon_name):
