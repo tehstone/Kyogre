@@ -271,11 +271,13 @@ class Badges(commands.Cog):
                         trainer_ids.append((badge_to_give.id, trainer_obj.snowflake))
                     except:
                         errored.append(trainer)
+                count = 0
                 with KyogreDB._db.atomic():
-                    count = BadgeAssignmentTable.insert_many(trainer_ids,
-                                                             fields=[BadgeAssignmentTable.badge_id,
-                                                                     BadgeAssignmentTable.trainer])\
-                            .on_conflict_ignore().execute()
+                    for chunk in chunked(trainer_ids, 200):
+                        count += TopSubsTable.insert_many(chunk,
+                                                          fields=[BadgeAssignmentTable.badge_id,
+                                                                  BadgeAssignmentTable.trainer]).execute()
+
                 message = f"Could not assign the badge {badge_to_give.name} ({badge_id}) to: {', '.join(errored)}"
             except Exception as e:
                 self.bot.logger.error(e)

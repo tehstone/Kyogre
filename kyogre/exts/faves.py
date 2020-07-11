@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 
 from kyogre.exts.db.kyogredb import *
@@ -46,11 +45,15 @@ class Faves(commands.Cog):
                 out_results['wild'][r.target] = r.count
         # pull the configured limit from the config_dict, use default of 10 if none found
         limit = self.bot.guild_dict[guild.id]['configure_dict'].get('subscriptions', {}).get('leaderboard_limit', 10)
-        # sort and limit the outgoing
-        out_results['research'] = sorted(out_results['research'].items(), key=lambda t: t[1], reverse=True)[:limit]
-        out_results['wild'] = sorted(out_results['wild'].items(), key=lambda t: t[1], reverse=True)[:limit]
+
+        # sort by count
+        out_results['research'] = sorted(out_results['research'].items(), key=lambda t: t[1], reverse=True)
+        out_results['wild'] = sorted(out_results['wild'].items(), key=lambda t: t[1], reverse=True)
         # Update the top subs table used to count personal stats when a report is made
         self._update_top_subs_table(guild.id, out_results)
+        # Now apply the limit before building the message
+        out_results['research'] = out_results['research'][:limit]
+        out_results['wild'] = out_results['wild'][:limit]
         # build the final leaderboard message
         leaderboard_str = '**The following lists are the most popular Subscriptions per type**\n'
         leaderboard_str += self._build_category_list(out_results, 'wild', '\n**Wild Spawns**\n')
@@ -99,26 +102,32 @@ class Faves(commands.Cog):
             TopSubsTable.delete().where(TopSubsTable.guild_id == guild_id).execute()
             data = []
             # Build data set from new entries
+            # SQLite can only insert 999 values at a time with insert_many. Each row uses 4 values, so 124 is the max
+            # row count we can insert at once
             for key in out_results.keys():
                 [data.append((guild_id, i[0], key, i[1])) for i in out_results[key]]
-            # Push data to db
-            TopSubsTable.insert_many(data, fields=[TopSubsTable.guild_id, TopSubsTable.pokemon,
-                                                   TopSubsTable.type, TopSubsTable.count])\
-                .execute()
+            with KyogreDB._db.atomic():
+                for chunk in chunked(data, 124):
+                    TopSubsTable.insert_many(chunk, fields=[TopSubsTable.guild_id, TopSubsTable.pokemon,
+                                                            TopSubsTable.type, TopSubsTable.count]).execute()
         except Exception as e:
             self.bot.logger.info(f"Failed to update Top Subs Table with error: {e}")
 
     @staticmethod
-    def get_report_points(guild_id, pokemon_list, report_type):
+    def get_report_points(guild, pokemon_list, report_type):
+
         pokemon_list = [p.name.capitalize() for p in pokemon_list]
         points = 1
         result = (TopSubsTable
                   .select(TopSubsTable.pokemon, TopSubsTable.count)
-                  .where(TopSubsTable.guild_id == guild_id)
+                  .where(TopSubsTable.guild_id == guild.id)
                   .where(TopSubsTable.type == report_type.lower())
                   .where(TopSubsTable.pokemon << pokemon_list))
+        if len(result) > 0:
+            points += 1
         for r in result:
-            points += round(r.count/5)
+            mult = min(r.count / guild.member_count + .8, 1)
+            points += round((r.count / 4) * mult)
         return points
 
 
