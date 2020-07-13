@@ -36,6 +36,16 @@ class RaidCommands(commands.Cog):
                                   'snow': 8, 'snowy': 8,
                                   'fog': 9, 'foggy': 9
                                   }
+        self.weather_boost_map = {
+            'partlycloudy': ['Normal', 'Rock'],
+            'cloudy': ['Fairy', 'Fighting', 'Poison'],
+            'fog': ['Dark', 'Ghost'],
+            'rainy': ['Water', 'Electric', 'Bug'],
+            'snow': ['Ice', 'Steel'],
+            'sunny': ['Grass', 'Ground', 'Fire'],
+            'clear': ['Grass', 'Ground', 'Fire'],
+            'windy': ['Dragon', 'Flying', 'Psychic']
+        }
 
     @commands.command(name="raid", aliases=['r', 're', 'egg', 'regg', 'raidegg', '1', '2', '3', '4', '5'],
                       brief="Report an ongoing raid or a raid egg.")
@@ -2156,6 +2166,7 @@ class RaidCommands(commands.Cog):
             weather = self.weather_list[w_index]
             guild_dict = self.bot.guild_dict
             guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['weather'] = weather.lower()
+            boosted = False
             pkmn = guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id].get('pokemon', None)
             pkmn = Pokemon.get_pokemon(self.bot, pkmn)
             if pkmn:
@@ -2170,6 +2181,12 @@ class RaidCommands(commands.Cog):
                     except (discord.errors.NotFound, discord.errors.Forbidden, discord.errors.HTTPException):
                         pass
                     guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['ctrs_dict'] = ctrs_dict
+                if weather in self.weather_boost_map:
+                    boosted_types = self.weather_boost_map[weather]
+                    for b in boosted_types:
+                        if b in pkmn.types:
+                            boosted = True
+                            break
             raid_message = guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['raidmessage']
             raid_message = await ctx.channel.fetch_message(raid_message)
             embed = raid_message.embeds[0]
@@ -2177,10 +2194,14 @@ class RaidCommands(commands.Cog):
             new_embed = embed
             gym_embed = embed.fields[embed_indices['gym']]
             gym_embed_value = '\n'.join(gym_embed.value.split('\n')[:2])
-            gym_embed_value += "\n**Weather**: " + weather
+            gym_embed_value += "\n**Weather**: " + weather.capitalize()
+            message = f"Weather set to {weather.lower()}"
+            if boosted:
+                gym_embed_value += ' ⚡'
+                message += "\n⚡ This raid boss will be boosted! ⚡"
             new_embed.set_field_at(embed_indices['gym'], name=gym_embed.name, value=gym_embed_value, inline=True)
             await raid_message.edit(embed=new_embed)
-            await ctx.channel.send("Weather set to {}!".format(weather.lower()))
+            await ctx.channel.send(message)
             updated_time = round(time.time())
             return await self._update_db_raid_report(ctx, ctx.channel, updated_time)
 
