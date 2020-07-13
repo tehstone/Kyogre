@@ -143,10 +143,12 @@ async def maint_start(bot):
     try:
         exraids_cog = bot.get_cog("EXRaids")
         raids_cog = bot.get_cog("RaidCommands")
+        invasions_cog = bot.get_cog("Invasions")
         tasks.append(event_loop.create_task(exraids_cog.channel_cleanup()))
         tasks.append(event_loop.create_task(raids_cog.channel_cleanup()))
         tasks.append(event_loop.create_task(message_cleanup()))
         tasks.append(event_loop.create_task(bot.update_subs_leaderboard()))
+        await invasions_cog.cleanup_counters()
         logger.info('Maintenance Tasks Started')
     except KeyboardInterrupt:
         [task.cancel() for task in tasks]

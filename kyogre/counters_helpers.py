@@ -112,7 +112,7 @@ async def counters(ctx, kyogre, pkmn, user=None, weather=None, movesetstr="Unkno
         await ctx.channel.send(embed=ctrs_embed)
 
 
-async def get_generic_counters(kyogre, guild, pkmn, weather=None):
+async def get_generic_counters(kyogre, guild, pkmn, weather=None, user=None, opponent=None):
     if isinstance(pkmn, str):
         pkmn = Pokemon.get_pokemon(kyogre, pkmn)
     if not pkmn:
@@ -128,24 +128,39 @@ async def get_generic_counters(kyogre, guild, pkmn, weather=None):
     ctrs_dict[ctrs_index]['moveset'] = "Unknown Moveset"
     ctrs_dict[ctrs_index]['emoji'] = '0\u20e3'
     img_url = pkmn.img_url
-    level = pkmn.raid_level
-    if not level.isdigit():
-        level = "5"
     pokebattler_name = pkmn.species.upper()
-    if pkmn.alolan:
-        pokebattler_name = f"{pkmn.species.upper()}_ALOLA_FORM"
-    if pkmn.galarian:
-        pokebattler_name = f"{pkmn.species.upper()}_GALARIAN_FORM"
-    url = f"https://fight.pokebattler.com/raids/defenders/{pokebattler_name}/levels/RAID_LEVEL_{level}/attackers/"
-    url += "levels/30/"
+    if opponent:
+        battle_type = "rocket"
+        pokebattler_name += "_SHADOW_FORM"
+        level = ROCKET_LEVEL_MAP[opponent]
+    else:
+        battle_type = "raids"
+        level = pkmn.raid_level
+        if not level.isdigit():
+            level = "5"
+        if pkmn.alolan:
+            pokebattler_name += "_ALOLA_FORM"
+        if pkmn.galarian:
+            pokebattler_name += "_GALARIAN_FORM"
+    url = f"https://fight.pokebattler.com/{battle_type}/defenders/{pokebattler_name}/levels/RAID_LEVEL_{level}/attackers/"
+    if user:
+        url += "users/{user}/".format(user=user)
+    else:
+        url += "levels/30/"
 
     if not weather:
         index = 0
     else:
         index = WEATHER_LIST.index(weather)
     weather = WEATHER_MATCH_LIST[index]
-    url += "strategies/CINEMATIC_ATTACK_WHEN_POSSIBLE/DEFENSE_RANDOM_MC?sort=OVERALL&"
-    url += f"weatherCondition={weather}&dodgeStrategy=DODGE_REACTION_TIME&aggregation=AVERAGE"
+    if not opponent:
+        url += "strategies/CINEMATIC_ATTACK_WHEN_POSSIBLE/DEFENSE_RANDOM_MC"
+    url += f"?sort=OVERALL&weatherCondition={weather}&dodgeStrategy=DODGE_REACTION_TIME&aggregation=AVERAGE"
+    if opponent:
+        if level <= 3:
+            url += "&defenderShieldStrategy=SHIELD_0"
+        else:
+            url += "&defenderShieldStrategy=SHIELD_2"
     title_url = url.replace('https://fight', 'https://www')
     hyperlink_icon = 'https://i.imgur.com/fn9E5nb.png'
     pbtlr_icon = 'https://www.pokebattler.com/favicon-32x32.png'
@@ -203,10 +218,8 @@ async def get_generic_counters(kyogre, guild, pkmn, weather=None):
     for moveset in ctrs_dict:
         moveset_list.append(f"{ctrs_dict[moveset]['emoji']}: {ctrs_dict[moveset]['moveset']}\n")
     for moveset in ctrs_dict:
-        ctrs_split = int(round(len(moveset_list)/2+0.1))
         ctrs_dict[moveset]['embed'].add_field(name="**Possible Movesets:**",
-                                              value=f"{''.join(moveset_list[:ctrs_split])}", inline=True)
-        ctrs_dict[moveset]['embed'].add_field(name="\u200b", value=f"{''.join(moveset_list[ctrs_split:])}", inline=True)
+                                              value=f"{''.join(moveset_list)}", inline=True)
         ctrs_dict[moveset]['embed'].add_field(name="Results with Level 30 attackers",
                                               value=f"[See your personalized results!](https://www.pokebattler.com/raids/{pokebattler_name})",
                                               inline=False)

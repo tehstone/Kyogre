@@ -212,6 +212,7 @@ class Invasions(commands.Cog):
         """Simulate a Team Rocket battle with Pokebattler.
 
         **Usage**: `!rocketcounters <opponent> <pokemon> [weather] [user]`
+        **Aliases**: `rcounters, rcounter`
         "opponent" must be one of: "grunt, cliff, arlo, sierra, jesse, james, giovanni"
         See `!help weather` for acceptable values for weather.
         If [user] is a valid Pokebattler user id, Kyogre will simulate the Raid with that user's Pokebox.
@@ -234,7 +235,6 @@ class Invasions(commands.Cog):
         if not pokemon:
             message = "Must provide a valid pokemon name"
             return await utils.fail_out(ctx, self.bot.failed_react, message, 12)
-        pkmn = Pokemon.get_pokemon(self.bot, pokemon)
         weather = next((w for w in self.weather_alias_map.keys() if re.sub(rgx, '', w)
                         in re.sub(rgx, '', info.lower())), None)
         if weather:
@@ -249,7 +249,58 @@ class Invasions(commands.Cog):
                     else:
                         user = arg
                     break
-        return await counters_helpers.counters(ctx, self.bot, pkmn, user, weather, "Unknown Moveset", opponent)
+        async with ctx.typing():
+            ctrs_dict = await counters_helpers.get_generic_counters(self.bot, ctx.guild, pokemon, weather, user, opponent)
+            ctrsmsg = "React to this message if you know the moveset to update the counters.\n" \
+                      "This message will expire after 1 hour and no longer accept moveset updates."
+            ctrsmessage = await ctx.channel.send(content=ctrsmsg, embed=ctrs_dict[0]['embed'])
+            for moveset in ctrs_dict:
+                await ctrsmessage.add_reaction(ctrs_dict[moveset]['emoji'])
+                await asyncio.sleep(0.25)
+        self.bot.guild_dict[ctx.guild.id].setdefault('rocketcounters_dict', {})[ctrsmessage.id] = \
+            {
+                'channel_id': ctx.channel.id,
+                'dict': ctrs_dict,
+                'exp': time.time() + 60 * 60
+            }
+        self.bot.event_loop.create_task(self.rcounters_expiry_check(ctx.guild, ctrsmessage))
+
+    async def rcounters_expiry_check(self, guild, message):
+        await asyncio.sleep(1)
+        if message.id in self.bot.guild_dict[guild.id].setdefault('rocketcounters_dict', {}):
+            while True:
+                try:
+                    if self.bot.guild_dict[guild.id]['rocketcounters_dict'][message.id]['exp'] <= time.time():
+                        await message.clear_reactions()
+                        await message.edit(content="")
+                        del self.bot.guild_dict[guild.id]['rocketcounters_dict'][message.id]
+                        break
+                except KeyError:
+                    break
+                await asyncio.sleep(240)
+                continue
+        pass
+
+    async def cleanup_counters(self):
+        for guild_id in self.bot.guild_dict:
+            to_delete = []
+            for message_id in self.bot.guild_dict[guild_id].setdefault('rocketcounters_dict', {}):
+                if self.bot.guild_dict[guild_id]['rocketcounters_dict'][message_id]['exp'] <= time.time():
+                    try:
+                        cid = self.bot.guild_dict[guild_id]['rocketcounters_dict'][message_id]['channel_id']
+                        guild = self.bot.get_guild(guild_id)
+                        channel = guild.get_channel(cid)
+                        message = await channel.fetch_message(message_id)
+                        await message.clear_reactions()
+                        await message.edit(content="")
+                        to_delete.append(message_id)
+                    except (KeyError, Exception):
+                        continue
+            for message_id in to_delete:
+                try:
+                    del self.bot.guild_dict[guild_id]['rocketcounters_dict'][message_id]
+                except:
+                    continue
 
     async def invasion_expiry_check(self, message, invasion_id, author):
         self.bot.logger.info('Expiry_Check - ' + message.channel.name)
@@ -554,6 +605,14 @@ class Invasions(commands.Cog):
         ctx = await self.bot.get_context(message)
         update = False
         active_hideouts = self.active_hideouts()
+        if message.id in self.bot.guild_dict[guild.id].setdefault('rocketcounters_dict', {}):
+            ctrs_dict = self.bot.guild_dict[guild.id]['rocketcounters_dict'][message.id]['dict']
+            for i in ctrs_dict:
+                if ctrs_dict[i]['emoji'] == str(payload.emoji):
+                    newembed = ctrs_dict[i]['embed']
+                    await message.edit(embed=newembed)
+                    break
+            await message.remove_reaction(payload.emoji, user)
         for h in active_hideouts:
             if h.message == message.id:
                 if h.trainer == payload.user_id or utils.can_manage(user, self.bot.config):
@@ -570,6 +629,7 @@ class Invasions(commands.Cog):
             listmgmt_cog = self.bot.cogs.get('ListManagement')
             regions = utils_cog.get_channel_regions(channel, 'research')
             await listmgmt_cog.update_listing_channels(guild, 'hideout', edit=True, regions=regions)
+
 
     @staticmethod
     def active_hideouts():
