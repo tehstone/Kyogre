@@ -21,10 +21,31 @@ class Invasions(commands.Cog):
                                'cliff', 'blue', 'mystic',
                                'sierra', 'yellow', 'instinct',
                                'giovanni', 'boss']
-        self.leader_map = {'arlo': 303, 'red': 303, 'valor': 303,
-                           'cliff': 127, 'blue': 127, 'mystic': 127, 'clif': 127,
-                           'sierra': 374, 'yellow': 374, 'instinct': 374,
+        self.leader_map = {'arlo': 204, 'red': 204, 'valor': 204,
+                           'cliff': 88, 'blue': 88, 'mystic': 88, 'clif': 88,
+                           'sierra': 131, 'yellow': 131, 'instinct': 131,
                            'giovanni': 53, 'boss': 53}
+        self.lineups = {'arlo': {1: ['Pineco'],
+                                 2: ['blastoise', 'charizard', 'steelix'],
+                                 3: ['dragonite', 'salamence', 'scizor']},
+                        'cliff': {1: ['Grimer'],
+                                  2: ['Electivire', 'Omastar', 'Machamp'],
+                                  3: ['Swampert', 'Torterra', 'Tyranitar']},
+                        'sierra': {1: ['Lapras'],
+                                   2: ['exeggutor', 'sharpedo', 'lapras'],
+                                   3: ['alakazam', 'houndoom', 'shiftry']},
+                        'giovanni': {1: ['persian'],
+                                     2: ['Dugtrio', 'Garchomp', 'Nidoking'],
+                                     3: ['Suicune']}}
+        self.counters = {'arlo': ['**Roserade**', '**Entei**', '**Reshiram**',
+                                  '**Swampert**', '**Mammoswine**', '**Moltres**'],
+                         'cliff': ['**Glaceon**', '**Togekiss**', '**Rhyperior**',
+                                   '**Lucario**', '**Torterra**', '**Mewtwo**'],
+                         'sierra': ['**Haxorus**', '**conkeldurr**', '**Swampert**',
+                                    '**Charizard**', '**Melmetal**', '**Ludicolo**'],
+                         'giovanni': ['**Melmetal**', '**Torterra**', '**Raikou**',
+                                      '**Lucario**', '**Machamp**', '**Kyogre**'],
+            }
 
     @commands.command(name='rocket', aliases=['rock', 'roc', 'hideout', 'hide', 'leader', 'lead'],
                       brief="Report a Team Rocket Hideout!")
