@@ -511,6 +511,9 @@ class Badges(commands.Cog):
 
     @commands.command(name="badge_leader", aliases=['bl'])
     async def badge_leader(self, ctx):
+        """
+        Shows the 10 Trainers with the most Badges earned on this server.
+        """
         result = (BadgeAssignmentTable
                   .select(BadgeAssignmentTable.trainer, fn.Count(BadgeAssignmentTable.trainer).alias('count'))
                   .join(BadgeTable, on=(BadgeTable.id == BadgeAssignmentTable.badge_id))

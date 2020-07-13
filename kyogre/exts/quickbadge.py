@@ -22,6 +22,12 @@ class QuickBadge(commands.Cog):
     @commands.command(hidden=True, aliases=['aqb'])
     @commands.has_permissions(manage_roles=True)
     async def add_quick_badge(self, ctx, badge: PartialEmoji, k_badge_id: int, p_badge_id: int):
+        """**Usage**: `!add_quick_badge <Emoji>, <Kyogre badge id>, <pokenav badge id>`
+           **Alias**: `add_quick_badge, aqb`
+
+           Adds a quick badge entry. Messages that receive a react using the emoji set will automatically
+           assign the corresponding badge to the Trainer who sent the message. Limited to set channels and roles.
+        """
         quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
             .get('quick_badge', self.quick_badge_dict_default)
         if len(quick_badge_dict['listen_channels']) < 1:
@@ -38,6 +44,11 @@ class QuickBadge(commands.Cog):
     @commands.command(hidden=True, aliases=['afl'])
     @commands.has_permissions(manage_roles=True)
     async def add_forty_listen_channel(self, ctx, item):
+        """**Usage**: `!add_forty_listen_channel <channel name/id>`
+           **Alias**: `add_forty_listen_channel, afl`
+
+           Adds a channel for Kyogre to listen for reacts to set the level 40 roles.
+        """
         qbl_channel = await self.qblc_channel_helper(ctx, item)
         if qbl_channel is None:
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Channel not found: {item}.")
@@ -58,6 +69,11 @@ class QuickBadge(commands.Cog):
     @commands.command(hidden=True, aliases=['rfl'])
     @commands.has_permissions(manage_roles=True)
     async def remove_forty_listen_channel(self, ctx, item):
+        """**Usage**: `!remove_forty_listen_channel <channel name/id>`
+           **Alias**: `remove_forty_listen_channel, rfl`
+
+           Removes a channel for Kyogre to listen for reacts to set the level 40 roles.
+        """
         qbl_channel = await self.qblc_channel_helper(ctx, item)
         if qbl_channel is None:
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Channel not found: {item}.")
@@ -78,6 +94,11 @@ class QuickBadge(commands.Cog):
     @commands.command(hidden=True, aliases=['sfl'])
     @commands.has_permissions(manage_roles=True)
     async def set_forty_role(self, ctx, role_id):
+        """**Usage**: `!set_forty_role <channel name/id>`
+           **Alias**: `set_forty_role, sfl`
+
+           Sets the role that Kyogre will assign when the react is added in a 40 listen channel
+        """
         role_id = utils.sanitize_name(role_id)
         try:
             role_id = int(role_id)
@@ -104,6 +125,11 @@ class QuickBadge(commands.Cog):
     @commands.command(hidden=True, aliases=['aqbl', 'qbl'])
     @commands.has_permissions(manage_roles=True)
     async def add_quick_badge_listen_channel(self, ctx, item):
+        """**Usage**: `!add_quick_badge_listen_channel <channel name/id>`
+           **Alias**: `add_quick_badge_listen_channel, aqbl, qbl`
+
+           Adds a channel for Kyogre to listen for reacts to grant badges defined as quickbadges.
+        """
         qbl_channel = await self.qblc_channel_helper(ctx, item)
         if qbl_channel is None:
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Channel not found: {item}.")
@@ -119,6 +145,11 @@ class QuickBadge(commands.Cog):
     @commands.command(hidden=True, aliases=['rqbl', 'dbl'])
     @commands.has_permissions(manage_roles=True)
     async def remove_quick_badge_listen_channel(self, ctx, item):
+        """**Usage**: `!remove_quick_badge_listen_channel <channel name/id>`
+           **Alias**: `remove_quick_badge_listen_channel, rqbl, dbl`
+
+           Removes a channel for Kyogre to listen for reacts to grant badges defined as quickbadges.
+        """
         qbl_channel = await self.qblc_channel_helper(ctx, item)
         if qbl_channel is None:
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Channel not found: {item}.")

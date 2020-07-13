@@ -159,7 +159,7 @@ class SetCommands(commands.Cog):
         async with ctx.typing():
             return await silph_cog.get_silph_card(silph_user)
 
-    @_set.command(aliases=['pkb'])
+    @_set.command(aliases=['pkb', 'pb'])
     async def pokebattler(self, ctx, pbid: int = 0):
         """**Usage**: `!set pokebattler <pokebattler id>`
         Links your PokeBattler ID to your `!profile`"""

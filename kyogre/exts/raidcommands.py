@@ -359,8 +359,6 @@ class RaidCommands(commands.Cog):
             channel = ctx.channel
         guild = channel.guild
         author = message.author
-        timestamp = (message.created_at + datetime.timedelta(
-            hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])).strftime('%I:%M %p (%H:%M)')
         if raid_pokemon is None:
             raid_report = False
         else:
@@ -452,7 +450,8 @@ class RaidCommands(commands.Cog):
             'hatching': False,
             'short': None
         }
-        position = self._determine_channel_position(self.bot.guild_dict[guild.id]['raidchannel_dict'], raid_dict, gym_regions)
+        position = self._determine_channel_position(self.bot.guild_dict[guild.id]['raidchannel_dict'],
+                                                    raid_dict, gym_regions)
         await raid_channel.edit(position=position)
         report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, ctx, raid_dict, enabled)
         msg = entity_updates.build_raid_report_message(self.bot, raid_channel, raid_dict)
@@ -482,9 +481,8 @@ class RaidCommands(commands.Cog):
             if str(level) in self.bot.guild_dict[guild.id]['configure_dict']['counters']['auto_levels']:
                 try:
                     ctrs_dict = await counters_helpers.get_generic_counters(self.bot, guild, raid_pokemon)
-                    ctrsmsg = "Here are the best counters for the raid boss in currently known weather conditions! " \
-                              "Update weather with **!weather**. If you know the moveset of the boss, " \
-                              "you can react to this message with the matching emoji and I will update the counters."
+                    ctrsmsg = "Update weather with **!weather** to get more accurate counters. " \
+                              "You can react to this message if you know the moveset to update the counters."
                     ctrsmessage = await raid_channel.send(content=ctrsmsg, embed=ctrs_dict[0]['embed'])
                     ctrsmessage_id = ctrsmessage.id
                     await ctrsmessage.pin()
@@ -613,7 +611,7 @@ class RaidCommands(commands.Cog):
             raid_channel_overwrite_dict = report_channel.overwrites
             name = ""
             if raid_type == "raid":
-                #🥚❓🔥
+                # 🥚❓🔥
                 name = f"{pkmn.name.lower()}_"
                 cat = utils.get_category(report_channel, str(pkmn.raid_level), self.bot.guild_dict,
                                          category_type=raid_type)
@@ -732,9 +730,8 @@ class RaidCommands(commands.Cog):
                     pass
         if str(egglevel) in self.bot.guild_dict[guild.id]['configure_dict']['counters']['auto_levels']:
             ctrs_dict = await counters_helpers.get_generic_counters(self.bot, guild, raid_pokemon, weather)
-            ctrsmsg = "Here are the best counters for the raid boss in currently known weather conditions! " \
-                      "Update weather with **!weather**. If you know the moveset of the boss, " \
-                      "you can react to this message with the matching emoji and I will update the counters."
+            ctrsmsg = "Update weather with **!weather** to get more accurate counters. " \
+                      "You can react to this message if you know the moveset to update the counters."
             ctrsmessage = await raid_channel.send(content=ctrsmsg, embed=ctrs_dict[0]['embed'])
             ctrsmessage_id = ctrsmessage.id
             await ctrsmessage.pin()
@@ -987,7 +984,7 @@ class RaidCommands(commands.Cog):
                                                     new_raid_dict['regions'])
         raidparty_cog = self.bot.cogs.get('RaidParty')
         raid_channel_name = utils.sanitize_name(pkmn.name.lower() + '_' + egg_address)[:32]
-        raid_channel_name, changed = await raidparty_cog._check_rsvp_total(trainer_dict, raid_channel_name)
+        raid_channel_name, changed = await raidparty_cog.check_rsvp_total(trainer_dict, raid_channel_name)
         await raid_channel.edit(name=raid_channel_name, position=position)
         self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = new_raid_dict
         if author:
@@ -1002,10 +999,9 @@ class RaidCommands(commands.Cog):
         if str(egglevel) in self.bot.guild_dict[guild.id]['configure_dict']['counters']['auto_levels'] \
                 and not eggdetails.get('pokemon', None):
             ctrs_dict = await counters_helpers.get_generic_counters(self.bot, guild, pkmn, weather)
-            ctrsmsg = "Here are the best counters for the raid boss in currently known weather conditions! " \
-                      "Update weather with **!weather**. If you know the moveset of the boss, you can react " \
-                      "to this message with the matching emoji and I will update the counters."
-            ctrsmessage = await raid_channel.send(content=ctrsmsg,embed=ctrs_dict[0]['embed'])
+            ctrsmsg = "Update weather with **!weather** to get more accurate counters. " \
+                      "You can react to this message if you know the moveset to update the counters."
+            ctrsmessage = await raid_channel.send(content=ctrsmsg, embed=ctrs_dict[0]['embed'])
             ctrsmessage_id = ctrsmessage.id
             await ctrsmessage.pin()
             for moveset in ctrs_dict:
@@ -2087,7 +2083,7 @@ class RaidCommands(commands.Cog):
                     try:
                         ctrsmessage = await channel.fetch_message(self.bot.guild_dict[guild.id]
                                                                   ['raidchannel_dict'][channel.id]
-                                                                  .get('ctrsmessage',None))
+                                                                  .get('ctrsmessage', None))
                         ctrsembed = ctrsmessage.embeds[0]
                         ctrsembed.remove_field(6)
                         ctrsembed.remove_field(6)
@@ -2114,12 +2110,15 @@ class RaidCommands(commands.Cog):
                     if weather:
                         weather = self.weather_list[self.weather_alias_map[weather]]
             pkmn = Pokemon.get_pokemon(self.bot, pkmn)
-            return await counters_helpers._counters(ctx, self.bot, pkmn, user, weather, movesetstr)
+            return await counters_helpers.counters(ctx, self.bot, pkmn, user, weather, movesetstr)
         if args:
             args_split = args.split()
             for arg in args_split:
                 if arg.isdigit():
-                    user = arg
+                    if int(arg) == 0:
+                        user = None
+                    else:
+                        user = arg
                     break
             rgx = '[^a-zA-Z0-9]'
             pkmn = next((str(p) for p in Pokemon.get_raidlist(self.bot) if not str(p).isdigit()
@@ -2139,7 +2138,7 @@ class RaidCommands(commands.Cog):
                                    "pokemon that appears in raids! Usage: **!counters <pkmn> [weather] [user ID]**")
             return
         pkmn = Pokemon.get_pokemon(self.bot, pkmn)
-        await counters_helpers._counters(ctx, self.bot, pkmn, user, weather, "Unknown Moveset")
+        await counters_helpers.counters(ctx, self.bot, pkmn, user, weather, "Unknown Moveset")
 
     @commands.command()
     @checks.activechannel()

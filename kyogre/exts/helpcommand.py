@@ -6,21 +6,28 @@ from kyogre import checks
 
 class MyHelpCommand(commands.DefaultHelpCommand):
 
-    mappings = {"reportchannel": ["raid", "wild", "research", "lure", "raidavailable"],
+    mappings = {"reportchannel": ["raid", "wild", "research", "research_multiple", "lure", "raidavailable"],
                 "raidchannel": {"status": ["interested", "coming", "here", "cancel"],
                                 "time": ["starttime", "timerset"],
-                                "other": ["list", "lobby", "starting", "backout", "shout", "weather", "counters"]
+                                "other": ["list", "lobby", "starting", "backout",
+                                          "shout", "weather", "counters", "rocketcounters"]
                                 },
                 "rocket": ["rocket"],
                 "pvp": ["pvp available", "pvp add", "pvp remove"],
                 "subscriptions": ["subscription list", "subscription add", "subscription remove"],
-                "user": { "commands": ["join", "gym", "profile", "leaderboard", "set silph", "set pokebattler",
-                                       "set xp", "set trainername", "set friendcode"]},
-                "helper": { "commands": ["loc changeregion", "location_match_test", "checkin"]},
-                "mod": {"commands": ["mentiontoggle", "addjoin", "inviterole add", "inviterole update", 
-                "inviterole remove", "inviterole list", "event list", "loc convert", "loc extoggle"]},
+                "user": {"commands": ["join", "gym", "profile", "leaderboard", "set silph", "set pokebattler",
+                                       "set xp", "set trainername", "set friendcode", "leaderboard",
+                                      "badges", "badge_leader", "whois"]},
+                "helper": {"commands": ["loc changeregion", "location_match_test", "stop_match_test", "gym_match_test"
+                                         "checkin"]},
+                "mod": {"commands": ["mentiontoggle", "addjoin", "inviterole add", "inviterole update", "grant_badge",
+                                     "grant_multiple_badges", "grant_to_role", "revoke_badge", "add_quick_badge",
+                                     "add_forty_listen_channel", "remove_forty_listen_channel", "set_forty_role",
+                                     "add_quick_badge_listen_channel", "remove_quick_badge_listen_channel",
+                                     "inviterole remove", "inviterole list",
+                                     "event list", "loc convert", "loc extoggle"]},
                 "server_admin": {"commands": ["announce", "grantroles", "ungrantroles", "subscription adminlist",
-                                 "loc add", "event create"]},
+                                 "loc add", "event create", "addautobadge", "available_badges", "all_badges"]},
                 "bot_admin": {"commands": ["configure", "save", "exit", "restart", "welcome", "outputlog"]},
                 "debug": ["outputlog"],
                 "checkin": ["checkin"],
@@ -89,14 +96,18 @@ class MyHelpCommand(commands.DefaultHelpCommand):
 
     async def send_command_help(self, command):
         dest = self.get_destination()
-        help_embed = None
         for com_set in self.mappings["raidchannel"]:
             if command.name in self.mappings["raidchannel"][com_set]:
                 help_embed = self._generate_command_help(command)
                 return await dest.send(embed=help_embed)
         for com_set in self.mappings:
+            help_embed = None
             if command.qualified_name in self.mappings[com_set]:
                 help_embed = self._generate_command_help(command)
+            elif "commands" in self.mappings[com_set]:
+                if command.qualified_name in self.mappings[com_set]["commands"]:
+                    help_embed = self._generate_command_help(command)
+            if help_embed:
                 return await dest.send(embed=help_embed)
 
         return await super().send_command_help(command)

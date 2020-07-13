@@ -92,6 +92,7 @@ class RaidParty(commands.Cog):
     @commands.command(hidden=True, name="setraidchannelheatcount", aliases=['shc'])
     @commands.has_permissions(manage_guild=True)
     async def _setraidchannelheatcount(self, ctx, count: int):
+        """Sets the count at which a raid channel name receives the Flame emoji"""
         self.heat_count = count
 
     @commands.command()
@@ -156,7 +157,7 @@ class RaidParty(commands.Cog):
             partylist = result[1]
             listmgmt_cog = self.bot.cogs.get('ListManagement')
             await listmgmt_cog.maybe(ctx, count, partylist, eta, entered_interest)
-            new_name, changed = await self._check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
+            new_name, changed = await self.check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
                                                              [ctx.channel.id]['trainer_dict'], ctx.channel.name)
             if changed:
                 await ctx.channel.edit(name=new_name)
@@ -184,7 +185,7 @@ class RaidParty(commands.Cog):
             partylist = result[1]
             listmgmt_cog = self.bot.cogs.get('ListManagement')
             await listmgmt_cog.coming(ctx, count, partylist, eta, entered_interest)
-            new_name, changed = await self._check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
+            new_name, changed = await self.check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
                                                              [ctx.channel.id]['trainer_dict'], ctx.channel.name)
             if changed:
                 await ctx.channel.edit(name=new_name)
@@ -211,7 +212,7 @@ class RaidParty(commands.Cog):
             partylist = result[1]
             listmgmt_cog = self.bot.cogs.get('ListManagement')
             await listmgmt_cog.here(ctx, count, partylist, entered_interest)
-            new_name, changed = await self._check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
+            new_name, changed = await self.check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
                                                              [ctx.channel.id]['trainer_dict'], ctx.channel.name)
             if changed:
                 await ctx.channel.edit(name=new_name)
@@ -368,7 +369,7 @@ class RaidParty(commands.Cog):
         Or removes you and your party from the active lobby."""
         listmgmt_cog = self.bot.cogs.get('ListManagement')
         await listmgmt_cog.cancel(ctx)
-        new_name, changed = await self._check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
+        new_name, changed = await self.check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
                                                          [ctx.channel.id]['trainer_dict'], ctx.channel.name)
         if changed:
             await ctx.channel.edit(name=new_name)
@@ -515,7 +516,7 @@ class RaidParty(commands.Cog):
             await listmgmt_cog.update_listing_channels(ctx.guild, 'raid', edit=True, regions=regions)
         raid_cog = self.bot.cogs.get('RaidCommands')
         action_time += lobby_duration
-        new_name, changed = await self._check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
+        new_name, changed = await self.check_rsvp_total(self.bot.guild_dict[ctx.guild.id]['raidchannel_dict']
                                                          [ctx.channel.id]['trainer_dict'], ctx.channel.name)
         if changed:
             await ctx.channel.edit(name=new_name)
@@ -594,7 +595,7 @@ class RaidParty(commands.Cog):
             else:
                 return
 
-    async def _check_rsvp_total(self, trainer_dict, channel_name):
+    async def check_rsvp_total(self, trainer_dict, channel_name):
         new_name = channel_name
         count = 0
         for t in trainer_dict:

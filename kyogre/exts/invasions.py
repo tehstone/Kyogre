@@ -7,7 +7,7 @@ import time
 import discord
 from discord.ext import commands
 
-from kyogre import checks, utils
+from kyogre import checks, utils, counters_helpers
 from kyogre.exts.db.kyogredb import HideoutInstance, HideoutTable, LocationTable
 from kyogre.exts.db.kyogredb import LocationRegionRelation, RegionTable, TrainerReportRelation
 
@@ -45,7 +45,20 @@ class Invasions(commands.Cog):
                                     '**Charizard**', '**Melmetal**', '**Ludicolo**'],
                          'giovanni': ['**Melmetal**', '**Torterra**', '**Raikou**',
                                       '**Lucario**', '**Machamp**', '**Kyogre**'],
-            }
+                         }
+        self.weather_list = ['none', 'extreme', 'clear', 'sunny', 'rainy',
+                             'partlycloudy', 'cloudy', 'windy', 'snow', 'fog']
+        self.weather_alias_map = {'none': 0, 'off': 0,
+                                  'extreme': 1, 'storm': 1, 'advisory': 1,
+                                  'clear': 2,
+                                  'sunny': 3, 'sun': 3,
+                                  'rainy': 4, 'rain': 4,
+                                  'partlycloudy': 5, 'partcloudy': 5, 'partly': 5, 'partcloud': 5, 'part': 5,
+                                  'cloudy': 6, 'cloud': 6,
+                                  'windy': 7, 'wind': 7,
+                                  'snow': 8, 'snowy': 8,
+                                  'fog': 9, 'foggy': 9
+                                  }
 
     @commands.command(name='rocket', aliases=['rock', 'roc', 'hideout', 'hide', 'leader', 'lead'],
                       brief="Report a Team Rocket Hideout!")
@@ -193,6 +206,50 @@ class Invasions(commands.Cog):
         clean_list = self.bot.guild_dict[ctx.guild.id]['configure_dict'].setdefault('channel_auto_clean', [])
         if ctx.channel.id in clean_list:
             await ctx.message.delete()
+
+    @commands.command(name='rocketcounters', aliases=['rcounter', 'rcounters'])
+    async def _rocket_counters(self, ctx, *, info):
+        """Simulate a Team Rocket battle with Pokebattler.
+
+        **Usage**: `!rocketcounters <opponent> <pokemon> [weather] [user]`
+        "opponent" must be one of: "grunt, cliff, arlo, sierra, jesse, james, giovanni"
+        See `!help weather` for acceptable values for weather.
+        If [user] is a valid Pokebattler user id, Kyogre will simulate the Raid with that user's Pokebox.
+        If you have set your Pokebattler id on your profile, Kyogre will automatically use that ID.
+        < > indicates required info, [ ] indicates optional. Don't include these characters.
+        """
+        opponent, pokemon, user = None, None, None
+        opponents = ["grunt", "cliff", "arlo", "sierra", "jesse", "james", "giovanni"]
+        for op in opponents:
+            if op in info.lower():
+                opponent = op
+                info.replace(op, '')
+                break
+        if not opponent:
+            message = f"Must provide 1 opponent name from: {', '.join(opponents)}"
+            return await utils.fail_out(ctx, self.bot.failed_react, message, 12)
+        rgx = '[^a-zA-Z0-9 ]'
+        pokemon = next((str(p) for p in Pokemon.get_pkmn_dict().keys() if not str(p).isdigit()
+                        and re.sub(rgx, '', str(p)) in re.sub(rgx, '', info.lower())), None)
+        if not pokemon:
+            message = "Must provide a valid pokemon name"
+            return await utils.fail_out(ctx, self.bot.failed_react, message, 12)
+        pkmn = Pokemon.get_pokemon(self.bot, pokemon)
+        weather = next((w for w in self.weather_alias_map.keys() if re.sub(rgx, '', w)
+                        in re.sub(rgx, '', info.lower())), None)
+        if weather:
+            weather = self.weather_list[self.weather_alias_map[weather]]
+        user = self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {})\
+            .get(ctx.author.id, {}).get('pokebattlerid', None)
+        if not user:
+            for arg in info.split():
+                if arg.isdigit():
+                    if int(arg) == 0:
+                        user = None
+                    else:
+                        user = arg
+                    break
+        return await counters_helpers.counters(ctx, self.bot, pkmn, user, weather, "Unknown Moveset", opponent)
 
     async def invasion_expiry_check(self, message, invasion_id, author):
         self.bot.logger.info('Expiry_Check - ' + message.channel.name)

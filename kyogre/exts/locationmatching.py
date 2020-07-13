@@ -199,6 +199,12 @@ class LocationMatching(commands.Cog):
     @commands.command(name="lmts", aliases=['smt'])
     @checks.is_dev_or_owner_or_perms(manage_nicknames=True)
     async def stop_match_test(self, ctx, *, content=None):
+        """**Usage**: `!lmts <name>, [region]`
+           **Alias**: `lmts, smt`
+
+           Looks up all Pokestops with a name matching the one provided of the type provided.
+           Can optionally be filtered to a particular region.
+        """
         if content is None:
             return
         return await ctx.invoke(self.bot.get_command('lmt'), content=f"stop, {content}")
@@ -206,6 +212,12 @@ class LocationMatching(commands.Cog):
     @commands.command(name="lmtg", aliases=['gmt'])
     @checks.is_dev_or_owner_or_perms(manage_nicknames=True)
     async def gym_match_test(self, ctx, *, content=None):
+        """**Usage**: `!lmtg <name>, [region]`
+           **Alias**: `lmtg, gmt`
+
+           Looks up all Gyms with a name matching the one provided of the type provided.
+           Can optionally be filtered to a particular region.
+        """
         if content is None:
             return
         return await ctx.invoke(self.bot.get_command('lmt'), content=f"gym, {content}")

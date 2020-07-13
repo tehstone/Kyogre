@@ -305,10 +305,6 @@ class Pokemon():
         return ('https://raw.githubusercontent.com/tehstone/Kyogre/master/'
                 f'images/pkmn/{pkmn_no}{form_str}_{region_str}{shiny_str}.png?cache=3')
 
-    # async def colour(self):
-    #     """:class:`discord.Colour` : Discord colour based on Pokemon sprite."""
-    #     return await url_color(self.img_url)
-
     @property
     def is_raid(self):
         """:class:`bool` : Indicates if the pokemon can show in Raids"""
@@ -323,12 +319,6 @@ class Pokemon():
     def raid_level(self):
         """:class:`int` or :obj:`None` : Returns raid egg level"""
         return utils.get_level(self.bot, self.name)
-
-    # def max_raid_cp(self, weather_boost=False):
-    #     """:class:`int` or :obj:`None` : Returns max CP on capture after raid
-    #     """
-    #     key = "max_cp_w" if weather_boost else "max_cp"
-    #     return self.bot.raid_pokemon[self.name][key] if self.is_raid else None
 
     def set_guild(self, guild):
         """:class:`discord.Guild` or :obj:`None` : Sets the relevant Guild"""

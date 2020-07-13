@@ -303,6 +303,11 @@ class Social(commands.Cog):
 
     @commands.command(name='whois', aliases=['who'])
     async def _who_is(self, ctx, trainer):
+        """**Usage**: `!whois <trainer name>`
+           **Alias**: `whois, who`
+
+           Attempts to find users on this server whose discord name or set Trainer name match the provided name.
+        """
         user = ctx.guild.get_member_named(trainer)
         if user:
             return await ctx.send(f"You're probably looking for {user.mention}")

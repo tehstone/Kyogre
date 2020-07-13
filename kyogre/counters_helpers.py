@@ -7,23 +7,25 @@ WEATHER_LIST = ['none', 'extreme', 'clear', 'sunny', 'rainy',
                 'partlycloudy', 'cloudy', 'windy', 'snow', 'fog']
 WEATHER_MATCH_LIST = ['NO_WEATHER', 'NO_WEATHER', 'CLEAR', 'CLEAR', 'RAINY',
                       'PARTLY_CLOUDY', 'OVERCAST', 'WINDY', 'SNOW', 'FOG']
+ROCKET_LEVEL_MAP = {"grunt": 3, "cliff": 4, "arlo": 4, "sierra": 4, "jesse": 4, "james": 4, "giovanni": 5}
 
 
-async def _counters(ctx, kyogre, pkmn, user=None, weather=None, movesetstr="Unknown Moveset", rocket=False):
+async def counters(ctx, kyogre, pkmn, user=None, weather=None, movesetstr="Unknown Moveset", opponent=None):
     if isinstance(pkmn, str):
         pkmn = Pokemon.get_pokemon(kyogre, pkmn)
     if not pkmn:
         return
     img_url = pkmn.img_url
-    level = pkmn.raid_level
-    if not level.isdigit():
-        level = "5"
     pokebattler_name = pkmn.species.upper()
-    if rocket:
+    if opponent:
         battle_type = "rocket"
         pokebattler_name += "_SHADOW_FORM"
+        level = ROCKET_LEVEL_MAP[opponent]
     else:
         battle_type = "raids"
+        level = pkmn.raid_level
+        if not level.isdigit():
+            level = "5"
         if pkmn.alolan:
             pokebattler_name += "_ALOLA_FORM"
         if pkmn.galarian:
@@ -41,9 +43,10 @@ async def _counters(ctx, kyogre, pkmn, user=None, weather=None, movesetstr="Unkn
     else:
         index = WEATHER_LIST.index(weather)
     weather = WEATHER_MATCH_LIST[index]
-    url += "strategies/CINEMATIC_ATTACK_WHEN_POSSIBLE/DEFENSE_RANDOM_MC?sort=OVERALL&"
-    url += f"weatherCondition={weather}&dodgeStrategy=DODGE_REACTION_TIME&aggregation=AVERAGE"
-    if rocket:
+    if not opponent:
+        url += "strategies/CINEMATIC_ATTACK_WHEN_POSSIBLE/DEFENSE_RANDOM_MC"
+    url += f"?sort=OVERALL&weatherCondition={weather}&dodgeStrategy=DODGE_REACTION_TIME&aggregation=AVERAGE"
+    if opponent:
         if level <= 3:
             url += "&defenderShieldStrategy=SHIELD_0"
         else:

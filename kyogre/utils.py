@@ -636,3 +636,11 @@ async def clone_and_position(channel, delete=False):
     if delete:
         await channel.delete()
     return new_channel
+
+
+async def fail_out(ctx, react, message, delay):
+    await ctx.message.add_reaction(react)
+    return await ctx.channel.send(
+        embed=discord.Embed(colour=discord.Colour.red(),
+                            description=message),
+        delete_after=delay)
