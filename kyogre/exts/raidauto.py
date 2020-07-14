@@ -258,7 +258,7 @@ class RaidAuto(commands.Cog):
                     raid_info['exp'] = timev
             raid_info["real_scan"] = f"{time.time() - start}"
             self.bot.gcv_logger.info(raid_info)
-            await self.create_raid(ctx, raid_info, None, warning)
+            await self.create_raid(ctx, raid_info, file, warning)
             if egg_image:
                 await image_utils.cleanup_file(file, f"screenshots/{raid_info['tier']}")
             else:
