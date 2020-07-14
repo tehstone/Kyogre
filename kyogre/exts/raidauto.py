@@ -237,16 +237,14 @@ class RaidAuto(commands.Cog):
                 self.bot.scan_fail_log.info(log_message)
                 continue
             # If we have an expire time but no boss, make it a level 1 egg about to hatch
+
             elif raid_info['expire_time'] and not raid_info['boss']:
                 raid_info['type'] = 'egg'
-                raid_info['exp'] = "0"
                 raid_info['phone_time'] = None
-                raid_info['tier'] = 1
-                time_set = True
+                raid_info['tier'] = 0
                 warning = True
             elif raid_info['boss']:
                 raid_info['type'] = 'raid'
-                # if raid_info['expire_time'] or raid_info['boss']:
             if not time_set:
                 if raid_info['egg_time'] and not timev:
                     timev = raid_info['egg_time']
@@ -258,9 +256,9 @@ class RaidAuto(commands.Cog):
                     minute = time_split[1] if time_split[1].isdigit() else 0
                     timev = str(60*int(hour) + int(minute))
                     raid_info['exp'] = timev
+            raid_info["real_scan"] = f"{time.time() - start}"
             self.bot.gcv_logger.info(raid_info)
-            self.bot.gcv_logger.info(f"real scan: {time.time() - start}")
-            await self.create_raid(ctx, raid_info, file, warning)
+            await self.create_raid(ctx, raid_info, None, warning)
             if egg_image:
                 await image_utils.cleanup_file(file, f"screenshots/{raid_info['tier']}")
             else:

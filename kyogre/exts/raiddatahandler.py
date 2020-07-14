@@ -187,6 +187,9 @@ class RaidDataHandler(commands.Cog):
             pkmn_names = [Pokemon.get_pokemon(self.bot, p).name.lower() for p in data]
             self.raid_info['raid_eggs'][pkmn_lvl]["pokemon"] = pkmn_names
 
+        self.raid_info['raid_eggs']["0"] = \
+            {'egg': 'normal', 'egg_img': '1.png', 'pokemon': [], 'hatchtime': 60, 'raidtime': 45}
+
         with open(ctx.bot.raid_json_path, 'w') as fd:
             json.dump(self.raid_info, fd, indent=4)
         return await ctx.message.add_reaction('\u2705')

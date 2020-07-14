@@ -57,6 +57,7 @@ class ListManagement(commands.Cog):
             cty = channel.name
         egg_dict = {'1': {}, '2': {}, '3': {}, '4': {}, '5': {}}
         raid_dict = {
+            '0': {"raid": {}, "egg": {}},
             '1': {"raid": {}, "egg": {}},
             '2': {"raid": {}, "egg": {}},
             '3': {"raid": {}, "egg": {}},
@@ -151,7 +152,6 @@ class ListManagement(commands.Cog):
                 total_count = " | ".join(total_count_list)
                 if len(total_count) < 1:
                     total_count = '0'
-                # sum([ctx_maybecount, ctx_comingcount, ctx_herecount, ctx_lobbycount])
                 output += f'\t{t_emoji} {rchan.mention}{ex_eligibility}{gym_note}\n\t\t{expirytext}{start_str}' \
                           f' | **Trainer Count**: {total_count}\n'
             else:
@@ -197,6 +197,8 @@ class ListManagement(commands.Cog):
                     for t in ["egg", "raid"]:
                         if len(raid_dict[level][t].items()) > 0:
                             msg = f"Level {level} {t.capitalize()}s"
+                            if level == "0":
+                                msg = "Unknown Raid Bosses"
                             listmsg = process_category(listmsg_list, listmsg, msg,
                                                        [r for (r, __) in
                                                         sorted(raid_dict[level][t].items(),
@@ -394,7 +396,7 @@ class ListManagement(commands.Cog):
                 hideout_embed.title = f"Rocket Leader {leader.capitalize()}"
                 hideout_embed.url = guides[leader]
                 counters_text = f"Suggested Counters: {', '.join(counters[leader])}"
-                hideout_embed.add_field(name="Click Leader Name for full counters guide", value=counters_text)
+                hideout_embed.add_field(name="Click Leader Name for full counters guide on GoHub", value=counters_text)
                 lineup_text = f"1. {lineups[leader][1][0].capitalize()}\n"
                 lineup_text += f"2. {' or '.join([l.capitalize() for l in lineups[leader][2]])}\n"
                 lineup_text += f"3. {' or '.join([l.capitalize() for l in lineups[leader][3]])}"

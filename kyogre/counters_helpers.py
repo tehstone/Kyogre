@@ -10,6 +10,10 @@ WEATHER_MATCH_LIST = ['NO_WEATHER', 'NO_WEATHER', 'CLEAR', 'CLEAR', 'RAINY',
 ROCKET_LEVEL_MAP = {"grunt": 3, "cliff": 4, "arlo": 4, "sierra": 4, "jesse": 4, "james": 4, "giovanni": 5}
 
 
+def clean(txt):
+    return txt.replace('_', ' ').title()
+
+
 async def counters(ctx, kyogre, pkmn, user=None, weather=None, movesetstr="Unknown Moveset", opponent=None):
     if isinstance(pkmn, str):
         pkmn = Pokemon.get_pokemon(kyogre, pkmn)
@@ -79,9 +83,6 @@ async def counters(ctx, kyogre, pkmn, user=None, weather=None, movesetstr="Unkno
                 ctrs = data['randomMove']['defenders'][-6:]
                 est = data['randomMove']['total']['estimator']
 
-        def clean(txt):
-            return txt.replace('_', ' ').title()
-
         title = '{pkmn} | {weather} | {movesetstr}'.format(pkmn=pkmn.name, weather=WEATHER_LIST[index].title(),
                                                            movesetstr=movesetstr)
         stats_msg = "**CP:** {raid_cp}\n".format(raid_cp=raid_cp)
@@ -90,7 +91,6 @@ async def counters(ctx, kyogre, pkmn, user=None, weather=None, movesetstr="Unkno
         ctrs_embed = discord.Embed(colour=colour)
         ctrs_embed.set_author(name=title, url=title_url, icon_url=hyperlink_icon)
         ctrs_embed.set_thumbnail(url=img_url)
-        ctrs_embed.set_footer(text='Results courtesy of Pokebattler', icon_url=pbtlr_icon)
         index = 1
         for ctr in reversed(ctrs):
             ctr_name = clean(ctr['pokemonId'])
@@ -102,7 +102,7 @@ async def counters(ctx, kyogre, pkmn, user=None, weather=None, movesetstr="Unkno
             cpstr = "CP"
             ctrs_embed.add_field(name=name, value=f"{cpstr}: {ctr_cp}\n{moves}")
             index += 1
-        ctrs_embed.add_field(name=f"Results with {userstr} attackers",
+        ctrs_embed.add_field(name=f"Results courtesy of Pokebattler. {userstr}'s attackers",
                              value=f"[See your personalized results!](https://www.pokebattler.com/raids/{pokebattler_name})")
         if user:
             ctrs_embed.add_field(name="Pokebattler Estimator:", value="Difficulty rating: {est}".format(est=est))
@@ -172,17 +172,13 @@ async def get_generic_counters(kyogre, guild, pkmn, weather=None, user=None, opp
     atk_levels = '30'
     ctrs = data['randomMove']['defenders'][-6:]
 
-    def clean(txt):
-        return txt.replace('_', ' ').title()
-
-    title = f'{pkmn.name} | {WEATHER_LIST[index].title()} | Unknown Moveset'
+    title = f'{pkmn.name} | {WEATHER_LIST[index].title()} | Unknown Moveset | Level 30 Attackers'
     stats_msg = "**CP:** {raid_cp}\n".format(raid_cp=raid_cp)
     stats_msg += "**Weather:** {weather}\n".format(weather=clean(weather))
     stats_msg += "**Attacker Level:** {atk_levels}".format(atk_levels=atk_levels)
     ctrs_embed = discord.Embed(colour=guild.me.colour)
     ctrs_embed.set_author(name=title, url=title_url, icon_url=hyperlink_icon)
     ctrs_embed.set_thumbnail(url=img_url)
-    ctrs_embed.set_footer(text='Results courtesy of Pokebattler', icon_url=pbtlr_icon)
     ctrindex = 1
     for ctr in reversed(ctrs):
         ctr_name = clean(ctr['pokemonId'])
@@ -198,11 +194,10 @@ async def get_generic_counters(kyogre, guild, pkmn, weather=None, user=None, opp
         move2 = moveset['move2'].lower().title().replace('_', ' ')
         movesetstr = f'{move1} | {move2}'
         ctrs = moveset['defenders'][-6:]
-        title = f'{pkmn.name} | {WEATHER_LIST[index].title()} | {movesetstr}'
+        title = f'{pkmn.name} | {WEATHER_LIST[index].title()} | {movesetstr} | Level 30 Attackers'
         ctrs_embed = discord.Embed(colour=guild.me.colour)
         ctrs_embed.set_author(name=title, url=title_url, icon_url=hyperlink_icon)
         ctrs_embed.set_thumbnail(url=img_url)
-        ctrs_embed.set_footer(text='Results courtesy of Pokebattler', icon_url=pbtlr_icon)
         ctrindex = 1
         for ctr in reversed(ctrs):
             ctr_name = clean(ctr['pokemonId'])
@@ -220,7 +215,7 @@ async def get_generic_counters(kyogre, guild, pkmn, weather=None, user=None, opp
     for moveset in ctrs_dict:
         ctrs_dict[moveset]['embed'].add_field(name="**Possible Movesets:**",
                                               value=f"{''.join(moveset_list)}", inline=True)
-        ctrs_dict[moveset]['embed'].add_field(name="Results with Level 30 attackers",
+        ctrs_dict[moveset]['embed'].add_field(name="Results courtesy of Pokebattler",
                                               value=f"[See your personalized results!](https://www.pokebattler.com/raids/{pokebattler_name})",
                                               inline=False)
 

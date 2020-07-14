@@ -168,6 +168,8 @@ class KyogreBot(commands.AutoShardedBot):
         raid_path_source = os.path.join('data', 'raid_info.json')
         with open(raid_path_source, 'r') as fd:
             self.raid_info = json.load(fd)
+            self.raid_info['raid_eggs']["0"] = \
+                {'egg': 'normal', 'egg_img': '1.png', 'pokemon': [], 'hatchtime': 60, 'raidtime': 45}
         return raid_path_source
 
     def _load_quest_data(self):

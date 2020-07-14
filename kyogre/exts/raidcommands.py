@@ -440,6 +440,9 @@ class RaidCommands(commands.Cog):
         ctype = 'raid' if raid_report else 'egg'
         manual = True if raidexp else False
         hatch, expire = await self._calc_egg_raid_exp_time(ctx, raidexp, ctype, str(level))
+        if bad_scan:
+            expire = hatch
+            hatch = expire - 45 * 60
         raid_dict = {
             'regions': gym_regions,
             'reportcity': report_channel.id,
@@ -466,8 +469,12 @@ class RaidCommands(commands.Cog):
         report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, ctx, raid_dict, enabled)
         msg = entity_updates.build_raid_report_message(self.bot, raid_channel, raid_dict)
         if bad_scan:
-            msg = f"{author.mention} **Raid boss was not identified. Please edit this report with :pencil2:" \
-                  f" and update the time!**"
+            if enabled:
+                msg = f"{author.mention} **Raid boss was not identified.** " \
+                      f"Please use `!r bossname` in {raid_channel.mention}"
+            else:
+                msg = f"{author.mention} **Raid boss was not identified. Please edit this report with :pencil2:" \
+                      f" and update the time!**"
         raidreport = await channel.send(content=msg, embed=report_embed)
         short_output_channel_id = self.bot.guild_dict[guild.id]['configure_dict']['raid']\
             .setdefault('short_output', {}).get(gym.region, None)
@@ -1354,8 +1361,11 @@ class RaidCommands(commands.Cog):
 
     async def _calc_egg_raid_exp_time(self, ctx, minutes, ctype, level):
         now = datetime.datetime.utcnow()
-        eggminutes = self.bot.raid_info['raid_eggs'][level]['hatchtime']
-        raidminutes = self.bot.raid_info['raid_eggs'][level]['raidtime']
+        if level == "0":
+            eggminutes, raidminutes = 60, 45
+        else:
+            eggminutes = self.bot.raid_info['raid_eggs'][level]['hatchtime']
+            raidminutes = self.bot.raid_info['raid_eggs'][level]['raidtime']
         hatch, expire = None, None
         if ctype == 'egg':
             if minutes is None:

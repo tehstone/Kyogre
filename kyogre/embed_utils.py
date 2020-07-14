@@ -128,10 +128,12 @@ async def build_raid_embeds(kyogre, ctx, raid_dict, enabled, assume=False):
         for entry in egg_info['pokemon']:
             p = Pokemon.get_pokemon(kyogre, entry)
             boss_list.append(str(p) + utils.types_to_str(guild, p.types, kyogre.config))
+        bosslist = '\n'.join(boss_list)
+        if len(bosslist) < 1:
+            bosslist = kyogre.empty_str
         if enabled:
             raid_embed.add_field(name='**Times:**', value=exp_msg)
-            raid_embed.add_field(name='**Possible Bosses:**', value='{bosslist}'
-                                      .format(bosslist='\n'.join(boss_list)), inline=True)
+            raid_embed.add_field(name='**Possible Bosses:**', value=f'{bosslist}', inline=True)
 
         raid_img_url = 'https://raw.githubusercontent.com/klords/Kyogre/master/images/eggs/{}?cache=0' \
             .format(str(egg_img))
