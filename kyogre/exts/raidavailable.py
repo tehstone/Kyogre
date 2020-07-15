@@ -87,8 +87,10 @@ class RaidAvailable(commands.Cog):
         await raid_notice_msg.add_reaction('🚫')
         expiremsg = '**{trainer} is no longer available for Raids!**'.format(trainer=trainer.display_name)
         raid_notice_dict = copy.deepcopy(guild_dict[guild.id].get('raid_notice_dict', {}))
+        epoch = datetime.datetime(1970, 1, 1)
+        report_time_int = (datetime.datetime.utcnow() - epoch).total_seconds()
         raid_notice_dict[raid_notice_msg.id] = {
-            'exp': time.time() + (expiration_minutes * 60),
+            'exp': report_time_int + (expiration_minutes * 60),
             'expedit': {"content": "", "embedcontent": expiremsg},
             'reportmessage': message.id,
             'reportchannel': channel.id,
@@ -109,10 +111,12 @@ class RaidAvailable(commands.Cog):
         if message not in self.bot.active_raids:
             self.bot.active_raids.append(message)
             self.bot.logger.info('raid_notice_expiry_check - Message added to watchlist - ' + channel.name)
+            epoch = datetime.datetime(1970, 1, 1)
             await asyncio.sleep(0.5)
             while True:
                 try:
-                    if guild_dict[guild.id]['raid_notice_dict'][message.id]['exp'] <= time.time():
+                    current = (datetime.datetime.utcnow() - epoch).total_seconds()
+                    if guild_dict[guild.id]['raid_notice_dict'][message.id]['exp'] <= current:
                         await self.expire_raid_notice(message)
                 except KeyError:
                     pass
@@ -176,7 +180,8 @@ class RaidAvailable(commands.Cog):
                 if str(payload.emoji) == '\u23f2':
                     exp = raid_notice_dict[message.id]['exp'] + 1800
                     raid_notice_dict[message.id]['exp'] = exp
-                    expire = datetime.datetime.utcfromtimestamp(exp)
+                    expire = datetime.datetime.utcfromtimestamp(exp) + datetime.timedelta(
+                        hours=self.bot.guild_dict[guild.id]['configure_dict']['settings']['offset'])
                     expire_str = expire.strftime('%b %d %I:%M %p')
                     embed = message.embeds[0]
                     index = 0

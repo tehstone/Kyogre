@@ -13,7 +13,7 @@ from functools import cmp_to_key
 import discord
 from discord.ext import commands
 
-from kyogre import checks, counters_helpers, embed_utils, entity_updates, utils
+from kyogre import checks, embed_utils, entity_updates, utils
 from kyogre.exts.pokemon import Pokemon
 from kyogre.context import Context
 
@@ -497,7 +497,8 @@ class RaidCommands(commands.Cog):
             raidmsg = entity_updates.get_raidtext(report_channel)
             if str(level) in self.bot.guild_dict[guild.id]['configure_dict']['counters']['auto_levels']:
                 try:
-                    ctrs_dict = await counters_helpers.get_generic_counters(self.bot, guild, raid_pokemon)
+                    counters_cog = self.bot.cogs.get('CounterHelpers')
+                    ctrs_dict = await counters_cog.get_generic_counters(guild, raid_pokemon)
                     ctrsmsg = "Update weather with **!weather** to get more accurate counters. " \
                               "You can react to this message if you know the moveset to update the counters."
                     ctrsmessage = await raid_channel.send(content=ctrsmsg, embed=ctrs_dict[0]['embed'])
@@ -746,7 +747,8 @@ class RaidCommands(commands.Cog):
                 except discord.errors.NotFound:
                     pass
         if str(egglevel) in self.bot.guild_dict[guild.id]['configure_dict']['counters']['auto_levels']:
-            ctrs_dict = await counters_helpers.get_generic_counters(self.bot, guild, raid_pokemon, weather)
+            counters_cog = self.bot.cogs.get('CounterHelpers')
+            ctrs_dict = await counters_cog.get_generic_counters(guild, raid_pokemon, weather)
             ctrsmsg = "Update weather with **!weather** to get more accurate counters. " \
                       "You can react to this message if you know the moveset to update the counters."
             ctrsmessage = await raid_channel.send(content=ctrsmsg, embed=ctrs_dict[0]['embed'])
@@ -1015,7 +1017,8 @@ class RaidCommands(commands.Cog):
         self.bot.event_loop.create_task(self.expiry_check(raid_channel))
         if str(egglevel) in self.bot.guild_dict[guild.id]['configure_dict']['counters']['auto_levels'] \
                 and not eggdetails.get('pokemon', None):
-            ctrs_dict = await counters_helpers.get_generic_counters(self.bot, guild, pkmn, weather)
+            counters_cog = self.bot.cogs.get('CounterHelpers')
+            ctrs_dict = await counters_cog.get_generic_counters(guild, pkmn, weather)
             ctrsmsg = "Update weather with **!weather** to get more accurate counters. " \
                       "You can react to this message if you know the moveset to update the counters."
             ctrsmessage = await raid_channel.send(content=ctrsmsg, embed=ctrs_dict[0]['embed'])
@@ -2130,7 +2133,8 @@ class RaidCommands(commands.Cog):
                     if weather:
                         weather = self.weather_list[self.weather_alias_map[weather]]
             pkmn = Pokemon.get_pokemon(self.bot, pkmn)
-            return await counters_helpers.counters(ctx, self.bot, pkmn, user, weather, movesetstr)
+            counters_cog = self.bot.cogs.get('CounterHelpers')
+            return await counters_cog.counters(ctx, pkmn, user, weather, movesetstr)
         if args:
             args_split = args.split()
             for arg in args_split:
@@ -2158,7 +2162,8 @@ class RaidCommands(commands.Cog):
                                    "pokemon that appears in raids! Usage: **!counters <pkmn> [weather] [user ID]**")
             return
         pkmn = Pokemon.get_pokemon(self.bot, pkmn)
-        await counters_helpers.counters(ctx, self.bot, pkmn, user, weather, "Unknown Moveset")
+        counters_cog = self.bot.cogs.get('CounterHelpers')
+        await counters_cog.counters(ctx, pkmn, user, weather, "Unknown Moveset")
 
     @commands.command()
     @checks.activechannel()
@@ -2181,7 +2186,8 @@ class RaidCommands(commands.Cog):
             pkmn = Pokemon.get_pokemon(self.bot, pkmn)
             if pkmn:
                 if str(pkmn.raid_level) in guild_dict[ctx.guild.id]['configure_dict']['counters']['auto_levels']:
-                    ctrs_dict = await counters_helpers.get_generic_counters(self.bot, ctx.guild, pkmn, weather.lower())
+                    counters_cog = self.bot.cogs.get('CounterHelpers')
+                    ctrs_dict = await counters_cog.get_generic_counters(ctx.guild, pkmn, weather.lower())
                     try:
                         ctrsmessage = await ctx.channel.fetch_message(
                             guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['ctrsmessage'])

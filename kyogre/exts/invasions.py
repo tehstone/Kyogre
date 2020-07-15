@@ -1,13 +1,12 @@
 import asyncio
 import datetime
-import random
 import re
 import time
 
 import discord
 from discord.ext import commands
 
-from kyogre import checks, utils, counters_helpers
+from kyogre import checks, utils
 from kyogre.exts.db.kyogredb import HideoutInstance, HideoutTable, LocationTable
 from kyogre.exts.db.kyogredb import LocationRegionRelation, RegionTable, TrainerReportRelation
 
@@ -250,7 +249,8 @@ class Invasions(commands.Cog):
                         user = arg
                     break
         async with ctx.typing():
-            ctrs_dict = await counters_helpers.get_generic_counters(self.bot, ctx.guild, pokemon, weather, user, opponent)
+            counters_cog = self.bot.cogs.get('CounterHelpers')
+            ctrs_dict = await counters_cog.get_generic_counters(ctx.guild, pokemon, weather, user, opponent)
             ctrsmsg = "React to this message if you know the moveset to update the counters.\n" \
                       "This message will expire after 1 hour and no longer accept moveset updates."
             ctrsmessage = await ctx.channel.send(content=ctrsmsg, embed=ctrs_dict[0]['embed'])
