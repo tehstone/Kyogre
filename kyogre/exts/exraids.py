@@ -212,9 +212,9 @@ class EXRaids(commands.Cog):
         offset_string += str(frac).zfill(2)
         return offset_string
 
-    @commands.command(name='invite', aliases=['in'])
+    @commands.command(name='exjoin', aliases=['exj', 'ex_join'])
     @checks.exraidchannel()
-    async def _invite(self, ctx, *, teamcounts: str = None):
+    async def _exjoin(self, ctx, *, teamcounts: str = None):
         trainer_dict = self.bot.guild_dict[ctx.guild.id]['exchannel_dict'][ctx.channel.category_id]\
             ['channels'][ctx.channel.id].setdefault('trainer_dict', {})
         raidparty_cog = self.bot.cogs.get('RaidParty')

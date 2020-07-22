@@ -2,7 +2,7 @@ import copy
 import datetime
 import discord
 
-from kyogre import utils
+from kyogre import server_emoji, utils
 from kyogre.exts.pokemon import Pokemon
 
 
@@ -72,8 +72,8 @@ async def filter_fields_for_report_embed(embed, embed_indices, enabled):
     return new_embed
 
 
-async def build_raid_embeds(kyogre, ctx, raid_dict, enabled, assume=False):
-    guild = ctx.guild
+async def build_raid_embeds(kyogre, message, raid_dict, enabled, assume=False):
+    guild = message.guild
     author = raid_dict.get('reporter', None)
     if author:
         author = guild.get_member(author)
@@ -138,7 +138,7 @@ async def build_raid_embeds(kyogre, ctx, raid_dict, enabled, assume=False):
         raid_img_url = 'https://raw.githubusercontent.com/klords/Kyogre/master/images/eggs/{}?cache=0' \
             .format(str(egg_img))
     if enabled:
-        timestamp = (ctx.message.created_at + datetime.timedelta(
+        timestamp = (message.created_at + datetime.timedelta(
             hours=kyogre.guild_dict[guild.id]['configure_dict']['settings']['offset'])).strftime(
             '%I:%M %p (%H:%M)')
         if author:
@@ -155,3 +155,21 @@ async def build_raid_embeds(kyogre, ctx, raid_dict, enabled, assume=False):
     embed_indices = await get_embed_field_indices(report_embed)
     report_embed = await filter_fields_for_report_embed(report_embed, embed_indices, enabled)
     return report_embed, raid_embed
+
+
+def build_invite_embed(bot, guild, trainer_dict):
+    description = '**The following trainers would like to be invited to this raid**\n' \
+                  f'Those with a {bot.success_react} will be invited by another member.\n\n'
+    for trainer in trainer_dict:
+        if trainer_dict[trainer].setdefault('invite_status', None) is not None:
+            friend_code = bot.guild_dict[guild.id]['trainers'].setdefault('info', {})\
+                .setdefault(trainer, {}).get('code', '')
+            if trainer_dict[trainer]['invite_status'] == True:
+                description += f"{bot.success_react} "
+            member = guild.get_member(trainer)
+            description += f"**{member.display_name}** {friend_code}\n"
+    description += f'\nReact to this message with {server_emoji.get_invite_emoji()} to request an invite.\n' \
+                   "Use `!invite trainer` with a trainer mention to indicate you'll invite them.\n\n" \
+                   "Use `!set code` to add your Friend Code to your profile and it will appear next to your " \
+                   "name in this list."
+    return discord.Embed(colour=discord.Colour.from_rgb(232, 128, 183), description=description)

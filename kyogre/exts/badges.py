@@ -8,6 +8,7 @@ import peewee
 from kyogre.exts.db.kyogredb import *
 from kyogre import utils
 
+
 class Badge:
     def __init__(self, id, name, description, emoji, active, message=None):
         self.id = id

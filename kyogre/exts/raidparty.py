@@ -217,7 +217,8 @@ class RaidParty(commands.Cog):
             if changed:
                 await ctx.channel.edit(name=new_name)
 
-    async def _party_status(self, ctx, total, teamcounts, trainer_dict):
+    @staticmethod
+    async def _party_status(ctx, total, teamcounts, trainer_dict):
         channel = ctx.channel
         author = ctx.author
         trainer_dict = trainer_dict.get(author.id, {})
@@ -404,6 +405,7 @@ class RaidParty(commands.Cog):
             await channel.send(starting_str)
             return
         trainer_joined = False
+        invite_msg = ''
         for trainer in ctx.trainer_dict:
             count = ctx.trainer_dict[trainer]['count']
             user = guild.get_member(trainer)
@@ -417,18 +419,25 @@ class RaidParty(commands.Cog):
                     ctx.trainer_dict[trainer]['status'] = {'maybe': 0, 'coming': 0, 'here': herecount - teamcount,
                                                            'lobby': lobbycount + teamcount}
                     trainer_joined = True
-                    ctx_startinglist.append(user.mention)
             else:
                 if ctx.trainer_dict[trainer]['status']['here'] and (user.id in team_list or team == "all"):
                     ctx.trainer_dict[trainer]['status'] = {'maybe': 0, 'coming': 0, 'here': 0, 'lobby': count}
                     trainer_joined = True
-                    ctx_startinglist.append(user.mention)
             if trainer_joined:
+                inv_list = ctx.trainer_dict[trainer].setdefault('invite_list', [])
+                if len(inv_list) > 0:
+                    invite_str = f'\n{user.mention} remember to invite: '
+                    for t in inv_list:
+                        tr = guild.get_member(t)
+                        invite_str += f"{tr.mention} "
+                    invite_msg += invite_str
+                else:
+                    ctx_startinglist.append(user.mention)
                 joined = guild_dict[guild.id].setdefault('trainers', {}).setdefault(regions[0], {})\
                              .setdefault(trainer, {}).setdefault('joined', 0) + 1
                 guild_dict[guild.id]['trainers'][regions[0]][trainer]['joined'] = joined
 
-        if len(ctx_startinglist) == 0:
+        if len(ctx_startinglist) + len(invite_msg) == 0:
             starting_str = "How can you start when there's no one waiting at this raid!?"
             await channel.send(starting_str)
             return
@@ -439,12 +448,11 @@ class RaidParty(commands.Cog):
             guild_dict[guild.id]['raidchannel_dict'][channel.id]['starttime'] = None
         else:
             timestr = ' '
-        starting_str = 'Starting - The group that was waiting{timestr}is starting the raid! ' \
-                       'Trainers {trainer_list}, if you are not in this group and are waiting for the next group, ' \
-                       'please respond with {here_emoji} or **!here**. If you need to ask those that just started ' \
-                       'to back out of their lobby, use **!backout**'\
-            .format(timestr=timestr, trainer_list=', '.join(ctx_startinglist),
-                    here_emoji=utils.parse_emoji(guild, self.bot.config['here_id']))
+        starting_str = f'Starting - The group that was waiting{timestr}is starting the raid! ' \
+                       f'\n{invite_msg}\n' \
+                       f"Trainers {', '.join(ctx_startinglist)}, if you are not in this group and are waiting for " \
+                       'the next group, please respond with or `!here`. \nIf you need to ask those that just started ' \
+                       'to back out of their lobby, use `!backout`'
         guild_dict[guild.id]['raidchannel_dict'][channel.id]['lobby'] = {"exp": time.time() + 120, "team": team}
         if starttime:
             starting_str += '\n\nThe start time has also been cleared, new groups can set a new start time with' \
@@ -509,7 +517,7 @@ class RaidParty(commands.Cog):
         except KeyError:
             pass
         listmgmt_cog = self.bot.cogs.get('ListManagement')
-        await listmgmt_cog.edit_party(ctx, ctx.channel, ctx.author)
+        await listmgmt_cog.edit_party(ctx.channel, ctx.author)
         guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict'] = ctx.trainer_dict
         regions = guild_dict[ctx.channel.guild.id]['raidchannel_dict'][ctx.channel.id].get('regions', None)
         if regions:
@@ -599,7 +607,8 @@ class RaidParty(commands.Cog):
         new_name = channel_name
         count = 0
         for t in trainer_dict:
-            count += trainer_dict[t]['count']
+            if trainer_dict[t].setdefault('invite_status', None) != False:
+                count += trainer_dict[t]['count']
         if count >= self.heat_count:
             if '🔥' not in channel_name:
                 new_name = '🔥' + channel_name

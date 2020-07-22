@@ -3,7 +3,7 @@ import copy
 import discord
 from discord.ext import commands
 
-from kyogre import utils, pokemon_emoji
+from kyogre import utils, server_emoji
 from kyogre.exts.db.kyogredb import QuestTable
 from kyogre.exts.pokemon import Pokemon
 
@@ -78,7 +78,7 @@ class GameInfo(commands.Cog):
                 pokemon = Pokemon.get_pokemon(self.bot, pkmn)
                 if not pokemon:
                     continue
-                p_emoji = pokemon_emoji.get_pokemon_emoji(pokemon.emoji_name)
+                p_emoji = server_emoji.get_pokemon_emoji(pokemon.emoji_name)
                 lower_cp = pokemon.get_cp_by_level(15, 10, 10, 10)
                 upper_cp = pokemon.get_cp_by_level(15, 15, 15, 15)
                 this_task += f"\n\u2001{p_emoji} {pokemon.name} ({lower_cp}-{upper_cp})"

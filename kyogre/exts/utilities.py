@@ -97,7 +97,7 @@ class Utilities(commands.Cog):
         if checks.is_user_dev_or_owner(self.bot.config, user.id):
             return True
         for role in user.roles:
-            if role.permissions.manage_messages:
+            if role.permissions.manage_nicknames:
                 return True
         return False
 

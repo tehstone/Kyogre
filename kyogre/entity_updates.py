@@ -4,12 +4,12 @@ import datetime
 from kyogre import embed_utils, utils
 
 
-async def update_raid_location(Kyogre, ctx, guild_dict, message, report_channel, raid_channel, gym):
+async def update_raid_location(Kyogre, guild_dict, message, report_channel, raid_channel, gym):
     guild = message.guild
     raid_dict = guild_dict[guild.id]['raidchannel_dict'][raid_channel.id]
     oldraidmsg = await raid_channel.fetch_message(raid_dict['raidmessage'])
     oldreportmsg = await report_channel.fetch_message(raid_dict['raidreport'])
-    report_embed, raid_embed = await embed_utils.build_raid_embeds(Kyogre, ctx, raid_dict, True)
+    report_embed, raid_embed = await embed_utils.build_raid_embeds(Kyogre, message, raid_dict, True)
     regions = [gym.region]
     otw_list = []
     trainer_dict = copy.deepcopy(raid_dict['trainer_dict'])

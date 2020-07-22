@@ -217,8 +217,6 @@ class QuickBadge(commands.Cog):
         except:
             pass
         react_user = guild.get_member(payload.user_id)
-        if not utils.can_manage(react_user, self.bot.config):
-            return
         quick_badge_dict = self.bot.guild_dict[guild.id]['configure_dict']\
             .get('quick_badge', self.quick_badge_dict_default)
         if quick_badge_dict['pokenav_channel'] == 0 \

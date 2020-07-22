@@ -14,3 +14,8 @@ def get_egg_emoji(egglevel):
     if egglevel > 2:
         return f"<:yellowegg:728034445998817366>"
     return f"<:pinkegg:728034446313259038>"
+
+
+def get_invite_emoji():
+    # return "<:teamrocket:642748270380187660>"
+    return "<:inviteme:733141175795449908>"

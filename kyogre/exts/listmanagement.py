@@ -12,7 +12,7 @@ from discord.ext import commands
 
 from kyogre.exts.pokemon import Pokemon
 from kyogre.exts.db.kyogredb import *
-from kyogre import constants, embed_utils, utils, pokemon_emoji
+from kyogre import constants, embed_utils, utils, server_emoji
 
 
 class ListManagement(commands.Cog):
@@ -112,7 +112,7 @@ class ListManagement(commands.Cog):
                 pass
             egglevel = rc_d[raid]['egglevel']
             if rc_d[raid]['type'] == 'egg':
-                t_emoji = pokemon_emoji.get_egg_emoji(egglevel)
+                t_emoji = server_emoji.get_egg_emoji(egglevel)
                 if int(egglevel) < 5:
                     t_emoji += str(egglevel) + '\u20e3'
                 end = datetime.datetime.utcfromtimestamp(rc_d[raid]['hatch_time']) + datetime.timedelta(
@@ -129,7 +129,7 @@ class ListManagement(commands.Cog):
                 expirytext = f"**Expires**: {end.strftime('%I:%M%p')}{assumed_str}"
             boss = Pokemon.get_pokemon(self.bot, rc_d[raid].get('pokemon', ''))
             if not t_emoji and boss:
-                t_emoji = pokemon_emoji.get_pokemon_emoji(boss.emoji_name)
+                t_emoji = server_emoji.get_pokemon_emoji(boss.emoji_name)
             location_matching_cog = self.bot.cogs.get('LocationMatching')
             gym_id = rc_d[raid].get('gym', None)
             gym = location_matching_cog.get_gym_by_id(guild.id, gym_id)
@@ -537,20 +537,15 @@ class ListManagement(commands.Cog):
         guild_dict, raid_info = self.bot.guild_dict, self.bot.raid_info
         channel = ctx.channel
         author = ctx.author
-        trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
+        raid_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]
+        trainer_dict = raid_dict['trainer_dict']
         if not party:
             party = self.determine_simple_party(author, count)
         message = f"**{author.display_name}** is interested!"
         if eta is not None:
             message += f" {eta}"
         await ctx.message.delete()
-        last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
-        if last_status is not None:
-            try:
-                last = await channel.fetch_message(last_status)
-                await last.delete()
-            except:
-                pass
+        await self.delete_last(channel, guild_dict)
         if author.id not in trainer_dict:
             trainer_dict[author.id] = {}
         if entered_interest:
@@ -558,7 +553,8 @@ class ListManagement(commands.Cog):
         trainer_dict[author.id]['status'] = {'maybe': count, 'coming': 0, 'here': 0, 'lobby': 0}
         trainer_dict[author.id]['count'] = count
         trainer_dict[author.id]['party'] = party
-        await self.edit_party(ctx, channel, author)
+        trainer_dict[author.id]['invite_status'] = None
+        await self.edit_party(channel, author)
         trainer_count = self.determine_trainer_count(trainer_dict)
         embed = self.build_status_embed(channel.guild, trainer_count)
         new_status = await channel.send(content=message, embed=embed)
@@ -567,6 +563,10 @@ class ListManagement(commands.Cog):
         regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
         if regions:
             await self.update_listing_channels(channel.guild, 'raid', edit=True, regions=regions)
+        inv_mid = raid_dict['invite_message']
+        invite_message = await ctx.channel.fetch_message(inv_mid)
+        new_embed = embed_utils.build_invite_embed(self.bot, ctx.guild, trainer_dict)
+        await invite_message.edit(embed=new_embed)
 
     async def otw(self, ctx, tag=False, team=False):
         guild_dict = self.bot.guild_dict
@@ -615,28 +615,24 @@ class ListManagement(commands.Cog):
         guild_dict, raid_info = self.bot.guild_dict, self.bot.raid_info
         channel = ctx.channel
         author = ctx.author
-        trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
+        raid_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]
+        trainer_dict = raid_dict['trainer_dict']
         if not party:
             party = self.determine_simple_party(author, count)
         message = f"**{author.display_name}** is on their way!"
         if eta is not None:
             message += f" {eta}"
         await ctx.message.delete()
-        last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
-        if last_status is not None:
-            try:
-                last = await channel.fetch_message(last_status)
-                await last.delete()
-            except:
-                pass
+        await self.delete_last(channel, guild_dict)
         if author.id not in trainer_dict:
             trainer_dict[author.id] = {}
         trainer_dict[author.id]['status'] = {'maybe': 0, 'coming': count, 'here': 0, 'lobby': 0}
         trainer_dict[author.id]['count'] = count
         trainer_dict[author.id]['party'] = party
+        trainer_dict[author.id]['invite_status'] = None
         if entered_interest:
             trainer_dict[author.id]['interest'] = entered_interest
-        await self.edit_party(ctx, channel, author)
+        await self.edit_party(channel, author)
         trainer_count = self.determine_trainer_count(trainer_dict)
         embed = self.build_status_embed(channel.guild, trainer_count)
         new_status = await channel.send(content=message, embed=embed)
@@ -645,6 +641,10 @@ class ListManagement(commands.Cog):
         regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
         if regions:
             await self.update_listing_channels(channel.guild, 'raid', edit=True, regions=regions)
+        inv_mid = raid_dict['invite_message']
+        invite_message = await ctx.channel.fetch_message(inv_mid)
+        new_embed = embed_utils.build_invite_embed(self.bot, ctx.guild, trainer_dict)
+        await invite_message.edit(embed=new_embed)
 
     async def waiting(self, ctx, tag=False, team=False):
         guild_dict = self.bot.guild_dict
@@ -696,6 +696,43 @@ class ListManagement(commands.Cog):
         listmsg = ' {trainer_count} waiting at the {raidtype}{including_string}!' \
             .format(trainer_count=str(ctx_herecount), raidtype=raidtype, including_string=here_exstr)
         return listmsg
+
+    @staticmethod
+    def default_trainer_dict(trainer):
+        t_dict = {
+                   'status': {'maybe': 0, 'coming': 0, 'here': 0, 'lobby': 0},
+                   'count': 1,
+                   'party': {'mystic': 0, 'valor': 0, 'instinct': 0, 'unknown': 0}
+                 }
+        roles = [r.name.lower() for r in trainer.roles]
+        if 'mystic' in roles:
+            team = 'mystic'
+        elif 'valor' in roles:
+            team = 'valor'
+        elif 'instinct' in roles:
+            team = 'instinct'
+        else:
+            team = 'unknown'
+        t_dict['party'][team] = 1
+        return t_dict
+
+    async def inviteme(self, channel, trainer):
+        guild_dict = self.bot.guild_dict
+        raid_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]
+        trainer_dict = raid_dict['trainer_dict']
+        trainer_dict[trainer.id] = self.default_trainer_dict(trainer)
+        trainer_dict[trainer.id]['invite_status'] = False
+        inv_mid = raid_dict['invite_message']
+        invite_message = await channel.fetch_message(inv_mid)
+        new_embed = embed_utils.build_invite_embed(self.bot, channel.guild, trainer_dict)
+        await invite_message.edit(embed=new_embed)
+        await self.delete_last(channel, guild_dict)
+        trainer_count = self.determine_trainer_count(trainer_dict)
+        embed = self.build_status_embed(channel.guild, trainer_count)
+        await self.edit_party(channel)
+        if embed:
+            new_status = await channel.send(embed=embed)
+            guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['last_status'] = new_status.id
 
     @staticmethod
     def determine_simple_party(member, count):
@@ -759,7 +796,8 @@ class ListManagement(commands.Cog):
         channel = ctx.channel
         author = ctx.author
         lobbymsg = ''
-        trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
+        raid_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]
+        trainer_dict = raid_dict['trainer_dict']
         try:
             if guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['lobby']:
                 lobbymsg += '\nThere is a group already in the lobby! Use **!lobby** to join them ' \
@@ -770,21 +808,16 @@ class ListManagement(commands.Cog):
             party = self.determine_simple_party(author, count)
         message = f"**{author.display_name}** is at the raid!"
         await ctx.message.delete()
-        last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
-        if last_status is not None:
-            try:
-                last = await channel.fetch_message(last_status)
-                await last.delete()
-            except:
-                pass
+        await self.delete_last(channel, guild_dict)
         if author.id not in trainer_dict:
             trainer_dict[author.id] = {}
         trainer_dict[author.id]['status'] = {'maybe': 0, 'coming': 0, 'here': count, 'lobby': 0}
         trainer_dict[author.id]['count'] = count
         trainer_dict[author.id]['party'] = party
+        trainer_dict[author.id]['invite_status'] = None
         if entered_interest:
             trainer_dict[author.id]['interest'] = entered_interest
-        await self.edit_party(ctx, channel, author)
+        await self.edit_party(channel, author)
         trainer_count = self.determine_trainer_count(trainer_dict)
         embed = self.build_status_embed(channel.guild, trainer_count)
         new_status = await channel.send(content=message, embed=embed)
@@ -793,6 +826,20 @@ class ListManagement(commands.Cog):
         regions = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('regions', None)
         if regions:
             await self.update_listing_channels(channel.guild, 'raid', edit=True, regions=regions)
+        inv_mid = raid_dict['invite_message']
+        invite_message = await ctx.channel.fetch_message(inv_mid)
+        new_embed = embed_utils.build_invite_embed(self.bot, ctx.guild, trainer_dict)
+        await invite_message.edit(embed=new_embed)
+
+    @staticmethod
+    async def delete_last(channel, guild_dict):
+        last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
+        if last_status is not None:
+            try:
+                last = await channel.fetch_message(last_status)
+                await last.delete()
+            except:
+                pass
 
     async def cancel(self, ctx):
         guild_dict, raid_info = self.bot.guild_dict, self.bot.raid_info
@@ -831,18 +878,12 @@ class ListManagement(commands.Cog):
             else:
                 message = '**{member}** and their total of {trainer_count} trainers have backed out of the lobby!' \
                     .format(member=author.display_name, trainer_count=trainer_dict['count'])
-        last_status = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id].get('last_status', None)
-        if last_status is not None:
-            try:
-                last = await channel.fetch_message(last_status)
-                await last.delete()
-            except:
-                pass
+        await self.delete_last(channel, guild_dict)
         trainer_dict['status'] = {'maybe': 0, 'coming': 0, 'here': 0, 'lobby': 0}
         trainer_dict['party'] = {'mystic': 0, 'valor': 0, 'instinct': 0, 'unknown': 0}
         trainer_dict['interest'] = []
         trainer_dict['count'] = 0
-        await self.edit_party(ctx, channel, author)
+        await self.edit_party(channel, author)
         trainer_count = self.determine_trainer_count(
             guild_dict[guild.id]['raidchannel_dict'][channel.id]['trainer_dict'])
         embed = self.build_status_embed(channel.guild, trainer_count)
@@ -852,7 +893,7 @@ class ListManagement(commands.Cog):
         if regions:
             await self.update_listing_channels(guild, 'raid', edit=True, regions=regions)
 
-    async def edit_party(self, ctx, channel, author=None):
+    async def edit_party(self, channel, author=None):
         guild_dict, raid_info = self.bot.guild_dict, self.bot.raid_info
         raid_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]
         egglevel = raid_dict['egglevel']
@@ -902,7 +943,7 @@ class ListManagement(commands.Cog):
                     if c in message.content:
                         raidmsg = message
                         break
-        report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, ctx, raid_dict, True)
+        report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, raidmsg, raid_dict, True)
         red_emoji = utils.parse_emoji(channel.guild, self.bot.config['team_dict']['valor'])
         yellow_emoji = utils.parse_emoji(channel.guild, self.bot.config['team_dict']['instinct'])
         blue_emoji = utils.parse_emoji(channel.guild, self.bot.config['team_dict']['mystic'])

@@ -12,8 +12,9 @@ from functools import cmp_to_key
 
 import discord
 from discord.ext import commands
+from discord.ext.commands import CommandError, BadArgument
 
-from kyogre import checks, embed_utils, entity_updates, utils
+from kyogre import checks, embed_utils, entity_updates, server_emoji, utils
 from kyogre.exts.pokemon import Pokemon
 from kyogre.context import Context
 
@@ -435,7 +436,7 @@ class RaidCommands(commands.Cog):
             await raid_channel.set_permissions(guild.default_role, overwrite=ow)
         except (discord.errors.Forbidden, discord.errors.HTTPException, discord.errors.InvalidArgument):
             pass
-        if image_file:
+        if image_file and enabled:
             await self.send_scanned_image(author, raid_channel, image_file, bad_scan)
         ctype = 'raid' if raid_report else 'egg'
         manual = True if raidexp else False
@@ -466,7 +467,7 @@ class RaidCommands(commands.Cog):
         position = self._determine_channel_position(self.bot.guild_dict[guild.id]['raidchannel_dict'],
                                                     raid_dict, gym_regions)
         await raid_channel.edit(position=position)
-        report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, ctx, raid_dict, enabled)
+        report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, message, raid_dict, enabled)
         msg = entity_updates.build_raid_report_message(self.bot, raid_channel, raid_dict)
         if bad_scan:
             if enabled:
@@ -495,7 +496,7 @@ class RaidCommands(commands.Cog):
         ctrs_dict = {}
         if raid_report:
             raidmsg = entity_updates.get_raidtext(report_channel)
-            if str(level) in self.bot.guild_dict[guild.id]['configure_dict']['counters']['auto_levels']:
+            if enabled and str(level) in self.bot.guild_dict[guild.id]['configure_dict']['counters']['auto_levels']:
                 try:
                     counters_cog = self.bot.cogs.get('CounterHelpers')
                     ctrs_dict = await counters_cog.get_generic_counters(guild, raid_pokemon)
@@ -509,8 +510,6 @@ class RaidCommands(commands.Cog):
                         await asyncio.sleep(0.25)
                 except:
                     pass
-            else:
-                pass
             raid_reports = self.bot.guild_dict[guild.id].setdefault('trainers', {}).setdefault(gym.region, {})\
                                .setdefault(author.id, {}).setdefault('raid_reports', 0) + 1
             self.bot.guild_dict[guild.id]['trainers'][gym.region][author.id]['raid_reports'] = raid_reports
@@ -532,6 +531,15 @@ class RaidCommands(commands.Cog):
         if enabled:
             await utils.reaction_delay(raidmessage, ['\u2754', '\u270f', '🚫'])
             await raidmessage.pin()
+            if not raidexp:
+                await raid_channel.send(content='Hey {member}, if you can, set the time left on the raid using '
+                                                '**!timerset <minutes>** so others can check it with **!timer**.'
+                                        .format(member=author.mention))
+
+            invite_message = await raid_channel.send(embed=
+                                                     embed_utils.build_invite_embed(self.bot, ctx.guild, {}))
+            await invite_message.add_reaction(server_emoji.get_invite_emoji())
+            raid_dict['invite_message'] = invite_message.id
         raid_dict['raidmessage'] = raidmessage.id
         raid_dict['raidreport'] = raidreport.id
         raid_dict['raidcityreport'] = None
@@ -539,10 +547,6 @@ class RaidCommands(commands.Cog):
             raid_dict['ctrsmessage'] = ctrsmessage_id
             raid_dict['ctrs_dict'] = ctrs_dict
         self.bot.guild_dict[guild.id]['raidchannel_dict'][raid_channel.id] = raid_dict
-        if not raidexp:
-            await raid_channel.send(content='Hey {member}, if you can, set the time left on the raid using '
-                                            '**!timerset <minutes>** so others can check it with **!timer**.'
-                                    .format(member=author.mention))
         await listmgmt_cog.update_listing_channels(guild, 'raid', edit=False, regions=gym_regions)
         subscriptions_cog = self.bot.cogs.get('Subscriptions')
         if enabled:
@@ -727,7 +731,7 @@ class RaidCommands(commands.Cog):
         eggdetails['pokemon'] = raid_pokemon.name
         utils_cog = self.bot.cogs.get('Utilities')
         enabled = utils_cog.raid_channels_enabled(guild, raid_channel)
-        report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, ctx, eggdetails, enabled, assume=True)
+        report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, message, eggdetails, enabled, assume=True)
         if enabled:
             try:
                 await raid_message.edit(new_content=raid_message.content, embed=raid_embed,
@@ -994,6 +998,7 @@ class RaidCommands(commands.Cog):
             'gym': gym.id,
             'reporter': reporter,
             'last_status': new_status.id if new_status is not None else None,
+            'invite_message': eggdetails['invite_message'],
             'short': short_id,
             'starttime': starttime,
             'duplicate': duplicate,
@@ -1011,7 +1016,7 @@ class RaidCommands(commands.Cog):
                                .setdefault(author.id, {}).setdefault('raid_reports', 0) + 1
             self.bot.guild_dict[guild.id]['trainers'][regions[0]][author.id]['raid_reports'] = raid_reports
 
-            await listmgmt_cog.edit_party(ctx, raid_channel, author)
+            await listmgmt_cog.edit_party(raid_channel, author)
         await listmgmt_cog.update_listing_channels(guild, 'raid', edit=False, regions=regions)
         await asyncio.sleep(1)
         self.bot.event_loop.create_task(self.expiry_check(raid_channel))
@@ -1125,7 +1130,6 @@ class RaidCommands(commands.Cog):
         report_relation = TrainerReportRelation.get(TrainerReportRelation.id == report.trainer_report_id)
         report_relation.cancelled = 'True'
         report_relation.save()
-
 
     async def add_db_raid_action(self, raid_channel, action, action_time):
         guild = raid_channel.guild
@@ -1654,7 +1658,7 @@ class RaidCommands(commands.Cog):
             return
 
     @commands.command()
-    @checks.activechannel()
+    @checks.raidchannel()
     async def duplicate(self, ctx):
         """A command to report a raid channel as a duplicate.
 
@@ -2166,7 +2170,7 @@ class RaidCommands(commands.Cog):
         await counters_cog.counters(ctx, pkmn, user, weather, "Unknown Moveset")
 
     @commands.command()
-    @checks.activechannel()
+    @checks.raidchannel()
     async def weather(self, ctx, *, weather):
         """Sets the weather for the raid.
 
@@ -2220,6 +2224,34 @@ class RaidCommands(commands.Cog):
             await ctx.channel.send(message)
             updated_time = round(time.time())
             return await self._update_db_raid_report(ctx, ctx.channel, updated_time)
+
+    @commands.command()
+    @checks.raidchannel()
+    async def invite(self, ctx, *, member_in):
+        """**Usage**: `!invite <trainer>`
+        Indicates that you will invite this trainer to this raid."""
+        converter = commands.MemberConverter()
+        try:
+            member = await converter.convert(ctx, member_in)
+        except (CommandError, BadArgument):
+            message = f'Could not find a trainer with name {member_in}. Please check your spelling and try again.\n' \
+                      'Using an @ mention may have better results.'
+            return await utils.fail_out(ctx, self.bot.failed_react, message, 15)
+        inviter = ctx.message.author
+        channel = ctx.channel
+        raid_dict = self.bot.guild_dict[ctx.guild.id]['raidchannel_dict'][channel.id]
+        trainer_dict = raid_dict['trainer_dict']
+        inviter_dict = trainer_dict.setdefault(inviter.id, {})
+        invite_list = inviter_dict.setdefault('invite_list', [])
+        if member.id not in invite_list:
+            invite_list.append(member.id)
+        listmgmt_cog = self.bot.cogs.get('ListManagement')
+        invitee_dict = trainer_dict.setdefault(member.id, listmgmt_cog.default_trainer_dict(member))
+        invitee_dict['invite_status'] = True
+        inv_mid = raid_dict['invite_message']
+        invite_message = await ctx.channel.fetch_message(inv_mid)
+        new_embed = embed_utils.build_invite_embed(self.bot, ctx.guild, trainer_dict)
+        await invite_message.edit(embed=new_embed)
 
     async def expiry_check(self, channel):
         self.bot.logger.info('Expiry_Check - ' + channel.name)
@@ -2333,7 +2365,7 @@ class RaidCommands(commands.Cog):
             report_message = await report_channel.fetch_message(raid_dict['raidreport'])
             utils_cog = self.bot.cogs.get('Utilities')
             enabled = utils_cog.raid_channels_enabled(guild, channel)
-            report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, ctx, raid_dict, enabled)
+            report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, ctx.message, raid_dict, enabled)
             await raid_message.edit(new_content=raid_message.content, embed=raid_embed, content=raid_message.content)
             try:
                 content = entity_updates.build_raid_report_message(self.bot, channel, raid_dict)
@@ -2419,6 +2451,9 @@ class RaidCommands(commands.Cog):
                     utils_cog = self.bot.cogs.get('Utilities')
                     regions = utils_cog.get_channel_regions(channel, 'raid')
                     await listmgmt_cog.update_listing_channels(guild, "raid", edit=True, regions=regions)
+            if str(payload.emoji) == server_emoji.get_invite_emoji():
+                await listmgmt_cog.inviteme(channel, user)
+                await message.remove_reaction(payload.emoji, user)
 
     def get_raid_report(self, guild, message_id):
         raid_dict = self.bot.guild_dict[guild.id]['raidchannel_dict']

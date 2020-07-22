@@ -13,7 +13,7 @@ class RaidAvailable(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="raidavailable", aliases=["rav"], brief="Report that you're actively looking for raids")
+    @commands.command(name="raidavailable", aliases=["raid_available", "rav"], brief="Report that you're actively looking for raids")
     async def _raid_available(self, ctx, exptime=None):
         """**Usage**: `!raidavailable/rav [time]`
         Must be used in a raid reporting channel.
