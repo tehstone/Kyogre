@@ -731,7 +731,7 @@ class RaidCommands(commands.Cog):
         eggdetails['pokemon'] = raid_pokemon.name
         utils_cog = self.bot.cogs.get('Utilities')
         enabled = utils_cog.raid_channels_enabled(guild, raid_channel)
-        report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, message, eggdetails, enabled, assume=True)
+        report_embed, raid_embed = await embed_utils.build_raid_embeds(self.bot, raid_message, eggdetails, enabled, assume=True)
         if enabled:
             try:
                 await raid_message.edit(new_content=raid_message.content, embed=raid_embed,
@@ -998,7 +998,7 @@ class RaidCommands(commands.Cog):
             'gym': gym.id,
             'reporter': reporter,
             'last_status': new_status.id if new_status is not None else None,
-            'invite_message': eggdetails['invite_message'],
+            'invite_message': eggdetails.setdefault('invite_message', None),
             'short': short_id,
             'starttime': starttime,
             'duplicate': duplicate,
