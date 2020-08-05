@@ -1,6 +1,7 @@
+import math
 from discord.ext import commands
-
 from kyogre.exts.db.kyogredb import *
+
 
 class Faves(commands.Cog):
 
@@ -114,7 +115,7 @@ class Faves(commands.Cog):
             self.bot.logger.info(f"Failed to update Top Subs Table with error: {e}")
 
     @staticmethod
-    def get_report_points(guild, pokemon_list, report_type):
+    def get_report_points(guild, pokemon_list, report_type, perfect):
 
         pokemon_list = [p.name.capitalize() for p in pokemon_list]
         points = 1
@@ -128,6 +129,8 @@ class Faves(commands.Cog):
         for r in result:
             mult = min(r.count / guild.member_count + .8, 1)
             points += round((r.count / 4) * mult)
+        if perfect:
+            points = math.ceil(points * 1.1)
         return points
 
 
