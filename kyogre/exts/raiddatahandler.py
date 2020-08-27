@@ -234,6 +234,8 @@ class RaidDataHandler(commands.Cog):
             tier_str = tier.find('h4')
             if 'EX' in tier_str.string:
                 level = 'EX'
+            elif 'mega' in tier_str.string.lower():
+                level = '6'
             else:
                 match = regx.match(tier_str.text.strip())
                 if match:

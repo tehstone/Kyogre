@@ -169,6 +169,13 @@ class KyogreBot(commands.AutoShardedBot):
         raid_path_source = os.path.join('data', 'raid_info.json')
         with open(raid_path_source, 'r') as fd:
             self.raid_info = json.load(fd)
+            if "2" in self.raid_info['raid_eggs']:
+                del self.raid_info['raid_eggs']["2"]
+            if "4" in self.raid_info['raid_eggs']:
+                del self.raid_info['raid_eggs']["4"]
+            if "6" not in self.raid_info['raid_eggs']:
+                self.raid_info['raid_eggs']["6"]= \
+                {'egg': 'normal', 'egg_img': '1.png', 'pokemon': [], 'hatchtime': 60, 'raidtime': 45}
             self.raid_info['raid_eggs']["0"] = \
                 {'egg': 'normal', 'egg_img': '1.png', 'pokemon': [], 'hatchtime': 60, 'raidtime': 45}
         return raid_path_source

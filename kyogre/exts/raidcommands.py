@@ -48,7 +48,7 @@ class RaidCommands(commands.Cog):
             'windy': ['Dragon', 'Flying', 'Psychic']
         }
 
-    @commands.command(name="raid", aliases=['r', 're', 'egg', 'regg', 'raidegg', '1', '2', '3', '4', '5'],
+    @commands.command(name="raid", aliases=['r', 're', 'egg', 'regg', 'raidegg', '1', '2', '3', '4', '5', '6'],
                       brief="Report an ongoing raid or a raid egg.")
     @checks.allowraidreport()
     async def _raid(self, ctx, pokemon, *, location:commands.clean_content(fix_channel_mentions=True) = "", timer=None):
@@ -62,6 +62,8 @@ class RaidCommands(commands.Cog):
         else:
             content = f"{pokemon} {location}".lower()
             if pokemon.isdigit():
+                new_channel = await self._raidegg(ctx, content)
+            elif pokemon == 'm':
                 new_channel = await self._raidegg(ctx, content)
             elif len(pokemon) == 2:
                 if pokemon[0] == "t":
@@ -111,8 +113,10 @@ class RaidCommands(commands.Cog):
             # if it starts with a regional descriptor and is still longer than 2 parts then this is the wrong channel
             # or of it doesn't start with a regional descriptor and is longer than 1 part
             # then we check the first part against all other known forms
-            elif ((raid_split[0] == "alolan" or raid_split[0] == "galarian") and len(raid_split) > 2) \
-                    or ((raid_split[0] != "alolan" and raid_split[0] != "galarian") and len(raid_split) > 1):
+            elif ((raid_split[0] == "alolan" or raid_split[0] == "galarian" or raid_split[0] == "mega")
+                  and len(raid_split) > 2) \
+                    or ((raid_split[0] != "alolan" and raid_split[0] != "galarian" and raid_split[0] != "mega")
+                        and len(raid_split) > 1):
                 if raid_split[0] not in Pokemon.get_forms_list() and len(raid_split) > 1:
                     self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel},"
                                               f" error: Raid report made in raid channel.")
@@ -321,6 +325,9 @@ class RaidCommands(commands.Cog):
                 description='Give more details when reporting! Usage: **!raidegg <level> <location>**'))
         if raidegg_split[0].isdigit():
             egg_level = int(raidegg_split[0])
+            del raidegg_split[0]
+        elif raidegg_split[0].lower == 'm':
+            egg_level = 6
             del raidegg_split[0]
         else:
             self.bot.help_logger.info(f"User: {author.name}, channel: {ctx.channel},"
