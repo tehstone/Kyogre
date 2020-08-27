@@ -33,7 +33,8 @@ Kyogre assists with organising Pokemon Go communities with support for:
 
 ## **`Discord.py`**
 
-```pip install git+https://github.com/Rapptz/discord.py@master -U
+```
+pip install git+https://github.com/Rapptz/discord.py@master -U
 ```
 
 #### *``Note: You will receive the following warning on your first run, which can be disregarded:``*
