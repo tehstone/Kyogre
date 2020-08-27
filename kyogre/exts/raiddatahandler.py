@@ -229,12 +229,18 @@ class RaidDataHandler(commands.Cog):
         # so walking through siblings will encounter both.
         tiers = soup.findAll('div', attrs={'class': 'raid-boss-tier-wrap'})
         messages = []
+        regx = re.compile(r'Tier ([0-9]){1}')
         for tier in tiers:
             tier_str = tier.find('h4')
             if 'EX' in tier_str.string:
                 level = 'EX'
             else:
-                level = tier_str.string.split(' ')[1]
+                match = regx.match(tier_str.text.strip())
+                if match:
+                    match = match.groups()
+                    level = match[0]
+                else:
+                    continue
             raid_pokemon = []
             for sibling in tier.next_siblings:
                 result = walk_siblings(sibling)
