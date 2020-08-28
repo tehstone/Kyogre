@@ -55,14 +55,13 @@ class ListManagement(commands.Cog):
             cty = region
         else:
             cty = channel.name
-        egg_dict = {'1': {}, '2': {}, '3': {}, '4': {}, '5': {}}
+        egg_dict = {'1': {}, '3': {}, '5': {}, '6': {}}
         raid_dict = {
             '0': {"raid": {}, "egg": {}},
             '1': {"raid": {}, "egg": {}},
-            '2': {"raid": {}, "egg": {}},
             '3': {"raid": {}, "egg": {}},
-            '4': {"raid": {}, "egg": {}},
-            '5': {"raid": {}, "egg": {}}
+            '5': {"raid": {}, "egg": {}},
+            '6': {"raid": {}, "egg": {}}
         }
         exraid_list = []
         event_list = []
