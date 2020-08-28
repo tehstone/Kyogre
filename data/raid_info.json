@@ -4,24 +4,15 @@
             "egg": "normal",
             "egg_img": "1.png",
             "pokemon": [
-                "alolan grimer",
-                "makuhita",
+                "sandshrew",
+                "kingler",
+                "marowak",
+                "gligar",
+                "wailmer",
+                "prinplup",
                 "shinx",
-                "shieldon",
-                "timburr",
-                "klink"
-            ],
-            "hatchtime": 60,
-            "raidtime": 45
-        },
-        "2": {
-            "egg": "normal",
-            "egg_img": "2.png",
-            "pokemon": [
-                "cloyster",
-                "haunter",
-                "kirlia",
-                "whiscash"
+                "oshawott",
+                "timburr"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -30,24 +21,14 @@
             "egg": "rare",
             "egg_img": "3.png",
             "pokemon": [
-                "clefable",
+                "alolan raichu",
                 "machamp",
                 "onix",
-                "piloswine",
-                "skarmory"
-            ],
-            "hatchtime": 60,
-            "raidtime": 45
-        },
-        "4": {
-            "egg": "rare",
-            "egg_img": "4.png",
-            "pokemon": [
-                "charizard",
-                "snorlax",
-                "togetic",
-                "umbreon",
-                "swampert"
+                "alolan marowak",
+                "rhydon",
+                "vaporeon",
+                "donphan",
+                "claydol"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -56,9 +37,7 @@
             "egg": "legendary",
             "egg_img": "5.png",
             "pokemon": [
-                "registeel",
-                "cresselia",
-                "reshiram"
+                "heatran"
             ],
             "hatchtime": 60,
             "raidtime": 45
@@ -70,6 +49,25 @@
                 "regigigas"
             ],
             "hatchtime": 14,
+            "raidtime": 45
+        },
+        "0": {
+            "egg": "normal",
+            "egg_img": "1.png",
+            "pokemon": [],
+            "hatchtime": 60,
+            "raidtime": 45
+        },
+        "6": {
+            "egg": "normal",
+            "egg_img": "mega.png",
+            "pokemon": [
+                "mega-blastoise",
+                "mega-charizardx",
+                "mega-charizardy",
+                "mega-venusaur"
+            ],
+            "hatchtime": 60,
             "raidtime": 45
         }
     }

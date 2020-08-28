@@ -23,6 +23,13 @@ class Pokedex(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+"""
+Calculating PoGO base stats from MSG base stats
+ATK = round(round(2*(0.875*max(atk,spa)+0.125*min(atk,spa))) * (1+(spe-75)/500))
+DEF = round(round(2*(0.875*max(def,spd)+0.125*min(def,spd))) * (1+(spe-75)/500))
+STA = floor(1.75*HP+50)
+"""
+
 class Pokemon():
     """Represents a Pokemon.
 
@@ -68,7 +75,7 @@ class Pokemon():
 
     # https://p337.info/pokemongo/pages/shiny-release-dates/api/?utm_source=share&utm_medium=ios_app
     __slots__ = ('species', 'id', 'types', 'bot', 'guild', 'pkmn_list',
-                 'pb_raid', 'weather', 'moveset', 'form', 'shiny', 'alolan', 'galarian',
+                 'pb_raid', 'weather', 'moveset', 'form', 'shiny', 'alolan', 'galarian', 'mega',
                  'legendary', 'mythical', 'base_attack', 'base_defense', 'base_stamina')
 
     _alolans_list = ['rattata', 'raticate', 'vulpix', 'ninetails', 'sandshrew', 'sandslash', 'grimer', 'muk',
@@ -77,6 +84,8 @@ class Pokemon():
 
     _galarians_list = ['zigzagoon', 'linoone', 'meowth', "farfetch'd", 'stunfisk', 'corsola', 'weezing',
                        'yamask', 'ponyta', 'rapidash', 'mr. mime', 'darumaka', 'darmanitan']
+
+    _megas_list = ['charizard', 'venasaur', 'blastoise', 'beedrill']
     
     _form_list = [
         'normal', 'sunny', 'rainy', 'snowy', 'sunglasses',
@@ -121,7 +130,8 @@ class Pokemon():
         'deerling': ['spring', 'summer', 'autumn', 'winter'],
         'sawsbuck': ['spring', 'summer', 'autumn', 'winter'],
         'giratina': ['altered', 'origin'],
-        'tornadus': ['incarnate', 'therian']
+        'tornadus': ['incarnate', 'therian'],
+        'mewtwo': ['armored']
     }
 
     _raid_stamina = {1: 600, 2: 1800, 3: 3600, 4: 9000, 5: 15000, 6: 22500}
@@ -169,6 +179,7 @@ class Pokemon():
     @staticmethod
     def get_pkmn_dict_all_by_id():
         return {r['id']: r for r in PokemonTable.select().dicts()}
+
 
     @property
     def name(self):

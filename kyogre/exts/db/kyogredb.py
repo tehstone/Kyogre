@@ -111,6 +111,7 @@ class PokemonTable(BaseModel):
     name = TextField(index=True)
     legendary = BooleanField()
     mythical = BooleanField()
+    mega = BooleanField()
     shiny = BooleanField()
     alolan = BooleanField()
     galarian = BooleanField()

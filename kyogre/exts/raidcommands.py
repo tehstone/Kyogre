@@ -326,7 +326,7 @@ class RaidCommands(commands.Cog):
         if raidegg_split[0].isdigit():
             egg_level = int(raidegg_split[0])
             del raidegg_split[0]
-        elif raidegg_split[0].lower == 'm':
+        elif raidegg_split[0].lower() == 'm':
             egg_level = 6
             del raidegg_split[0]
         else:
