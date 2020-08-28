@@ -31,14 +31,10 @@ Kyogre assists with organising Pokemon Go communities with support for:
 
 **For all future CLI commands, replace the command name `python3` with the relevant interpreter command name for your system (such as the common `py` command name on Windows). See details [here](https://github.com/FoglyOgly/Meowth#installing-python).**
 
-## **`Discord.py v1.0.0a (Rewrite Branch)`**
+## **`Discord.py`**
 
-The [rewrite branch of discord.py](https://github.com/Rapptz/discord.py/tree/rewrite) is an in-development branch that does not yet have an official stable release, however the default/master branch is feature-frozen, and lacks support for some of the newer features in discord such as categories.
-
-If you intend to fork Meowth and alter any code, ensure you keep up to date with any breaking changes that might occur in this branch of discord.py.
-
-```bash
-python3 -m pip install -U git+https://github.com/Rapptz/discord.py@rewrite
+```
+pip install git+https://github.com/Rapptz/discord.py@master -U
 ```
 
 #### *``Note: You will receive the following warning on your first run, which can be disregarded:``*
