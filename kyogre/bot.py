@@ -77,9 +77,12 @@ class KyogreBot(commands.AutoShardedBot):
     """Custom Discord Bot class for Kyogre"""
 
     def __init__(self):
+        intents = discord.Intents.default()
+        intents.members = True
         super().__init__(command_prefix=_prefix_callable,
                          case_insensitive=True,
-                         activity=discord.Game(name="Pokemon Go"))
+                         activity=discord.Game(name="Pokemon Go"),
+                         intents=intents)
 
         self.logger = init_loggers()
         self.help_logger = init_logger("help", "logs/kyogre_help.log")

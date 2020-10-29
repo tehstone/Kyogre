@@ -217,6 +217,9 @@ class RaidDataHandler(commands.Cog):
                 if '-' in poke:
                     poke = poke.replace('alola', 'alolan')
                     poke_split = poke.split('-')[::-1]
+                    if poke_split[0] == 'x' or poke_split[0] == 'y':
+                        poke_split[2] = poke_split[2] + poke_split[0]
+                        poke_split = poke_split[1:]
                     poke = ' '.join(poke_split)
                 return poke
 

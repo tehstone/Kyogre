@@ -20,5 +20,4 @@ def get_egg_emoji(egglevel):
 
 
 def get_invite_emoji():
-    # return "<:teamrocket:642748270380187660>"
-    return "<:inviteme:733141175795449908>"
+    return "<:inviteme:750099340525305918>"
