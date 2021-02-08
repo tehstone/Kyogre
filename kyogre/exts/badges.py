@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 import discord
 from discord.ext import commands
@@ -47,8 +48,6 @@ class Badges(commands.Cog):
         try:
             badge_emoji = await converter.convert(ctx, info[0].strip())
         except:
-            badge_emoji = None
-        if not badge_emoji:
             await ctx.message.add_reaction(self.bot.failed_react)
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: No emoji found: {info[0]}.")
             return await ctx.send("Could not find that emoji.", delete_after=10)
@@ -626,6 +625,32 @@ class Badges(commands.Cog):
             except:
                 status = 1
         return status
+
+    @commands.command(name='get_badge_assignment_list', aliases=['gbal'])
+    async def _get_badge_assignment_list(self, ctx, badge_id):
+        result = (BadgeAssignmentTable
+                  .select()
+                  .where(BadgeAssignmentTable.badge == badge_id))
+        members = []
+        failed = []
+        for r in result:
+            try:
+                member = ctx.guild.get_member(r.trainer)
+                members.append(f"{member.name}#{member.discriminator}")
+            except:
+                failed.append(str(r.trainer))
+        if len(failed) > 0:
+            await ctx.send(f"Failed to find user info for {len(failed)} users")
+            await ctx.send(f"{', '.join(failed)}")
+        if len(members) < 1:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return await ctx.send(f"Did not successfully find any members with badge {badge_id}")
+        output_text = ', '.join(members)
+        filename = f'badge_{badge_id}_users.txt'
+        with open(os.path.join('data', filename), 'w') as file:
+            file.write(output_text)
+        with open(os.path.join('data', filename), 'r') as userfile:
+            await ctx.send(file=discord.File(userfile, filename=filename))
 
 
 def setup(bot):
