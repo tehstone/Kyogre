@@ -651,6 +651,7 @@ class Badges(commands.Cog):
             file.write(output_text)
         with open(os.path.join('data', filename), 'r') as userfile:
             await ctx.send(file=discord.File(userfile, filename=filename))
+        await ctx.send("<https://thesilphroad.com/retro-check-in>")
 
 
 def setup(bot):
