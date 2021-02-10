@@ -325,12 +325,9 @@ class Social(commands.Cog):
         for match in matches:
             member = ctx.guild.get_member(trainer_names_copy[match[0]])
             if member:
-                member_matches.append(member)
+                member_matches.append(member.display_name)
         if len(member_matches) > 0:
-        #match_names = [m[0] for m in member_matches]
             return await ctx.send(f"You might be looking for {', '.join(member_matches)}")
-        # if member_matches[0]:
-        #     return await ctx.send(f"You might be looking for {member_matches[0]}")
         return await ctx.send("No trainers found with a name similar to that")
 
 
