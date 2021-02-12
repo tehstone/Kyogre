@@ -114,9 +114,10 @@ class NewTrainer(commands.Cog):
         trainer_dict = self.bot.guild_dict[ctx.guild.id].setdefault('trainers', {}) \
             .setdefault('info', {}).setdefault(ctx.author.id, {})
 
-        trainer_names = self.bot.guild_dict[ctx.guild.id].setdefault('trainer_names', {})
-        trainer_names[trainer_name] = ctx.author.id
-        trainer_dict['trainername'] = trainer_name
+        if trainer_name:
+            trainer_names = self.bot.guild_dict[ctx.guild.id].setdefault('trainer_names', {})
+            trainer_names[trainer_name] = ctx.author.id
+            trainer_dict['trainername'] = trainer_name
 
         if xp and level:
             try:
