@@ -15,6 +15,7 @@ class QuickBadge(commands.Cog):
         self.quick_badge_dict_default = {'listen_channels': [],
                                          '40_listen_channels': [],
                                          '40_role': None,
+                                         '40_channel': None,
                                          'pokenav_channel': 0,
                                          'badge_channel': 0,
                                          'badges': {}}
@@ -39,6 +40,28 @@ class QuickBadge(commands.Cog):
         quick_badge_dict['badges'][badge.id]['pokenav'] = p_badge_id
         self.bot.guild_dict[ctx.guild.id]['configure_dict']['quick_badge'] = quick_badge_dict
         await ctx.channel.send(f'Quick-Badge {badge} added for badge with ids: {k_badge_id}, {p_badge_id}.', delete_after=10)
+        return await ctx.message.add_reaction(self.bot.success_react)
+
+    @commands.command(hidden=True, aliases=['sfc'])
+    @commands.has_permissions(manage_roles=True)
+    async def set_forty_channel(self, ctx, item):
+        """**Usage**: `!set_forty_channel <channel name/id>`
+           **Alias**: `set_forty_channel, sfc`
+
+           Set the channel open to level 40 role.
+        """
+        qbl_channel = await self.qblc_channel_helper(ctx, item)
+        if qbl_channel is None:
+            self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, error: Channel not found: {item}.")
+            await ctx.channel.send(f'Channel not found: {item}. Could not set level 40 channel', delete_after=10)
+            return await ctx.message.add_reaction(self.bot.failed_react)
+        quick_badge_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
+            .get('quick_badge', self.quick_badge_dict_default)
+        forty_channel = quick_badge_dict.get('40_channel', None)
+        forty_channel = qbl_channel.id
+        quick_badge_dict['40_channel'] = forty_channel
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['quick_badge'] = quick_badge_dict
+        await ctx.channel.send(f'Set {qbl_channel.mention} as level 40 channel.', delete_after=10)
         return await ctx.message.add_reaction(self.bot.success_react)
 
     @commands.command(hidden=True, aliases=['afl'])
@@ -257,6 +280,11 @@ class QuickBadge(commands.Cog):
                 and payload.channel_id in quick_badge_dict.get('40_listen_channels', []):
             success = await self.set_fourty(ctx)
             if success:
+                forty_channel_id = quick_badge_dict.get('40_channel', None)
+                if forty_channel_id:
+                    forty_channel = self.bot.get_channel(forty_channel_id)
+                    if forty_channel:
+                        return await forty_channel.send(f"{ctx.message.author.mention} has been verified as level 40!")
                 await channel.send(f"{ctx.message.author.mention} has been verified as level 40!")
 
     async def set_fourty(self, ctx):
