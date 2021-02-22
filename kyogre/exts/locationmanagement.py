@@ -219,6 +219,7 @@ class LocationManagement(commands.Cog):
         message = ctx.message
         author = message.author
         info = info.split(',')
+        info = [i.strip() for i in info]
         if len(info) != 2:
             self.bot.help_logger.info(f"User: {ctx.author.name}, channel: {ctx.channel}, "
                                       f"error: Insufficient info: {info}.")

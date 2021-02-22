@@ -6,11 +6,12 @@ from discord.ext import commands
 from kyogre import utils, checks
 from kyogre.exts import config_items
 
+
 class Configuration(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(case_insensitive=True, invoke_without_command=True)
+    @commands.group(case_insensitive=True, invoke_without_command=True, aliases=['config'])
     @commands.has_permissions(manage_guild=True)
     async def configure(self, ctx, *, configlist: str=""):
         """Kyogre Configuration

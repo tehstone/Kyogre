@@ -301,6 +301,40 @@ class Social(commands.Cog):
                     return
         await ctx.send("This server's report stats have been reset!")
 
+    @commands.command(name='set_verified_role', aliases=['svr'])
+    @commands.has_permissions(manage_guild=True)
+    async def _set_verified_role(self, ctx, *, role):
+        converter = commands.RoleConverter()
+        try:
+            role = await converter.convert(ctx, role)
+        except:
+            role = None
+        if role is None:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return await ctx.send(f"No role found matching: {role}", delete_after=15)
+        welcome_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
+            .get('welcome', {'enabled': False, 'welcomechan': '', 'welcomemsg': ''})
+        welcome_dict["verified_role"] = role.id
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['welcome'] = welcome_dict
+        await ctx.message.add_reaction(self.bot.success_react)
+
+    @commands.command(name='set_new_user_role', aliases=['snur'])
+    @commands.has_permissions(manage_guild=True)
+    async def _set_new_user_role(self, ctx, *, role):
+        converter = commands.RoleConverter()
+        try:
+            role = await converter.convert(ctx, role)
+        except:
+            role = None
+        if role is None:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            return await ctx.send(f"No role found matching: {role}", delete_after=15)
+        welcome_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict']\
+            .get('welcome', {'enabled': False, 'welcomechan': '', 'welcomemsg': ''})
+        welcome_dict["new_user_role"] = role.id
+        self.bot.guild_dict[ctx.guild.id]['configure_dict']['welcome'] = welcome_dict
+        await ctx.message.add_reaction(self.bot.success_react)
+
     @commands.command(name='whois', aliases=['who'])
     async def _who_is(self, ctx, trainer):
         """**Usage**: `!whois <trainer name>`

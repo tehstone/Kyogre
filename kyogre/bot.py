@@ -244,6 +244,7 @@ class KyogreBot(commands.AutoShardedBot):
 
     async def on_member_join(self, member):
         """Welcome message to the server and some basic instructions."""
+        await self._set_new_user_roles(member)
         guild = member.guild
         self.user_logger.info(f"{member.name}#{member.discriminator} joined."
                               f" Account created {member.created_at}. ID: {member.id}")
@@ -279,6 +280,27 @@ class KyogreBot(commands.AutoShardedBot):
                 await send_to.send(welcomemessage.format(server=guild.name, user=member.mention))
         else:
             return
+
+    async def _set_new_user_roles(self, member):
+        guild = member.guild
+        if not guild:
+            return
+        welcome_dict = self.guild_dict[guild.id]['configure_dict'] \
+            .get('welcome', {'enabled': False, 'welcomechan': '', 'welcomemsg': ''})
+        new_user_role_id = welcome_dict.get("new_user_role", None)
+        verified_role_id = welcome_dict.get("verified_role", None)
+        if not new_user_role_id or not verified_role_id:
+            return
+        new_user_role = guild.get_role(new_user_role_id)
+        verified_role = guild.get_role(verified_role_id)
+        if not new_user_role or not verified_role:
+            return
+        trainers = self.guild_dict[guild.id].get('trainers', {})
+        if member.id in trainers:
+            member_info = trainers[member.id]
+            if "trainername" in member_info and "code" in member_info:
+                return await member.add_roles(verified_role)
+        return await member.add_roles(new_user_role)
 
     async def on_member_remove(self, member):
         self.user_logger.info(f"{member.name}#{member.discriminator} left."

@@ -78,17 +78,14 @@ class NewTrainer(commands.Cog):
             await asyncio.sleep(.3)
 
     async def _setup_profile(self, ctx, file, u):
-        team_role_names = [r.lower() for r in self.bot.team_color_map.keys()]
-        for team in team_role_names:
-            temp_role = discord.utils.get(ctx.guild.roles, name=team)
-            if temp_role:
-                # and the user has this role,
-                if temp_role in ctx.author.roles:
-                    await ctx.message.delete()
-                    err_msg = f"{ctx.author.mention} your team is already set. Ask for help if you need to change it." \
-                              "\nIf you would like to update your profile, use `!set profile`"
-                    await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=err_msg))
-                    return await image_utils.cleanup_file(file, f"screenshots/profile")
+        utilities_cog = self.bot.cogs.get('Utilities')
+        team = utilities_cog.member_has_team_set(ctx)
+        if team:
+            await ctx.message.delete()
+            err_msg = f"{ctx.author.mention} your team is already set. Ask for help if you need to change it." \
+                      "\nIf you would like to update your profile, use `!set profile`"
+            await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=err_msg))
+            return await image_utils.cleanup_file(file, f"screenshots/profile")
         trainer_name, xp, level = "", "", ""
         try:
             data = json.loads('{"image_url": "' + u + '"}')

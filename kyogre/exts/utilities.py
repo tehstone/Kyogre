@@ -129,6 +129,16 @@ class Utilities(commands.Cog):
         else:
             return list(set(regions))
 
+    async def member_has_team_set(self, ctx):
+        team_role_names = [r.lower() for r in self.bot.team_color_map.keys()]
+        for team in team_role_names:
+            temp_role = discord.utils.get(ctx.guild.roles, name=team)
+            if temp_role:
+                # and the user has this role,
+                if temp_role in ctx.author.roles:
+                    return team
+        return None
+
 
 def setup(bot):
     bot.add_cog(Utilities(bot))

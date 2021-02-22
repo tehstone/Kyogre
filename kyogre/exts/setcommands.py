@@ -123,25 +123,25 @@ class SetCommands(commands.Cog):
                 del self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {})[ctx.author.id]['silphid']
             except:
                 pass
-            card = await self._silph(ctx, silph_user)
+        card = await self._silph(ctx, silph_user)
 
-            if not card:
-                return await ctx.send('Silph Card for {silph_user} not found.'.format(silph_user=silph_user))
+        if not card:
+            return await ctx.send('Silph Card for {silph_user} not found.'.format(silph_user=silph_user))
 
-            if not card.discord_name:
-                return await ctx.send(
-                    'No Discord account found linked to this Travelers Card!')
+        if not card.discord_name:
+            return await ctx.send(
+                'No Discord account found linked to this Travelers Card!')
 
-            if card.discord_name != str(ctx.author):
-                return await ctx.send(
-                    'This Travelers Card is linked to another Discord account!')
+        if card.discord_name != str(ctx.author):
+            return await ctx.send(
+                'This Travelers Card is linked to another Discord account!')
         try:
             offset = self.bot.guild_dict[ctx.guild.id]['configure_dict']['settings']['offset']
         except KeyError:
             offset = None
 
         trainers = self.bot.guild_dict[ctx.guild.id].get('trainers', {})
-        author = trainers.setdefault('info', {}).get(ctx.author.id,{})
+        author = trainers.setdefault('info', {}).get(ctx.author.id, {})
         author['silphid'] = silph_user
         trainers.setdefault('info', {})[ctx.author.id] = author
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
@@ -169,14 +169,14 @@ class SetCommands(commands.Cog):
                 del self.bot.guild_dict[ctx.guild.id]['trainers'].setdefault('info', {})[ctx.author.id]['pokebattlerid']
             except:
                 pass
-            return await ctx.message.add_reaction('✅')
+            return await ctx.message.add_reaction(self.bot.success_react)
         trainers = self.bot.guild_dict[ctx.guild.id].get('trainers', {})
         author = trainers.setdefault('info', {}).get(ctx.author.id, {})
         author['pokebattlerid'] = pbid
         trainers.setdefault('info', {})[ctx.author.id] = author
         self.bot.guild_dict[ctx.guild.id]['trainers'] = trainers
         await ctx.send(f'Pokebattler ID set to {pbid}!')
-        return await ctx.message.add_reaction('✅')
+        return await ctx.message.add_reaction(self.bot.success_react)
 
     @_set.command()
     async def xp(self, ctx, xp: int = 0):
@@ -192,10 +192,10 @@ class SetCommands(commands.Cog):
         else:
             embed.description = f"XP count set to {xp} on your profile."
         await ctx.send(embed=embed, delete_after=15)
-        return await ctx.message.add_reaction('✅')
+        return await ctx.message.add_reaction(self.bot.success_react)
 
-    @_set.command(name='friendcode', aliases=['friend_code', 'fc', 'code', 'friend'])
-    async def friend_code(self, ctx, *, code: str = None):
+    @_set.command(name='friend_code', aliases=['friendcode', 'fc', 'code', 'friend'])
+    async def _friend_code(self, ctx, *, code: str = None):
         """**Usage**: `!set friendcode <friend code>`
         Adds your friend code to your `!profile`"""
         trainers = self.bot.guild_dict[ctx.guild.id].get('trainers', {})
@@ -208,7 +208,11 @@ class SetCommands(commands.Cog):
         else:
             embed.description = f"Friend code set to {code} on your profile."
         await ctx.send(embed=embed, delete_after=15)
-        return await ctx.message.add_reaction('✅')
+        return await ctx.message.add_reaction(self.bot.success_react)
+
+    @commands.command(name='friend_code', aliases=['friendcode', 'fc', 'code', 'friend'])
+    async def _friend_code(self, ctx, *, code: str = None):
+        return await ctx.invoke(self.bot.get_command('set friendcode'), ctx=ctx, code=f"{code}")
 
     @_set.command(name='trainername', aliases=['name', 'tn'])
     async def _trainername(self, ctx, *, name: str = None):
@@ -225,15 +229,100 @@ class SetCommands(commands.Cog):
         else:
             embed.description = f"Trainer name set to {name} on your profile."
         await ctx.send(embed=embed, delete_after=15)
-        return await ctx.message.add_reaction('✅')
+        return await ctx.message.add_reaction(self.bot.success_react)
+
+    @commands.command(name='trainername', aliases=['name', 'tn'])
+    async def _trainername(self, ctx, *, name: str = None):
+        return await ctx.invoke(self.bot.get_command('set trainername'), ctx=ctx, name=f"{name}")
+
+    @_set.command(name='team')
+    async def _team(self, ctx, *, new_team: str):
+        utilities_cog = self.bot.cogs.get('Utilities')
+        team = await utilities_cog.member_has_team_set(ctx)
+        if team:
+            err_msg = f"{ctx.author.mention} your team is already set. Ask for help if you need to change it."
+            return await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=err_msg))
+        team_role = discord.utils.get(ctx.guild.roles, name=new_team)
+        if team_role is None:
+            err_msg = f"{ctx.author.mention} sorry, I don't recognize {new_team} as a valid team."
+            return await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.red(), description=err_msg))
+        await ctx.author.add_roles(team_role)
+        team_emoji = utils.parse_emoji(ctx.channel.guild, self.bot.config['team_dict'][new_team])
+        success_msg = f"{ctx.author.mention} your team has been set to {team_emoji} {new_team}!"
+        return await ctx.channel.send(embed=discord.Embed(colour=discord.Colour.green(), description=success_msg))
+
+    @commands.command(name='valor')
+    async def _valor(self, ctx):
+        return await ctx.invoke(self.bot.get_command('set team'), new_team=f"valor")
+
+    @commands.command(name='mystic')
+    async def _mystic(self, ctx):
+        return await ctx.invoke(self.bot.get_command('set team'), new_team=f"mystic")
+
+    @commands.command(name='instinct')
+    async def _instinct(self, ctx):
+        return await ctx.invoke(self.bot.get_command('set team'), new_team=f"instinct")
+
+    @commands.command(name='verify_profile', aliases=['verify'])
+    async def _verify_profile(self, ctx):
+        trainers = self.bot.guild_dict[ctx.guild.id].get('trainers', {})
+        trainer_info = trainers.get('info', {})
+        welcome_dict = self.bot.guild_dict[ctx.guild.id]['configure_dict'] \
+            .get('welcome', {'enabled': False, 'welcomechan': '', 'welcomemsg': ''})
+        new_user_role_id = welcome_dict.get("new_user_role", None)
+        verified_role_id = welcome_dict.get("verified_role", None)
+        new_user_role, verified_role = None, None
+        if new_user_role_id and verified_role_id:
+            new_user_role = ctx.guild.get_role(new_user_role_id)
+            verified_role = ctx.guild.get_role(verified_role_id)
+        profile_found, trainername_found, friendcode_found, team_found = False, False, False, False
+        if ctx.author.id in trainer_info:
+            profile_found = True
+            author_info = trainer_info[ctx.author.id]
+            if "trainername" in author_info:
+                trainername_found = True
+            if "code" in author_info:
+                friendcode_found = True
+            if "team" in author_info:
+                team_found = True
+            if trainername_found and friendcode_found:
+                await ctx.send(f"{ctx.author.mention} you have successfully set your team, trainer name, and friend code "
+                               "and are now verified!\n\n"
+                               "You can finish setting up your profile with the following:\n"
+                               "`!set xp current_xp`\n`!set silph silph_trainer_name`\n`!set pokebattler pokebattler_id`"
+                               "\n\nor do `!set profile` to have Kyogre walk you through it.")
+                if verified_role:
+                    await ctx.author.add_roles(verified_role)
+                await asyncio.sleep(30)
+                if new_user_role:
+                    await ctx.author.add_roles(new_user_role)
+                return
+
+        failed_message = ""
+        if not profile_found:
+            failed_message = "You still need to set your trainer name and your friend code like so:\n" \
+                             "`!set team team_name` using 'Instinct', 'Mystic', or 'Valor'\n" \
+                             "`!set trainername my_trainer_name` using your own trainer name\n" \
+                             "`!set friendcode my_friendcode` using your own friend code"
+        else:
+            if not team_found:
+                failed_message += "You still need to set your team like so:\n" \
+                                  "`!set team team_name` using 'Instinct', 'Mystic', or 'Valor'\n"
+            if not trainername_found:
+                failed_message += "You still need to set your trainer name like so:\n" \
+                                  "`!set trainername my_trainer_name` using your own trainer name\n"
+            if not friendcode_found:
+                failed_message += "You still need to set your friend code like so:\n" \
+                                  "`!set friendcode my_friendcode` using your own friend code\n"
+        return await ctx.send(failed_message)
 
     profile_steps = [{'prompt': "What team are you on?", 'td_key': 'team'},
-                     {'prompt': "What is your current xp?\n*Scroll to the bottom of your profile for this number*",
-                      'td_key': 'xp'},
-                     {'prompt': "What is your friend code?", 'td_key': 'code'},
-                     {'prompt': "What is your Trainer Name?", 'td_key': 'trainername'},
-                     {'prompt': "What is the name on your Silph Road Traveler's Card?", 'td_key': 'silphid'},
-                     {'prompt': "What is your PokeBattler ID?", 'td_key': 'pokebattlerid'}]
+             {'prompt': "What is your current xp?\n*Scroll to the bottom of your profile for this number*",
+              'td_key': 'xp'},
+             {'prompt': "What is your friend code?", 'td_key': 'code'},
+             {'prompt': "What is your Trainer Name?", 'td_key': 'trainername'},
+             {'prompt': "What is the name on your Silph Road Traveler's Card?", 'td_key': 'silphid'},
+             {'prompt': "What is your PokeBattler ID?", 'td_key': 'pokebattlerid'}]
 
     @_set.command(name='profile')
     async def profile(self, ctx):
