@@ -211,7 +211,7 @@ class SetCommands(commands.Cog):
         return await ctx.message.add_reaction(self.bot.success_react)
 
     @commands.command(name='friend_code', aliases=['friendcode', 'fc', 'code', 'friend'])
-    async def _friend_code(self, ctx, *, code: str = None):
+    async def _friend_code_wrapper(self, ctx, *, code: str = None):
         return await ctx.invoke(self.bot.get_command('set friendcode'), ctx=ctx, code=f"{code}")
 
     @_set.command(name='trainername', aliases=['name', 'tn'])
@@ -232,7 +232,7 @@ class SetCommands(commands.Cog):
         return await ctx.message.add_reaction(self.bot.success_react)
 
     @commands.command(name='trainername', aliases=['name', 'tn'])
-    async def _trainername(self, ctx, *, name: str = None):
+    async def _trainername_wrapper(self, ctx, *, name: str = None):
         return await ctx.invoke(self.bot.get_command('set trainername'), ctx=ctx, name=f"{name}")
 
     @_set.command(name='team')
