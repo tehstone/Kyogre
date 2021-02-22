@@ -286,18 +286,31 @@ class SetCommands(commands.Cog):
             if "team" in author_info:
                 team_found = True
             if trainername_found and friendcode_found:
-                await ctx.send(f"{ctx.author.mention} you have successfully set your team, trainer name, and friend code "
+                fin_message = (f"{ctx.author.mention} you have successfully set your team, trainer name, and friend code "
                                "and are now verified!\n\n"
-                               "Use the tool in #region-assignment to access the raid channels for the cities you play in.\n"
-                               "See the infographics in #kyogre-how-to to learn how to use our helpful bot Kyogre.\n\n"
+                               f"Use the tool in #region-assignment to access the raid channels for the cities you play in.\n"
+                               f"See the infographics in #kyogre-how-to to learn how to use our helpful bot Kyogre.\n\n"
                                "You can finish setting up your profile with the following:\n"
                                "`!set xp current_xp`\n`!set silph silph_trainer_name`\n`!set pokebattler pokebattler_id`"
                                "\n\nor do `!set profile` to have Kyogre walk you through it.")
+                region_channel = self.bot.get_channel(538883360953729025)
+                how_to_channel = self.bot.get_channel(595818446906720256)
+                if region_channel and how_to_channel:
+                    fin_message = (
+                        f"{ctx.author.mention} you have successfully set your team, trainer name, and friend code "
+                        "and are now verified!\n\n"
+                        f"Use the tool in {region_channel.mention} to access the raid channels for the cities you play in.\n"
+                        f"See the infographics in {how_to_channel.mention} to learn how to use our helpful bot Kyogre.\n\n"
+                        "You can finish setting up your profile with the following:\n"
+                        "`!set xp current_xp`\n`!set silph silph_trainer_name`\n`!set pokebattler pokebattler_id`"
+                        "\n\nor do `!set profile` to have Kyogre walk you through it.")
+
+                await ctx.send(fin_message)
                 if verified_role:
                     await ctx.author.add_roles(verified_role)
                 await asyncio.sleep(30)
                 if new_user_role:
-                    await ctx.author.add_roles(new_user_role)
+                    await ctx.author.remove_roles(new_user_role)
                 return
 
         failed_message = ""
