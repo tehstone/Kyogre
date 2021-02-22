@@ -288,6 +288,8 @@ class SetCommands(commands.Cog):
             if trainername_found and friendcode_found:
                 await ctx.send(f"{ctx.author.mention} you have successfully set your team, trainer name, and friend code "
                                "and are now verified!\n\n"
+                               "Use the tool in #region-assignment to access the raid channels for the cities you play in.\n"
+                               "See the infographics in #kyogre-how-to to learn how to use our helpful bot Kyogre.\n\n"
                                "You can finish setting up your profile with the following:\n"
                                "`!set xp current_xp`\n`!set silph silph_trainer_name`\n`!set pokebattler pokebattler_id`"
                                "\n\nor do `!set profile` to have Kyogre walk you through it.")
