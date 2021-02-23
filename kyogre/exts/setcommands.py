@@ -192,6 +192,9 @@ class SetCommands(commands.Cog):
         else:
             embed.description = f"XP count set to {xp} on your profile."
         await ctx.send(embed=embed, delete_after=15)
+        if xp > 20000000:
+            quickbadge_cog = self.bot.cogs.get('QuickBadge')
+            await quickbadge_cog.set_fourty(ctx)
         return await ctx.message.add_reaction(self.bot.success_react)
 
     @_set.command(name='friend_code', aliases=['friendcode', 'fc', 'code', 'friend'])
