@@ -237,6 +237,7 @@ class SetCommands(commands.Cog):
 
     @_set.command(name='team')
     async def _team(self, ctx, *, new_team: str):
+        new_team = new_team.lower()
         utilities_cog = self.bot.cogs.get('Utilities')
         team = await utilities_cog.member_has_team_set(ctx)
         if team:
