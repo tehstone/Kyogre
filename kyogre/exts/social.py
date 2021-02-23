@@ -9,6 +9,7 @@ from kyogre import utils
 class Social(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.badge_list_channel_id = 735352540777939045
 
     @commands.command(hidden=True)
     async def profile(self, ctx, user: discord.Member = None):
@@ -49,14 +50,22 @@ class Social(commands.Cog):
         raids, eggs, wilds, research, joined, nests = await self._get_profile_counts(ctx, user)
         badge_cog = self.bot.cogs.get('Badges')
         badges = badge_cog.get_badge_emojis(ctx.guild.id, user.id)
+        badge_count = len(badges)
         badge_str = self.bot.empty_str
-        badges = utils.list_chunker(badges, 4)
-        for c in badges:
-            for b in c:
-                badge_str += f"{b} "
-            if len(badge_str) > 910:
-                break
-            badge_str += '\n'
+        if badge_count < 1:
+            badge_list_channel = self.bot.get_channel(self.badge_list_channel_id)
+            if badge_list_channel:
+                badge_str = f"See what you can earn\n in {badge_list_channel.mention}"
+            else:
+                badge_str = "See what you can earn\n in #available-badges"
+        else:
+            badges = list(utils.list_chunker(badges, 4))
+            for c in badges[:5]:
+                for b in c:
+                    badge_str += f"{b} "
+                if len(badge_str) > 910:
+                    break
+                badge_str += '\n'
         embed = discord.Embed(colour=colour)
         embed.set_author(name=user.display_name, icon_url=user.avatar_url)
         if team_url:
@@ -70,7 +79,7 @@ class Social(commands.Cog):
             embed.add_field(name="Pokebattler", value=f"{pkb}")
         if len(embed.fields) % 2 == 1:
             embed.add_field(name='\u200b', value='\u200b')
-        embed.add_field(name="Badges earned", value=f"{badge_str}")
+        embed.add_field(name=f"Badges earned ({badge_count})", value=f"{badge_str}")
         if raids + eggs + wilds + research + joined + nests > 0:
             stats_str = ""
             if raids > 0:
