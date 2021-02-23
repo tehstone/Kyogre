@@ -336,12 +336,13 @@ class SetCommands(commands.Cog):
         return await ctx.send(failed_message)
 
     profile_steps = [{'prompt': "What team are you on?", 'td_key': 'team'},
-             {'prompt': "What is your current xp?\n*Scroll to the bottom of your profile for this number*",
+             {'prompt': "What is your current xp?\n*Your Total XP, not current amount towards the next level*",
               'td_key': 'xp'},
              {'prompt': "What is your friend code?", 'td_key': 'code'},
              {'prompt': "What is your Trainer Name?", 'td_key': 'trainername'},
-             {'prompt': "What is the name on your Silph Road Traveler's Card?", 'td_key': 'silphid'},
-             {'prompt': "What is your PokeBattler ID?", 'td_key': 'pokebattlerid'}]
+             {'prompt': "What is the name on your Silph Road Traveler's Card?\n<https://thesilphroad.com/card>",
+              'td_key': 'silphid'},
+             {'prompt': "What is your PokeBattler ID?\n<https://www.pokebattler.com/>", 'td_key': 'pokebattlerid'}]
 
     @_set.command(name='profile')
     async def profile(self, ctx):
@@ -447,16 +448,15 @@ class SetCommands(commands.Cog):
         embed = discord.Embed(colour=self.bot.user.colour)
         embed.title = step["prompt"]
         description = '\n\nReply with "**clear**" to remove this item from your profile. \n' \
-                       'Reply with "**skip**" to continue to the next item. \n' \
-                       'Reply with "**cancel**" to exit profile setup.'
+                      'Reply with "**skip**" to continue to the next item. \n' \
+                      'Reply with "**cancel**" to exit profile setup.'
         embed.description = description
         await ctx.author.send(embed=embed)
         try:
-            response = await self.bot.wait_for('message', timeout=90,
+            response = await self.bot.wait_for('message', timeout=240,
                                                check=(lambda reply: reply.author == ctx.message.author))
         except asyncio.TimeoutError:
             response = None
-            pass
         if response is None:
             return None
         return response.clean_content

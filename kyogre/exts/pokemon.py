@@ -453,6 +453,11 @@ class Pokemon():
             argument = argument.replace('galarian', '').strip()
         else:
             galarian = False
+        arg_split = argument.split()
+        if arg_split[0].lower() == 'mega':
+            arg_split[0] = f"{arg_split[0]}-{arg_split[1]}"
+            del arg_split[1]
+            argument = ' '.join(arg_split)
 
         form = None
         detected_forms = []

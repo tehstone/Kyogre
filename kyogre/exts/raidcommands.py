@@ -146,46 +146,34 @@ class RaidCommands(commands.Cog):
                                  "\nWhat is the correct Pokemon?",
                            'level': "That is not a valid raid tier. "
                                     "Please provide the raid boss or tier for your report."}
-        new_content = ''
-        if not raid_pokemon:
-            pkmn_error = 'not_pokemon'
-            try:
-                new_content = content.split()
-                pkmn_index = new_content.index('alolan')
-                del new_content[pkmn_index + 1]
-                del new_content[pkmn_index]
-                new_content = ' '.join(new_content)
-            except ValueError:
-                new_content = ' '.join(content.split())
-            try:
-                new_content = content.split()
-                pkmn_index = new_content.index('galarian')
-                del new_content[pkmn_index + 1]
-                del new_content[pkmn_index]
-                new_content = ' '.join(new_content)
-            except ValueError:
-                new_content = ' '.join(content.split())
-        elif not raid_pokemon.is_raid:
-            pkmn_error = 'not_boss'
-            try:
-                new_content = content.split()
-                pkmn_index = new_content.index('alolan')
-                del new_content[pkmn_index + 1]
-                del new_content[pkmn_index]
-                new_content = ' '.join(new_content)
-            except ValueError:
-                new_content = ' '.join(content.split())
-            try:
-                new_content = content.split()
-                pkmn_index = new_content.index('galarian')
-                del new_content[pkmn_index + 1]
-                del new_content[pkmn_index]
-                new_content = ' '.join(new_content)
-            except ValueError:
-                new_content = ' '.join(content.split())
+        new_content, error = '', False
+        if not raid_pokemon or not raid_pokemon.is_raid:
+            error = True
+            if not raid_pokemon:
+                pkmn_error = 'not_pokemon'
+            else:
+                pkmn_error = 'not_boss'
         elif raid_pokemon.is_exraid:
             pkmn_error = 'ex'
             new_content = ' '.join(content.split()[1:])
+        if error:
+            new_content = content.split()
+            if new_content[0].lower() == 'mega':
+                new_content[0] = f"{new_content[0]}-{new_content[1]}"
+                del new_content[1]
+            try:
+                pkmn_index = new_content.index('alolan')
+                del new_content[pkmn_index + 1]
+                del new_content[pkmn_index]
+            except ValueError:
+                pass
+            try:
+                pkmn_index = new_content.index('galarian')
+                del new_content[pkmn_index + 1]
+                del new_content[pkmn_index]
+            except ValueError:
+                pass
+
         if pkmn_error is not None:
             while True:
                 pkmn_embed = discord.Embed(colour=discord.Colour.red(), description=pkmn_error_dict[pkmn_error])
