@@ -312,9 +312,13 @@ class SetCommands(commands.Cog):
                 await ctx.send(fin_message)
                 if verified_role:
                     await ctx.author.add_roles(verified_role)
-                await asyncio.sleep(30)
                 if new_user_role:
-                    await ctx.author.remove_roles(new_user_role)
+                    try:
+                        await ctx.author.remove_roles(new_user_role)
+                    except Exception as e:
+                        self.bot.logger.warn(f"failed to remove new user role:\n{e}")
+                else:
+                    self.bot.logger.warn("no new user role found")
                 return
 
         failed_message = ""
