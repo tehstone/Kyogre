@@ -493,7 +493,8 @@ class Badges(commands.Cog):
                   .select(BadgeTable.emoji)
                   .join(BadgeAssignmentTable, on=(BadgeTable.id == BadgeAssignmentTable.badge_id))
                   .where((BadgeAssignmentTable.trainer == user) &
-                         (BadgeTable.guild_id == guild_id)))
+                         (BadgeTable.guild_id == guild_id))
+                  .order_by(BadgeTable.id.desc()))
         return [self.bot.get_emoji(r.emoji) for r in result]
 
     @staticmethod
