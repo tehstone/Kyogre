@@ -71,9 +71,21 @@ class Social(commands.Cog):
         if len(embed.fields) % 2 == 1:
             embed.add_field(name='\u200b', value='\u200b')
         embed.add_field(name="Badges earned", value=f"{badge_str}")
-        stats_str = f"Raid Reports: {raids}\nEgg Reports: {eggs}\nWild Points: {wilds}\n" \
-            f"Research Points: {research}\nRaids Joined: {joined}\nNest Reports: {nests}\n"
-        embed.add_field(name="Kyogre Stats", value=stats_str)
+        if raids + eggs + wilds + research + joined + nests > 0:
+            stats_str = ""
+            if raids > 0:
+                stats_str += f"Raid Reports: {raids}\n"
+            if eggs > 0:
+                stats_str += f"Egg Reports: {eggs}\n"
+            if wilds > 0:
+                stats_str += f"Wild Points: {wilds}\n"
+            if research > 0:
+                stats_str += f"Research Points: {research}\n"
+            if joined > 0:
+                stats_str += f"Raids joined: {joined}\n"
+            if nests > 0:
+                stats_str += f"Nest Reports: {nests}\n"
+            embed.add_field(name="Kyogre Stats", value=stats_str)
         embed.set_footer(text='Do "!set profile" to update your profile!')
         await ctx.send(embed=embed)
 
