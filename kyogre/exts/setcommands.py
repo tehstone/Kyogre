@@ -354,7 +354,10 @@ class SetCommands(commands.Cog):
                 listen_channel = ctx.guild.get_channel(listen_channels[0])
                 embed = discord.Embed(colour=discord.Colour.red())
                 embed.description = f"Please use this command in {listen_channel.mention}."
-                await ctx.message.delete()
+                try:
+                    await ctx.message.delete()
+                except:
+                    pass
                 return await ctx.send(embed=embed, delete_after=15)
         await ctx.send("I will message you directly to help you get your profile set up.")
         try:
