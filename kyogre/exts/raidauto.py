@@ -272,6 +272,10 @@ class RaidAuto(commands.Cog):
            If the egg color matches, we will trust the OCR over the classifier."""
         # If the scan didn't find a tier but we're in this check, trust the image classifier
         if tier and not s_tier:
+            if tier == '2':
+                tier = '1'
+            if tier == '4':
+                tier = '3'
             return tier
         # If the image classifier found a level 5 egg, then we will trust it
         if tier == '5':
