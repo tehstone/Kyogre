@@ -279,11 +279,11 @@ class RaidAuto(commands.Cog):
         # If the image was scanned as a pink egg, and the text output is 1 or 2 then use the text
         if tier == '1' or tier == '2':
             if s_tier == '1' or s_tier == '2':
-                tier = s_tier
+                tier = s_tier = 1
         # If the image was scanned as a yellow egg, and the text output is 3 or 4 then use the text
         if tier == '3' or tier == '4':
             if s_tier == '3' or s_tier == '4':
-                tier = s_tier
+                tier = s_tier = 3
         return tier
 
     async def _build_raid_info(self, tier, file):
