@@ -46,6 +46,7 @@ default_exts = ['admincommands',
                 'raiddatahandler',
                 'raidparty',
                 'regions',
+                'remoteraids',
                 'researchcommands',
                 'setcommands',
                 'silph',
@@ -203,7 +204,7 @@ class KyogreBot(commands.AutoShardedBot):
             return await message.delete()
         if message.author.bot and not message.webhook_id:
             return
-        if self.user.mentioned_in(message):
+        if self.user.mentioned_in(message) and not message.mention_everyone:
             await message.channel.send(content="Hi, I'm Kyogre! I'm just a bot who's here to help!")
         await self.process_commands(message)
 
