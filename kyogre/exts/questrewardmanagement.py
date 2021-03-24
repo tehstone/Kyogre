@@ -333,6 +333,7 @@ class QuestRewardManagement(commands.Cog):
         await ctx.send(f"Connecting to <{task_page}> to update research task list.")
         poke_regex = re.compile("\d+x\d+/(?P<dexid>\d+)\.[a-zA-Z]{3}")
         alola_regex = re.compile("\d+x\d+/(?P<species>\S+)-alola\.[a-zA-Z]{3}")
+        form_regex = re.compile("\d+x\d+/(?P<species>\S+)-(?P<form>\S+)\.[a-zA-Z]{3}")
         page = requests.get(task_page)
         soup = BeautifulSoup(page.content, 'html.parser')
         quests, failed = [], []
@@ -357,6 +358,12 @@ class QuestRewardManagement(commands.Cog):
                                     rewardvalue = "alolan " + m.group('species')
                                     pkmn = Pokemon.get_pokemon(self.bot, rewardvalue)
                                     reward_pool["encounters"].append(pkmn.full_name)
+                                else:
+                                    m = form_regex.search(urlstr.attrs['src'])
+                                    if m:
+                                        rewardvalue = m.group('form') + " " + m.group('species')
+                                        pkmn = Pokemon.get_pokemon(self.bot, rewardvalue)
+                                        reward_pool["encounters"].append(pkmn.full_name)
                             else:
                                 rewardvalue = m.group('dexid')
                                 pkmn = Pokemon.get_pokemon(self.bot, int(rewardvalue))
