@@ -85,6 +85,47 @@ class Badges(commands.Cog):
         await ctx.message.add_reaction(reaction)
         await ctx.channel.send(embed=discord.Embed(colour=colour, description=message))
 
+    @_badge.command(name='edit', aliases=['ed', 'update'])
+    @commands.has_permissions(manage_roles=True)
+    async def _edit(self, ctx, *, info):
+        """**Usage**: `!badge edit <id>, <change field>, <new value>`
+        **Aliases**: `create, cr, new`
+        Emoji and name are required with a comma between each. Description is optional
+        Optionally can provide "false/no" to prevent badge from being created in Pokenav as well.
+        By default, badge will be created on both bots
+        """
+        info = re.split(r',\s+', info)
+        if len(info) < 2:
+            await ctx.message.add_reaction(self.bot.failed_react)
+            self.bot.help_logger.info(
+                f"User: {ctx.author.name}, channel: {ctx.channel}, error: Insufficient badge info: {info}.")
+            return await ctx.send("Must provide at least an emoji and badge name, and optionally badge description.",
+                                  delete_after=10)
+        badge_id = info[0]
+        edit_type = info[1]
+        if edit_type == "name":
+            new_name = ''.join(info[2:])
+            BadgeTable.update(name=new_name).where(BadgeTable.id == badge_id).execute()
+        elif edit_type == "description":
+            new_description = ''.join(info[2:])
+            BadgeTable.update(description=new_description).where(BadgeTable.id == badge_id).execute()
+        elif edit_type == "emoji":
+            converter = commands.PartialEmojiConverter()
+            try:
+                new_emoji = await converter.convert(ctx, info[2].strip())
+                BadgeTable.update(emoji=new_emoji.id).where(BadgeTable.id == badge_id).execute()
+            except:
+                await ctx.message.add_reaction(self.bot.failed_react)
+                self.bot.help_logger.info(
+                    f"User: {ctx.author.name}, channel: {ctx.channel}, error: No emoji found: {info[2]}.")
+                return await ctx.send("Could not find that emoji.", delete_after=10)
+        await ctx.message.add_reaction(self.bot.success_react)
+        await self._update_single_internal(ctx, badge_id)
+        __, embed, __ = await self._badge_info_internal(ctx, badge_id)
+        return await ctx.send(f"Badge {badge_id} updated.",
+                              embed=embed)
+
+
     @_badge.command(name='toggle_available', aliases=['tg'])
     @commands.has_permissions(manage_roles=True)
     async def _toggle_available(self, ctx, badge_id: int = 0):
@@ -143,7 +184,9 @@ class Badges(commands.Cog):
             badge = result[0]
         except:
             return 1, discord.Embed(colour=discord.Colour.red(), description=f"No badge found with id {badge_id}"), None
+
         send_emoji = self.bot.get_emoji(badge.emoji)
+
         title = f"(*#{badge.id}*) {badge.name}"
         message = f"{badge.description}"
         if badge.guild_id != ctx.guild.id:
