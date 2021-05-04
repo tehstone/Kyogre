@@ -451,6 +451,9 @@ class Pokemon():
         if 'galarian' in argument:
             galarian = True
             argument = argument.replace('galarian', '').strip()
+        elif 'galar' in argument:
+            galarian = True
+            argument = argument.replace('galar', '').strip()
         else:
             galarian = False
         arg_split = argument.split()
